@@ -1,0 +1,13 @@
+/build/
+/.cache/
+/.kdev4/
+*.kdev4
+/.idea/
+/.vscode/
+/.logs/
+/.ropeproject/
+/src/shaders/__pycache__/
+.kateproject.build
+.kateproject
+/releases
+compile_commands.json
