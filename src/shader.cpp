@@ -121,6 +121,8 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
         shaderSuccess = false;
     }
 
+    // initialize texture samplers (to avoid samplers of different types using the same texture)
+    initializeSamplers(id);
     // validate program
     glValidateProgram(id);
     glGetProgramiv(id, GL_VALIDATE_STATUS, &success);
@@ -147,6 +149,46 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
 }
 
 void Shader::use() const { glUseProgram(m_ID); }
+
+// initialize all samplers to avoid different type samplers using the same texture
+void Shader::initializeSamplers(const unsigned int id) const
+{
+    GLint count;
+    GLint size;
+    GLenum type;
+    constexpr GLsizei bufSize{32};
+    GLchar name[bufSize];
+    GLsizei length; // name length
+
+    glUseProgram(id); // NOTE: don't forget this :)
+    // get number of uniforms
+    glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count);
+    for (unsigned int i{0}; i < static_cast<std::size_t>(count); ++i)
+    {
+        // get uniform name and type
+        glGetActiveUniform(id, static_cast<GLint>(i), bufSize, &length, &size, &type, name);
+        switch (type)
+        {
+        // initialize all sampler types
+        case (GL_SAMPLER_1D):
+        case (GL_SAMPLER_2D):
+        case (GL_SAMPLER_3D):
+        case (GL_SAMPLER_CUBE):
+            {
+                // get uniform location
+                GLint texLoc{glGetUniformLocation(id, name)};
+                if (texLoc != -1)
+                {
+                    // set to index
+                    glUniform1i(texLoc, static_cast<int>(i));
+                }
+                break;
+            }
+        default:
+            break;
+        }
+    }
+}
 
 unsigned int Shader::getShaderID() const { return m_ID; }
 

@@ -19,6 +19,8 @@ public:
 
     void use() const;
 
+    void initializeSamplers(unsigned int id) const;
+
     [[nodiscard]] unsigned int getShaderID() const;
 
     // shader uniforms
