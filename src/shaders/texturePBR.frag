@@ -21,6 +21,9 @@ uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 uniform sampler2D normalMap;
 
+// IBL
+uniform samplerCube irradianceMap;
+
 uniform vec3 viewPos;
 uniform vec3 lightPos;
 
@@ -127,8 +130,12 @@ void main()
     float NdotL = max(dot(norm, L), 0.0);
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
+    // IBL diffuse irradiance
+    vec3 irradiance = texture(irradianceMap, norm).rgb;
+    vec3 diffuse = irradiance * albedo;
+    vec3 ambient = (kD * diffuse) * ao;
+
     // final color
-    vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
 
     FragColor = vec4(color, 1.0);
