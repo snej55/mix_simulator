@@ -26,7 +26,7 @@ int main()
 
     // use only gltf files for now
     engine.addModel("cube", "data/models/monkey.glb");
-    engine.addModel("light", "data/models/rusty_sphere.glb");
+    engine.addModel("light", "data/models/rusty_sphere.gltf");
 
     const Model* light{engine.getModel("light")};
 
@@ -41,7 +41,7 @@ int main()
 
     // hdr irradiance map
     bool success;
-    unsigned int hdrMap{TextureN::loadHDRMap("data/skyboxes/golden_gate.hdr", &success)};
+    unsigned int hdrMap{TextureN::loadHDRMap("data/IBL/output_iem.hdr", &success)};
     if (!success)
     {
         Util::beginError();

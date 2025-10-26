@@ -122,7 +122,7 @@ void main()
     // calculate specular contribution
     vec3 kS = fresnel; // specular
     vec3 kD = vec3(1.0) - kS; // diffuse
-    kD *= 1.0 - metallic;
+    // kD *= 1.0 - metallic;
 
     // finally calculate outgoing radiance
     float NdotL = max(dot(norm, L), 0.0);
@@ -133,7 +133,7 @@ void main()
     vec3 diffuse = irradiance * albedo;
     vec3 ambient = (diffuse * kD) * ao;
     // final color
-    vec3 color = vec3(1.0) - kS;
+    vec3 color = vec3(metallic);
 
     FragColor = vec4(color, 1.0);
 }
