@@ -9,6 +9,7 @@ in VS_OUT
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
+    mat3 TBN;
 }
 fs_in;
 
@@ -122,18 +123,19 @@ void main()
     // calculate specular contribution
     vec3 kS = fresnel; // specular
     vec3 kD = vec3(1.0) - kS; // diffuse
-    // kD *= 1.0 - metallic;
+    kD *= 1.0 - metallic;
 
     // finally calculate outgoing radiance
     float NdotL = max(dot(norm, L), 0.0);
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
     // IBL diffuse irradiance
-    vec3 irradiance = texture(irradianceMap, V + norm).rgb;
+    vec3 normWS = normalize(fs_in.TBN * norm); // world space normal
+    vec3 irradiance = texture(irradianceMap, normWS).rgb;
     vec3 diffuse = irradiance * albedo;
     vec3 ambient = (diffuse * kD) * ao;
     // final color
-    vec3 color = vec3(metallic);
+    vec3 color = ambient + Lo;
 
     FragColor = vec4(color, 1.0);
 }
