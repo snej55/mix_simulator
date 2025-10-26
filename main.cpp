@@ -39,9 +39,10 @@ int main()
 
     glm::vec3 lightPos{1.0f, 1.0f, 1.0f};
 
+    // ----------- IBL ------------ //
     // hdr irradiance map
     bool success;
-    unsigned int hdrMap{TextureN::loadHDRMap("data/IBL/output_iem.hdr", &success)};
+    unsigned int skyboxTexture{TextureN::loadHDRMap("data/skyboxes/golden_gate.hdr", &success)};
     if (!success)
     {
         Util::beginError();
@@ -49,7 +50,31 @@ int main()
         Util::endError();
     }
 
-    // generate framebuffer to capture cubemap
+    unsigned int irradianceTexture{TextureN::loadHDRMap("data/IBL/output_iem.hdr", &success)};
+    if (!success)
+    {
+	Util::beginError();
+	std::cout << "ERROR: Failed to load irradiance texture!" << std::endl;
+	Util::endError();
+    }
+
+    unsigned int prefilterTexture{TextureN::loadHDRMap("data/IBL/output_pmrem.hdr", &success)};
+    if (!success)
+    {
+	Util::beginError();
+	std::cout << "ERROR: Failed to load prefiltered texture!" << std::endl;
+	Util::endError();
+    }
+
+    unsigned int brdfLutMap{TextureN::loadFromFile("data/IBL/brdf_lut.png", nullptr, nullptr, nullptr, &success)};
+    if (!success)
+    {
+	Util::beginError();
+	std::cout << "ERROR: Failed to load BDRF LUT map!" << std::endl;
+	Util::endError();
+    }
+
+    // generate framebuffer to capture skybox cubemap
     unsigned int captureFBO, captureRBO;
     glGenFramebuffers(1, &captureFBO);
     glGenRenderbuffers(1, &captureRBO);
@@ -89,7 +114,7 @@ int main()
     engine.useShader("erCubeMapConvert");
     engine.setMat4("projection", captureProjection, "erCubeMapConvert");
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, hdrMap);
+    glBindTexture(GL_TEXTURE_2D, skyboxTexture);
     engine.setInt("equirectangularMap", 0, "erCubeMapConvert");
 
     glViewport(0, 0, 512, 512);
@@ -102,6 +127,74 @@ int main()
 
         // render 1x1 cube
         renderCube();
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // diffuse irradiance map
+    unsigned int irradianceMap;
+    glGenTextures(1, &irradianceMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+    for (unsigned int i{0}; i < 6; ++i)
+    {
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // convert irradiance texture to cube map equivalent
+    engine.useShader("erCubeMapConvert");
+    engine.setMat4("projection", captureProjection, "erCubeMapConvert");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, irradianceTexture);
+    engine.setInt("equirectangularMap", 0, "erCubeMapConvert");
+
+    glViewport(0, 0, 512, 512);
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    for (unsigned int i{0}; i < 6; ++i)
+    {
+	engine.setMat4("view", captureViews[i], "erCubeMapConvert");
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	renderCube();
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // prefiltered specular map
+    unsigned int prefilterMap;
+    glGenTextures(1, &prefilterMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+    for (unsigned int i{0}; i < 6; ++i)
+    {
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // convert prefilter texture to cube map equivalent
+    engine.useShader("erCubeMapConvert");
+    engine.setMat4("projection", captureProjection, "erCubeMapConvert");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, prefilterTexture);
+    engine.setInt("equirectangularMap", 0, "erCubeMapConvert");
+
+    glViewport(0, 0, 512, 512);
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    for (unsigned int i{0}; i < 6; ++i)
+    {
+	engine.setMat4("view", captureViews[i], "erCubeMapConvert");
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	renderCube();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -151,7 +244,7 @@ int main()
             engine.setMat3("normalMat", engine.getNormalMatrix(model), "texturePBR");
             engine.setInt("irradianceMap", 10, "texturePBR");
             glActiveTexture(GL_TEXTURE10);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
             light->renderPBR(engine.getShader("texturePBR"));
         }
 
