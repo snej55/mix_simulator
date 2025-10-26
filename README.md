@@ -10,3 +10,4 @@ OpenGL rendering framework.
 - [ ] Level editor
 - [ ] Rag dolls
 - [ ] Physics engine (Jolt? Box2D?)
+- [ ] Optimize static shader uniforms

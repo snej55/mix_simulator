@@ -53,25 +53,25 @@ int main()
     unsigned int irradianceTexture{TextureN::loadHDRMap("data/IBL/output_iem.hdr", &success)};
     if (!success)
     {
-	Util::beginError();
-	std::cout << "ERROR: Failed to load irradiance texture!" << std::endl;
-	Util::endError();
+        Util::beginError();
+        std::cout << "ERROR: Failed to load irradiance texture!" << std::endl;
+        Util::endError();
     }
 
     unsigned int prefilterTexture{TextureN::loadHDRMap("data/IBL/output_pmrem.hdr", &success)};
     if (!success)
     {
-	Util::beginError();
-	std::cout << "ERROR: Failed to load prefiltered texture!" << std::endl;
-	Util::endError();
+        Util::beginError();
+        std::cout << "ERROR: Failed to load prefiltered texture!" << std::endl;
+        Util::endError();
     }
 
     unsigned int brdfLutMap{TextureN::loadFromFile("data/IBL/brdf_lut.png", nullptr, nullptr, nullptr, &success)};
     if (!success)
     {
-	Util::beginError();
-	std::cout << "ERROR: Failed to load BDRF LUT map!" << std::endl;
-	Util::endError();
+        Util::beginError();
+        std::cout << "ERROR: Failed to load BDRF LUT map!" << std::endl;
+        Util::endError();
     }
 
     // generate framebuffer to capture skybox cubemap
@@ -136,7 +136,7 @@ int main()
     glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -156,11 +156,12 @@ int main()
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     for (unsigned int i{0}; i < 6; ++i)
     {
-	engine.setMat4("view", captureViews[i], "erCubeMapConvert");
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        engine.setMat4("view", captureViews[i], "erCubeMapConvert");
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap,
+                               0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	renderCube();
+        renderCube();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -170,14 +171,15 @@ int main()
     glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
     // convert prefilter texture to cube map equivalent
     engine.useShader("erCubeMapConvert");
@@ -186,15 +188,26 @@ int main()
     glBindTexture(GL_TEXTURE_2D, prefilterTexture);
     engine.setInt("equirectangularMap", 0, "erCubeMapConvert");
 
-    glViewport(0, 0, 512, 512);
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-    for (unsigned int i{0}; i < 6; ++i)
+    constexpr unsigned int maxLevels{5}; // max number of mipmap levels
+    for (unsigned int mip{0}; mip < maxLevels; ++mip)
     {
-	engine.setMat4("view", captureViews[i], "erCubeMapConvert");
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // resize framebuffer to mip-level size
+        unsigned int width{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
+        unsigned int height{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
+        glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+        glViewport(0, 0, width, height);
 
-	renderCube();
+        for (unsigned int i{0}; i < 6; ++i)
+        {
+            engine.setMat4("view", captureViews[i], "erCubeMapConvert");
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                                   prefilterMap, mip);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            renderCube();
+        }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -245,6 +258,12 @@ int main()
             engine.setInt("irradianceMap", 10, "texturePBR");
             glActiveTexture(GL_TEXTURE10);
             glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+	    engine.setInt("prefilterMap", 11, "texturePBR");
+	    glActiveTexture(GL_TEXTURE11);
+	    glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+	    engine.setInt("brdfLUT", 12, "texturePBR");
+	    glActiveTexture(GL_TEXTURE12);
+	    glBindTexture(GL_TEXTURE_2D, brdfLutMap);
             light->renderPBR(engine.getShader("texturePBR"));
         }
 

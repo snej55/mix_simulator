@@ -21,7 +21,11 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 uniform sampler2D normalMap;
+
+// IBL
 uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
 
 uniform vec3 viewPos;
 uniform vec3 lightPos;
@@ -132,13 +136,19 @@ void main()
     float NdotL = max(dot(norm, L), 0.0);
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
-    // IBL diffuse irradiance
+    // IBL
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 R = reflect(-V, norm);
+    vec3 prefilteredColor = textureLod(prefilterMap, R, 0.0 * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(brdfLUT, vec2(max(dot(norm, V), 0.0), 0.0)).rg;
+    vec3 spec = prefilteredColor * (fresnel * brdf.x + brdf.y);
+
     vec3 normWS = normalize(fs_in.TBN * norm); // world space normal
-    vec3 irradiance = texture(irradianceMap, normWS).rgb;
+    vec3 irradiance = texture(prefilterMap, normWS).rgb;
     vec3 diffuse = irradiance * albedo;
-    vec3 ambient = (diffuse * kD) * ao;
+    vec3 ambient = (diffuse * kD + spec) * ao;
     // final color
-    vec3 color = ambient + Lo;
+    vec3 color = irradiance;
 
     FragColor = vec4(color, 1.0);
 }
