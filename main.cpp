@@ -26,7 +26,7 @@ int main()
 
     // use only gltf files for now
     engine.addModel("cube", "data/models/monkey.glb");
-    engine.addModel("light", "data/models/rusty_sphere.gltf");
+    engine.addModel("light", "data/models/gold_sphere.gltf");
 
     const Model* light{engine.getModel("light")};
 
