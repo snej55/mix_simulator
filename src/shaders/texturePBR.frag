@@ -144,11 +144,11 @@ void main()
     vec3 spec = prefilteredColor * (fresnel * brdf.x + brdf.y);
 
     vec3 normWS = normalize(fs_in.TBN * norm); // world space normal
-    vec3 irradiance = texture(prefilterMap, normWS).rgb;
+    vec3 irradiance = texture(irradianceMap, normWS).rgb;
     vec3 diffuse = irradiance * albedo;
     vec3 ambient = (diffuse * kD + spec) * ao;
     // final color
-    vec3 color = irradiance;
+    vec3 color = ambient + Lo;
 
     FragColor = vec4(color, 1.0);
 }

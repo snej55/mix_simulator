@@ -71,6 +71,13 @@
 		"frag": "irConvolution.frag",
 		"vert": "cubeMap.vert"
 	    }
+	},
+	{
+	    "name": "prefilterMap",
+	    "shader": {
+		"frag": "prefilter.frag",
+		"vert": "cubeMap.vert"
+	    }
 	}
     ]
 }
