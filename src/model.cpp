@@ -276,7 +276,7 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
         *success = true;
 
     // load texture data from memory
-    stbi_set_flip_vertically_on_load(true);
+    // stbi_set_flip_vertically_on_load(true);
     data = stbi_load_from_memory(
         // texture data
         reinterpret_cast<unsigned char*>(texture->pcData),
