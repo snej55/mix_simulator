@@ -62,5 +62,8 @@ while running:
 
     pygame.display.flip()
     clock.tick()
+
+if input("Save the file? (y/n): ").lower() == 'y':
+    pygame.image.save(combined, "roughness_metallic.png")
             
 pygame.quit()
