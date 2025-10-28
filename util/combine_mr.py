@@ -1,8 +1,9 @@
 # a simple script to combine metallic and roughness textures for gltf
+# required packages: pygame-ce, rich
 import pygame
 import argparse
 import os.path
-import numpy as np
+from rich.progress import track
 
 # ---- get paths ---- #
 parser = argparse.ArgumentParser("combine_mr")
@@ -32,7 +33,7 @@ roughness_pxarray = pygame.PixelArray(roughness_map)
 print(f"Metallic byte size: {metalllic_pxarray.itemsize}")   
 print(f"Roughness byte size: {roughness_pxarray.itemsize}")
 
-for y in range(metallic_map.height):
+for y in track(range(metallic_map.height), description="Processing..."):
     for x in range(metallic_map.width):
         combined_pxarray[x, y] = combined.map_rgb((
             255,
