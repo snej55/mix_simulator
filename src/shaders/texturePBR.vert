@@ -37,8 +37,9 @@ void main()
     vec3 N = normalize(normalMat * aNormal);
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
-    // get perpendicular vector B
-    vec3 B = normalize(cross(N, T));
+    // get perpendicular vector B 
+    // aTangent.w is tangent sign calculated using mikktspace.h to make sure tangent handedness is correct
+    vec3 B = cross(N, T) * aTangent.w;
     mat3 TBN = transpose(mat3(T, B, N));
 
     vs_out.TangentLightPos = TBN * lightPos;
