@@ -42,6 +42,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0, float roughness)
 float distroGGX(vec3 norm, vec3 h, float roughness)
 {
     // looks better with roughness^2
+    roughness = max(roughness, 0.0001);
     float a = roughness * roughness;
     float a2 = a * a; // a^2
     float NdotH = max(dot(norm, h), 0.0);

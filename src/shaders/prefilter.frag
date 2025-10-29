@@ -10,7 +10,7 @@ const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
-    float a = roughness*roughness;
+    float a = max(roughness, 0.001)*max(roughness, 0.001);
     float a2 = a*a;
     float NdotH = max(dot(N, H), 0.0);
     float NdotH2 = NdotH*NdotH;
@@ -83,7 +83,7 @@ void main()
             float D   = DistributionGGX(N, H, roughness);
             float NdotH = max(dot(N, H), 0.0);
             float HdotV = max(dot(H, V), 0.0);
-            float pdf = D * NdotH / (4.0 * HdotV) + 0.0001; 
+            float pdf = D * NdotH / (4.0 * max(HdotV, 0.001)) + 0.0001; 
 
             const float resolution = 512.0;
 	    float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
@@ -96,7 +96,8 @@ void main()
         }
     }
 
-    prefilteredColor = prefilteredColor / totalWeight;
+    if (totalWeight > 0.0)
+	prefilteredColor = prefilteredColor / totalWeight;
 
     FragColor = vec4(prefilteredColor, 1.0);
 }
