@@ -7,15 +7,17 @@
 Mesh::Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigned int>& indices,
            const std::vector<MeshN::Texture>& textures) : m_vertices{vertices}, m_indices{indices}, m_textures{textures}
 {
-    setupMesh();
-
-    // mikktspace.h
+    // mikktspace.h callbacks
     m_SMT_iface.m_getNumFaces = SMTGetNumFaces;
     m_SMT_iface.m_getNumVerticesOfFace = SMTGetNumVerticesOfFace;
     m_SMT_iface.m_getPosition = SMTGetPosition;
     m_SMT_iface.m_getNormal = SMTGetNormal;
     m_SMT_iface.m_getTexCoord = SMTGetTexCoords;
     m_SMT_iface.m_setTSpaceBasic = SMTSetTSpaceBasic;
+
+    m_SMT_context.m_pInterface = &m_SMT_iface;
+
+    setupMesh();
 }
 
 void Mesh::render(const Shader* shader) const
@@ -153,7 +155,6 @@ int Mesh::SMTGetNumFaces(const SMikkTSpaceContext* context)
 
 int Mesh::SMTGetNumVerticesOfFace(const SMikkTSpaceContext* context, const int iFace)
 {
-    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
     return 3;
 }
 
