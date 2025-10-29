@@ -103,8 +103,6 @@ void main()
     // half-vector
     vec3 H = normalize(V + L);
 
-    // distance to lightPos
-    float dist = length(fs_in.TangentLightPos - fs_in.TangentFragPos);
     // standard realistic attenuation
     float attenuation = 1.0;
     vec3 radiance = lightColor * attenuation;
@@ -139,16 +137,16 @@ void main()
     // IBL
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 R = reflect(-V, norm);
-    vec3 prefilteredColor = textureLod(prefilterMap, R, 0.0 * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(brdfLUT, vec2(max(dot(norm, V), 0.0), 0.0)).rg;
+    vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(brdfLUT, vec2(max(dot(norm, V), 0.0), roughness)).rg;
     vec3 spec = prefilteredColor * (fresnel * brdf.x + brdf.y);
 
-    vec3 normWS = normalize(fs_in.TBN * norm); // world space normal
-    vec3 irradiance = texture(irradianceMap, normWS).rgb;
+    vec3 normWS = normalize(transpose(fs_in.TBN) * norm); // world space normal
+    vec3 irradiance = texture(prefilterMap, normWS).rgb;
     vec3 diffuse = irradiance * albedo;
     vec3 ambient = (diffuse * kD + spec) * ao;
     // final color
     vec3 color = ambient + Lo;
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(spec, 1.0);
 }
