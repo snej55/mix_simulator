@@ -21,7 +21,7 @@ elseif (CMAKE_SYSTEM MATCHES Linux)
     set(GL_LIBS GL GLU glfw3 assimp freetype)
 endif ()
 
-set(SOURCES main.cpp src/extern/glad.c src/engine.hpp src/engine.cpp
+set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/engine.hpp src/engine.cpp
         src/engine_types.hpp src/arena.hpp
         src/window.hpp src/window.cpp
         src/arena.cpp src/iohandler.hpp src/iohandler.cpp

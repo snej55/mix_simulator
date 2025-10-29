@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <mikktspace.h>
 
 namespace MeshN
 {
@@ -14,7 +15,7 @@ namespace MeshN
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec2 texCoords;
-        glm::vec3 tangent; // TBN matrix
+        glm::vec4 tangent; // TBN matrix
         glm::vec3 biTangent; // "" ""
     };
 
@@ -48,7 +49,10 @@ public:
 
     void free() const;
 
+    void calcTangents();
+
     [[nodiscard]] const std::vector<MeshN::Vertex>& getVertices() const { return m_vertices; }
+    [[nodiscard]] MeshN::Vertex* getVertex(const int index) {return &m_vertices[index];}
     [[nodiscard]] const std::vector<unsigned int>& getIndices() const { return m_indices; }
 
 private:
@@ -60,7 +64,23 @@ private:
     unsigned int m_VBO{};
     unsigned int m_EBO{};
 
+    SMikkTSpaceContext m_SMT_context{};
+    SMikkTSpaceInterface m_SMT_iface{};
+
     void setupMesh();
+
+    // SMikkT callbacks
+    static int SMTGetVertexIndex(const SMikkTSpaceContext* context, int iFace, int iVert);
+
+    static int SMTGetNumFaces(const SMikkTSpaceContext* context);
+    static int SMTGetNumVerticesOfFace(const SMikkTSpaceContext* context, int iFace);
+    static void SMTGetPosition(const SMikkTSpaceContext* context, float outPos[], int iFace, int iVert);
+
+    static void SMTGetNormal(const SMikkTSpaceContext* context, float outNormal[], int iFace, int iVert);
+
+    static void SMTGetTexCoords(const SMikkTSpaceContext* context, float outUV[], int iFace, int iVert);
+
+    static void SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float tangentU[], const float fSign, const int iFace, const int iVert);
 };
 
 #endif // MESH_H

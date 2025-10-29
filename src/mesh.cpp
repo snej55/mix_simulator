@@ -1,10 +1,21 @@
 #include "mesh.hpp"
 #include <glad/glad.h>
+#include "mikktspace.h"
+
+#include <cassert>
 
 Mesh::Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigned int>& indices,
            const std::vector<MeshN::Texture>& textures) : m_vertices{vertices}, m_indices{indices}, m_textures{textures}
 {
     setupMesh();
+
+    // mikktspace.h
+    m_SMT_iface.m_getNumFaces = SMTGetNumFaces;
+    m_SMT_iface.m_getNumVerticesOfFace = SMTGetNumVerticesOfFace;
+    m_SMT_iface.m_getPosition = SMTGetPosition;
+    m_SMT_iface.m_getNormal = SMTGetNormal;
+    m_SMT_iface.m_getTexCoord = SMTGetTexCoords;
+    m_SMT_iface.m_setTSpaceBasic = SMTSetTSpaceBasic;
 }
 
 void Mesh::render(const Shader* shader) const
@@ -70,6 +81,8 @@ void Mesh::free() const
 
 void Mesh::setupMesh()
 {
+    // calculate correct tangents
+    calcTangents();
     unsigned int meshVAO, meshVBO, meshEBO;
     glGenVertexArrays(1, &meshVAO);
     glGenBuffers(1, &meshVBO);
@@ -93,7 +106,7 @@ void Mesh::setupMesh()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
                           reinterpret_cast<void*>(offsetof(MeshN::Vertex, texCoords)));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
                           reinterpret_cast<void*>(offsetof(MeshN::Vertex, tangent)));
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
@@ -110,3 +123,85 @@ void Mesh::setupMesh()
 
     std::cout << "Loaded mesh: " << m_vertices.size() << " vertices, " << m_indices.size() << " indices" << std::endl;
 }
+
+void Mesh::calcTangents()
+{
+    m_SMT_context.m_pUserData = this;
+    genTangSpaceDefault(&m_SMT_context);
+}
+
+int Mesh::SMTGetVertexIndex(const SMikkTSpaceContext* context, const int iFace, const int iVert)
+{
+    Mesh* mesh {static_cast<Mesh*>(context->m_pUserData)};
+    const int faceSize {SMTGetNumVerticesOfFace(context, iFace)};
+    const int indicesIndex {iFace * faceSize + iVert};
+
+    return static_cast<int>(mesh->getIndices()[indicesIndex]);
+}
+
+int Mesh::SMTGetNumFaces(const SMikkTSpaceContext* context)
+{
+    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
+
+    const float fSize{static_cast<float>(mesh->getIndices().size()) / 3.f};
+    const int iSize{static_cast<int>(mesh->getIndices().size()) / 3};
+
+    assert((fSize - static_cast<float>(iSize)) == 0.f);
+
+    return iSize;
+}
+
+int Mesh::SMTGetNumVerticesOfFace(const SMikkTSpaceContext* context, const int iFace)
+{
+    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
+    return 3;
+}
+
+void Mesh::SMTGetPosition(const SMikkTSpaceContext* context, float* outPos, const int iFace, const int iVert)
+{
+    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
+
+    const int index {SMTGetVertexIndex(context, iFace, iVert)};
+    const MeshN::Vertex vertex{mesh->getVertices()[index]};
+
+    outPos[0] = vertex.position.x;
+    outPos[1] = vertex.position.y;
+    outPos[2] = vertex.position.z;
+}
+
+void Mesh::SMTGetNormal(const SMikkTSpaceContext* context, float* outNormal, const int iFace, const int iVert)
+{
+    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
+
+    const int index {SMTGetVertexIndex(context, iFace, iVert)};
+    const MeshN::Vertex vertex{mesh->getVertices()[index]};
+
+    outNormal[0] = vertex.normal.x;
+    outNormal[1] = vertex.normal.y;
+    outNormal[2] = vertex.normal.z;
+}
+
+void Mesh::SMTGetTexCoords(const SMikkTSpaceContext* context, float* outUV, const int iFace, const int iVert)
+{
+    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
+
+    const int index {SMTGetVertexIndex(context, iFace, iVert)};
+    const MeshN::Vertex vertex{mesh->getVertices()[index]};
+
+    outUV[0] = vertex.texCoords.x;
+    outUV[1] = vertex.texCoords.y;
+}
+
+void Mesh::SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float* tangentU, const float fSign, const int iFace, const int iVert)
+{
+    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
+
+    const int index{SMTGetVertexIndex(context, iFace, iVert)};
+    MeshN::Vertex* vertex{mesh->getVertex(index)};
+
+    vertex->tangent.x = tangentU[0];
+    vertex->tangent.y = tangentU[1];
+    vertex->tangent.z = tangentU[2];
+    vertex->tangent.w = fSign;
+}
+

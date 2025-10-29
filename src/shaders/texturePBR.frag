@@ -150,5 +150,5 @@ void main()
     // final color
     vec3 color = ambient + Lo;
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(normWS, 1.0);
 }

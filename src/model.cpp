@@ -5,6 +5,7 @@
 #include <STB/stb_image.h>
 #include <assimp/postprocess.h>
 #include <glad/glad.h>
+#include <mikktspace.h>
 
 #include "assimp/material.h"
 #include "mesh.hpp"
@@ -148,7 +149,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
         }
 
         // calculate tangent and bitangent for normal mapping
-        const glm::vec3 tangent{mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z};
+        const glm::vec4 tangent{mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0.0f};
 
         const glm::vec3 biTangent{mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z};
 

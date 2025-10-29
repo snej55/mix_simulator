@@ -3,7 +3,7 @@
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
-layout(location = 3) in vec3 aTangent;
+layout(location = 3) in vec4 aTangent;
 
 out VS_OUT
 {
@@ -33,7 +33,7 @@ void main()
     vs_out.TexCoords = aTexCoords;
 
     // create TBN matrix
-    vec3 T = normalize(normalMat * aTangent);
+    vec3 T = normalize(normalMat * aTangent.xyz);
     vec3 N = normalize(normalMat * aNormal);
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
