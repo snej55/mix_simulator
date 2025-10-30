@@ -269,7 +269,7 @@ int main()
         engine.useShader("texturePBR");
         engine.setVec3("viewPos", engine.getCameraPosition(), "texturePBR");
 
-	glm::mat4 model{1.0f};
+	    glm::mat4 model{1.0f};
         for (std::size_t i{0}; i < spheres.size(); ++i)
         {
             model = glm::mat4{1.0f};
