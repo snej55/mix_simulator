@@ -1,12 +1,10 @@
 #include <iostream>
-#include <iterator>
 #include <vector>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "glm/common.hpp"
 #include "src/engine.hpp"
 #include "src/texture.hpp"
 #include "src/util.hpp"
