@@ -23,6 +23,7 @@ int main()
 
     std::cout << "Initialized engine!\n";
     engine.setCameraEnabled(true);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     // use only gltf files for now
     engine.addModel("cube", "data/models/monkey.glb");
@@ -42,7 +43,7 @@ int main()
     // ----------- IBL ------------ //
     // hdr irradiance map
     bool success;
-    unsigned int skyboxTexture{TextureN::loadHDRMap("data/skyboxes/clouds.hdr", &success)};
+    unsigned int skyboxTexture{TextureN::loadHDRMap("data/skyboxes/newport_loft.hdr", &success)};
     if (!success)
     {
         Util::beginError();
@@ -50,7 +51,7 @@ int main()
         Util::endError();
     }
 
-    unsigned int irradianceTexture{TextureN::loadHDRMap("data/IBL/clouds/output_iem.hdr", &success)};
+    unsigned int irradianceTexture{TextureN::loadHDRMap("data/IBL/newport_loft/output_iem.hdr", &success)};
     if (!success)
     {
         Util::beginError();
@@ -97,7 +98,7 @@ int main()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // capture equirectangular texture onto cubemap faces
@@ -129,6 +130,9 @@ int main()
         renderCube();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
     // diffuse irradiance map
     unsigned int irradianceMap;
@@ -210,6 +214,7 @@ int main()
         }
     }*/
 
+
     unsigned int prefilterMap;
     glGenTextures(1, &prefilterMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
@@ -217,12 +222,12 @@ int main()
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
     }
-
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
     engine.useShader("prefilterMap");
@@ -235,21 +240,22 @@ int main()
     constexpr unsigned int maxLevels{5};
     for (unsigned int mip{0}; mip < maxLevels; ++mip)
     {
-	const unsigned int mipWidth{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
-	const unsigned int mipHeight{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
-	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
-	glViewport(0, 0, mipWidth, mipHeight);
+        const unsigned int mipWidth{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
+        const unsigned int mipHeight{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
+        glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+        glViewport(0, 0, mipWidth, mipHeight);
 
-	const float roughness {static_cast<float>(mip) / static_cast<float>(maxLevels - 1)};
-	engine.setFloat("roughness", roughness, "prefilterMap");
-	for (unsigned int i{0}; i < 6; ++i)
-	{
-	    engine.setMat4("view", captureViews[i], "prefilterMap");
-	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
-	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	    renderCube();
-	}
+        const float roughness{static_cast<float>(mip) / static_cast<float>(maxLevels - 1)};
+        engine.setFloat("roughness", roughness, "prefilterMap");
+        for (unsigned int i{0}; i < 6; ++i)
+        {
+            engine.setMat4("view", captureViews[i], "prefilterMap");
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                                   prefilterMap, mip);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            renderCube();
+        }
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -263,11 +269,10 @@ int main()
         engine.clear();
 
 
-
         engine.useShader("texturePBR");
         engine.setVec3("viewPos", engine.getCameraPosition(), "texturePBR");
 
-	    glm::mat4 model{1.0f};
+        glm::mat4 model{1.0f};
         for (std::size_t i{0}; i < spheres.size(); ++i)
         {
             model = glm::mat4{1.0f};
@@ -281,12 +286,12 @@ int main()
             engine.setInt("irradianceMap", 10, "texturePBR");
             glActiveTexture(GL_TEXTURE10);
             glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
-	    engine.setInt("prefilterMap", 11, "texturePBR");
-	    glActiveTexture(GL_TEXTURE11);
-	    glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
-	    engine.setInt("brdfLUT", 12, "texturePBR");
-	    glActiveTexture(GL_TEXTURE12);
-	    glBindTexture(GL_TEXTURE_2D, brdfLutMap);
+            engine.setInt("prefilterMap", 11, "texturePBR");
+            glActiveTexture(GL_TEXTURE11);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+            engine.setInt("brdfLUT", 12, "texturePBR");
+            glActiveTexture(GL_TEXTURE12);
+            glBindTexture(GL_TEXTURE_2D, brdfLutMap);
             light->renderPBR(engine.getShader("texturePBR"));
         }
 

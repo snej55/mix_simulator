@@ -67,10 +67,10 @@ void main()
     vec3 R = N;
     vec3 V = R;
 
-    const uint SAMPLE_COUNT = 1024u;
+    const uint SAMPLE_COUNT = 4096u;
     vec3 prefilteredColor = vec3(0.0);
     float totalWeight = 0.0;
-    
+
     for(uint i = 0u; i < SAMPLE_COUNT; ++i)
     {
         vec2 Xi = Hammersley(i, SAMPLE_COUNT);
@@ -80,24 +80,24 @@ void main()
         float NdotL = max(dot(N, L), 0.0);
         if(NdotL > 0.0)
         {
-            float D   = DistributionGGX(N, H, roughness);
+            float D = DistributionGGX(N, H, roughness);
             float NdotH = max(dot(N, H), 0.0);
             float HdotV = max(dot(H, V), 0.0);
-            float pdf = D * NdotH / (4.0 * max(HdotV, 0.001)) + 0.0001; 
+            float pdf = D * NdotH / (4.0 * HdotV) + 0.0001; 
 
             const float resolution = 512.0;
 	    float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
             float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
 
             float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
+	    mipLevel = max(0.0, mipLevel);
             
             prefilteredColor += textureLod(environmentMap, L, mipLevel).rgb * NdotL;
             totalWeight += NdotL;
         }
     }
 
-    if (totalWeight > 0.0)
-	prefilteredColor = prefilteredColor / totalWeight;
+    prefilteredColor = prefilteredColor / totalWeight;
 
     FragColor = vec4(prefilteredColor, 1.0);
 }
