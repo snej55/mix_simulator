@@ -29,7 +29,7 @@ int main()
     engine.addModel("cube", "data/models/monkey.glb");
     engine.addModel("light", "data/models/spartan.glb");
 
-    const Model* light{engine.getModel("light")};
+    const Model* light{.getModel("light")};
 
     // engine.enableWireframe();
     const std::vector<glm::vec3> spheres{{1.f, 4.f, 2.f}};
