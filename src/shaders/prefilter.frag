@@ -97,8 +97,12 @@ void main()
         }
     }
 
-    prefilteredColor = prefilteredColor / totalWeight;
-
+    if (totalWeight != 0.0)
+    {
+	prefilteredColor /= totalWeight;
+    } else {
+	prefilteredColor /= float(SAMPLE_COUNT);
+    }
     FragColor = vec4(prefilteredColor, 1.0);
 }
 

@@ -29,7 +29,7 @@ int main()
     engine.addModel("cube", "data/models/monkey.glb");
     engine.addModel("light", "data/models/spartan.glb");
 
-    const Model* light{.getModel("light")};
+    const Model* light{engine.getModel("light")};
 
     // engine.enableWireframe();
     const std::vector<glm::vec3> spheres{{1.f, 4.f, 2.f}};
@@ -43,7 +43,7 @@ int main()
     // ----------- IBL ------------ //
     // hdr irradiance map
     bool success;
-    unsigned int skyboxTexture{TextureN::loadHDRMap("data/skyboxes/newport_loft.hdr", &success)};
+    unsigned int skyboxTexture{TextureN::loadHDRMap("data/skyboxes/clouds.hdr", &success)};
     if (!success)
     {
         Util::beginError();
@@ -51,7 +51,7 @@ int main()
         Util::endError();
     }
 
-    unsigned int irradianceTexture{TextureN::loadHDRMap("data/IBL/newport_loft/output_iem.hdr", &success)};
+    unsigned int irradianceTexture{TextureN::loadHDRMap("data/IBL/clouds/output_iem.hdr", &success)};
     if (!success)
     {
         Util::beginError();

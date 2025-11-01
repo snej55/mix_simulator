@@ -44,7 +44,7 @@ void main()
 
     vs_out.TangentLightPos = TBN * lightPos;
     vs_out.TangentViewPos = TBN * viewPos;
-    vs_out.TangentFragPos = TBN * vec3(model * vec4(aPos, 1.0));
+    vs_out.TangentFragPos = TBN * vs_out.FragPos;
     vs_out.TBN = TBN;
 
     gl_Position = projection * view * model * vec4(aPos, 1.0);

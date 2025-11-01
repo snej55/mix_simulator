@@ -137,12 +137,13 @@ void main()
 
     // IBL
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 R = reflect(-V, norm);
+    vec3 normWS = normalize(transpose(fs_in.TBN) * norm); // world space normal
+    vec3 viewWS = normalize(viewPos - fs_in.FragPos);
+    vec3 R = reflect(-viewWS, normWS);
     vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(brdfLUT, vec2(max(dot(norm, V), 0.0), roughness)).rg;
+    vec2 brdf = texture(brdfLUT, vec2(max(dot(normWS, viewWS), 0.0), roughness)).rg;
     vec3 spec = prefilteredColor * (fresnel * brdf.x + brdf.y);
 
-    vec3 normWS = normalize(transpose(fs_in.TBN) * norm); // world space normal
     vec3 irradiance = texture(irradianceMap, normWS).rgb;
     vec3 diffuse = irradiance * albedo;
     vec3 ambient = (diffuse * kD + spec) * ao;
