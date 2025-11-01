@@ -2,7 +2,20 @@
 #define POSTPROCESSING_H
 
 #include "engine_types.hpp"
+#include "glm/ext/vector_int2.hpp"
 #include "shader.hpp"
+
+#include <vector>
+
+namespace PostProcessingN
+{
+    struct BloomMip
+    {
+	glm::vec2 size;
+	glm::ivec2 intSize;
+	unsigned int texture;
+    };
+}
 
 class PostProcessor final : public EngineObject
 {
@@ -58,6 +71,24 @@ private:
     void generateFramebufferTexture();
     void generateRenderbuffer();
     void generateQuad();
+};
+
+class BloomFBO final : public EngineObject
+{
+public:
+    explicit BloomFBO(EngineObject* parent);
+    ~BloomFBO() override;
+
+    bool init(unsigned int width, unsigned int height, unsigned int mipChainLength);
+    void bind();
+    void free();  
+
+    const std::vector<PostProcessingN::BloomMip>& mipChain() const {return m_mipChain;}
+
+private:
+    bool m_init{false};
+    unsigned int m_FBO{};
+    std::vector<PostProcessingN::BloomMip> m_mipChain{};
 };
 
 #endif

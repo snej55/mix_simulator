@@ -1,6 +1,7 @@
 #include "postprocessing.hpp"
 
 #include "engine.hpp"
+#include "engine_types.hpp"
 #include "util.hpp"
 
 PostProcessor::PostProcessor(EngineObject* parent) : EngineObject{"PostProcessor", parent} {}
@@ -152,3 +153,95 @@ void PostProcessor::generateQuad()
 void PostProcessor::enable() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
 
 void PostProcessor::disable() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+
+BloomFBO::BloomFBO(EngineObject* parent)
+ : EngineObject{"BloomFBO", parent}
+{
+}
+
+BloomFBO::~BloomFBO()
+{
+    free();
+}
+
+// free resources
+void BloomFBO::free()
+{
+    if (!m_init)
+	return;
+
+    for (std::size_t i{0}; i < m_mipChain.size(); ++i)
+    {
+	glDeleteTextures(1, &m_mipChain[i].texture);
+    }
+    m_mipChain.clear();
+    glDeleteFramebuffers(1, &m_FBO);
+    m_FBO = 0;
+    m_init = false;
+}
+
+bool BloomFBO::init(const unsigned int width, const unsigned int height, const unsigned int mipChainLength)
+{
+    if (m_init)
+	return true;
+
+    glGenFramebuffers(1, &m_FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+
+    glm::vec2 mipSize {static_cast<float>(width), static_cast<float>(height)};
+    glm::ivec2 mipIntSize {static_cast<int>(width), static_cast<int>(height)};
+
+    // check for overflow (safety check)
+    if (width > static_cast<unsigned int>(INT_MAX) || height > static_cast<unsigned int>(INT_MAX))
+    {
+	Util::beginError();
+	std::cout << "BLOOM_FBO::INIT::ERROR: Window size conversion overflow - cannot build bloom FBO!" << std::endl;
+	Util::endError();
+	return false;
+    }
+
+    for (unsigned int i{0}; i < mipChainLength; ++i)
+    {
+	PostProcessingN::BloomMip mip;
+	
+	mipSize *= 0.5f;
+	mipIntSize /= 2;
+	mip.size = mipSize;
+	mip.intSize = mipIntSize;
+
+	glGenTextures(1, &mip.texture);
+	glBindTexture(GL_TEXTURE_2D, mip.texture);
+	// MOTE: hdr color format
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, static_cast<int>(mipSize.x), static_cast<int>(mipSize.y), 0, GL_RGB, GL_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	m_mipChain.emplace_back(mip);
+    }
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mipChain[0].texture, 0);
+
+    // setup attachments
+    unsigned int attachments[1] {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, attachments);
+
+    // check framebuffer status
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+	Util::beginError();
+	std::cout << "BLOOM_FBO::INIT::ERROR: Framebuffer is incomplete!" << std::endl;
+	Util::endError();
+	return false;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_init = true;
+    return true;
+}
+
+void BloomFBO::bind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+}
