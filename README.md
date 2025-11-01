@@ -1,3 +1,4 @@
+![https://hackatime-badge.hackclub.com/U08264TFUKV/mix_simulator](https://hackatime-badge.hackclub.com/U08264TFUKV/mix_simulator)
 # Crazy Mix Simulator
 
 A physics based game about misbehaving in school made using C++ and OpenGL. Currently just an extension of my simple 
