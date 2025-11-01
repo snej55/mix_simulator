@@ -103,7 +103,6 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     for (unsigned int i{0}; i < 6; ++i)
     {
-	enginePtr->useShader("erCubeMapConvert");
         enginePtr->setMat4("view", captureViews[i], "erCubeMapConvert");
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -200,7 +199,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
 
 void IBLGenerator::renderCube()
 {
-    if (m_cubeVAO)
+    if (m_cubeVAO == 0)
     {
         initCube();
     }
