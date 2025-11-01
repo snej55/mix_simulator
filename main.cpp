@@ -76,14 +76,7 @@ int main()
             light->renderPBR(engine.getShader("texturePBR"));
         }
 
-        engine.useShader("skybox");
-        engine.setMat4("view", engine.getViewMatrix(), "skybox");
-        engine.setMat4("projection", engine.getProjectionMatrix(), "skybox");
-        engine.setInt("environmentMap", 0, "skybox");
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getEnvCubemap());
-
-        renderCube();
+	iblGenerator.renderSkybox(&engine);
 
 	// engine.drawTexture(iblGenerator.getIrradianceTexture(), {0.0f, 0.0f, 1.0f, 1.0f});
         engine.disablePostProcessing();

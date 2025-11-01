@@ -8,6 +8,8 @@
 #include "util.hpp"
 #include "texture.hpp"
 
+#include <cassert>
+
 IBLGenerator::IBLGenerator(EngineObject* parent) :
     EngineObject{"IBL", parent}
 {
@@ -194,6 +196,23 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
 
     // reset window viewport
     glViewport(0, 0, enginePtr->getWidth(), enginePtr->getHeight());
+}
+
+void IBLGenerator::renderSkybox(void* engine)
+{
+    assert(engine != nullptr);
+    const Engine* enginePtr {static_cast<Engine*>(engine)};
+    const Shader* skyboxShader {enginePtr->getShader("skybox")};
+
+    skyboxShader->use();
+    skyboxShader->setMat4("view", enginePtr->getViewMatrix());
+    skyboxShader->setMat4("projection", enginePtr->getProjectionMatrix());
+    skyboxShader->setInt("environmentMap", 0);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
+
+    renderCube();
 }
 
 void IBLGenerator::renderCube()

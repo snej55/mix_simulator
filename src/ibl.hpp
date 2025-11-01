@@ -15,7 +15,9 @@ public:
     // initialize sampler maps
     void init(const char* hdrPath, const char* iemPath, const char* brdfLutPath, void* engine);
 
-    // render skybox
+    // render envCubemap as a skybox
+    void renderSkybox(void* engine);
+    // render a cube
     void renderCube();
 
     // getters
