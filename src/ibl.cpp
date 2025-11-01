@@ -8,7 +8,10 @@
 #include "util.hpp"
 #include "texture.hpp"
 
-IBLGenerator::IBLGenerator(EngineObject* parent) : EngineObject{"IBL", parent} {}
+IBLGenerator::IBLGenerator(EngineObject* parent) :
+    EngineObject{"IBL", parent}
+{
+}
 
 IBLGenerator::~IBLGenerator() { free(); }
 
@@ -26,25 +29,25 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     m_hdrTexture = TextureN::loadHDRMap(hdrPath, &success);
     if (!success)
     {
-	Util::beginError();
-	std::cout << "IBL::INIT::ERROR: Failed to load environment map!" << std::endl;
-	Util::endError();
+        Util::beginError();
+        std::cout << "IBL::INIT::ERROR: Failed to load environment map!" << std::endl;
+        Util::endError();
     }
 
     m_irradianceTexture = TextureN::loadHDRMap(iemPath, &success);
     if (!success)
     {
-	Util::beginError();
-	std::cout << "IBL::INIT::ERROR: Failed to load irradiance texture!" << std::endl;
-	Util::endError();
+        Util::beginError();
+        std::cout << "IBL::INIT::ERROR: Failed to load irradiance texture!" << std::endl;
+        Util::endError();
     }
 
     m_brdfLutMap = TextureN::loadFromFile(brdfLutPath, nullptr, nullptr, nullptr, &success);
     if (!success)
     {
-	Util::beginError();
-	std::cout << "IBL::INIT::ERROR: Failed to load BRDF LUT path!" << std::endl;
-	Util::endError();
+        Util::beginError();
+        std::cout << "IBL::INIT::ERROR: Failed to load BRDF LUT path!" << std::endl;
+        Util::endError();
     }
 
     // skybox dimensions
@@ -61,35 +64,26 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}),
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, -1.0f, 0.0f}),
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}, glm::vec3{0.0f, -1.0f, 0.0f})};
+    
+    const Engine* enginePtr {static_cast<Engine*>(engine)};
 
-
-    // framebuffer to capture shader output
+    // generate framebuffer to capture skybox cubemap
     unsigned int captureFBO, captureRBO;
     glGenFramebuffers(1, &captureFBO);
     glGenRenderbuffers(1, &captureRBO);
 
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, sbWidth, sbHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
 
-    // check framebuffer status
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        Util::beginError();
-        std::cout << "IBL::INIT::ERROR: Failed to generate IBL samplers! Capture framebuffer is incomplete!"
-                  << std::endl;
-        Util::endError();
-	return;
-    }
-
-    // generate skybox cube map color texture
+    // generate cubemap color textures
     glGenTextures(1, &m_envCubemap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        // NOTE: 16F values for textures
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, sbWidth, sbHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+        // NOTE: 16F values for tex
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -98,37 +92,36 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // capture equirectangular texture onto cubemap faces
-    const Shader* erCMCShader{static_cast<Engine*>(engine)->getShader("erCubeMapConvert")};
-    erCMCShader->use();
-    erCMCShader->setMat4("projection", captureProjection);
-    erCMCShader->setInt("equirectangularMap", 0);
+    // convert HDR environment map to cubemap equivalent
+    enginePtr->useShader("erCubeMapConvert");
+    enginePtr->setMat4("projection", captureProjection, "erCubeMapConvert");
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_hdrTexture);
+    enginePtr->setInt("equirectangularMap", 0, "erCubeMapConvert");
 
-    glViewport(0, 0, sbWidth, sbHeight);
+    glViewport(0, 0, 512, 512);
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        erCMCShader->setMat4("view", captureViews[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap,
-                               0);
+	enginePtr->useShader("erCubeMapConvert");
+        enginePtr->setMat4("view", captureViews[i], "erCubeMapConvert");
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // render 1x1 cube
         renderCube();
     }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // generate skybox mipmaps
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-    std::cout << "Generated envCubemap\n";
 
     // diffuse irradiance map
     glGenTextures(1, &m_irradianceMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_irradianceMap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, sbWidth, sbHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -137,29 +130,32 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    // convert irradiance texture to cube map equivalent
+    enginePtr->useShader("erCubeMapConvert");
+    enginePtr->setMat4("projection", captureProjection, "erCubeMapConvert");
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_irradianceTexture);
+    enginePtr->setInt("equirectangularMap", 0, "erCubeMapConvert");
 
+    glViewport(0, 0, 512, 512);
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        erCMCShader->setMat4("view", captureViews[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                               m_irradianceMap, 0);
+        enginePtr->setMat4("view", captureViews[i], "erCubeMapConvert");
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_irradianceMap,
+                               0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         renderCube();
     }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    std::cout << "Generated diffuse irradiance map\n";
-
-    // generate prefilter map
     glGenTextures(1, &m_prefilterMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilterMap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, pmremSize, pmremSize, 0, GL_RGB, GL_FLOAT,
-                     nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
     }
-
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
@@ -168,47 +164,45 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
 
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    const Shader* prefilterShader{static_cast<Engine*>(engine)->getShader("prefilterMap")};
-    prefilterShader->use();
-    prefilterShader->setInt("environmentMap", 0);
-    prefilterShader->setMat4("projection", captureProjection);
+    enginePtr->useShader("prefilterMap");
+    enginePtr->setInt("environmentMap", 0, "prefilterMap");
+    enginePtr->setMat4("projection", captureProjection, "prefilterMap");
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     constexpr unsigned int maxLevels{5};
     for (unsigned int mip{0}; mip < maxLevels; ++mip)
     {
-        const unsigned int mipWidth{static_cast<unsigned int>(pmremSize * std::pow(0.5, mip))};
-        const unsigned int mipHeight{static_cast<unsigned int>(pmremSize * std::pow(0.5, mip))};
-
+        const unsigned int mipWidth{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
+        const unsigned int mipHeight{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
         glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
         glViewport(0, 0, mipWidth, mipHeight);
 
         const float roughness{static_cast<float>(mip) / static_cast<float>(maxLevels - 1)};
-        prefilterShader->setFloat("roughness", roughness);
+        enginePtr->setFloat("roughness", roughness, "prefilterMap");
         for (unsigned int i{0}; i < 6; ++i)
         {
-            prefilterShader->setMat4("view", captureViews[i]);
+            enginePtr->setMat4("view", captureViews[i], "prefilterMap");
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                                    m_prefilterMap, mip);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderCube();
         }
     }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    std::cout << "Generated specular irradiance map" << std::endl;
-
     // reset window viewport
-    glViewport(0, 0, static_cast<Engine*>(engine)->getWidth(), static_cast<Engine*>(engine)->getHeight());
+    glViewport(0, 0, enginePtr->getWidth(), enginePtr->getHeight());
 }
 
 void IBLGenerator::renderCube()
 {
     if (m_cubeVAO)
     {
-	initCube();
+        initCube();
     }
     glBindVertexArray(m_cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);

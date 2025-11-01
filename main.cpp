@@ -6,8 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "src/engine.hpp"
-#include "src/texture.hpp"
-#include "src/util.hpp"
 #include "src/ibl.hpp"
 
 void renderCube();
@@ -29,6 +27,7 @@ int main()
     // use only gltf files for now
     engine.addModel("cube", "data/models/monkey.glb");
     engine.addModel("light", "data/models/spartan.glb");
+    engine.addTexture("box", "data/images/box.png");
 
     const Model* light{engine.getModel("light")};
 
@@ -38,8 +37,6 @@ int main()
     engine.useShader("lightPBR");
     engine.setVec3("albedo", glm::vec3{0.5, 0.0f, 0.0f}, "lightPBR");
     engine.setFloat("ao", 1.0f, "lightPBR");
-
-    glm::vec3 lightPos{1.0f, 1.0f, 1.0f};
 
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine}; 
@@ -52,7 +49,6 @@ int main()
         engine.enablePostProcessing();
         // clear screen
         engine.clear();
-
 
         engine.useShader("texturePBR");
         engine.setVec3("viewPos", engine.getCameraPosition(), "texturePBR");
@@ -88,6 +84,8 @@ int main()
         glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getEnvCubemap());
 
         renderCube();
+
+	// engine.drawTexture(iblGenerator.getIrradianceTexture(), {0.0f, 0.0f, 1.0f, 1.0f});
         engine.disablePostProcessing();
         engine.renderPostProcessing();
 
