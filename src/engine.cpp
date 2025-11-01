@@ -7,6 +7,7 @@
 #include <numeric>
 
 #include "glm/ext/matrix_clip_space.hpp"
+#include "shapes.hpp"
 using json = nlohmann::json;
 
 #include <iostream>
@@ -606,7 +607,12 @@ void Engine::drawTexture(const std::string& name, const FRect& destination) cons
         Util::endError();
         return;
     }
+    
+    drawTexture(tex->getID(), destination);
+}
 
+void Engine::drawTexture(const unsigned int texID, const FRect& destination) const
+{
     // get shader from shader manager
     const Shader* textureShader{m_shaderManager->getShader("texture")};
     if (!textureShader)
@@ -616,16 +622,15 @@ void Engine::drawTexture(const std::string& name, const FRect& destination) cons
         Util::endError();
         return;
     }
-
+    textureShader->use();
 
     glm::mat4 model{1.0f};
     model = glm::translate(model, glm::vec3(destination.x, destination.y, 0.0f));
-    model = glm::scale(model, glm::vec3(destination.w, destination.h, 1.0f));
-
-    tex->activate(0);
-
-    textureShader->use();
+    model = glm::scale(model, glm::vec3{destination.w, destination.h, 1.0f});
     textureShader->setMat4("model", model);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texID);
     textureShader->setInt("tex", 0);
 
     glBindVertexArray(m_textureManager->getVAO());

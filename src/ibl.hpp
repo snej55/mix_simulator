@@ -3,19 +3,25 @@
 #define IBL_H
 
 #include <glm/glm.hpp>
+
 #include "engine_types.hpp"
 
-class IBL : public EngineObject
+class IBLGenerator : public EngineObject
 {
 public:
-    explicit IBL(EngineObject* parent);
-    ~IBL() override;
+    explicit IBLGenerator(EngineObject* parent);
+    ~IBLGenerator() override;
 
     // initialize sampler maps
-    void init(unsigned int hdrTexture, unsigned int irradianceTexture, unsigned int brdfLutMap, void* engine);
+    void init(const char* hdrPath, const char* iemPath, const char* brdfLutPath, void* engine);
 
     // render skybox
     void renderCube();
+
+    [[nodiscard]] unsigned int getEnvCubemap() const {return m_envCubemap;}
+    [[nodiscard]] unsigned int getIrradianceMap() const {return m_irradianceMap;}
+    [[nodiscard]] unsigned int getPrefilterMap() const {return m_prefilterMap;}
+    [[nodiscard]] unsigned int getBRDFLutMap() const {return m_brdfLutMap;}
 
 private:
     // we only need environment and irradiance textures

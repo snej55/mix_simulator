@@ -120,6 +120,7 @@ public:
     [[nodiscard]] bool textureExists(const std::string& name) const;
 
     void drawTexture(const std::string& name, const FRect& destination) const;
+    void drawTexture(unsigned int texID, const FRect& destination) const;
 
     // ------ Shapes ------ //
 
