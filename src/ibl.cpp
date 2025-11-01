@@ -55,6 +55,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     constexpr GLsizei sbHeight{512};
     // prefilter map size
     constexpr GLsizei pmremSize{128};
+    // irradiance map size
+    constexpr GLsizei irSize{32};
     // shader uniforms
     const glm::mat4 captureProjection{glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f)};
     const glm::mat4 captureViews[]{
@@ -74,7 +76,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
 
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, sbWidth, sbHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
 
     // generate cubemap color textures
@@ -83,7 +85,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     for (unsigned int i{0}; i < 6; ++i)
     {
         // NOTE: 16F values for tex
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, sbWidth, sbHeight, 0, GL_RGB, GL_FLOAT, nullptr);
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -99,7 +101,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glBindTexture(GL_TEXTURE_2D, m_hdrTexture);
     enginePtr->setInt("equirectangularMap", 0, "erCubeMapConvert");
 
-    glViewport(0, 0, 512, 512);
+    glViewport(0, 0, sbWidth, sbHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     for (unsigned int i{0}; i < 6; ++i)
     {
@@ -110,7 +112,6 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
         // render 1x1 cube
         renderCube();
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -120,7 +121,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_irradianceMap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, irSize, irSize, 0, GL_RGB, GL_FLOAT, nullptr);
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -136,8 +137,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glBindTexture(GL_TEXTURE_2D, m_irradianceTexture);
     enginePtr->setInt("equirectangularMap", 0, "erCubeMapConvert");
 
-    glViewport(0, 0, 512, 512);
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    glViewport(0, 0, irSize, irSize);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, irSize, irSize);
     for (unsigned int i{0}; i < 6; ++i)
     {
         enginePtr->setMat4("view", captureViews[i], "erCubeMapConvert");
@@ -147,13 +148,12 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
 
         renderCube();
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glGenTextures(1, &m_prefilterMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilterMap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, pmremSize, pmremSize, 0, GL_RGB, GL_FLOAT, nullptr);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -169,12 +169,11 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     constexpr unsigned int maxLevels{5};
     for (unsigned int mip{0}; mip < maxLevels; ++mip)
     {
-        const unsigned int mipWidth{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
-        const unsigned int mipHeight{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
+        const unsigned int mipWidth{static_cast<unsigned int>(pmremSize * std::pow(0.5, mip))};
+        const unsigned int mipHeight{static_cast<unsigned int>(pmremSize * std::pow(0.5, mip))};
         glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
         glViewport(0, 0, mipWidth, mipHeight);

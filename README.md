@@ -4,7 +4,7 @@ A physics based game about misbehaving in school made using C++ and OpenGL. Curr
 OpenGL rendering framework.
 
 ## TODO:
-- [ ] Finish IBL
+- [X] Finish IBL
 - [ ] Get scene set up
 - [ ] Main game class
 - [ ] Level editor
