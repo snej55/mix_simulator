@@ -169,52 +169,6 @@ int main()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // prefiltered specular map
-    /*unsigned int prefilterMap;
-    glGenTextures(1, &prefilterMap);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
-    for (unsigned int i{0}; i < 6; ++i)
-    {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
-    }
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-    // convert prefilter texture to cube map equivalent
-    engine.useShader("erCubeMapConvert");
-    engine.setMat4("projection", captureProjection, "erCubeMapConvert");
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, prefilterTexture);
-    engine.setInt("equirectangularMap", 0, "erCubeMapConvert");
-
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-    constexpr unsigned int maxLevels{5}; // max number of mipmap levels
-    for (unsigned int mip{0}; mip < maxLevels; ++mip)
-    {
-        // resize framebuffer to mip-level size
-        unsigned int width{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
-        unsigned int height{static_cast<unsigned int>(128 * std::pow(0.5, mip))};
-        glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-        glViewport(0, 0, width, height);
-
-        for (unsigned int i{0}; i < 6; ++i)
-        {
-            engine.setMat4("view", captureViews[i], "erCubeMapConvert");
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                                   prefilterMap, mip);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            renderCube();
-        }
-    }*/
-
-
     unsigned int prefilterMap;
     glGenTextures(1, &prefilterMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
@@ -278,7 +232,7 @@ int main()
             model = glm::mat4{1.0f};
             model = glm::scale(model, glm::vec3{0.2f});
             model = glm::translate(model, spheres[i]);
-            // model = glm::rotate(model, engine.getTime() * 0.6f, {1.0f, 0.7f, 0.3f});
+            model = glm::rotate(model, engine.getTime() * 0.6f, {0.0f, 1.0f, 0.0f});
             engine.setMat4("model", model, "texturePBR");
             engine.setMat4("view", engine.getViewMatrix(), "texturePBR");
             engine.setMat4("projection", engine.getProjectionMatrix(), "texturePBR");
