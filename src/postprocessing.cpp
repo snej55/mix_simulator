@@ -388,6 +388,7 @@ void BloomRenderer::renderDownSamples(const unsigned int srcTexture)
     // progressively downsample through mip chain
     for (std::size_t i{0}; i < mipChain.size(); ++i)
     {
+	m_downSampleShader->setInt("mipLevel", static_cast<int>(i));
 	const PostProcessingN::BloomMip& mip {mipChain[i]};
 	glViewport(0, 0, mip.size.x, mip.size.y);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mip.texture, 0);
