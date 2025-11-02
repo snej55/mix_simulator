@@ -9,7 +9,7 @@ in vec2 TexCoords;
 // sample from screen framebuffer
 uniform sampler2D screenTexture;
 uniform sampler2D bloomBlur;
-uniform float bloomStrength = 0.09f;
+uniform float bloomStrength = 0.04f;
 
 const float gamma = 2.2;
 
