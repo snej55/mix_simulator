@@ -44,6 +44,15 @@ namespace Shapes
         0, 1, 3, // first Triangle
         1, 2, 3 // second Triangle
     };
+
+    inline float QuadVertices[] {
+	-1.0f, -1.0f, 0.0f, 0.0f,
+	-1.0f, 1.0f, 0.0f, 1.0f,
+	1.0f, 1.0f, 1.0f, 1.0f,
+	-1.0f, -1.0f, 0.0f, 0.0f,
+	1.0f, 1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, 1.0f, 0.0f
+    };
 } // namespace Shapes
 
 class ShapeManager final : public EngineObject

@@ -3,6 +3,7 @@
 #include "engine.hpp"
 #include "engine_types.hpp"
 #include "util.hpp"
+#include "shapes.hpp"
 
 PostProcessor::PostProcessor(EngineObject* parent) : EngineObject{"PostProcessor", parent} {}
 
@@ -309,6 +310,103 @@ bool BloomRenderer::init(const unsigned int width, const unsigned int height, vo
     m_upSampleShader->setInt("tex", 0);
     glUseProgram(0);
 
+    // setup quad VAO
+    setupQuad();
+
     m_init = true;
     return true;
+}
+
+void BloomRenderer::renderBloomTexture(const unsigned int srcTexture, const float filterRadius)
+{
+    m_FBO.bind();
+
+    renderDownSamples(srcTexture);
+    renderUpSamples(filterRadius);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, m_srcViewportSize.x, m_srcViewportSize.y);
+}
+
+// downsample source texture
+void BloomRenderer::renderDownSamples(const unsigned int srcTexture)
+{
+    const std::vector<PostProcessingN::BloomMip>& mipChain {m_FBO.mipChain()};
+
+    m_downSampleShader->use();
+    m_downSampleShader->setVec2("srcResolution", m_srcViewportSizeF);
+
+    // bind source texture (HDR color buffer) as initial texture input
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, srcTexture);
+
+    // progressively downsample through mip chain
+    for (std::size_t i{0}; i < mipChain.size(); ++i)
+    {
+	const PostProcessingN::BloomMip& mip {mipChain[i]};
+	glViewport(0, 0, mip.size.x, mip.size.y);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mip.texture, 0);
+
+	glBindVertexArray(m_quadVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+
+	// setup current mip as input for next iteration
+	m_downSampleShader->setVec2("srcResolution", mip.size);
+	glBindTexture(GL_TEXTURE_2D, mip.texture);
+    }
+    glUseProgram(0);
+}
+
+// upsample source texture
+void BloomRenderer::renderUpSamples(const float filterRadius)
+{
+    const std::vector<PostProcessingN::BloomMip>& mipChain{m_FBO.mipChain()};
+
+    m_upSampleShader->use();
+    m_upSampleShader->setFloat("filterRadius", filterRadius);
+
+    // additive blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+    glBlendEquation(GL_FUNC_ADD);
+
+    for (std::size_t i{mipChain.size() - 1}; i > 0; --i)
+    {
+	const PostProcessingN::BloomMip& mip {mipChain[i]};
+	const PostProcessingN::BloomMip& nextMip {mipChain[i - 1]};
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mip.texture);
+
+	glViewport(0, 0, nextMip.size.x, nextMip.size.y);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, nextMip.texture, 0);
+
+	glBindVertexArray(m_quadVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+    }
+
+    glDisable(GL_BLEND);
+    glUseProgram(0);
+}
+
+void BloomRenderer::setupQuad()
+{
+    if (m_quadVAO == 0)
+    {
+	glGenVertexArrays(1, &m_quadVAO);
+	glGenBuffers(1, &m_quadVBO);
+
+	glBindVertexArray(m_quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Shapes::QuadVertices), Shapes::QuadVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(0));
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+    }
 }

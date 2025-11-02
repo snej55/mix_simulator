@@ -85,6 +85,13 @@
                 "frag": "downSample.frag",
                 "vert": "downSample.vert"
             }
+        },
+        {
+            "name": "upSample",
+            "shader": {
+                "frag": "upSample.frag",
+                "vert": "upSample.vert"
+            }
         }
     ]
 }

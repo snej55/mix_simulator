@@ -94,7 +94,7 @@ private:
 class BloomRenderer final : public EngineObject
 {
 public:
-    BloomRenderer(EngineObject* parent);
+    explicit BloomRenderer(EngineObject* parent);
     ~BloomRenderer();
 
     bool init(unsigned int width, unsigned int height, void* engine);
@@ -105,11 +105,20 @@ public:
 
 private:
     BloomFBO m_FBO;
+
     bool m_init{false};
     glm::ivec2 m_srcViewportSize{};
     glm::vec2 m_srcViewportSizeF{};
+
     Shader* m_downSampleShader{nullptr};
     Shader* m_upSampleShader{nullptr};
+
+    unsigned int m_quadVAO{0}, m_quadVBO{0};
+
+    void renderDownSamples(unsigned int srcTexture);
+    void renderUpSamples(float filterRadius);
+
+    void setupQuad();
 };
 
 #endif
