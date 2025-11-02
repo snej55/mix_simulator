@@ -12,6 +12,7 @@ PostProcessor::~PostProcessor() { free(); }
 // free framebuffer
 void PostProcessor::free()
 {
+    disableBloom();
     glDeleteTextures(1, &m_TEX);
     glDeleteRenderbuffers(1, &m_RBO);
     glDeleteFramebuffers(1, &m_FBO);
@@ -67,6 +68,7 @@ void PostProcessor::init(const int width, const int height)
 void PostProcessor::render(const Shader* screenShader) const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     glDisable(GL_DEPTH_TEST);
     // clear buffers
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -74,20 +76,31 @@ void PostProcessor::render(const Shader* screenShader) const
 
     screenShader->use();
     screenShader->setInt("screenTexture", 0);
+    if (m_bloomEnabled)
+    {
+	assert(m_bloomRenderer != nullptr);
+	m_bloomRenderer->renderBloomTexture(m_TEX, 0.005f);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_bloomRenderer->bloomTexture());
+	screenShader->use();
+	screenShader->setInt("bloomBlur", 1);
+    }
 
     glBindVertexArray(m_VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_TEX);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-
     glEnable(GL_DEPTH_TEST);
 }
 
-void PostProcessor::generate(const int width, const int height)
+void PostProcessor::generate(const int width, const int height, void* engine)
 {
+    bool tempBloomEnabled {m_bloomEnabled};
     free();
     init(width, height);
+    if (tempBloomEnabled)
+	enableBloom(engine);
 }
 
 void PostProcessor::generateFramebuffer()
@@ -105,7 +118,7 @@ void PostProcessor::generateFramebufferTexture()
     unsigned int textureColorBuffer;
     glGenTextures(1, &textureColorBuffer);
     glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -157,14 +170,32 @@ void PostProcessor::enable() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
 
 void PostProcessor::disable() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
-void PostProcessor::enableBloom()
+void PostProcessor::enableBloom(void* engine)
 {
-    // generate bloom framebuffer texture
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-    
-    glGenTextures(1, &m_bloomTex);
-    glBindTexture(GL_TEXTURE_2D, m_bloomTex);
-    //glTexImage2D(GL_TEXTURE_2D, 0
+    if (m_bloomEnabled)
+	return;
+
+    m_bloomRenderer = new BloomRenderer{this};
+    if (!m_bloomRenderer->init(m_width, m_height, engine))
+    {
+	delete m_bloomRenderer;
+	Util::beginError();
+	std::cout << "POST_PROCESSOR::ENABLE_BLOOM::ERROR: Failed to initialize bloom renderer!" << std::endl;
+	Util::endError();
+	return;
+    }
+	
+    m_bloomEnabled = true;
+}
+
+void PostProcessor::disableBloom()
+{
+    if (!m_bloomEnabled)
+	return;
+
+    delete m_bloomRenderer;
+    m_bloomRenderer = nullptr;
+    m_bloomEnabled = false;
 }
 
 BloomFBO::BloomFBO(EngineObject* parent)
@@ -274,6 +305,8 @@ void BloomRenderer::free()
     if (!m_init)
 	return;
 
+    glDeleteBuffers(1, &m_quadVBO);
+    glDeleteVertexArrays(1, &m_quadVAO);
     m_FBO.free();
     m_init = false;
 }

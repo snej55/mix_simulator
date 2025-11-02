@@ -80,7 +80,7 @@ public:
     // initialize framebuffer and texture
     void init(int width, int height);
     // regenerate framebuffer for framebuffer_size_callback()
-    void generate(int width, int height);
+    void generate(int width, int height, void* engine);
 
     // render framebuffer to screen
     void render(const Shader* screenShader) const;
@@ -91,7 +91,7 @@ public:
     void disable() const;
 
     // toggle bloom
-    void enableBloom();
+    void enableBloom(void* engine);
     void disableBloom();
 
     // getters
@@ -120,7 +120,6 @@ private:
     unsigned int m_VBO{};
 
     bool m_bloomEnabled{false};
-    unsigned int m_bloomTex{};
     BloomRenderer* m_bloomRenderer{nullptr};
 
     void generateFramebuffer();

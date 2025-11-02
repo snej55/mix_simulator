@@ -161,7 +161,7 @@ bool Engine::init(const int width, const int height, const char* title)
         return false;
     }
     m_postProcessor->init(getWidth(), getHeight());
-
+    m_postProcessor->enableBloom(this);
 
     std::cout << "ENGINE::INIT: Successfully created components!\n";
 
@@ -788,9 +788,9 @@ void Engine::enablePostProcessing() const { m_postProcessor->enable(); }
 
 void Engine::disablePostProcessing() const { m_postProcessor->disable(); }
 
-void Engine::renderPostProcessing() const { m_postProcessor->render(getShader("screenShader")); }
+void Engine::renderPostProcessing() const { m_postProcessor->render(getShader("bloomSS")); }
 
-void Engine::updatePostProcessor(const int width, const int height) const { m_postProcessor->generate(width, height); }
+void Engine::updatePostProcessor(const int width, const int height) { m_postProcessor->generate(width, height, static_cast<void*>(this)); }
 
 
 // ------ Arena ------ //

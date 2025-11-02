@@ -176,7 +176,7 @@ public:
     void renderPostProcessing() const;
 
     // update framebuffer
-    void updatePostProcessor(int width, int height) const;
+    void updatePostProcessor(int width, int height);
 
     // ------ Arena ------ //
 

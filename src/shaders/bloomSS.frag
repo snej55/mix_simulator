@@ -9,7 +9,7 @@ in vec2 TexCoords;
 // sample from screen framebuffer
 uniform sampler2D screenTexture;
 uniform sampler2D bloomBlur;
-uniform float bloomStrength = 0.04f;
+uniform float bloomStrength = 0.09f;
 
 const float gamma = 2.2;
 
@@ -44,7 +44,7 @@ vec3 bloom()
 
 void main()
 {
-    vec3 hdrColor = bloom();
+    vec3 hdrColor = bloom(); 
 
     // Khronos PBR neutral note mapping
     vec3 mapped = PBRNeutralToneMapping(hdrColor);
