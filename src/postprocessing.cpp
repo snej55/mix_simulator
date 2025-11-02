@@ -245,3 +245,70 @@ void BloomFBO::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 }
+
+BloomRenderer::BloomRenderer(EngineObject* parent)
+ : EngineObject{"BloomRenderer", parent}, m_FBO{this}
+{
+}
+
+BloomRenderer::~BloomRenderer()
+{
+    free();
+}
+
+void BloomRenderer::free()
+{
+    if (!m_init)
+	return;
+
+    m_FBO.free();
+    m_init = false;
+}
+
+bool BloomRenderer::init(const unsigned int width, const unsigned int height, void* engine)
+{
+    if (m_init)
+	return true;
+
+    m_srcViewportSize = glm::ivec2{width, height};
+    m_srcViewportSizeF = glm::vec2{static_cast<float>(width), static_cast<float>(height)};
+    
+    constexpr unsigned int numMips {5};
+    if (!m_FBO.init(width, height, numMips))
+    {
+	Util::beginError();
+	std::cout << "BLOOM_RENDERER::INIT::ERROR: Failed to create Bloom FBO!" << std::endl;
+	Util::endError();
+	return false;
+    }
+
+    const Engine* enginePtr {static_cast<Engine*>(engine)};
+    m_downSampleShader = enginePtr->getShader("downSample");
+    if (m_downSampleShader == nullptr)
+    {
+	Util::beginError();
+	std::cout << "BLOOM_RENDERER::INIT::ERROR: Could not find down sample shader!" << std::endl;
+	Util::endError();
+	return false;
+    }
+
+    m_upSampleShader = enginePtr->getShader("upSample");
+    if (m_upSampleShader == nullptr)
+    {
+	Util::beginError();
+	std::cout << "BLOOM_RENDERER:INIT::ERROR: Could not find up sample shader!" << std::endl;
+	Util::endError();
+	return false;
+    }
+
+    m_downSampleShader->use();
+    m_downSampleShader->setInt("tex", 0);
+    glUseProgram(0);
+
+    m_upSampleShader->use();
+    m_upSampleShader->setInt("tex", 0);
+    glUseProgram(0);
+
+    m_init = true;
+    return true;
+}

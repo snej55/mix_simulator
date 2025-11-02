@@ -65,19 +65,26 @@
                 "vert": "skybox.vert"
             }
         },
-	{
-	    "name": "irConvolution",
-	    "shader": {
-		"frag": "irConvolution.frag",
-		"vert": "cubeMap.vert"
-	    }
-	},
-	{
-	    "name": "prefilterMap",
-	    "shader": {
-		"frag": "prefilter.frag",
-		"vert": "cubeMap.vert"
-	    }
-	}
+        {
+            "name": "irConvolution",
+            "shader": {
+                "frag": "irConvolution.frag",
+                "vert": "cubeMap.vert"
+            }
+        },
+        {
+            "name": "prefilterMap",
+            "shader": {
+                "frag": "prefilter.frag",
+                "vert": "cubeMap.vert"
+            }
+        },
+        {
+            "name": "downSample",
+            "shader": {
+                "frag": "downSample.frag",
+                "vert": "downSample.vert"
+            }
+        }
     ]
 }

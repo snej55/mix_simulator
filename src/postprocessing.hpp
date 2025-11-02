@@ -83,12 +83,33 @@ public:
     void bind();
     void free();  
 
-    const std::vector<PostProcessingN::BloomMip>& mipChain() const {return m_mipChain;}
+    [[nodiscard]] const std::vector<PostProcessingN::BloomMip>& mipChain() const {return m_mipChain;}
 
 private:
     bool m_init{false};
     unsigned int m_FBO{};
     std::vector<PostProcessingN::BloomMip> m_mipChain{};
+};
+
+class BloomRenderer final : public EngineObject
+{
+public:
+    BloomRenderer(EngineObject* parent);
+    ~BloomRenderer();
+
+    bool init(unsigned int width, unsigned int height, void* engine);
+    void free();
+    void renderBloomTexture(unsigned int srcTexture, float filterRadius);
+
+    [[nodiscard]] unsigned int bloomTexture() const {return m_FBO.mipChain()[0].texture;}
+
+private:
+    BloomFBO m_FBO;
+    bool m_init{false};
+    glm::ivec2 m_srcViewportSize{};
+    glm::vec2 m_srcViewportSizeF{};
+    Shader* m_downSampleShader{nullptr};
+    Shader* m_upSampleShader{nullptr};
 };
 
 #endif
