@@ -105,9 +105,11 @@ void PostProcessor::generateFramebufferTexture()
     unsigned int textureColorBuffer;
     glGenTextures(1, &textureColorBuffer);
     glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // attach to framebuffer
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
@@ -154,6 +156,16 @@ void PostProcessor::generateQuad()
 void PostProcessor::enable() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
 
 void PostProcessor::disable() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+
+void PostProcessor::enableBloom()
+{
+    // generate bloom framebuffer texture
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+    
+    glGenTextures(1, &m_bloomTex);
+    glBindTexture(GL_TEXTURE_2D, m_bloomTex);
+    //glTexImage2D(GL_TEXTURE_2D, 0
+}
 
 BloomFBO::BloomFBO(EngineObject* parent)
  : EngineObject{"BloomFBO", parent}

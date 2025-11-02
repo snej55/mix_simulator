@@ -92,6 +92,13 @@
                 "frag": "upSample.frag",
                 "vert": "upSample.vert"
             }
+        },
+        {
+            "name": "bloomSS",
+            "shader": {
+                "frag": "bloomSS.frag",
+                "vert": "bloomSS.vert"
+            }
         }
     ]
 }

@@ -24,7 +24,6 @@ int main()
     // use only gltf files for now
     engine.addModel("cube", "data/models/monkey.glb");
     engine.addModel("light", "data/models/spartan.glb");
-    engine.addTexture("box", "data/images/box.png");
 
     const Model* light{engine.getModel("light")};
 
