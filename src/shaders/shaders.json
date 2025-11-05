@@ -48,7 +48,7 @@
             "name": "texturePBR",
             "shader": {
                 "frag": "texturePBR.frag",
-                "vert": "texturePBR.vert"
+                "vert": "animationPBR.vert"
             }
         },
         {
@@ -98,6 +98,13 @@
             "shader": {
                 "frag": "bloomSS.frag",
                 "vert": "bloomSS.vert"
+            }
+        },
+        {
+            "name": "animationPBR",
+            "shader": {
+                "frag": "animationPBR.frag",
+                "vert": "animationPBR.vert"
             }
         }
     ]
