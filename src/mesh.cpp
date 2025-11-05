@@ -111,9 +111,6 @@ void Mesh::setupMesh()
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
                           reinterpret_cast<void*>(offsetof(MeshN::Vertex, tangent)));
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
-                          reinterpret_cast<void*>(offsetof(MeshN::Vertex, biTangent)));
-    glEnableVertexAttribArray(4);
 
     // not really necessary but just in case
     glBindVertexArray(0);
