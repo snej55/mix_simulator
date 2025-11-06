@@ -171,6 +171,9 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
         }
     }
 
+    // load bones
+    // extractBoneWeights(vertices, mesh, scene);
+
     // materials
     aiMaterial* material{scene->mMaterials[mesh->mMaterialIndex]};
 
@@ -347,6 +350,60 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
 
     // return texture id
     return texID;
+}
+
+void Model::setDefaultBoneData(MeshN::Vertex& vertex)
+{
+    for (unsigned int i{0}; i < MAX_BONE_INFLUENCE; ++i)
+    {
+        vertex.boneIDs[i] = -1;
+        vertex.weights[i] = 0.0f;
+    }
+}
+
+void Model::setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight)
+{
+    for (unsigned int i{0}; i < MAX_BONE_INFLUENCE; ++i)
+    {
+        if (vertex.boneIDs[i] < 0)
+        {
+            vertex.boneIDs[i] = boneID;
+            vertex.weights[i] = weight;
+            break;
+        }
+    }
+}
+
+void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh, const aiScene* scene)
+{
+    for (unsigned int boneIdx{0}; boneIdx < mesh->mNumBones; ++boneIdx)
+    {
+        int boneID{-1};
+        const std::string boneName {mesh->mBones[boneIdx]->mName.C_Str()};
+        if (m_boneInfoMap.find(boneName) == m_boneInfoMap.end())
+        {
+            const MeshN::BoneInfo boneInfo {
+                m_boneCounter,
+                Util::convertMatrixGLM(mesh->mBones[boneIdx]->mOffsetMatrix)
+            };
+            m_boneInfoMap[boneName] = boneInfo;
+            boneID = m_boneCounter;
+            ++m_boneCounter;
+        } else
+        {
+            boneID = m_boneInfoMap[boneName].id;
+        }
+
+        assert(boneID != -1);
+        aiVertexWeight* weights {mesh->mBones[boneIdx]->mWeights};
+        for (unsigned int weightIdx{0}; weightIdx < mesh->mBones[boneIdx]->mNumWeights; ++weightIdx)
+        {
+            const unsigned int vertexID{weights[weightIdx].mVertexId};
+            const float weight{weights[weightIdx].mWeight};
+            assert(vertexID <= vertices.size());
+            setVertexBoneData(vertices[vertexID], boneID, weight);
+        }
+    }
 }
 
 // -------------- Model Manager -------------- //

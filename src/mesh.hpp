@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <mikktspace.h>
 
+#define MAX_BONE_INFLUENCE 4
+
 namespace MeshN
 {
     struct Vertex
@@ -17,6 +19,8 @@ namespace MeshN
         glm::vec2 texCoords;
         glm::vec4 tangent; // TBN matrix
         glm::vec3 biTangent; // "" ""
+        int boneIDs[MAX_BONE_INFLUENCE];
+        float weights[MAX_BONE_INFLUENCE];
     };
 
     enum TextureType
@@ -36,6 +40,12 @@ namespace MeshN
         std::string path;
         bool embedded;
     };
+
+    struct BoneInfo
+    {
+        int id;
+        glm::mat4 offset; // from model space to bone space
+    };
 } // namespace MeshN
 
 class Mesh
@@ -52,7 +62,7 @@ public:
     void calcTangents();
 
     [[nodiscard]] const std::vector<MeshN::Vertex>& getVertices() const { return m_vertices; }
-    [[nodiscard]] MeshN::Vertex* getVertex(const int index) {return &m_vertices[index];}
+    [[nodiscard]] MeshN::Vertex* getVertex(const int index) { return &m_vertices[index]; }
     [[nodiscard]] const std::vector<unsigned int>& getIndices() const { return m_indices; }
 
 private:
@@ -80,7 +90,8 @@ private:
 
     static void SMTGetTexCoords(const SMikkTSpaceContext* context, float outUV[], int iFace, int iVert);
 
-    static void SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float tangentU[], const float fSign, const int iFace, const int iVert);
+    static void SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float tangentU[], const float fSign,
+                                  const int iFace, const int iVert);
 };
 
 #endif // MESH_H

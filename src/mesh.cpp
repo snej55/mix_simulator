@@ -1,4 +1,5 @@
 #include "mesh.hpp"
+#include <cstddef>
 #include <glad/glad.h>
 #include "mikktspace.h"
 
@@ -111,6 +112,10 @@ void Mesh::setupMesh()
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
                           reinterpret_cast<void*>(offsetof(MeshN::Vertex, tangent)));
     glEnableVertexAttribArray(3);
+    glVertexAttribIPointer(4, 4, GL_INT, sizeof(MeshN::Vertex), reinterpret_cast<void*>(offsetof(MeshN::Vertex, boneIDs)));
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex), reinterpret_cast<void*>(offsetof(MeshN::Vertex, weights)));
+    glEnableVertexAttribArray(5);
 
     // not really necessary but just in case
     glBindVertexArray(0);

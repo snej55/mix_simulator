@@ -30,6 +30,10 @@ private:
 
     // loaded mesh textures (to avoid loading the same texture twice)
     std::vector<MeshN::Texture> m_loadedTextures{};
+    
+    // bones
+    std::map<std::string, MeshN::BoneInfo> m_boneInfoMap{};
+    int m_boneCounter{0};
 
     void processNode(const aiNode* node, const aiScene* scene);
     Mesh processMesh(const aiMesh* mesh, const aiScene* scene);
@@ -38,6 +42,14 @@ private:
                                                      MeshN::TextureType typeName);
     static unsigned int loadEmbeddedTexture(const aiTexture* texture, bool* success = nullptr,
                                             MeshN::TextureType materialType = MeshN::TEXTURE_NONE);
+
+    std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() {return m_boneInfoMap;}
+    int& getBoneCounter() {return m_boneCounter;}
+
+    static void setDefaultBoneData(MeshN::Vertex& vertex) ;
+    static void setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight);
+
+    void extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh, const aiScene* scene);
 };
 
 class ModelManager final : public EngineObject

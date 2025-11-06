@@ -31,7 +31,7 @@ void main()
     vec2 uv = SampleSphericalMap(normalize(localPos));
     vec3 color = texture(equirectangularMap, uv).rgb;
 
-    const float limit = 500.0;
+    const float limit = 10000.0;
     float brightness = (color.r + color.g + color.b) * 0.333;
     if (brightness > limit)
     {

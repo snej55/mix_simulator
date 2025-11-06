@@ -10,6 +10,9 @@
 #include <iostream>
 #include <string>
 
+#include <assimp/matrix4x4.h>
+#include <glm/glm.hpp>
+
 namespace Util
 {
     // Generate random floating point from (0.0f - 1.0f).
@@ -18,7 +21,7 @@ namespace Util
     // Checks if file exists in file system.
     inline bool fileExists(const std::string& name)
     {
-        std::ifstream file{name.c_str()};
+        const std::ifstream file{name.c_str()};
         return file.good();
     }
 
@@ -29,6 +32,18 @@ namespace Util
     inline void endError() { std::cout << "\033[m" << std::endl; }
 
     inline float lerp(const float a, const float b, const float amount) { return a + (b - a) * amount; }
+
+    // convert mat4 from assimp format to glm format
+    inline glm::mat4 convertMatrixGLM(const aiMatrix4x4& mat)
+    {
+        const glm::mat4 glmMat {
+            {mat.a1, mat.a2, mat.a3, mat.a4},
+            {mat.b1, mat.b2, mat.b3, mat.b4},
+            {mat.c1, mat.c2, mat.c3, mat.c4},
+            {mat.d1, mat.d2, mat.d3, mat.d4},
+        };
+        return glmMat;
+    }
 } // namespace Util
 
 #endif // UTIL_H

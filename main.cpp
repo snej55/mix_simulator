@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "src/engine.hpp"
 #include "src/ibl.hpp"
@@ -35,7 +34,7 @@ int main()
     engine.setFloat("ao", 1.0f, "lightPBR");
 
     // ----------- IBL ------------ //
-    IBLGenerator iblGenerator{&engine}; 
+    IBLGenerator iblGenerator{&engine};
     iblGenerator.init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png", &engine);
 
     // reset window viewport
@@ -72,7 +71,7 @@ int main()
             light->renderPBR(engine.getShader("texturePBR"));
         }
 
-	iblGenerator.renderSkybox(&engine);
+        iblGenerator.renderSkybox(&engine);
 
         engine.disablePostProcessing();
         engine.renderPostProcessing();

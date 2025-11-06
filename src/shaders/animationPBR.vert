@@ -4,7 +4,7 @@ layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
 layout(location = 3) in vec4 aTangent;
-layout(location = 4) in ivec4 aBoneIds;
+layout(location = 4) in ivec4 aBoneIDs;
 layout(location = 5) in vec4 aWeights;
 
 out VS_OUT
@@ -36,21 +36,21 @@ uniform mat4 finalBonesMatrices[MAX_BONES];
 void main()
 {
     // calculate bone influence
-    vec4 totalPosition = vec4(0.0f);
+    vec4 totalPosition = vec4(0.0);
     vec3 localNormal = aNormal;
     for (uint i = 0; i < MAX_BONE_INFLUENCE; ++i)
     {
-	if (aBoneIds[i] == -1)
+	if (aBoneIDs[i] == -1)
 	    continue;
-	if (aBoneIds[i] >= MAX_BONES)
+	if (aBoneIDs[i] >= MAX_BONES)
 	{
 	    totalPosition = vec4(aPos, 1.0);
 	    break;
 	}
 	
-	vec4 localPosition = finalBonesMatrices[aBoneIds[i]] * vec4(aPos, 1.0);
+	vec4 localPosition = finalBonesMatrices[aBoneIDs[i]] * vec4(aPos, 1.0);
 	totalPosition += localPosition * aWeights[i];
-	localNormal = mat3(finalBonesMatrices[aBoneIds[i]]) * aNormal;
+	localNormal = mat3(finalBonesMatrices[aBoneIDs[i]]) * aNormal;
     }
 
     vs_out.FragPos = vec3(model * totalPosition);
