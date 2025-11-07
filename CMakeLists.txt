@@ -41,7 +41,8 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/engine.hpp sr
         src/fonts.hpp
         src/fonts.cpp
 	src/ibl.hpp
-	src/ibl.cpp)
+	src/ibl.cpp
+	src/bones.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
