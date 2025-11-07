@@ -11,7 +11,9 @@
 #include <string>
 
 #include <assimp/matrix4x4.h>
+#include <assimp/quaternion.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Util
 {
@@ -43,6 +45,18 @@ namespace Util
             {mat.d1, mat.d2, mat.d3, mat.d4},
         };
         return glmMat;
+    }
+
+    // convert aiVector3D to glm::vec3
+    inline glm::vec3 convertVectorGLM(const aiVector3D& vec)
+    {
+        return glm::vec3{vec.x, vec.y, vec.z};
+    }
+
+    // convert aiQuaternion to glm::quat
+    inline glm::quat convertQuaternionGLM(const aiQuaternion& quat)
+    {
+        return glm::quat{quat.w, quat.x, quat.y, quat.z};
     }
 } // namespace Util
 

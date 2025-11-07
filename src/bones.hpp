@@ -40,13 +40,13 @@ public:
     void update(float time);
 
     // get current index of position to interpolate on
-    int getPositionIndex(int index);
+    int getPositionIndex(float time) const;
 
     // get current index of rotation to interpolate on
-    int getRotationIndex(int index);
+    int getRotationIndex(float time) const;
 
     // get current index of scale to interpolate on
-    int getScaleIndex(int index);
+    int getScaleIndex(float time) const;
 
     // getters
     [[nodiscard]] const glm::mat4& getLocalTransform() const {return m_localTransform;}
@@ -68,13 +68,13 @@ private:
     int m_numScales{};
 
     // get normalized value for lerp & slerp
-    float getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
+    static float getScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
 
-    glm::mat4 interpolatePosition(float animationTime);
+    [[nodiscard]] glm::mat4 interpolatePosition(float animationTime) const;
 
-    glm::mat4 interpolateRotation(float animationTime);
+    [[nodiscard]] glm::mat4 interpolateRotation(float animationTime) const;
 
-    glm::mat4 interpolateScaling(float animationTime);
+    [[nodiscard]] glm::mat4 interpolateScaling(float animationTime) const;
 };
 
 #endif
