@@ -4,8 +4,14 @@
 #include <glm/glm.hpp>
 #include <glm/detail/type_quat.hpp>
 #include <assimp/scene.h>
+#include <map>
 #include <string>
 #include <vector>
+
+#include "assimp/anim.h"
+#include "assimp/postprocess.h"
+#include "mesh.hpp"
+#include "model.hpp"
 
 namespace BonesN
 {
@@ -26,6 +32,14 @@ namespace BonesN
         glm::vec3 scale;
         float timeStamp;
     };
+
+    struct AssimpNodeData
+    {
+        glm::mat4 transform;
+        std::string name;
+        int childrenCount;
+        std::vector<AssimpNodeData> children;
+    };
 }
 
 class Bone
@@ -40,13 +54,13 @@ public:
     void update(float time);
 
     // get current index of position to interpolate on
-    int getPositionIndex(float time) const;
+    [[nodiscard]] int getPositionIndex(float time) const;
 
     // get current index of rotation to interpolate on
-    int getRotationIndex(float time) const;
+    [[nodiscard]] int getRotationIndex(float time) const;
 
     // get current index of scale to interpolate on
-    int getScaleIndex(float time) const;
+    [[nodiscard]] int getScaleIndex(float time) const;
 
     // getters
     [[nodiscard]] const glm::mat4& getLocalTransform() const {return m_localTransform;}
@@ -75,6 +89,34 @@ private:
     [[nodiscard]] glm::mat4 interpolateRotation(float animationTime) const;
 
     [[nodiscard]] glm::mat4 interpolateScaling(float animationTime) const;
+};
+
+
+class BoneAnimation
+{
+public:
+    BoneAnimation() = default;
+    BoneAnimation(const std::string& animationPath, Model* model);
+
+    ~BoneAnimation() = default;
+
+    Bone* findBone(const std::string& name);
+
+    [[nodiscard]] float getTicksPerSecond() const {return m_tps;}
+    [[nodiscard]] float getDuration() const {return m_duration;}
+    [[nodiscard]] const BonesN::AssimpNodeData& getRootNode() const {return m_rootNode;}
+    [[nodiscard]] const std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() {return m_boneInfoMap;}
+
+private:
+    float m_duration{0.0f};
+    int m_tps{0}; // ticks per second
+
+    std::vector<Bone> m_bones{};
+    BonesN::AssimpNodeData m_rootNode{};
+    std::map<std::string, MeshN::BoneInfo> m_boneInfoMap{};
+
+    void readMissingBones(const aiAnimation* animation, Model* model);
+    void readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode* src);
 };
 
 #endif

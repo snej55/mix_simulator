@@ -22,6 +22,9 @@ public:
 
     void render(const Shader* shader) const;
     void renderPBR(const Shader* pbrShader) const;
+    
+    [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() {return m_boneInfoMap;}
+    [[nodiscard]] int& getBoneCounter() {return m_boneCounter;}
 
 private:
     std::vector<Mesh> m_meshes{};
@@ -42,9 +45,6 @@ private:
                                                      MeshN::TextureType typeName);
     static unsigned int loadEmbeddedTexture(const aiTexture* texture, bool* success = nullptr,
                                             MeshN::TextureType materialType = MeshN::TEXTURE_NONE);
-
-    std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() {return m_boneInfoMap;}
-    int& getBoneCounter() {return m_boneCounter;}
 
     static void setDefaultBoneData(MeshN::Vertex& vertex) ;
     static void setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight);

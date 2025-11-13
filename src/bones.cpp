@@ -2,17 +2,17 @@
 // Created by Jens Kromdijk on 07/11/2025.
 
 #include "bones.hpp"
+#include "assimp/anim.h"
+#include "mesh.hpp"
 #include "util.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel) :
-    m_name{name}, m_ID{ID}
-{
-    init(channel);
-}
+#include <algorithm>
+
+Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) : m_name{name}, m_ID{ID} { init(channel); }
 
 void Bone::init(const aiNodeAnim* channel)
 {
@@ -48,10 +48,7 @@ void Bone::init(const aiNodeAnim* channel)
     {
         aiVector3D aiScale{channel->mScalingKeys[scaleIdx].mValue};
         const float timeStamp{static_cast<float>(channel->mScalingKeys[scaleIdx].mTime)};
-        BonesN::KeyScale data{
-            Util::convertVectorGLM(aiScale),
-            timeStamp
-        };
+        BonesN::KeyScale data{Util::convertVectorGLM(aiScale), timeStamp};
         m_scales.emplace_back(data);
     }
 }
@@ -129,8 +126,7 @@ glm::mat4 Bone::interpolatePosition(const float animationTime) const
     const int position1Idx{position0Idx + 1};
     // and the scale factor
     const float scaleFactor{
-        getScaleFactor(m_positions[position0Idx].timeStamp, m_positions[position1Idx].timeStamp, animationTime)
-    };
+        getScaleFactor(m_positions[position0Idx].timeStamp, m_positions[position1Idx].timeStamp, animationTime)};
     // and use them to get the final position
     const glm::vec3 finalPosition{
         glm::mix(m_positions[position0Idx].position, m_positions[position1Idx].position, scaleFactor)};
@@ -159,8 +155,71 @@ glm::mat4 Bone::interpolateScaling(const float animationTime) const
 
     const int scale0Idx{getScaleIndex(animationTime)};
     const int scale1Idx{scale0Idx + 1};
-    const float scaleFactor
-        {getScaleFactor(m_scales[scale0Idx].timeStamp, m_scales[scale1Idx].timeStamp, animationTime)};
+    const float scaleFactor{
+        getScaleFactor(m_scales[scale0Idx].timeStamp, m_scales[scale1Idx].timeStamp, animationTime)};
     const glm::vec3 finalScale{glm::mix(m_scales[scale0Idx].scale, m_scales[scale1Idx].scale, scaleFactor)};
     return glm::scale(glm::mat4{1.0f}, finalScale);
+}
+
+BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
+{
+    // load model
+    Assimp::Importer importer;
+    const aiScene* scene{importer.ReadFile(animationPath, aiProcess_Triangulate)};
+    assert(scene && scene->mRootNode);
+
+    const aiAnimation* anim{scene->mAnimations[0]};
+    m_duration = anim->mDuration;
+    m_tps = anim->mTicksPerSecond;
+}
+
+// find bone using std::find_if
+Bone* BoneAnimation::findBone(const std::string& name)
+{
+    auto iter{
+        std::find_if(m_bones.begin(), m_bones.end(), [&](const Bone& bone) { return bone.getBoneName() == name; })};
+    if (iter == m_bones.end())
+        return nullptr;
+    else
+        return &(*iter);
+}
+
+void BoneAnimation::readMissingBones(const aiAnimation* animation, Model* model)
+{
+    const unsigned int size {animation->mNumChannels};
+    
+    std::map<std::string, MeshN::BoneInfo>& boneInfoMap {model->getBoneInfoMap()};
+    int& boneCount {model->getBoneCounter()};
+
+    // read the channels
+    for (std::size_t i{0}; i < size; ++i)
+    {
+	aiNodeAnim* channel {animation->mChannels[i]};
+	std::string boneName {channel->mNodeName.data};
+
+	if (boneInfoMap.find(boneName) == boneInfoMap.end())
+	{
+	    boneInfoMap[boneName].id = boneCount;
+	    ++boneCount;
+	}
+	m_bones.push_back(Bone{channel->mNodeName.data, boneInfoMap[channel->mNodeName.data].id, channel});
+    }
+
+    m_boneInfoMap = boneInfoMap;
+}
+
+void BoneAnimation::readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode* src)
+{
+    assert(src);
+
+    dest.name = src->mName.data;
+    dest.transform = Util::convertMatrixGLM(src->mTransformation);
+    dest.childrenCount = src->mNumChildren;
+
+    for (std::size_t i{0}; i < src->mNumChildren; ++i)
+    {
+	BonesN::AssimpNodeData data;
+	readHeirarchyData(data, src->mChildren[i]);
+	dest.children.push_back(data);
+    }
 }
