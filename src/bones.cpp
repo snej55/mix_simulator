@@ -2,6 +2,7 @@
 // Created by Jens Kromdijk on 07/11/2025.
 
 #include "bones.hpp"
+#include <cmath>
 #include "assimp/anim.h"
 #include "mesh.hpp"
 #include "util.hpp"
@@ -222,4 +223,54 @@ void BoneAnimation::readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode
 	readHeirarchyData(data, src->mChildren[i]);
 	dest.children.push_back(data);
     }
+}
+
+// the actual animator class
+BoneAnimator::BoneAnimator(BoneAnimation* animation)
+ : m_currentAnimation{animation}, m_currentTime{0.0f}
+{
+    m_finalBoneMatrices.reserve(100);
+    for (std::size_t i{0}; i < 100; ++i)
+    {
+	m_finalBoneMatrices.push_back(glm::mat4{1.0f});
+    }
+}
+
+void BoneAnimator::updateAnimation(const float dt)
+{
+    m_deltaTime = dt;
+    if (m_currentAnimation)
+    {
+	m_currentTime += m_currentAnimation->getTicksPerSecond() * dt;
+	m_currentTime = std::fmod(m_currentTime, m_currentAnimation->getDuration());
+	calculateBoneTransform(&m_currentAnimation->getRootNode(), glm::mat4{1.0f});
+    }
+}
+
+void BoneAnimator::playAnimation(BoneAnimation* animation)
+{
+    m_currentAnimation = animation;
+    m_currentTime = 0.0f;
+}
+
+void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, glm::mat4 parentTransform)
+{
+    glm::mat4 nodeTransform{node->transform};
+    Bone* bone {m_currentAnimation->findBone(node->name)};
+    if (bone)
+    {
+	bone->update(m_currentTime);
+	nodeTransform = bone->getLocalTransform();
+    }
+
+    glm::mat4 globalTranformation {parentTransform * nodeTransform};
+
+    std::map<std::string, MeshN::BoneInfo> boneInfoMap {m_currentAnimation->getBoneInfoMap()};
+    if (boneInfoMap.find(node->name) != boneInfoMap.end())
+    {
+	m_finalBoneMatrices[boneInfoMap[node->name].id] = globalTranformation * boneInfoMap[node->name].offset;
+    }
+
+    for (std::size_t i{0}; i < node->childrenCount; ++i)
+	calculateBoneTransform(&node->children[i], globalTranformation);
 }

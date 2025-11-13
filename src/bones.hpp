@@ -119,4 +119,24 @@ private:
     void readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode* src);
 };
 
+// the actual animation class
+class BoneAnimator
+{
+public:
+    BoneAnimator(BoneAnimation* animation);
+
+    void updateAnimation(float dt);
+    void playAnimation(BoneAnimation* animation);
+    void calculateBoneTransform(const BonesN::AssimpNodeData* node, glm::mat4 parentTransform);
+
+    [[nodiscard]] const std::vector<glm::mat4>& getFinalBoneMatrices() const {return m_finalBoneMatrices;}
+    
+private:
+    BoneAnimation* m_currentAnimation;
+    float m_currentTime;
+
+    float m_deltaTime{1.0f};
+    std::vector<glm::mat4> m_finalBoneMatrices{};
+};
+
 #endif
