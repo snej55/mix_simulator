@@ -6,6 +6,7 @@
 
 #include "src/engine.hpp"
 #include "src/ibl.hpp"
+#include "src/util.hpp"
 
 int main()
 {
@@ -42,12 +43,32 @@ int main()
     std::vector<int> numbers{};
     numbers.reserve(100);
     for (std::size_t i{0}; i < 100; ++i)
-	numbers.push_back(static_cast<int>(i + 1));
+        numbers.push_back(static_cast<int>(i + 1));
 
+    // randomize
+    for (std::size_t i{0}; i < numbers.size(); ++i)
+    {
+        const int a{numbers[i]};
+        const int randomIndex{static_cast<int>(Util::random() * static_cast<float>(numbers.size()))};
+        numbers[i] = numbers[randomIndex];
+        numbers[randomIndex] = a;
+    }
+
+    int bubbleIndex{0};
     while (!engine.getQuit())
     {
         // update game state
 
+        // bubble sort
+        if (numbers[bubbleIndex + 1] < numbers[bubbleIndex])
+        {
+            std::swap(numbers[bubbleIndex], numbers[bubbleIndex + 1]);
+        }
+        bubbleIndex++;
+        if (bubbleIndex >= numbers.size() - 1)
+        {
+            bubbleIndex = 0;
+        }
         // do rendering
         engine.enablePostProcessing();
         // clear screen
@@ -72,13 +93,13 @@ int main()
         glActiveTexture(GL_TEXTURE12);
         glBindTexture(GL_TEXTURE_2D, iblGenerator.getBRDFLutMap());
 
-	for (std::size_t i{0}; i < numbers.size(); ++i)
-	{
-	    model = glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f, 0.2f * static_cast<float>(numbers[i]), 0.2f});
-	    model = glm::translate(model, {static_cast<float>(numbers[i]) * 3.0f, 0.0f, 0.0f});
-	    engine.setMat4("model", model, "texturePBR");
-	    light->renderPBR(engine.getShader("texturePBR"));
-	}
+        for (std::size_t i{0}; i < numbers.size(); ++i)
+        {
+            model = glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f, 0.2f * static_cast<float>(numbers[i]), 0.2f});
+            model = glm::translate(model, {static_cast<float>(i) * 3.0f, 0.0f, 0.0f});
+            engine.setMat4("model", model, "texturePBR");
+            light->renderPBR(engine.getShader("texturePBR"));
+        }
 
         iblGenerator.renderSkybox(&engine);
 
