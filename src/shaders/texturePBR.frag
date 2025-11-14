@@ -85,10 +85,14 @@ float geomSmith(vec3 norm, vec3 view, vec3 light, float roughness)
 void main()
 {
     // albedo with g.c
-    vec3 albedo = pow(texture(albedoMap, fs_in.TexCoords).rgb, vec3(2.2));
-    float metallic = texture(metallicMap, fs_in.TexCoords).r;
-    float roughness = texture(roughnessMap, fs_in.TexCoords).r;
-    float ao = texture(aoMap, fs_in.TexCoords).r;
+    // vec3 albedo = pow(texture(albedoMap, fs_in.TexCoords).rgb, vec3(2.2));
+    // float metallic = texture(metallicMap, fs_in.TexCoords).r;
+    // float roughness = texture(roughnessMap, fs_in.TexCoords).r;
+    // float ao = texture(aoMap, fs_in.TexCoords).r;
+    vec3 albedo = vec3(1.0, 0.0, 0.0);
+    float metallic = 1.0;
+    float roughness = 0.2;
+    float ao = 1.0;
 
     vec3 norm = texture(normalMap, fs_in.TexCoords).rgb;
     norm = normalize(norm * 2.0 - 1.0); // normal in tangent space
