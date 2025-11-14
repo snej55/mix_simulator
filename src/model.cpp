@@ -61,7 +61,7 @@ bool Model::loadModel(const std::string& path)
     const aiScene* scene{importer.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
+        aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -379,23 +379,24 @@ void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMes
     for (unsigned int boneIdx{0}; boneIdx < mesh->mNumBones; ++boneIdx)
     {
         int boneID{-1};
-        const std::string boneName {mesh->mBones[boneIdx]->mName.C_Str()};
+        const std::string boneName{mesh->mBones[boneIdx]->mName.C_Str()};
         if (m_boneInfoMap.find(boneName) == m_boneInfoMap.end())
         {
-            const MeshN::BoneInfo boneInfo {
+            const MeshN::BoneInfo boneInfo{
                 m_boneCounter,
                 Util::convertMatrixGLM(mesh->mBones[boneIdx]->mOffsetMatrix)
             };
             m_boneInfoMap[boneName] = boneInfo;
             boneID = m_boneCounter;
             ++m_boneCounter;
-        } else
+        }
+        else
         {
             boneID = m_boneInfoMap[boneName].id;
         }
 
         assert(boneID != -1);
-        aiVertexWeight* weights {mesh->mBones[boneIdx]->mWeights};
+        aiVertexWeight* weights{mesh->mBones[boneIdx]->mWeights};
         for (unsigned int weightIdx{0}; weightIdx < mesh->mBones[boneIdx]->mNumWeights; ++weightIdx)
         {
             const unsigned int vertexID{weights[weightIdx].mVertexId};
@@ -407,7 +408,10 @@ void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMes
 }
 
 // -------------- Model Manager -------------- //
-ModelManager::ModelManager(EngineObject* parent) : EngineObject{"ModelManager", parent} {}
+ModelManager::ModelManager(EngineObject* parent) :
+    EngineObject{"ModelManager", parent}
+{
+}
 
 // load new model
 void ModelManager::addModel(const std::string& name, const std::string& path, Arena* arena)

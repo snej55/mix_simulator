@@ -127,7 +127,7 @@ public:
 
     void updateAnimation(float dt);
     void playAnimation(BoneAnimation* animation);
-    void calculateBoneTransform(const BonesN::AssimpNodeData* node, glm::mat4 parentTransform);
+    void calculateBoneTransform(const BonesN::AssimpNodeData* node, const glm::mat4& parentTransform);
 
     [[nodiscard]] const std::vector<glm::mat4>& getFinalBoneMatrices() const {return m_finalBoneMatrices;}
     

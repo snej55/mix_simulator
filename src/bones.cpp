@@ -13,7 +13,8 @@
 
 #include <algorithm>
 
-Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) : m_name{name}, m_ID{ID} { init(channel); }
+Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) :
+    m_name{name}, m_ID{ID} { init(channel); }
 
 void Bone::init(const aiNodeAnim* channel)
 {
@@ -124,7 +125,11 @@ glm::mat4 Bone::interpolatePosition(const float animationTime) const
 
     // get indices
     const int position0Idx{getPositionIndex(animationTime)};
-    const int position1Idx{position0Idx + 1};
+    int position1Idx{position0Idx + 1};
+    if (position1Idx >= m_positions.size())
+    {
+        position1Idx = 0;
+    }
     // and the scale factor
     const float scaleFactor{
         getScaleFactor(m_positions[position0Idx].timeStamp, m_positions[position1Idx].timeStamp, animationTime)};
@@ -140,7 +145,11 @@ glm::mat4 Bone::interpolateRotation(const float animationTime) const
         return glm::toMat4(glm::normalize(m_rotations[0].orientation));
 
     const int rotation0Idx{getRotationIndex(animationTime)};
-    const int rotation1Idx{rotation0Idx + 1};
+    int rotation1Idx{rotation0Idx + 1};
+    if (rotation1Idx >= m_rotations.size())
+    {
+        rotation1Idx = 0;
+    }
     const float scaleFactor{
         getScaleFactor(m_rotations[rotation0Idx].timeStamp, m_rotations[rotation1Idx].timeStamp, animationTime)};
     glm::quat finalRotation{
@@ -155,7 +164,11 @@ glm::mat4 Bone::interpolateScaling(const float animationTime) const
         return glm::scale(glm::mat4{1.0f}, m_scales[0].scale);
 
     const int scale0Idx{getScaleIndex(animationTime)};
-    const int scale1Idx{scale0Idx + 1};
+    int scale1Idx{scale0Idx + 1};
+    if (scale1Idx >= m_scales.size())
+    {
+        scale1Idx = 0;
+    }
     const float scaleFactor{
         getScaleFactor(m_scales[scale0Idx].timeStamp, m_scales[scale1Idx].timeStamp, animationTime)};
     const glm::vec3 finalScale{glm::mix(m_scales[scale0Idx].scale, m_scales[scale1Idx].scale, scaleFactor)};
@@ -170,14 +183,16 @@ BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
     assert(scene && scene->mRootNode);
 
     const aiAnimation* anim{scene->mAnimations[0]};
-    m_duration = anim->mDuration;
-    m_tps = anim->mTicksPerSecond;
+    m_duration = static_cast<float>(anim->mDuration);
+    m_tps = static_cast<int>(anim->mTicksPerSecond);
+    readHeirarchyData(m_rootNode, scene->mRootNode);
+    readMissingBones(anim, model);
 }
 
 // find bone using std::find_if
 Bone* BoneAnimation::findBone(const std::string& name)
 {
-    auto iter{
+    const auto iter{
         std::find_if(m_bones.begin(), m_bones.end(), [&](const Bone& bone) { return bone.getBoneName() == name; })};
     if (iter == m_bones.end())
         return nullptr;
@@ -187,23 +202,23 @@ Bone* BoneAnimation::findBone(const std::string& name)
 
 void BoneAnimation::readMissingBones(const aiAnimation* animation, Model* model)
 {
-    const unsigned int size {animation->mNumChannels};
-    
-    std::map<std::string, MeshN::BoneInfo>& boneInfoMap {model->getBoneInfoMap()};
-    int& boneCount {model->getBoneCounter()};
+    const unsigned int size{animation->mNumChannels};
+
+    std::map<std::string, MeshN::BoneInfo>& boneInfoMap{model->getBoneInfoMap()};
+    int& boneCount{model->getBoneCounter()};
 
     // read the channels
     for (std::size_t i{0}; i < size; ++i)
     {
-	aiNodeAnim* channel {animation->mChannels[i]};
-	std::string boneName {channel->mNodeName.data};
+        aiNodeAnim* channel{animation->mChannels[i]};
+        const std::string boneName{channel->mNodeName.data};
 
-	if (boneInfoMap.find(boneName) == boneInfoMap.end())
-	{
-	    boneInfoMap[boneName].id = boneCount;
-	    ++boneCount;
-	}
-	m_bones.push_back(Bone{channel->mNodeName.data, boneInfoMap[channel->mNodeName.data].id, channel});
+        if (boneInfoMap.find(boneName) == boneInfoMap.end())
+        {
+            boneInfoMap[boneName].id = boneCount;
+            ++boneCount;
+        }
+        m_bones.emplace_back(channel->mNodeName.data, boneInfoMap[channel->mNodeName.data].id, channel);
     }
 
     m_boneInfoMap = boneInfoMap;
@@ -215,24 +230,24 @@ void BoneAnimation::readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode
 
     dest.name = src->mName.data;
     dest.transform = Util::convertMatrixGLM(src->mTransformation);
-    dest.childrenCount = src->mNumChildren;
+    dest.childrenCount = static_cast<int>(src->mNumChildren);
 
     for (std::size_t i{0}; i < src->mNumChildren; ++i)
     {
-	BonesN::AssimpNodeData data;
-	readHeirarchyData(data, src->mChildren[i]);
-	dest.children.push_back(data);
+        BonesN::AssimpNodeData data;
+        readHeirarchyData(data, src->mChildren[i]);
+        dest.children.push_back(data);
     }
 }
 
 // the actual animator class
-BoneAnimator::BoneAnimator(BoneAnimation* animation)
- : m_currentAnimation{animation}, m_currentTime{0.0f}
+BoneAnimator::BoneAnimator(BoneAnimation* animation) :
+    m_currentAnimation{animation}, m_currentTime{0.0f}
 {
     m_finalBoneMatrices.reserve(100);
     for (std::size_t i{0}; i < 100; ++i)
     {
-	m_finalBoneMatrices.push_back(glm::mat4{1.0f});
+        m_finalBoneMatrices.emplace_back(1.0f);
     }
 }
 
@@ -241,9 +256,9 @@ void BoneAnimator::updateAnimation(const float dt)
     m_deltaTime = dt;
     if (m_currentAnimation)
     {
-	m_currentTime += m_currentAnimation->getTicksPerSecond() * dt;
-	m_currentTime = std::fmod(m_currentTime, m_currentAnimation->getDuration());
-	calculateBoneTransform(&m_currentAnimation->getRootNode(), glm::mat4{1.0f});
+        m_currentTime += m_currentAnimation->getTicksPerSecond() * dt;
+        m_currentTime = std::fmod(m_currentTime, m_currentAnimation->getDuration());
+        calculateBoneTransform(&m_currentAnimation->getRootNode(), glm::mat4{1.0f});
     }
 }
 
@@ -253,24 +268,24 @@ void BoneAnimator::playAnimation(BoneAnimation* animation)
     m_currentTime = 0.0f;
 }
 
-void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, glm::mat4 parentTransform)
+void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, const glm::mat4& parentTransform)
 {
     glm::mat4 nodeTransform{node->transform};
-    Bone* bone {m_currentAnimation->findBone(node->name)};
+    Bone* bone{m_currentAnimation->findBone(node->name)};
     if (bone)
     {
-	bone->update(m_currentTime);
-	nodeTransform = bone->getLocalTransform();
+        bone->update(m_currentTime);
+        nodeTransform = bone->getLocalTransform();
     }
 
-    glm::mat4 globalTranformation {parentTransform * nodeTransform};
+    const glm::mat4 globalTransformation{parentTransform * nodeTransform};
 
-    std::map<std::string, MeshN::BoneInfo> boneInfoMap {m_currentAnimation->getBoneInfoMap()};
+    std::map<std::string, MeshN::BoneInfo> boneInfoMap{m_currentAnimation->getBoneInfoMap()};
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
-	m_finalBoneMatrices[boneInfoMap[node->name].id] = globalTranformation * boneInfoMap[node->name].offset;
+        m_finalBoneMatrices[boneInfoMap[node->name].id] = globalTransformation * boneInfoMap[node->name].offset;
     }
 
     for (std::size_t i{0}; i < node->childrenCount; ++i)
-	calculateBoneTransform(&node->children[i], globalTranformation);
+        calculateBoneTransform(&node->children[i], globalTransformation);
 }
