@@ -1,5 +1,8 @@
 #include <iostream>
-#include <vector>
+#include <array>
+#include <mutex>
+#include <thread>
+#include <chrono>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,7 +11,44 @@
 #include "src/ibl.hpp"
 #include "src/util.hpp"
 
-int main()
+#define MAX_ELEMENTS 100
+
+void mergeSort(std::array<int, MAX_ELEMENTS>& arr, const int start, const int end)
+{
+    if (start >= end - 1)
+	return;
+
+    const int mid {start + static_cast<int>(std::floor(static_cast<float>(end - start) * 0.5f))};
+
+    mergeSort(arr, start, mid);
+    mergeSort(arr, mid, end);
+
+    std::vector<int> cache;
+    cache.reserve(end - start);
+    std::fill(cache.begin(), cache.end(), arr[0]);
+
+    int r{0};
+    int k{mid};
+    for (int i{start}; i < mid; ++i)
+    {
+	while (k < end && arr[k] < arr[i])
+	{
+	    cache[r] = arr[k];
+	    r++;
+	    k++;
+	}
+	cache[r] = arr[i];
+	r++;
+    }
+
+    for (int i{0}; i < k; ++i)
+    {
+	arr[i + start] = cache[i];
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+int main() 
 {
     // initialize engine
     Engine engine{};
@@ -40,18 +80,14 @@ int main()
     // reset window viewport
     glViewport(0, 0, engine.getWidth(), engine.getHeight());
 
-    std::vector<int> numbers{};
-    numbers.reserve(100);
-    for (std::size_t i{0}; i < 100; ++i)
-        numbers.push_back(static_cast<int>(i + 1));
+    std::array<int, MAX_ELEMENTS> numbers{};
+    for (std::size_t i{0}; i < MAX_ELEMENTS; ++i)
+        numbers[i] = static_cast<int>(i + 1);
 
     // randomize
     for (std::size_t i{0}; i < numbers.size(); ++i)
     {
-        const int a{numbers[i]};
-        const int randomIndex{static_cast<int>(Util::random() * static_cast<float>(numbers.size()))};
-        numbers[i] = numbers[randomIndex];
-        numbers[randomIndex] = a;
+	std::swap(numbers[i], numbers[static_cast<int>(Util::random() * static_cast<float>(numbers.size()))]);
     }
 
     int bubbleIndex{0};
@@ -69,10 +105,10 @@ int main()
         {
             bubbleIndex = 0;
         }
-        // do rendering
-        engine.enablePostProcessing();
-        // clear screen
-        engine.clear();
+
+        // rendering
+        engine.enablePostProcessing(); // bind post processing framebuffer
+        engine.clear(); // clear screen
 
         engine.useShader("texturePBR");
         engine.setVec3("viewPos", engine.getCameraPosition(), "texturePBR");
@@ -93,6 +129,7 @@ int main()
         glActiveTexture(GL_TEXTURE12);
         glBindTexture(GL_TEXTURE_2D, iblGenerator.getBRDFLutMap());
 
+	// render the numbers array
         for (std::size_t i{0}; i < numbers.size(); ++i)
         {
             model = glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f, 0.2f * static_cast<float>(numbers[i]), 0.2f});
