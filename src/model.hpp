@@ -53,6 +53,10 @@ private:
     void extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh, const aiScene* scene);
 
     void handleTransparentTextures(const aiScene* scene);
+
+    // pbr material parameters
+    static void loadEmissiveFactor(const aiMaterial* mat, glm::vec3& emissiveFactor, float& emissiveIntensity);
+    static void loadBaseColor(const aiMaterial* mat, glm::vec4& baseColor);
 };
 
 class ModelManager final : public EngineObject

@@ -213,6 +213,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
 
     // materials
     aiMaterial* material{scene->mMaterials[mesh->mMaterialIndex]};
+    MeshN::Material meshMaterial{};
 
     // use custom glTF Material Output node in blender for ambient occlusion texture
     std::vector<MeshN::Texture> aoMaps{
@@ -221,7 +222,15 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     // albedo texture
     std::vector<MeshN::Texture> albedoMaps{
         loadMaterialTextures(scene, material, aiTextureType_BASE_COLOR, MeshN::TEXTURE_ALBEDO)};
-    textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
+    if (albedoMaps.empty())
+    {
+        loadBaseColor(material, meshMaterial.albedo);
+        meshMaterial.useAlbedoTex = false;
+    }
+    else
+    {
+        textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
+    }
     // metallic texture (b-channel of metallic-roughness texture)
     std::vector<MeshN::Texture> metallicMaps{
         loadMaterialTextures(scene, material, aiTextureType_METALNESS, MeshN::TEXTURE_METALLIC)};
@@ -236,7 +245,19 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     std::vector<MeshN::Texture> emissiveMaps{
         loadMaterialTextures(scene, material, aiTextureType_EMISSIVE, MeshN::TEXTURE_EMISSIVE)};
-    std::cout << emissiveMaps.size() << std::endl;
+    if (emissiveMaps.empty())
+    {
+        glm::vec3 emissiveFactor{0.0f, 0.0f, 0.0f};
+        float emissiveIntensity{1.0f};
+        loadEmissiveFactor(material, emissiveFactor, emissiveIntensity);
+        meshMaterial.emissiveFactor = emissiveFactor;
+        meshMaterial.emissiveIntensity = emissiveIntensity;
+        meshMaterial.useEmissiveTex = false;
+    }
+    else
+    {
+        textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
+    }
 
     return Mesh{vertices, indices, textures};
 }
@@ -468,6 +489,35 @@ void Model::handleTransparentTextures(const aiScene* scene)
                 m_meshes[i].setBlendMode(MeshN::BLEND_OPAQUE);
             }
         }
+    }
+}
+
+void Model::loadEmissiveFactor(const aiMaterial* mat, glm::vec3& emissiveFactor, float& emissiveIntensity)
+{
+    aiColor3D emissiveFactorColor{0.0f, 0.0f, 0.0f};
+    if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveFactorColor) == AI_SUCCESS)
+    {
+        emissiveFactor.r = emissiveFactorColor.r;
+        emissiveFactor.g = emissiveFactorColor.g;
+        emissiveFactor.b = emissiveFactorColor.b;
+    }
+
+    if (mat->Get(AI_MATKEY_EMISSIVE_INTENSITY, emissiveIntensity) != AI_SUCCESS)
+        emissiveIntensity = 1.0f;
+}
+
+void Model::loadBaseColor(const aiMaterial* mat, glm::vec4& baseColor)
+{
+    aiColor4D baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};
+    if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, baseColorFactor) == AI_SUCCESS)
+    {
+        baseColor.r = baseColorFactor.r;
+        baseColor.g = baseColorFactor.g;
+        baseColor.b = baseColorFactor.b;
+        baseColor.a = baseColorFactor.a;
+    } else
+    {
+        baseColor = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
     }
 }
 

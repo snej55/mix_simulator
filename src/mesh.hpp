@@ -23,6 +23,25 @@ namespace MeshN
         float weights[MAX_BONE_INFLUENCE];
     };
 
+    struct Material
+    {
+        // gltf material name
+        std::string name;
+        // albedo
+        glm::vec4 albedo;
+        bool useAlbedoTex = true;
+        // if texture exists (emissive is texture sample):
+        // emissiveColor = emissive * emissiveFactor * emissiveIntensity
+        glm::vec3 emissiveFactor;
+        float emissiveIntensity;
+        bool useEmissiveTex = true;
+        // other basic pbr parameters
+        float metallicFactor;
+        float roughnessFactor;
+        bool useRoughnessMetallicTex = true;
+        bool useNormalTex = true;
+    };
+
     enum TextureType
     {
         TEXTURE_ALBEDO = 0,
@@ -83,10 +102,14 @@ public:
     [[nodiscard]] glm::vec3 getMidpoint() const {return m_midPoint;}
     [[nodiscard]] const glm::mat4& getModelTransform() const {return m_modelMat;}
 
+    MeshN::Material& getMaterial() { return m_material; }
+
 private:
     std::vector<MeshN::Vertex> m_vertices;
     std::vector<unsigned int> m_indices;
     std::vector<MeshN::Texture> m_textures;
+
+    MeshN::Material m_material;
 
     unsigned int m_VAO{};
     unsigned int m_VBO{};

@@ -32,6 +32,7 @@ void Mesh::renderPBR(const Shader* pbrShader) const
 {
     pbrShader->use();
     std::string textureType;
+    bool foundTexture{false};
 
     for (int i{0}; i < m_textures.size(); ++i)
     {
@@ -66,9 +67,13 @@ void Mesh::renderPBR(const Shader* pbrShader) const
         // don't render unknown texture
         if (textureType == "unknown")
             continue;
+        foundTexture = true;
 
         pbrShader->setInt("material." + textureType, i);
     }
+
+    if (!foundTexture)
+        return;
 
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
