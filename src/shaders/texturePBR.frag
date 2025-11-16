@@ -108,6 +108,9 @@ void main()
     vec4 albedoSample = texture(material.albedoMap, fs_in.TexCoords);
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2));
     float alpha = albedoSample.a;
+    if (alpha < 0.1)
+	discard;
+
     float metallic = texture(material.metallicMap, fs_in.TexCoords).r;
     float roughness = texture(material.roughnessMap, fs_in.TexCoords).r;
     float ao = texture(material.aoMap, fs_in.TexCoords).r;

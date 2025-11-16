@@ -46,6 +46,41 @@ void Model::renderPBR(const Shader* pbrShader) const
     }
 }
 
+void Model::renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model)
+{
+    std::map<float, std::size_t> sortedMeshes{};
+    for (std::size_t i{0}; i < m_meshes.size(); ++i)
+    {
+        if (m_meshes[i].getBlendMode() == MeshN::BLEND_TRANSPARENT)
+        {
+            m_meshes[i].updateMidpoint(model);
+            const float distance{glm::length(cameraPos - m_meshes[i].getMidpoint())};
+            sortedMeshes[distance] = i;
+        }
+    }
+
+    // ----- render the opaque meshes first ----- //
+    for (const Mesh& mesh : m_meshes)
+    {
+        if (mesh.getBlendMode() != MeshN::BLEND_TRANSPARENT)
+        {
+            mesh.renderPBR(pbrShader);
+        }
+    }
+
+    // ----- render the transparent objects ----- //
+    // enable the correct blending equation (messed up by bloom)
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    for (std::map<float, std::size_t>::reverse_iterator it{sortedMeshes.rbegin()}; it != sortedMeshes.rend(); ++it)
+    {
+        m_meshes[it->second].renderPBR(pbrShader);
+    }
+
+    glDisable(GL_BLEND);
+}
+
 bool Model::loadModel(const std::string& path)
 {
     // check if model already exists
@@ -62,7 +97,7 @@ bool Model::loadModel(const std::string& path)
     const aiScene* scene{importer.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
+        aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -414,19 +449,21 @@ void Model::handleTransparentTextures(const aiScene* scene)
     for (std::size_t i{0}; i < scene->mNumMeshes; ++i)
     {
         const aiMesh* mesh{scene->mMeshes[i]};
-        const aiMaterial* material {scene->mMaterials[mesh->mMaterialIndex]};
+        const aiMaterial* material{scene->mMaterials[mesh->mMaterialIndex]};
         aiString alphaMode; // get the GLTF_ALPHAMODE
 
         if (material->Get(AI_MATKEY_GLTF_ALPHAMODE, alphaMode) == AI_SUCCESS)
         {
-            const std::string mode {alphaMode.C_Str()};
+            const std::string mode{alphaMode.C_Str()};
             if (mode == "BLEND")
             {
                 m_meshes[i].setBlendMode(MeshN::BLEND_TRANSPARENT);
-            } else if (mode == "MASK")
+            }
+            else if (mode == "MASK")
             {
                 m_meshes[i].setBlendMode(MeshN::BLEND_MASK);
-            } else
+            }
+            else
             {
                 m_meshes[i].setBlendMode(MeshN::BLEND_OPAQUE);
             }
@@ -435,7 +472,10 @@ void Model::handleTransparentTextures(const aiScene* scene)
 }
 
 // -------------- Model Manager -------------- //
-ModelManager::ModelManager(EngineObject* parent) : EngineObject{"ModelManager", parent} {}
+ModelManager::ModelManager(EngineObject* parent) :
+    EngineObject{"ModelManager", parent}
+{
+}
 
 // load new model
 void ModelManager::addModel(const std::string& name, const std::string& path, Arena* arena)

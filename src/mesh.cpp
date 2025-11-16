@@ -89,6 +89,8 @@ void Mesh::setupMesh()
 {
     // calculate correct tangents
     calcTangents();
+    // calculate the world space mid-point for depth sorting
+    calculateMidpoint(glm::mat4{1.0f});
     unsigned int meshVAO, meshVBO, meshEBO;
     glGenVertexArrays(1, &meshVAO);
     glGenBuffers(1, &meshVBO);
@@ -141,6 +143,7 @@ void Mesh::calcTangents()
 
 void Mesh::calculateMidpoint(const glm::mat4& transform)
 {
+    m_modelMat = transform;
     glm::vec3 minPoint{std::numeric_limits<float>::max()};
     glm::vec3 maxPoint{std::numeric_limits<float>::lowest()};
 
@@ -156,7 +159,14 @@ void Mesh::calculateMidpoint(const glm::mat4& transform)
     }
 
     const glm::vec3 localPos {(minPoint + maxPoint) * 0.5f};
-    m_mipPoint = glm::vec3{transform * glm::vec4{localPos, 1.0f}};
+    m_localPos = localPos;
+    m_midPoint = glm::vec3{transform * glm::vec4{localPos, 1.0f}};
+}
+
+void Mesh::updateMidpoint(const glm::mat4& transform)
+{
+    m_modelMat = transform;
+    m_midPoint = glm::vec3{transform * glm::vec4{m_localPos, 1.0f}};
 }
 
 int Mesh::SMTGetVertexIndex(const SMikkTSpaceContext* context, const int iFace, const int iVert)

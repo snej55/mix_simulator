@@ -52,6 +52,5 @@ void main()
     // gamma correction
     mapped = pow(mapped, vec3(1.0 / gamma));
 
-    float alpha = texture(screenTexture, TexCoords).a;
-    FragColor = vec4(mapped, alpha);
+    FragColor = vec4(mapped, 1.0);
 }

@@ -79,7 +79,9 @@ public:
 
     // calculate AABB midpoint (world center)
     void calculateMidpoint(const glm::mat4& transform);
-    [[nodiscard]] glm::vec3 getMidpoint() const {return m_mipPoint;}
+    void updateMidpoint(const glm::mat4& transform); // update model matrix
+    [[nodiscard]] glm::vec3 getMidpoint() const {return m_midPoint;}
+    [[nodiscard]] const glm::mat4& getModelTransform() const {return m_modelMat;}
 
 private:
     std::vector<MeshN::Vertex> m_vertices;
@@ -92,7 +94,9 @@ private:
 
     // for depth sorting
     MeshN::BlendMode m_blendMode{MeshN::BLEND_OPAQUE};
-    glm::vec3 m_mipPoint{};
+    glm::vec3 m_midPoint{};
+    glm::vec3 m_localPos{};
+    glm::mat4 m_modelMat{};
 
     SMikkTSpaceContext m_SMT_context{};
     SMikkTSpaceInterface m_SMT_iface{};

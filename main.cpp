@@ -50,8 +50,6 @@ int main()
         engine.setVec3("viewPos", engine.getCameraPosition(), "texturePBR");
 
         glm::mat4 model{glm::mat4{1.0f}};
-        model = glm::scale(model, glm::vec3{0.2f});
-        engine.setMat4("model", model, "texturePBR");
         engine.setMat4("view", engine.getViewMatrix(), "texturePBR");
         engine.setMat4("projection", engine.getProjectionMatrix(), "texturePBR");
         engine.setMat3("normalMat", engine.getNormalMatrix(model), "texturePBR");
@@ -67,7 +65,7 @@ int main()
 
         model = glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f});
         engine.setMat4("model", model, "texturePBR");
-        light->renderPBR(engine.getShader("texturePBR"));
+        light->renderFull(engine.getShader("texturePBR"), engine.getCameraPosition(), model);
 
         iblGenerator.renderSkybox(&engine);
 
