@@ -77,6 +77,10 @@ public:
     void setBlendMode(const MeshN::BlendMode blendMode) { m_blendMode = blendMode; }
     [[nodiscard]] MeshN::BlendMode getBlendMode() const { return m_blendMode; }
 
+    // calculate AABB midpoint (world center)
+    void calculateMidpoint(const glm::mat4& transform);
+    [[nodiscard]] glm::vec3 getMidpoint() const {return m_mipPoint;}
+
 private:
     std::vector<MeshN::Vertex> m_vertices;
     std::vector<unsigned int> m_indices;
@@ -86,7 +90,9 @@ private:
     unsigned int m_VBO{};
     unsigned int m_EBO{};
 
+    // for depth sorting
     MeshN::BlendMode m_blendMode{MeshN::BLEND_OPAQUE};
+    glm::vec3 m_mipPoint{};
 
     SMikkTSpaceContext m_SMT_context{};
     SMikkTSpaceInterface m_SMT_iface{};
@@ -104,8 +110,8 @@ private:
 
     static void SMTGetTexCoords(const SMikkTSpaceContext* context, float outUV[], int iFace, int iVert);
 
-    static void SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float tangentU[], const float fSign,
-                                  const int iFace, const int iVert);
+    static void SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float tangentU[], float fSign,
+                                  int iFace, int iVert);
 };
 
 #endif // MESH_H

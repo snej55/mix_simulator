@@ -139,6 +139,26 @@ void Mesh::calcTangents()
     genTangSpaceDefault(&m_SMT_context);
 }
 
+void Mesh::calculateMidpoint(const glm::mat4& transform)
+{
+    glm::vec3 minPoint{std::numeric_limits<float>::max()};
+    glm::vec3 maxPoint{std::numeric_limits<float>::lowest()};
+
+    for (std::size_t i{0}; i < m_vertices.size(); ++i)
+    {
+        minPoint.x = std::min(minPoint.x, m_vertices[i].position.x);
+        minPoint.y = std::min(minPoint.y, m_vertices[i].position.y);
+        minPoint.z = std::min(minPoint.z, m_vertices[i].position.z);
+
+        maxPoint.x = std::max(maxPoint.x, m_vertices[i].position.x);
+        maxPoint.y = std::max(maxPoint.y, m_vertices[i].position.y);
+        maxPoint.z = std::max(maxPoint.z, m_vertices[i].position.z);
+    }
+
+    const glm::vec3 localPos {(minPoint + maxPoint) * 0.5f};
+    m_mipPoint = glm::vec3{transform * glm::vec4{localPos, 1.0f}};
+}
+
 int Mesh::SMTGetVertexIndex(const SMikkTSpaceContext* context, const int iFace, const int iVert)
 {
     Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};

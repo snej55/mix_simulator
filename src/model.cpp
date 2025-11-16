@@ -419,13 +419,10 @@ void Model::handleTransparentTextures(const aiScene* scene)
 
         if (material->Get(AI_MATKEY_GLTF_ALPHAMODE, alphaMode) == AI_SUCCESS)
         {
-            std::string mode {alphaMode.C_Str()};
+            const std::string mode {alphaMode.C_Str()};
             if (mode == "BLEND")
             {
                 m_meshes[i].setBlendMode(MeshN::BLEND_TRANSPARENT);
-            } else if (mode == "OPAQUE")
-            {
-                m_meshes[i].setBlendMode(MeshN::BLEND_OPAQUE);
             } else if (mode == "MASK")
             {
                 m_meshes[i].setBlendMode(MeshN::BLEND_MASK);
