@@ -44,7 +44,7 @@ vec3 bloom()
 
 void main()
 {
-    vec3 hdrColor = bloom(); 
+    vec3 hdrColor = bloom();
 
     // Khronos PBR neutral note mapping
     vec3 mapped = PBRNeutralToneMapping(hdrColor);
@@ -52,5 +52,6 @@ void main()
     // gamma correction
     mapped = pow(mapped, vec3(1.0 / gamma));
 
-    FragColor = vec4(mapped, 1.0);
+    float alpha = texture(screenTexture, TexCoords).a;
+    FragColor = vec4(mapped, alpha);
 }

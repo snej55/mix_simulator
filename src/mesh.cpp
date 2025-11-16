@@ -55,6 +55,9 @@ void Mesh::renderPBR(const Shader* pbrShader) const
         case MeshN::TEXTURE_NORMAL:
             textureType = "normalMap";
             break;
+        case MeshN::TEXTURE_EMISSIVE:
+            textureType = "emissiveMap";
+            break;
         default:
             textureType = "unknown";
             break;
@@ -64,7 +67,7 @@ void Mesh::renderPBR(const Shader* pbrShader) const
         if (textureType == "unknown")
             continue;
 
-        pbrShader->setInt(textureType, i);
+        pbrShader->setInt("material." + textureType, i);
     }
 
     glBindVertexArray(m_VAO);
@@ -112,9 +115,11 @@ void Mesh::setupMesh()
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
                           reinterpret_cast<void*>(offsetof(MeshN::Vertex, tangent)));
     glEnableVertexAttribArray(3);
-    glVertexAttribIPointer(4, 4, GL_INT, sizeof(MeshN::Vertex), reinterpret_cast<void*>(offsetof(MeshN::Vertex, boneIDs)));
+    glVertexAttribIPointer(4, 4, GL_INT, sizeof(MeshN::Vertex),
+                           reinterpret_cast<void*>(offsetof(MeshN::Vertex, boneIDs)));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex), reinterpret_cast<void*>(offsetof(MeshN::Vertex, weights)));
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
+                          reinterpret_cast<void*>(offsetof(MeshN::Vertex, weights)));
     glEnableVertexAttribArray(5);
 
     // not really necessary but just in case
@@ -136,9 +141,9 @@ void Mesh::calcTangents()
 
 int Mesh::SMTGetVertexIndex(const SMikkTSpaceContext* context, const int iFace, const int iVert)
 {
-    Mesh* mesh {static_cast<Mesh*>(context->m_pUserData)};
-    const int faceSize {SMTGetNumVerticesOfFace(context, iFace)};
-    const int indicesIndex {iFace * faceSize + iVert};
+    Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
+    const int faceSize{SMTGetNumVerticesOfFace(context, iFace)};
+    const int indicesIndex{iFace * faceSize + iVert};
 
     return static_cast<int>(mesh->getIndices()[indicesIndex]);
 }
@@ -155,16 +160,13 @@ int Mesh::SMTGetNumFaces(const SMikkTSpaceContext* context)
     return iSize;
 }
 
-int Mesh::SMTGetNumVerticesOfFace(const SMikkTSpaceContext* context, const int iFace)
-{
-    return 3;
-}
+int Mesh::SMTGetNumVerticesOfFace(const SMikkTSpaceContext* context, const int iFace) { return 3; }
 
 void Mesh::SMTGetPosition(const SMikkTSpaceContext* context, float* outPos, const int iFace, const int iVert)
 {
     Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
 
-    const int index {SMTGetVertexIndex(context, iFace, iVert)};
+    const int index{SMTGetVertexIndex(context, iFace, iVert)};
     const MeshN::Vertex vertex{mesh->getVertices()[index]};
 
     outPos[0] = vertex.position.x;
@@ -176,7 +178,7 @@ void Mesh::SMTGetNormal(const SMikkTSpaceContext* context, float* outNormal, con
 {
     Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
 
-    const int index {SMTGetVertexIndex(context, iFace, iVert)};
+    const int index{SMTGetVertexIndex(context, iFace, iVert)};
     const MeshN::Vertex vertex{mesh->getVertices()[index]};
 
     outNormal[0] = vertex.normal.x;
@@ -188,14 +190,15 @@ void Mesh::SMTGetTexCoords(const SMikkTSpaceContext* context, float* outUV, cons
 {
     Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
 
-    const int index {SMTGetVertexIndex(context, iFace, iVert)};
+    const int index{SMTGetVertexIndex(context, iFace, iVert)};
     const MeshN::Vertex vertex{mesh->getVertices()[index]};
 
     outUV[0] = vertex.texCoords.x;
     outUV[1] = vertex.texCoords.y;
 }
 
-void Mesh::SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float* tangentU, const float fSign, const int iFace, const int iVert)
+void Mesh::SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float* tangentU, const float fSign,
+                             const int iFace, const int iVert)
 {
     Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
 
@@ -207,4 +210,3 @@ void Mesh::SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float* tan
     vertex->tangent.z = tangentU[2];
     vertex->tangent.w = fSign;
 }
-

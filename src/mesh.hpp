@@ -30,7 +30,16 @@ namespace MeshN
         TEXTURE_METALLIC = 2,
         TEXTURE_ROUGHNESS = 3,
         TEXTURE_NORMAL = 4,
-        TEXTURE_NONE = 5,
+        TEXTURE_EMISSIVE = 5,
+        TEXTURE_NONE = 6,
+    };
+
+    enum BlendMode
+    {
+        BLEND_OPAQUE = 0,
+        BLEND_TRANSPARENT = 1,
+        BLEND_MASK = 2,
+        BLEND_NONE = 3,
     };
 
     struct Texture
@@ -65,6 +74,9 @@ public:
     [[nodiscard]] MeshN::Vertex* getVertex(const int index) { return &m_vertices[index]; }
     [[nodiscard]] const std::vector<unsigned int>& getIndices() const { return m_indices; }
 
+    void setBlendMode(const MeshN::BlendMode blendMode) { m_blendMode = blendMode; }
+    [[nodiscard]] MeshN::BlendMode getBlendMode() const { return m_blendMode; }
+
 private:
     std::vector<MeshN::Vertex> m_vertices;
     std::vector<unsigned int> m_indices;
@@ -73,6 +85,8 @@ private:
     unsigned int m_VAO{};
     unsigned int m_VBO{};
     unsigned int m_EBO{};
+
+    MeshN::BlendMode m_blendMode{MeshN::BLEND_OPAQUE};
 
     SMikkTSpaceContext m_SMT_context{};
     SMikkTSpaceInterface m_SMT_iface{};

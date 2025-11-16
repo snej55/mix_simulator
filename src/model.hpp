@@ -50,6 +50,8 @@ private:
     static void setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight);
 
     void extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh, const aiScene* scene);
+
+    void handleTransparentTextures(const aiScene* scene);
 };
 
 class ModelManager final : public EngineObject

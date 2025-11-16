@@ -16,11 +16,31 @@ fs_in;
 uniform vec3 lightColor;
 
 // textures
-uniform sampler2D albedoMap;
-uniform sampler2D metallicMap;
-uniform sampler2D roughnessMap;
-uniform sampler2D aoMap;
-uniform sampler2D normalMap;
+
+struct Material
+{
+    int useAlbedoTex;
+    int useMetallicTex;
+    int useRoughnessTex;
+    int useNormalTex;
+    int useAOTex;
+    int useEmissiveTex;
+
+    sampler2D albedoMap;
+    sampler2D metallicMap;
+    sampler2D roughnessMap;
+    sampler2D aoMap;
+    sampler2D normalMap;
+    sampler2D emissiveMap;
+
+    vec3 albedo;
+    float metallic;
+    float roughness;
+    float ao;
+    vec3 emissive;
+};
+
+uniform Material material;
 
 // IBL
 uniform samplerCube irradianceMap;
@@ -85,18 +105,16 @@ float geomSmith(vec3 norm, vec3 view, vec3 light, float roughness)
 void main()
 {
     // albedo with g.c
-    // vec3 albedo = pow(texture(albedoMap, fs_in.TexCoords).rgb, vec3(2.2));
-    // float metallic = texture(metallicMap, fs_in.TexCoords).r;
-    // float roughness = texture(roughnessMap, fs_in.TexCoords).r;
-    // float ao = texture(aoMap, fs_in.TexCoords).r;
-    vec3 albedo = vec3(1.0, 0.0, 0.0);
-    float metallic = 1.0;
-    float roughness = 0.2;
-    float ao = 1.0;
+    vec4 albedoSample = texture(material.albedoMap, fs_in.TexCoords);
+    vec3 albedo = pow(albedoSample.rgb, vec3(2.2));
+    float alpha = albedoSample.a;
+    float metallic = texture(material.metallicMap, fs_in.TexCoords).r;
+    float roughness = texture(material.roughnessMap, fs_in.TexCoords).r;
+    float ao = texture(material.aoMap, fs_in.TexCoords).r;
+    vec3 emissive = texture(material.emissiveMap, fs_in.TexCoords).rgb;
 
-    vec3 norm = texture(normalMap, fs_in.TexCoords).rgb;
+    vec3 norm = texture(material.normalMap, fs_in.TexCoords).rgb;
     norm = normalize(norm * 2.0 - 1.0); // normal in tangent space
-    // norm = Normal;
     vec3 V = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 
     // outgoing radiance
@@ -152,7 +170,7 @@ void main()
     vec3 diffuse = irradiance * albedo;
     vec3 ambient = (diffuse * kD + spec) * ao;
     // final color
-    vec3 color = ambient + Lo;
+    vec3 color = emissive + ambient + Lo;
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, alpha);
 }

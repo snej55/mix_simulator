@@ -6,8 +6,9 @@
 #include <assimp/postprocess.h>
 #include <glad/glad.h>
 #include <mikktspace.h>
+#include <assimp/material.h>
+#include <assimp/GltfMaterial.h>
 
-#include "assimp/material.h"
 #include "mesh.hpp"
 #include "model.hpp"
 #include "texture.hpp"
@@ -61,7 +62,7 @@ bool Model::loadModel(const std::string& path)
     const aiScene* scene{importer.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-        aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
+            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -75,6 +76,7 @@ bool Model::loadModel(const std::string& path)
 
     directory = path.substr(0, path.find_last_of('/'));
     processNode(scene->mRootNode, scene);
+    handleTransparentTextures(scene);
 
     // overkill log
     int numVertices{};
@@ -197,6 +199,9 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     std::vector<MeshN::Texture> normalMaps{
         loadMaterialTextures(scene, material, aiTextureType_NORMALS, MeshN::TEXTURE_NORMAL)};
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+    std::vector<MeshN::Texture> emissiveMaps{
+        loadMaterialTextures(scene, material, aiTextureType_EMISSIVE, MeshN::TEXTURE_EMISSIVE)};
+    std::cout << emissiveMaps.size() << std::endl;
 
     return Mesh{vertices, indices, textures};
 }
@@ -382,10 +387,7 @@ void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMes
         const std::string boneName{mesh->mBones[boneIdx]->mName.C_Str()};
         if (m_boneInfoMap.find(boneName) == m_boneInfoMap.end())
         {
-            const MeshN::BoneInfo boneInfo{
-                m_boneCounter,
-                Util::convertMatrixGLM(mesh->mBones[boneIdx]->mOffsetMatrix)
-            };
+            const MeshN::BoneInfo boneInfo{m_boneCounter, Util::convertMatrixGLM(mesh->mBones[boneIdx]->mOffsetMatrix)};
             m_boneInfoMap[boneName] = boneInfo;
             boneID = m_boneCounter;
             ++m_boneCounter;
@@ -407,11 +409,36 @@ void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMes
     }
 }
 
-// -------------- Model Manager -------------- //
-ModelManager::ModelManager(EngineObject* parent) :
-    EngineObject{"ModelManager", parent}
+void Model::handleTransparentTextures(const aiScene* scene)
 {
+    for (std::size_t i{0}; i < scene->mNumMeshes; ++i)
+    {
+        const aiMesh* mesh{scene->mMeshes[i]};
+        const aiMaterial* material {scene->mMaterials[mesh->mMaterialIndex]};
+        aiString alphaMode; // get the GLTF_ALPHAMODE
+
+        if (material->Get(AI_MATKEY_GLTF_ALPHAMODE, alphaMode) == AI_SUCCESS)
+        {
+            std::string mode {alphaMode.C_Str()};
+            if (mode == "BLEND")
+            {
+                m_meshes[i].setBlendMode(MeshN::BLEND_TRANSPARENT);
+            } else if (mode == "OPAQUE")
+            {
+                m_meshes[i].setBlendMode(MeshN::BLEND_OPAQUE);
+            } else if (mode == "MASK")
+            {
+                m_meshes[i].setBlendMode(MeshN::BLEND_MASK);
+            } else
+            {
+                m_meshes[i].setBlendMode(MeshN::BLEND_OPAQUE);
+            }
+        }
+    }
 }
+
+// -------------- Model Manager -------------- //
+ModelManager::ModelManager(EngineObject* parent) : EngineObject{"ModelManager", parent} {}
 
 // load new model
 void ModelManager::addModel(const std::string& name, const std::string& path, Arena* arena)
