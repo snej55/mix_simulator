@@ -38,7 +38,8 @@ namespace MeshN
         // other basic pbr parameters
         float metallicFactor;
         float roughnessFactor;
-        bool useRoughnessMetallicTex = true;
+        bool useMetallicTex = true;
+        bool useRoughnessTex = true;
         bool useNormalTex = true;
     };
 

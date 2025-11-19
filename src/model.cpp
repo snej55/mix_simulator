@@ -234,11 +234,25 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     // metallic texture (b-channel of metallic-roughness texture)
     std::vector<MeshN::Texture> metallicMaps{
         loadMaterialTextures(scene, material, aiTextureType_METALNESS, MeshN::TEXTURE_METALLIC)};
-    textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
+    if (metallicMaps.empty())
+    {
+        loadMetallicFactor(material, meshMaterial.metallicFactor);
+        meshMaterial.useMetallicTex = false;
+    } else
+    {
+        textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
+    }
     // roughness texture (g-channel)
     std::vector<MeshN::Texture> roughnessMaps{
         loadMaterialTextures(scene, material, aiTextureType_GLTF_METALLIC_ROUGHNESS, MeshN::TEXTURE_ROUGHNESS)};
-    textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+    if (roughnessMaps.empty())
+    {
+        loadRoughnessFactor(material, meshMaterial.roughnessFactor);
+        meshMaterial.useRoughnessTex = false;
+    } else
+    {
+        textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+    }
     // normal map texture
     std::vector<MeshN::Texture> normalMaps{
         loadMaterialTextures(scene, material, aiTextureType_NORMALS, MeshN::TEXTURE_NORMAL)};
@@ -509,7 +523,7 @@ void Model::loadEmissiveFactor(const aiMaterial* mat, glm::vec3& emissiveFactor,
 void Model::loadBaseColor(const aiMaterial* mat, glm::vec4& baseColor)
 {
     aiColor4D baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};
-    if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, baseColorFactor) == AI_SUCCESS)
+    if (mat->Get(AI_MATKEY_BASE_COLOR, baseColorFactor) == AI_SUCCESS)
     {
         baseColor.r = baseColorFactor.r;
         baseColor.g = baseColorFactor.g;
@@ -519,6 +533,18 @@ void Model::loadBaseColor(const aiMaterial* mat, glm::vec4& baseColor)
     {
         baseColor = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
     }
+}
+
+void Model::loadMetallicFactor(const aiMaterial* mat, float& metallicFactor)
+{
+    if (mat->Get(AI_MATKEY_METALLIC_FACTOR, metallicFactor) != AI_SUCCESS)
+        metallicFactor = 1.0f;
+}
+
+void Model::loadRoughnessFactor(const aiMaterial* mat, float& roughnessFactor)
+{
+    if (mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughnessFactor) != AI_SUCCESS)
+        roughnessFactor = 1.0f;
 }
 
 // -------------- Model Manager -------------- //

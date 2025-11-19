@@ -57,6 +57,8 @@ private:
     // pbr material parameters
     static void loadEmissiveFactor(const aiMaterial* mat, glm::vec3& emissiveFactor, float& emissiveIntensity);
     static void loadBaseColor(const aiMaterial* mat, glm::vec4& baseColor);
+    static void loadMetallicFactor(const aiMaterial* mat, float& metallicFactor);
+    static void loadRoughnessFactor(const aiMaterial* mat, float& roughnessFactor);
 };
 
 class ModelManager final : public EngineObject
