@@ -57,7 +57,6 @@ static
 int open_gl(void)
 {
 
-
 #ifndef IS_UWP
 libGL= LoadLibraryW(L"opengl32.dll");
     if(libGL!= NULL) {

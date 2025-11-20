@@ -163,22 +163,22 @@ extern const struct wl_interface xdg_activation_token_v1_interface;
 
 /** @ingroup iface_xdg_activation_v1 */
 static inline void
-xdg_activation_v1_set_user_data(struct xdg_activation_v1* xdg_activation_v1, void* user_data)
+xdg_activation_v1_set_user_data(struct xdg_activation_v1 *xdg_activation_v1, void *user_data)
 {
-    wl_proxy_set_user_data((struct wl_proxy*)xdg_activation_v1, user_data);
+	wl_proxy_set_user_data((struct wl_proxy *) xdg_activation_v1, user_data);
 }
 
 /** @ingroup iface_xdg_activation_v1 */
-static inline void*
-xdg_activation_v1_get_user_data(struct xdg_activation_v1* xdg_activation_v1)
+static inline void *
+xdg_activation_v1_get_user_data(struct xdg_activation_v1 *xdg_activation_v1)
 {
-    return wl_proxy_get_user_data((struct wl_proxy*)xdg_activation_v1);
+	return wl_proxy_get_user_data((struct wl_proxy *) xdg_activation_v1);
 }
 
 static inline uint32_t
-xdg_activation_v1_get_version(struct xdg_activation_v1* xdg_activation_v1)
+xdg_activation_v1_get_version(struct xdg_activation_v1 *xdg_activation_v1)
 {
-    return wl_proxy_get_version((struct wl_proxy*)xdg_activation_v1);
+	return wl_proxy_get_version((struct wl_proxy *) xdg_activation_v1);
 }
 
 /**
@@ -191,11 +191,10 @@ xdg_activation_v1_get_version(struct xdg_activation_v1* xdg_activation_v1)
  * be destroyed separately.
  */
 static inline void
-xdg_activation_v1_destroy(struct xdg_activation_v1* xdg_activation_v1)
+xdg_activation_v1_destroy(struct xdg_activation_v1 *xdg_activation_v1)
 {
-    wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_v1,
-                           XDG_ACTIVATION_V1_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy*)xdg_activation_v1),
-                           WL_MARSHAL_FLAG_DESTROY);
+	wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_v1,
+			 XDG_ACTIVATION_V1_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *) xdg_activation_v1), WL_MARSHAL_FLAG_DESTROY);
 }
 
 /**
@@ -205,16 +204,15 @@ xdg_activation_v1_destroy(struct xdg_activation_v1* xdg_activation_v1)
  * the initiating client with a unique token for this activation. This
  * token should be offered to the clients to be activated.
  */
-static inline struct xdg_activation_token_v1*
-xdg_activation_v1_get_activation_token(struct xdg_activation_v1* xdg_activation_v1)
+static inline struct xdg_activation_token_v1 *
+xdg_activation_v1_get_activation_token(struct xdg_activation_v1 *xdg_activation_v1)
 {
-    struct wl_proxy* id;
+	struct wl_proxy *id;
 
-    id = wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_v1,
-                                XDG_ACTIVATION_V1_GET_ACTIVATION_TOKEN, &xdg_activation_token_v1_interface,
-                                wl_proxy_get_version((struct wl_proxy*)xdg_activation_v1), 0, NULL);
+	id = wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_v1,
+			 XDG_ACTIVATION_V1_GET_ACTIVATION_TOKEN, &xdg_activation_token_v1_interface, wl_proxy_get_version((struct wl_proxy *) xdg_activation_v1), 0, NULL);
 
-    return (struct xdg_activation_token_v1*)id;
+	return (struct xdg_activation_token_v1 *) id;
 }
 
 /**
@@ -232,22 +230,19 @@ xdg_activation_v1_get_activation_token(struct xdg_activation_v1* xdg_activation_
  * token is passed.
  */
 static inline void
-xdg_activation_v1_activate(struct xdg_activation_v1* xdg_activation_v1, const char* token, struct wl_surface* surface)
+xdg_activation_v1_activate(struct xdg_activation_v1 *xdg_activation_v1, const char *token, struct wl_surface *surface)
 {
-    wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_v1,
-                           XDG_ACTIVATION_V1_ACTIVATE, NULL, wl_proxy_get_version((struct wl_proxy*)xdg_activation_v1),
-                           0, token, surface);
+	wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_v1,
+			 XDG_ACTIVATION_V1_ACTIVATE, NULL, wl_proxy_get_version((struct wl_proxy *) xdg_activation_v1), 0, token, surface);
 }
 
 #ifndef XDG_ACTIVATION_TOKEN_V1_ERROR_ENUM
 #define XDG_ACTIVATION_TOKEN_V1_ERROR_ENUM
-
-enum xdg_activation_token_v1_error
-{
-    /**
+enum xdg_activation_token_v1_error {
+	/**
 	 * The token has already been used previously
 	 */
-    XDG_ACTIVATION_TOKEN_V1_ERROR_ALREADY_USED = 0,
+	XDG_ACTIVATION_TOKEN_V1_ERROR_ALREADY_USED = 0,
 };
 #endif /* XDG_ACTIVATION_TOKEN_V1_ERROR_ENUM */
 
@@ -255,29 +250,28 @@ enum xdg_activation_token_v1_error
  * @ingroup iface_xdg_activation_token_v1
  * @struct xdg_activation_token_v1_listener
  */
-struct xdg_activation_token_v1_listener
-{
-    /**
+struct xdg_activation_token_v1_listener {
+	/**
 	 * the exported activation token
 	 *
 	 * The 'done' event contains the unique token of this activation
 	 * request and notifies that the provider is done.
 	 * @param token the exported activation token
 	 */
-    void (*done)(void* data,
-                 struct xdg_activation_token_v1* xdg_activation_token_v1,
-                 const char* token);
+	void (*done)(void *data,
+		     struct xdg_activation_token_v1 *xdg_activation_token_v1,
+		     const char *token);
 };
 
 /**
  * @ingroup iface_xdg_activation_token_v1
  */
 static inline int
-xdg_activation_token_v1_add_listener(struct xdg_activation_token_v1* xdg_activation_token_v1,
-                                     const struct xdg_activation_token_v1_listener* listener, void* data)
+xdg_activation_token_v1_add_listener(struct xdg_activation_token_v1 *xdg_activation_token_v1,
+				     const struct xdg_activation_token_v1_listener *listener, void *data)
 {
-    return wl_proxy_add_listener((struct wl_proxy*)xdg_activation_token_v1,
-                                 (void (**)(void))listener, data);
+	return wl_proxy_add_listener((struct wl_proxy *) xdg_activation_token_v1,
+				     (void (**)(void)) listener, data);
 }
 
 #define XDG_ACTIVATION_TOKEN_V1_SET_SERIAL 0
@@ -314,22 +308,22 @@ xdg_activation_token_v1_add_listener(struct xdg_activation_token_v1* xdg_activat
 
 /** @ingroup iface_xdg_activation_token_v1 */
 static inline void
-xdg_activation_token_v1_set_user_data(struct xdg_activation_token_v1* xdg_activation_token_v1, void* user_data)
+xdg_activation_token_v1_set_user_data(struct xdg_activation_token_v1 *xdg_activation_token_v1, void *user_data)
 {
-    wl_proxy_set_user_data((struct wl_proxy*)xdg_activation_token_v1, user_data);
+	wl_proxy_set_user_data((struct wl_proxy *) xdg_activation_token_v1, user_data);
 }
 
 /** @ingroup iface_xdg_activation_token_v1 */
-static inline void*
-xdg_activation_token_v1_get_user_data(struct xdg_activation_token_v1* xdg_activation_token_v1)
+static inline void *
+xdg_activation_token_v1_get_user_data(struct xdg_activation_token_v1 *xdg_activation_token_v1)
 {
-    return wl_proxy_get_user_data((struct wl_proxy*)xdg_activation_token_v1);
+	return wl_proxy_get_user_data((struct wl_proxy *) xdg_activation_token_v1);
 }
 
 static inline uint32_t
-xdg_activation_token_v1_get_version(struct xdg_activation_token_v1* xdg_activation_token_v1)
+xdg_activation_token_v1_get_version(struct xdg_activation_token_v1 *xdg_activation_token_v1)
 {
-    return wl_proxy_get_version((struct wl_proxy*)xdg_activation_token_v1);
+	return wl_proxy_get_version((struct wl_proxy *) xdg_activation_token_v1);
 }
 
 /**
@@ -349,12 +343,10 @@ xdg_activation_token_v1_get_version(struct xdg_activation_token_v1* xdg_activati
  * Must be sent before commit. This information is optional.
  */
 static inline void
-xdg_activation_token_v1_set_serial(struct xdg_activation_token_v1* xdg_activation_token_v1, uint32_t serial,
-                                   struct wl_seat* seat)
+xdg_activation_token_v1_set_serial(struct xdg_activation_token_v1 *xdg_activation_token_v1, uint32_t serial, struct wl_seat *seat)
 {
-    wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_token_v1,
-                           XDG_ACTIVATION_TOKEN_V1_SET_SERIAL, NULL,
-                           wl_proxy_get_version((struct wl_proxy*)xdg_activation_token_v1), 0, serial, seat);
+	wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_token_v1,
+			 XDG_ACTIVATION_TOKEN_V1_SET_SERIAL, NULL, wl_proxy_get_version((struct wl_proxy *) xdg_activation_token_v1), 0, serial, seat);
 }
 
 /**
@@ -366,11 +358,10 @@ xdg_activation_token_v1_set_serial(struct xdg_activation_token_v1* xdg_activatio
  * Must be sent before commit. This information is optional.
  */
 static inline void
-xdg_activation_token_v1_set_app_id(struct xdg_activation_token_v1* xdg_activation_token_v1, const char* app_id)
+xdg_activation_token_v1_set_app_id(struct xdg_activation_token_v1 *xdg_activation_token_v1, const char *app_id)
 {
-    wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_token_v1,
-                           XDG_ACTIVATION_TOKEN_V1_SET_APP_ID, NULL,
-                           wl_proxy_get_version((struct wl_proxy*)xdg_activation_token_v1), 0, app_id);
+	wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_token_v1,
+			 XDG_ACTIVATION_TOKEN_V1_SET_APP_ID, NULL, wl_proxy_get_version((struct wl_proxy *) xdg_activation_token_v1), 0, app_id);
 }
 
 /**
@@ -385,11 +376,10 @@ xdg_activation_token_v1_set_app_id(struct xdg_activation_token_v1* xdg_activatio
  * Must be sent before commit. This information is optional.
  */
 static inline void
-xdg_activation_token_v1_set_surface(struct xdg_activation_token_v1* xdg_activation_token_v1, struct wl_surface* surface)
+xdg_activation_token_v1_set_surface(struct xdg_activation_token_v1 *xdg_activation_token_v1, struct wl_surface *surface)
 {
-    wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_token_v1,
-                           XDG_ACTIVATION_TOKEN_V1_SET_SURFACE, NULL,
-                           wl_proxy_get_version((struct wl_proxy*)xdg_activation_token_v1), 0, surface);
+	wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_token_v1,
+			 XDG_ACTIVATION_TOKEN_V1_SET_SURFACE, NULL, wl_proxy_get_version((struct wl_proxy *) xdg_activation_token_v1), 0, surface);
 }
 
 /**
@@ -399,11 +389,10 @@ xdg_activation_token_v1_set_surface(struct xdg_activation_token_v1* xdg_activati
  * have been offered through set_serial, set_surface and set_app_id.
  */
 static inline void
-xdg_activation_token_v1_commit(struct xdg_activation_token_v1* xdg_activation_token_v1)
+xdg_activation_token_v1_commit(struct xdg_activation_token_v1 *xdg_activation_token_v1)
 {
-    wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_token_v1,
-                           XDG_ACTIVATION_TOKEN_V1_COMMIT, NULL,
-                           wl_proxy_get_version((struct wl_proxy*)xdg_activation_token_v1), 0);
+	wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_token_v1,
+			 XDG_ACTIVATION_TOKEN_V1_COMMIT, NULL, wl_proxy_get_version((struct wl_proxy *) xdg_activation_token_v1), 0);
 }
 
 /**
@@ -413,11 +402,10 @@ xdg_activation_token_v1_commit(struct xdg_activation_token_v1* xdg_activation_to
  * longer be used. The received token stays valid.
  */
 static inline void
-xdg_activation_token_v1_destroy(struct xdg_activation_token_v1* xdg_activation_token_v1)
+xdg_activation_token_v1_destroy(struct xdg_activation_token_v1 *xdg_activation_token_v1)
 {
-    wl_proxy_marshal_flags((struct wl_proxy*)xdg_activation_token_v1,
-                           XDG_ACTIVATION_TOKEN_V1_DESTROY, NULL,
-                           wl_proxy_get_version((struct wl_proxy*)xdg_activation_token_v1), WL_MARSHAL_FLAG_DESTROY);
+	wl_proxy_marshal_flags((struct wl_proxy *) xdg_activation_token_v1,
+			 XDG_ACTIVATION_TOKEN_V1_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *) xdg_activation_token_v1), WL_MARSHAL_FLAG_DESTROY);
 }
 
 #ifdef  __cplusplus

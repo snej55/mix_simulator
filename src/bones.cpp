@@ -132,12 +132,10 @@ glm::mat4 Bone::interpolatePosition(const float animationTime) const
     }
     // and the scale factor
     const float scaleFactor{
-        getScaleFactor(m_positions[position0Idx].timeStamp, m_positions[position1Idx].timeStamp, animationTime)
-    };
+        getScaleFactor(m_positions[position0Idx].timeStamp, m_positions[position1Idx].timeStamp, animationTime)};
     // and use them to get the final position
     const glm::vec3 finalPosition{
-        glm::mix(m_positions[position0Idx].position, m_positions[position1Idx].position, scaleFactor)
-    };
+        glm::mix(m_positions[position0Idx].position, m_positions[position1Idx].position, scaleFactor)};
     return glm::translate(glm::mat4{1.0f}, finalPosition);
 }
 
@@ -153,11 +151,9 @@ glm::mat4 Bone::interpolateRotation(const float animationTime) const
         rotation1Idx = 0;
     }
     const float scaleFactor{
-        getScaleFactor(m_rotations[rotation0Idx].timeStamp, m_rotations[rotation1Idx].timeStamp, animationTime)
-    };
+        getScaleFactor(m_rotations[rotation0Idx].timeStamp, m_rotations[rotation1Idx].timeStamp, animationTime)};
     glm::quat finalRotation{
-        glm::slerp(m_rotations[rotation0Idx].orientation, m_rotations[rotation1Idx].orientation, scaleFactor)
-    };
+        glm::slerp(m_rotations[rotation0Idx].orientation, m_rotations[rotation1Idx].orientation, scaleFactor)};
     finalRotation = glm::normalize(finalRotation);
     return glm::toMat4(finalRotation);
 }
@@ -174,8 +170,7 @@ glm::mat4 Bone::interpolateScaling(const float animationTime) const
         scale1Idx = 0;
     }
     const float scaleFactor{
-        getScaleFactor(m_scales[scale0Idx].timeStamp, m_scales[scale1Idx].timeStamp, animationTime)
-    };
+        getScaleFactor(m_scales[scale0Idx].timeStamp, m_scales[scale1Idx].timeStamp, animationTime)};
     const glm::vec3 finalScale{glm::mix(m_scales[scale0Idx].scale, m_scales[scale1Idx].scale, scaleFactor)};
     return glm::scale(glm::mat4{1.0f}, finalScale);
 }
@@ -190,7 +185,7 @@ BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
     const aiAnimation* anim{scene->mAnimations[0]};
     m_duration = static_cast<float>(anim->mDuration);
     m_tps = static_cast<int>(anim->mTicksPerSecond);
-    readHeirarchyData(m_rootNode, scene->mRootNode);
+    readHierarchyData(m_rootNode, scene->mRootNode);
     readMissingBones(anim, model);
 }
 
@@ -198,8 +193,7 @@ BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
 Bone* BoneAnimation::findBone(const std::string& name)
 {
     const auto iter{
-        std::find_if(m_bones.begin(), m_bones.end(), [&](const Bone& bone) { return bone.getBoneName() == name; })
-    };
+        std::find_if(m_bones.begin(), m_bones.end(), [&](const Bone& bone) { return bone.getBoneName() == name; })};
     if (iter == m_bones.end())
         return nullptr;
     else
@@ -230,7 +224,7 @@ void BoneAnimation::readMissingBones(const aiAnimation* animation, Model* model)
     m_boneInfoMap = boneInfoMap;
 }
 
-void BoneAnimation::readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode* src)
+void BoneAnimation::readHierarchyData(BonesN::AssimpNodeData& dest, const aiNode* src)
 {
     assert(src);
 
@@ -241,7 +235,7 @@ void BoneAnimation::readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode
     for (std::size_t i{0}; i < src->mNumChildren; ++i)
     {
         BonesN::AssimpNodeData data;
-        readHeirarchyData(data, src->mChildren[i]);
+        readHierarchyData(data, src->mChildren[i]);
         dest.children.push_back(data);
     }
 }
@@ -277,7 +271,7 @@ void BoneAnimator::playAnimation(BoneAnimation* animation)
 void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, const glm::mat4& parentTransform)
 {
     glm::mat4 nodeTransform{node->transform};
-    Bone * bone{m_currentAnimation->findBone(node->name)};
+    Bone* bone{m_currentAnimation->findBone(node->name)};
     if (bone)
     {
         bone->update(m_currentTime);

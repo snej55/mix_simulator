@@ -14,7 +14,7 @@
 
 #include "engine_types.hpp"
 
-class Arena final : public EngineObject
+class Arena : public EngineObject
 {
 public:
     // set up arena

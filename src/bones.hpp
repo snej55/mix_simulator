@@ -116,14 +116,14 @@ private:
     std::map<std::string, MeshN::BoneInfo> m_boneInfoMap{};
 
     void readMissingBones(const aiAnimation* animation, Model* model);
-    void readHeirarchyData(BonesN::AssimpNodeData& dest, const aiNode* src);
+    void readHierarchyData(BonesN::AssimpNodeData& dest, const aiNode* src);
 };
 
 // the actual animation class
 class BoneAnimator
 {
 public:
-    BoneAnimator(BoneAnimation* animation);
+    explicit BoneAnimator(BoneAnimation* animation);
 
     void updateAnimation(float dt);
     void playAnimation(BoneAnimation* animation);
