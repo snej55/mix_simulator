@@ -105,7 +105,7 @@ public:
     [[nodiscard]] float getTicksPerSecond() const { return m_tps; }
     [[nodiscard]] float getDuration() const { return m_duration; }
     [[nodiscard]] const BonesN::AssimpNodeData& getRootNode() const { return m_rootNode; }
-    [[nodiscard]] const std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
+    [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
 
 private:
     float m_duration{0.0f};

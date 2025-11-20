@@ -16,6 +16,7 @@ out VS_OUT
     vec3 TangentViewPos;
     vec3 TangentFragPos;
     mat3 TBN;
+    vec3 Normal;
 }
 vs_out;
 
@@ -55,6 +56,7 @@ void main()
 
     vs_out.FragPos = vec3(model * totalPosition);
     vs_out.TexCoords = aTexCoords;
+    vs_out.Normal = aNormal;
 
     // create TBN matrix
     vec3 T = normalize(normalMat * aTangent.xyz);

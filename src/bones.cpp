@@ -280,7 +280,7 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
 
     const glm::mat4 globalTransformation{parentTransform * nodeTransform};
 
-    std::map<std::string, MeshN::BoneInfo> boneInfoMap{m_currentAnimation->getBoneInfoMap()};
+    std::map<std::string, MeshN::BoneInfo>& boneInfoMap{m_currentAnimation->getBoneInfoMap()};
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
         m_finalBoneMatrices[boneInfoMap[node->name].id] = globalTransformation * boneInfoMap[node->name].offset;

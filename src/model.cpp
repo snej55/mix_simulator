@@ -209,7 +209,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     }
 
     // load bones
-    // extractBoneWeights(vertices, mesh, scene);
+    extractBoneWeights(vertices, mesh, scene);
 
     // materials
     aiMaterial* material{scene->mMaterials[mesh->mMaterialIndex]};
