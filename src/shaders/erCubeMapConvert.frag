@@ -35,7 +35,7 @@ void main()
     float brightness = (color.r + color.g + color.b) * 0.333;
     if (brightness > limit)
     {
-	color = vec3(limit);
+        color = vec3(limit);
     }
 
     FragColor = vec4(color, 1.0);

@@ -96,7 +96,8 @@ void Mesh::renderPBR(const Shader* pbrShader) const
     if (m_material.useMetallicTex)
     {
         pbrShader->setInt("material.useMetallicTex", 1);
-    } else
+    }
+    else
     {
         pbrShader->setInt("material.useMetallicTex", 0);
         pbrShader->setFloat("material.metallic", m_material.metallicFactor);
@@ -105,7 +106,8 @@ void Mesh::renderPBR(const Shader* pbrShader) const
     if (m_material.useRoughnessTex)
     {
         pbrShader->setInt("material.useRoughnessTex", 1);
-    } else
+    }
+    else
     {
         pbrShader->setInt("material.useRoughnessTex", 0);
         pbrShader->setFloat("material.roughness", m_material.roughnessFactor);

@@ -16,7 +16,8 @@ using json = nlohmann::json;
 #include "engine.hpp"
 #include "util.hpp"
 
-Engine::Engine() : EngineObject{"Engine"}
+Engine::Engine() :
+    EngineObject{"Engine"}
 {
     // memory manager
     m_arena = new Arena{this};
@@ -236,9 +237,15 @@ bool Engine::createWindow(const int width, const int height, const char* title)
 void Engine::clear() const { m_window->clear(); }
 
 // enable wireframe rendering
-void Engine::enableWireframe() const { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
+void Engine::enableWireframe() const
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
 
-void Engine::disableWireframe() const { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+void Engine::disableWireframe() const
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
 
 void Engine::displayFrameTime()
 {
@@ -320,7 +327,7 @@ bool Engine::createShaderManager()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_SHADER_MANAGER::ERROR: Shader manager already exists at `" << m_shaderManager
-                  << "`";
+            << "`";
         Util::endError();
         return false;
     }
@@ -370,7 +377,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find vertex shader for *" << name << "* at: `"
-                      << vertPath << "`!";
+                << vertPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -381,7 +388,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find fragment shader for *" << name << "* at: `"
-                      << fragPath << "`!";
+                << fragPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -402,7 +409,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find vertex shader for *" << name << "* at: `"
-                      << vertPath << "`!";
+                << vertPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -413,7 +420,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find fragment shader for *" << name << "* at: `"
-                      << fragPath << "`!";
+                << fragPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -582,7 +589,7 @@ bool Engine::createTextureManager()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_TEXTURE_MANAGER::ERROR: Texture manager already exists at `" << m_textureManager
-                  << "`";
+            << "`";
         Util::endError();
         return false;
     }
@@ -660,7 +667,7 @@ void Engine::drawTexture(const unsigned int texID, const FRect& destination) con
     model = glm::translate(model, glm::vec3(destination.x, destination.y, 0.0f));
     model = glm::scale(model, glm::vec3{destination.w, destination.h, 1.0f});
     textureShader->setMat4("model", model);
-    
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texID);
     textureShader->setInt("tex", 0);
@@ -784,7 +791,7 @@ bool Engine::createPostProcessor()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_POST_PROCESSOR::ERROR: Post processor already exists at `" << m_postProcessor
-                  << "`";
+            << "`";
         Util::endError();
         return false;
     }
@@ -800,7 +807,10 @@ void Engine::disablePostProcessing() const { m_postProcessor->disable(); }
 
 void Engine::renderPostProcessing() const { m_postProcessor->render(getShader("bloomSS")); }
 
-void Engine::updatePostProcessor(const int width, const int height) { m_postProcessor->generate(width, height, static_cast<void*>(this)); }
+void Engine::updatePostProcessor(const int width, const int height)
+{
+    m_postProcessor->generate(width, height, static_cast<void*>(this));
+}
 
 
 // ------ Arena ------ //

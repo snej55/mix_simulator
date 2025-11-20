@@ -63,9 +63,9 @@ public:
     [[nodiscard]] int getScaleIndex(float time) const;
 
     // getters
-    [[nodiscard]] const glm::mat4& getLocalTransform() const {return m_localTransform;}
-    [[nodiscard]] std::string_view getBoneName() const {return m_name;}
-    [[nodiscard]] int getBoneID() const {return m_ID;}
+    [[nodiscard]] const glm::mat4& getLocalTransform() const { return m_localTransform; }
+    [[nodiscard]] std::string_view getBoneName() const { return m_name; }
+    [[nodiscard]] int getBoneID() const { return m_ID; }
 
 private:
     std::string m_name;
@@ -102,10 +102,10 @@ public:
 
     Bone* findBone(const std::string& name);
 
-    [[nodiscard]] float getTicksPerSecond() const {return m_tps;}
-    [[nodiscard]] float getDuration() const {return m_duration;}
-    [[nodiscard]] const BonesN::AssimpNodeData& getRootNode() const {return m_rootNode;}
-    [[nodiscard]] const std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() {return m_boneInfoMap;}
+    [[nodiscard]] float getTicksPerSecond() const { return m_tps; }
+    [[nodiscard]] float getDuration() const { return m_duration; }
+    [[nodiscard]] const BonesN::AssimpNodeData& getRootNode() const { return m_rootNode; }
+    [[nodiscard]] const std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
 
 private:
     float m_duration{0.0f};
@@ -129,8 +129,8 @@ public:
     void playAnimation(BoneAnimation* animation);
     void calculateBoneTransform(const BonesN::AssimpNodeData* node, const glm::mat4& parentTransform);
 
-    [[nodiscard]] const std::vector<glm::mat4>& getFinalBoneMatrices() const {return m_finalBoneMatrices;}
-    
+    [[nodiscard]] const std::vector<glm::mat4>& getFinalBoneMatrices() const { return m_finalBoneMatrices; }
+
 private:
     BoneAnimation* m_currentAnimation;
     float m_currentTime;

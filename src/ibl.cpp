@@ -67,9 +67,10 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}),
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}),
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, -1.0f, 0.0f}),
-        glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}, glm::vec3{0.0f, -1.0f, 0.0f})};
-    
-    const Engine* enginePtr {static_cast<Engine*>(engine)};
+        glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}, glm::vec3{0.0f, -1.0f, 0.0f})
+    };
+
+    const Engine* enginePtr{static_cast<Engine*>(engine)};
 
     // generate framebuffer to capture skybox cubemap
     unsigned int captureFBO, captureRBO;
@@ -108,7 +109,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     for (unsigned int i{0}; i < 6; ++i)
     {
         enginePtr->setMat4("view", captureViews[i], "erCubeMapConvert");
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap,
+                               0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // render 1x1 cube
@@ -144,7 +146,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     for (unsigned int i{0}; i < 6; ++i)
     {
         enginePtr->setMat4("view", captureViews[i], "erCubeMapConvert");
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_irradianceMap,
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                               m_irradianceMap,
                                0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -155,7 +158,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilterMap);
     for (unsigned int i{0}; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, pmremSize, pmremSize, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, pmremSize, pmremSize, 0, GL_RGB, GL_FLOAT,
+                     nullptr);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -201,8 +205,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
 void IBLGenerator::renderSkybox(void* engine)
 {
     assert(engine != nullptr);
-    const Engine* enginePtr {static_cast<Engine*>(engine)};
-    const Shader* skyboxShader {enginePtr->getShader("skybox")};
+    const Engine* enginePtr{static_cast<Engine*>(engine)};
+    const Shader* skyboxShader{enginePtr->getShader("skybox")};
 
     skyboxShader->use();
     skyboxShader->setMat4("view", enginePtr->getViewMatrix());

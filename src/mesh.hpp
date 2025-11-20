@@ -101,8 +101,8 @@ public:
     // calculate AABB midpoint (world center)
     void calculateMidpoint(const glm::mat4& transform);
     void updateMidpoint(const glm::mat4& transform); // update model matrix
-    [[nodiscard]] glm::vec3 getMidpoint() const {return m_midPoint;}
-    [[nodiscard]] const glm::mat4& getModelTransform() const {return m_modelMat;}
+    [[nodiscard]] glm::vec3 getMidpoint() const { return m_midPoint; }
+    [[nodiscard]] const glm::mat4& getModelTransform() const { return m_modelMat; }
 
     MeshN::Material& getMaterial() { return m_material; }
 

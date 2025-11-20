@@ -1,7 +1,7 @@
 #version 410 core
 
 in vec2 TexCoord;
-layout(location = 0) out vec3 upSample;
+layout (location = 0) out vec3 upSample;
 
 uniform sampler2D tex;
 uniform float filterRadius;

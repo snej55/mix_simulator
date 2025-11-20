@@ -23,7 +23,7 @@ unsigned int TextureN::loadFromFile(const char* path, int* width, int* height, i
     {
         Util::beginError();
         std::cout << "TEXTURE::LOAD_FROM_FILE::ERROR: Failed to load texture from path `" << path
-                  << "` - texture does not exist";
+            << "` - texture does not exist";
         Util::endError();
         if (success)
             *success = false;
@@ -160,7 +160,9 @@ unsigned int TextureN::loadHDRMap(const char* path, bool* success)
     return hdrTexture;
 }
 
-Texture::Texture(const std::string& name, EngineObject* manager) : EngineObject{("TEXTURE " + name).c_str(), manager} {}
+Texture::Texture(const std::string& name, EngineObject* manager) : EngineObject{("TEXTURE " + name).c_str(), manager}
+{
+}
 
 bool Texture::loadFromFile(const char* path)
 {
@@ -179,16 +181,18 @@ void Texture::activate(const int slot) const
 }
 
 // ------- Texture Manager ------- //
-TextureManager::TextureManager(EngineObject* parent) : EngineObject{"TextureManager", parent} {}
+TextureManager::TextureManager(EngineObject* parent) : EngineObject{"TextureManager", parent}
+{
+}
 
 // generate vertex buffers and stuff
 void TextureManager::generateBuffers()
 {
     constexpr float TexRectVertices[]{
-        1.0f, 0.0f,  0.0f, 1.0f, 1.0f, // top right
+        1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
         1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
         0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-        0.0f, 0.0f,  0.0f, 0.0f, 1.0f // top left
+        0.0f, 0.0f, 0.0f, 0.0f, 1.0f // top left
     };
 
     constexpr unsigned int TexRectIndices[]{
@@ -228,7 +232,7 @@ void TextureManager::generateBuffers()
 void TextureManager::addTexture(const char* path, const char* name, Arena* arena)
 {
     // create new texture and add to arena
-    Texture* texture{new Texture{name, this}};
+    Texture * texture{new Texture{name, this}};
     arena->addObject(texture);
 
     // load texture

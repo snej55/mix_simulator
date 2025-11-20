@@ -11,9 +11,9 @@ namespace PostProcessingN
 {
     struct BloomMip
     {
-	glm::vec2 size;
-	glm::ivec2 intSize;
-	unsigned int texture;
+        glm::vec2 size;
+        glm::ivec2 intSize;
+        unsigned int texture;
     };
 }
 
@@ -25,9 +25,9 @@ public:
 
     bool init(unsigned int width, unsigned int height, unsigned int mipChainLength);
     void bind();
-    void free();  
+    void free();
 
-    [[nodiscard]] const std::vector<PostProcessingN::BloomMip>& mipChain() const {return m_mipChain;}
+    [[nodiscard]] const std::vector<PostProcessingN::BloomMip>& mipChain() const { return m_mipChain; }
 
 private:
     bool m_init{false};
@@ -39,13 +39,13 @@ class BloomRenderer final : public EngineObject
 {
 public:
     explicit BloomRenderer(EngineObject* parent);
-    ~BloomRenderer();
+    ~BloomRenderer() override;
 
     bool init(unsigned int width, unsigned int height, void* engine);
     void free();
     void renderBloomTexture(unsigned int srcTexture, float filterRadius);
 
-    [[nodiscard]] unsigned int bloomTexture() const {return m_FBO.mipChain()[0].texture;}
+    [[nodiscard]] unsigned int bloomTexture() const { return m_FBO.mipChain()[0].texture; }
 
 private:
     BloomFBO m_FBO;

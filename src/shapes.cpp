@@ -87,12 +87,16 @@ void ShapeManager::drawRect(const IRect& rect, const Color& color, ShaderManager
 // rgba color (0-255) to floating point (0.0-1.0) opengl colours
 glm::vec3 ShapeManager::color2vec3(const Color& color)
 {
-    return {static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f,
-            static_cast<float>(color.b) / 255.0f};
+    return {
+        static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f,
+        static_cast<float>(color.b) / 255.0f
+    };
 }
 
 glm::vec4 ShapeManager::color2vec4(const Color& color)
 {
-    return {static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f,
-            static_cast<float>(color.b) / 255.0f, static_cast<float>(color.a) / 255.0f};
+    return {
+        static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f,
+        static_cast<float>(color.b) / 255.0f, static_cast<float>(color.a) / 255.0f
+    };
 }

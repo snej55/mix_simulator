@@ -23,9 +23,9 @@ public:
     void render(const Shader* shader) const;
     void renderPBR(const Shader* pbrShader) const;
     void renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model);
-    
-    [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() {return m_boneInfoMap;}
-    [[nodiscard]] int& getBoneCounter() {return m_boneCounter;}
+
+    [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
+    [[nodiscard]] int& getBoneCounter() { return m_boneCounter; }
 
 private:
     std::vector<Mesh> m_meshes{};
@@ -34,7 +34,7 @@ private:
 
     // loaded mesh textures (to avoid loading the same texture twice)
     std::vector<MeshN::Texture> m_loadedTextures{};
-    
+
     // bones
     std::map<std::string, MeshN::BoneInfo> m_boneInfoMap{};
     int m_boneCounter{0};
@@ -47,7 +47,7 @@ private:
     static unsigned int loadEmbeddedTexture(const aiTexture* texture, bool* success = nullptr,
                                             MeshN::TextureType materialType = MeshN::TEXTURE_NONE);
 
-    static void setDefaultBoneData(MeshN::Vertex& vertex) ;
+    static void setDefaultBoneData(MeshN::Vertex& vertex);
     static void setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight);
 
     void extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh, const aiScene* scene);

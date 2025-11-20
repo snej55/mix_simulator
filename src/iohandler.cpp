@@ -1,6 +1,8 @@
 #include "iohandler.hpp"
 
-IOHandler::IOHandler(EngineObject* engine, GLFWwindow* window) : EngineObject{"IOHandler", engine}, m_window{window} {}
+IOHandler::IOHandler(EngineObject* engine, GLFWwindow* window) : EngineObject{"IOHandler", engine}, m_window{window}
+{
+}
 
 void IOHandler::update()
 {

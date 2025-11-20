@@ -21,13 +21,13 @@ public:
     void renderCube();
 
     // getters
-    [[nodiscard]] unsigned int getHDRTexture() const {return m_hdrTexture;}
-    [[nodiscard]] unsigned int getIrradianceTexture() const {return m_irradianceTexture;}
-    
-    [[nodiscard]] unsigned int getEnvCubemap() const {return m_envCubemap;}
-    [[nodiscard]] unsigned int getIrradianceMap() const {return m_irradianceMap;}
-    [[nodiscard]] unsigned int getPrefilterMap() const {return m_prefilterMap;}
-    [[nodiscard]] unsigned int getBRDFLutMap() const {return m_brdfLutMap;}
+    [[nodiscard]] unsigned int getHDRTexture() const { return m_hdrTexture; }
+    [[nodiscard]] unsigned int getIrradianceTexture() const { return m_irradianceTexture; }
+
+    [[nodiscard]] unsigned int getEnvCubemap() const { return m_envCubemap; }
+    [[nodiscard]] unsigned int getIrradianceMap() const { return m_irradianceMap; }
+    [[nodiscard]] unsigned int getPrefilterMap() const { return m_prefilterMap; }
+    [[nodiscard]] unsigned int getBRDFLutMap() const { return m_brdfLutMap; }
 
 private:
     // we only need environment and irradiance textures

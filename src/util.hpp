@@ -38,7 +38,7 @@ namespace Util
     // convert mat4 from assimp format to glm format
     inline glm::mat4 convertMatrixGLM(const aiMatrix4x4& mat)
     {
-        const glm::mat4 glmMat {
+        const glm::mat4 glmMat{
             {mat.a1, mat.a2, mat.a3, mat.a4},
             {mat.b1, mat.b2, mat.b3, mat.b4},
             {mat.c1, mat.c2, mat.c3, mat.c4},

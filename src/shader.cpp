@@ -25,7 +25,7 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
     {
         Util::beginError();
         std::cout << "SHADER::LOAD_FROM_FILE::ERROR: Failed to read fragment shader from `" << fragPath
-                  << "` - file does not exist!";
+            << "` - file does not exist!";
         Util::endError();
         return false;
     }
@@ -33,7 +33,7 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
     {
         Util::beginError();
         std::cout << "SHADER::LOAD_FROM_FILE::ERROR: Failed to read vertex shader from `" << vertPath
-                  << "` - file does not exist!";
+            << "` - file does not exist!";
         Util::endError();
         return false;
     }
@@ -66,7 +66,7 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
     {
         Util::beginError();
         std::cout << "SHADER::LOAD_FROM_FILE::ERROR: Could not read source files: {vert: `" << vertPath << "`, frag: `"
-                  << fragPath << "`}";
+            << fragPath << "`}";
         Util::endError();
         return false;
     }
@@ -265,13 +265,15 @@ void Shader::setMat4(const std::string& name, const glm::mat4& value) const
 }
 
 // ------ Shader manager ------
-ShaderManager::ShaderManager(EngineObject* parent) : EngineObject{"ShaderManager", parent} {}
+ShaderManager::ShaderManager(EngineObject* parent) : EngineObject{"ShaderManager", parent}
+{
+}
 
 // load new shader
 void ShaderManager::addShader(const std::string& name, const char* fragPath, const char* vertPath, Arena* arena)
 {
     // create new shader and add it to arena
-    Shader* shader{new Shader{name, this}};
+    Shader * shader{new Shader{name, this}};
     arena->addObject(shader);
     if (!shader->loadFromFile(fragPath, vertPath))
     {

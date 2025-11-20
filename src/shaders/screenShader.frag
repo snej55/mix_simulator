@@ -23,7 +23,7 @@ vec3 PBRNeutralToneMapping(vec3 color)
 
     float peak = max(color.r, max(color.g, color.b));
     if (peak < startCompression)
-        return color;
+    return color;
 
     const float d = 1. - startCompression;
     float newPeak = 1. - d * d / (peak + d - startCompression);

@@ -200,11 +200,13 @@ extern const struct wl_interface wp_viewport_interface;
 
 #ifndef WP_VIEWPORTER_ERROR_ENUM
 #define WP_VIEWPORTER_ERROR_ENUM
-enum wp_viewporter_error {
-	/**
+
+enum wp_viewporter_error
+{
+    /**
 	 * the surface already has a viewport object associated
 	 */
-	WP_VIEWPORTER_ERROR_VIEWPORT_EXISTS = 0,
+    WP_VIEWPORTER_ERROR_VIEWPORT_EXISTS = 0,
 };
 #endif /* WP_VIEWPORTER_ERROR_ENUM */
 
@@ -223,22 +225,22 @@ enum wp_viewporter_error {
 
 /** @ingroup iface_wp_viewporter */
 static inline void
-wp_viewporter_set_user_data(struct wp_viewporter *wp_viewporter, void *user_data)
+wp_viewporter_set_user_data(struct wp_viewporter* wp_viewporter, void* user_data)
 {
-	wl_proxy_set_user_data((struct wl_proxy *) wp_viewporter, user_data);
+    wl_proxy_set_user_data((struct wl_proxy*)wp_viewporter, user_data);
 }
 
 /** @ingroup iface_wp_viewporter */
-static inline void *
-wp_viewporter_get_user_data(struct wp_viewporter *wp_viewporter)
+static inline void*
+wp_viewporter_get_user_data(struct wp_viewporter* wp_viewporter)
 {
-	return wl_proxy_get_user_data((struct wl_proxy *) wp_viewporter);
+    return wl_proxy_get_user_data((struct wl_proxy*)wp_viewporter);
 }
 
 static inline uint32_t
-wp_viewporter_get_version(struct wp_viewporter *wp_viewporter)
+wp_viewporter_get_version(struct wp_viewporter* wp_viewporter)
 {
-	return wl_proxy_get_version((struct wl_proxy *) wp_viewporter);
+    return wl_proxy_get_version((struct wl_proxy*)wp_viewporter);
 }
 
 /**
@@ -249,10 +251,11 @@ wp_viewporter_get_version(struct wp_viewporter *wp_viewporter)
  * wp_viewport objects included.
  */
 static inline void
-wp_viewporter_destroy(struct wp_viewporter *wp_viewporter)
+wp_viewporter_destroy(struct wp_viewporter* wp_viewporter)
 {
-	wl_proxy_marshal_flags((struct wl_proxy *) wp_viewporter,
-			 WP_VIEWPORTER_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *) wp_viewporter), WL_MARSHAL_FLAG_DESTROY);
+    wl_proxy_marshal_flags((struct wl_proxy*)wp_viewporter,
+                           WP_VIEWPORTER_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy*)wp_viewporter),
+                           WL_MARSHAL_FLAG_DESTROY);
 }
 
 /**
@@ -263,36 +266,39 @@ wp_viewporter_destroy(struct wp_viewporter *wp_viewporter)
  * a wp_viewport object associated, the viewport_exists
  * protocol error is raised.
  */
-static inline struct wp_viewport *
-wp_viewporter_get_viewport(struct wp_viewporter *wp_viewporter, struct wl_surface *surface)
+static inline struct wp_viewport*
+wp_viewporter_get_viewport(struct wp_viewporter* wp_viewporter, struct wl_surface* surface)
 {
-	struct wl_proxy *id;
+    struct wl_proxy* id;
 
-	id = wl_proxy_marshal_flags((struct wl_proxy *) wp_viewporter,
-			 WP_VIEWPORTER_GET_VIEWPORT, &wp_viewport_interface, wl_proxy_get_version((struct wl_proxy *) wp_viewporter), 0, NULL, surface);
+    id = wl_proxy_marshal_flags((struct wl_proxy*)wp_viewporter,
+                                WP_VIEWPORTER_GET_VIEWPORT, &wp_viewport_interface,
+                                wl_proxy_get_version((struct wl_proxy*)wp_viewporter), 0, NULL, surface);
 
-	return (struct wp_viewport *) id;
+    return (struct wp_viewport*)id;
 }
 
 #ifndef WP_VIEWPORT_ERROR_ENUM
 #define WP_VIEWPORT_ERROR_ENUM
-enum wp_viewport_error {
-	/**
+
+enum wp_viewport_error
+{
+    /**
 	 * negative or zero values in width or height
 	 */
-	WP_VIEWPORT_ERROR_BAD_VALUE = 0,
-	/**
+    WP_VIEWPORT_ERROR_BAD_VALUE = 0,
+    /**
 	 * destination size is not integer
 	 */
-	WP_VIEWPORT_ERROR_BAD_SIZE = 1,
-	/**
+    WP_VIEWPORT_ERROR_BAD_SIZE = 1,
+    /**
 	 * source rectangle extends outside of the content area
 	 */
-	WP_VIEWPORT_ERROR_OUT_OF_BUFFER = 2,
-	/**
+    WP_VIEWPORT_ERROR_OUT_OF_BUFFER = 2,
+    /**
 	 * the wl_surface was destroyed
 	 */
-	WP_VIEWPORT_ERROR_NO_SURFACE = 3,
+    WP_VIEWPORT_ERROR_NO_SURFACE = 3,
 };
 #endif /* WP_VIEWPORT_ERROR_ENUM */
 
@@ -316,22 +322,22 @@ enum wp_viewport_error {
 
 /** @ingroup iface_wp_viewport */
 static inline void
-wp_viewport_set_user_data(struct wp_viewport *wp_viewport, void *user_data)
+wp_viewport_set_user_data(struct wp_viewport* wp_viewport, void* user_data)
 {
-	wl_proxy_set_user_data((struct wl_proxy *) wp_viewport, user_data);
+    wl_proxy_set_user_data((struct wl_proxy*)wp_viewport, user_data);
 }
 
 /** @ingroup iface_wp_viewport */
-static inline void *
-wp_viewport_get_user_data(struct wp_viewport *wp_viewport)
+static inline void*
+wp_viewport_get_user_data(struct wp_viewport* wp_viewport)
 {
-	return wl_proxy_get_user_data((struct wl_proxy *) wp_viewport);
+    return wl_proxy_get_user_data((struct wl_proxy*)wp_viewport);
 }
 
 static inline uint32_t
-wp_viewport_get_version(struct wp_viewport *wp_viewport)
+wp_viewport_get_version(struct wp_viewport* wp_viewport)
 {
-	return wl_proxy_get_version((struct wl_proxy *) wp_viewport);
+    return wl_proxy_get_version((struct wl_proxy*)wp_viewport);
 }
 
 /**
@@ -341,10 +347,11 @@ wp_viewport_get_version(struct wp_viewport *wp_viewport)
  * The change is applied on the next wl_surface.commit.
  */
 static inline void
-wp_viewport_destroy(struct wp_viewport *wp_viewport)
+wp_viewport_destroy(struct wp_viewport* wp_viewport)
 {
-	wl_proxy_marshal_flags((struct wl_proxy *) wp_viewport,
-			 WP_VIEWPORT_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *) wp_viewport), WL_MARSHAL_FLAG_DESTROY);
+    wl_proxy_marshal_flags((struct wl_proxy*)wp_viewport,
+                           WP_VIEWPORT_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy*)wp_viewport),
+                           WL_MARSHAL_FLAG_DESTROY);
 }
 
 /**
@@ -363,10 +370,11 @@ wp_viewport_destroy(struct wp_viewport *wp_viewport)
  * applied on the next wl_surface.commit.
  */
 static inline void
-wp_viewport_set_source(struct wp_viewport *wp_viewport, wl_fixed_t x, wl_fixed_t y, wl_fixed_t width, wl_fixed_t height)
+wp_viewport_set_source(struct wp_viewport* wp_viewport, wl_fixed_t x, wl_fixed_t y, wl_fixed_t width, wl_fixed_t height)
 {
-	wl_proxy_marshal_flags((struct wl_proxy *) wp_viewport,
-			 WP_VIEWPORT_SET_SOURCE, NULL, wl_proxy_get_version((struct wl_proxy *) wp_viewport), 0, x, y, width, height);
+    wl_proxy_marshal_flags((struct wl_proxy*)wp_viewport,
+                           WP_VIEWPORT_SET_SOURCE, NULL, wl_proxy_get_version((struct wl_proxy*)wp_viewport), 0, x, y,
+                           width, height);
 }
 
 /**
@@ -385,10 +393,11 @@ wp_viewport_set_source(struct wp_viewport *wp_viewport, wl_fixed_t x, wl_fixed_t
  * applied on the next wl_surface.commit.
  */
 static inline void
-wp_viewport_set_destination(struct wp_viewport *wp_viewport, int32_t width, int32_t height)
+wp_viewport_set_destination(struct wp_viewport* wp_viewport, int32_t width, int32_t height)
 {
-	wl_proxy_marshal_flags((struct wl_proxy *) wp_viewport,
-			 WP_VIEWPORT_SET_DESTINATION, NULL, wl_proxy_get_version((struct wl_proxy *) wp_viewport), 0, width, height);
+    wl_proxy_marshal_flags((struct wl_proxy*)wp_viewport,
+                           WP_VIEWPORT_SET_DESTINATION, NULL, wl_proxy_get_version((struct wl_proxy*)wp_viewport), 0,
+                           width, height);
 }
 
 #ifdef  __cplusplus

@@ -59,7 +59,7 @@ def save(shader_name: str, builtin: bool = False) -> None:
         shaders[shader_type].append(
             {"name": shader_name, "shader": {"vert": vert_path, "frag": frag_path}}
         )
-        json.dump(shaders, f, indent=4, sort_keys=True)
+        json.dump(shaders, f, indent=2, sort_keys=True)
 
     print(f"Added shader `{shader_name}` to shaders.json")
 

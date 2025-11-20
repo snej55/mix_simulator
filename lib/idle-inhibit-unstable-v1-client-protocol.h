@@ -139,22 +139,23 @@ extern const struct wl_interface zwp_idle_inhibitor_v1_interface;
 
 /** @ingroup iface_zwp_idle_inhibit_manager_v1 */
 static inline void
-zwp_idle_inhibit_manager_v1_set_user_data(struct zwp_idle_inhibit_manager_v1 *zwp_idle_inhibit_manager_v1, void *user_data)
+zwp_idle_inhibit_manager_v1_set_user_data(struct zwp_idle_inhibit_manager_v1* zwp_idle_inhibit_manager_v1,
+                                          void* user_data)
 {
-	wl_proxy_set_user_data((struct wl_proxy *) zwp_idle_inhibit_manager_v1, user_data);
+    wl_proxy_set_user_data((struct wl_proxy*)zwp_idle_inhibit_manager_v1, user_data);
 }
 
 /** @ingroup iface_zwp_idle_inhibit_manager_v1 */
-static inline void *
-zwp_idle_inhibit_manager_v1_get_user_data(struct zwp_idle_inhibit_manager_v1 *zwp_idle_inhibit_manager_v1)
+static inline void*
+zwp_idle_inhibit_manager_v1_get_user_data(struct zwp_idle_inhibit_manager_v1* zwp_idle_inhibit_manager_v1)
 {
-	return wl_proxy_get_user_data((struct wl_proxy *) zwp_idle_inhibit_manager_v1);
+    return wl_proxy_get_user_data((struct wl_proxy*)zwp_idle_inhibit_manager_v1);
 }
 
 static inline uint32_t
-zwp_idle_inhibit_manager_v1_get_version(struct zwp_idle_inhibit_manager_v1 *zwp_idle_inhibit_manager_v1)
+zwp_idle_inhibit_manager_v1_get_version(struct zwp_idle_inhibit_manager_v1* zwp_idle_inhibit_manager_v1)
 {
-	return wl_proxy_get_version((struct wl_proxy *) zwp_idle_inhibit_manager_v1);
+    return wl_proxy_get_version((struct wl_proxy*)zwp_idle_inhibit_manager_v1);
 }
 
 /**
@@ -163,10 +164,12 @@ zwp_idle_inhibit_manager_v1_get_version(struct zwp_idle_inhibit_manager_v1 *zwp_
  * Destroy the inhibit manager.
  */
 static inline void
-zwp_idle_inhibit_manager_v1_destroy(struct zwp_idle_inhibit_manager_v1 *zwp_idle_inhibit_manager_v1)
+zwp_idle_inhibit_manager_v1_destroy(struct zwp_idle_inhibit_manager_v1* zwp_idle_inhibit_manager_v1)
 {
-	wl_proxy_marshal_flags((struct wl_proxy *) zwp_idle_inhibit_manager_v1,
-			 ZWP_IDLE_INHIBIT_MANAGER_V1_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *) zwp_idle_inhibit_manager_v1), WL_MARSHAL_FLAG_DESTROY);
+    wl_proxy_marshal_flags((struct wl_proxy*)zwp_idle_inhibit_manager_v1,
+                           ZWP_IDLE_INHIBIT_MANAGER_V1_DESTROY, NULL,
+                           wl_proxy_get_version((struct wl_proxy*)zwp_idle_inhibit_manager_v1),
+                           WL_MARSHAL_FLAG_DESTROY);
 }
 
 /**
@@ -174,15 +177,17 @@ zwp_idle_inhibit_manager_v1_destroy(struct zwp_idle_inhibit_manager_v1 *zwp_idle
  *
  * Create a new inhibitor object associated with the given surface.
  */
-static inline struct zwp_idle_inhibitor_v1 *
-zwp_idle_inhibit_manager_v1_create_inhibitor(struct zwp_idle_inhibit_manager_v1 *zwp_idle_inhibit_manager_v1, struct wl_surface *surface)
+static inline struct zwp_idle_inhibitor_v1*
+zwp_idle_inhibit_manager_v1_create_inhibitor(struct zwp_idle_inhibit_manager_v1* zwp_idle_inhibit_manager_v1,
+                                             struct wl_surface* surface)
 {
-	struct wl_proxy *id;
+    struct wl_proxy* id;
 
-	id = wl_proxy_marshal_flags((struct wl_proxy *) zwp_idle_inhibit_manager_v1,
-			 ZWP_IDLE_INHIBIT_MANAGER_V1_CREATE_INHIBITOR, &zwp_idle_inhibitor_v1_interface, wl_proxy_get_version((struct wl_proxy *) zwp_idle_inhibit_manager_v1), 0, NULL, surface);
+    id = wl_proxy_marshal_flags((struct wl_proxy*)zwp_idle_inhibit_manager_v1,
+                                ZWP_IDLE_INHIBIT_MANAGER_V1_CREATE_INHIBITOR, &zwp_idle_inhibitor_v1_interface,
+                                wl_proxy_get_version((struct wl_proxy*)zwp_idle_inhibit_manager_v1), 0, NULL, surface);
 
-	return (struct zwp_idle_inhibitor_v1 *) id;
+    return (struct zwp_idle_inhibitor_v1*)id;
 }
 
 #define ZWP_IDLE_INHIBITOR_V1_DESTROY 0
@@ -195,22 +200,22 @@ zwp_idle_inhibit_manager_v1_create_inhibitor(struct zwp_idle_inhibit_manager_v1 
 
 /** @ingroup iface_zwp_idle_inhibitor_v1 */
 static inline void
-zwp_idle_inhibitor_v1_set_user_data(struct zwp_idle_inhibitor_v1 *zwp_idle_inhibitor_v1, void *user_data)
+zwp_idle_inhibitor_v1_set_user_data(struct zwp_idle_inhibitor_v1* zwp_idle_inhibitor_v1, void* user_data)
 {
-	wl_proxy_set_user_data((struct wl_proxy *) zwp_idle_inhibitor_v1, user_data);
+    wl_proxy_set_user_data((struct wl_proxy*)zwp_idle_inhibitor_v1, user_data);
 }
 
 /** @ingroup iface_zwp_idle_inhibitor_v1 */
-static inline void *
-zwp_idle_inhibitor_v1_get_user_data(struct zwp_idle_inhibitor_v1 *zwp_idle_inhibitor_v1)
+static inline void*
+zwp_idle_inhibitor_v1_get_user_data(struct zwp_idle_inhibitor_v1* zwp_idle_inhibitor_v1)
 {
-	return wl_proxy_get_user_data((struct wl_proxy *) zwp_idle_inhibitor_v1);
+    return wl_proxy_get_user_data((struct wl_proxy*)zwp_idle_inhibitor_v1);
 }
 
 static inline uint32_t
-zwp_idle_inhibitor_v1_get_version(struct zwp_idle_inhibitor_v1 *zwp_idle_inhibitor_v1)
+zwp_idle_inhibitor_v1_get_version(struct zwp_idle_inhibitor_v1* zwp_idle_inhibitor_v1)
 {
-	return wl_proxy_get_version((struct wl_proxy *) zwp_idle_inhibitor_v1);
+    return wl_proxy_get_version((struct wl_proxy*)zwp_idle_inhibitor_v1);
 }
 
 /**
@@ -219,10 +224,11 @@ zwp_idle_inhibitor_v1_get_version(struct zwp_idle_inhibitor_v1 *zwp_idle_inhibit
  * Remove the inhibitor effect from the associated wl_surface.
  */
 static inline void
-zwp_idle_inhibitor_v1_destroy(struct zwp_idle_inhibitor_v1 *zwp_idle_inhibitor_v1)
+zwp_idle_inhibitor_v1_destroy(struct zwp_idle_inhibitor_v1* zwp_idle_inhibitor_v1)
 {
-	wl_proxy_marshal_flags((struct wl_proxy *) zwp_idle_inhibitor_v1,
-			 ZWP_IDLE_INHIBITOR_V1_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *) zwp_idle_inhibitor_v1), WL_MARSHAL_FLAG_DESTROY);
+    wl_proxy_marshal_flags((struct wl_proxy*)zwp_idle_inhibitor_v1,
+                           ZWP_IDLE_INHIBITOR_V1_DESTROY, NULL,
+                           wl_proxy_get_version((struct wl_proxy*)zwp_idle_inhibitor_v1), WL_MARSHAL_FLAG_DESTROY);
 }
 
 #ifdef  __cplusplus

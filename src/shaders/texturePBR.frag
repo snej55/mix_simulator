@@ -145,7 +145,7 @@ void main()
     {
         emissive = texture(material.emissiveMap, fs_in.TexCoords).rgb;
     } else {
-        emissive = material.emissiveFactor * material.emissiveIntensity * 100.0;
+        emissive = material.emissiveFactor * material.emissiveIntensity;
     }
 
     vec3 norm = texture(material.normalMap, fs_in.TexCoords).rgb;

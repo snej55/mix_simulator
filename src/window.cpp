@@ -5,7 +5,9 @@
 #include <iostream>
 
 // initialize EngineObject
-Window::Window(EngineObject* parent) : EngineObject{"Window", parent} {}
+Window::Window(EngineObject* parent) : EngineObject{"Window", parent}
+{
+}
 
 // free
 Window::~Window() { free(); }
@@ -34,7 +36,7 @@ bool Window::init(const int width, const int height, const char* title)
     setTitle(title); // implicit conversion
 
     std::cout << "WINDOW::INIT: Created GLFW window: {dimensions: " << width << " * " << height << ", title: " << title
-              << "}\n";
+        << "}\n";
 
     // success!
     return true;

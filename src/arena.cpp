@@ -3,7 +3,9 @@
 
 #include <iostream>
 
-Arena::Arena(EngineObject* engine) : EngineObject{"Arena", engine} {}
+Arena::Arena(EngineObject* engine) : EngineObject{"Arena", engine}
+{
+}
 
 Arena::~Arena() { free(); }
 
