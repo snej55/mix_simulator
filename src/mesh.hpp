@@ -41,6 +41,7 @@ namespace MeshN
         bool useMetallicTex = true;
         bool useRoughnessTex = true;
         bool useNormalTex = true;
+        bool useAOTex = true;
     };
 
     enum TextureType
@@ -81,7 +82,7 @@ class Mesh
 {
 public:
     Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigned int>& indices,
-         const std::vector<MeshN::Texture>& textures);
+         const std::vector<MeshN::Texture>& textures, const MeshN::Material& material);
 
     void render(const Shader* shader) const;
     void renderPBR(const Shader* pbrShader) const;

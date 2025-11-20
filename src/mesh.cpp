@@ -6,7 +6,8 @@
 #include <cassert>
 
 Mesh::Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigned int>& indices,
-           const std::vector<MeshN::Texture>& textures) : m_vertices{vertices}, m_indices{indices}, m_textures{textures}
+           const std::vector<MeshN::Texture>& textures, const MeshN::Material& material) :
+    m_vertices{vertices}, m_indices{indices}, m_textures{textures}, m_material{material}
 {
     // mikktspace.h callbacks
     m_SMT_iface.m_getNumFaces = SMTGetNumFaces;
@@ -32,7 +33,6 @@ void Mesh::renderPBR(const Shader* pbrShader) const
 {
     pbrShader->use();
     std::string textureType;
-    bool foundTexture{false};
 
     for (int i{0}; i < m_textures.size(); ++i)
     {
@@ -67,13 +67,54 @@ void Mesh::renderPBR(const Shader* pbrShader) const
         // don't render unknown texture
         if (textureType == "unknown")
             continue;
-        foundTexture = true;
 
         pbrShader->setInt("material." + textureType, i);
     }
 
-    if (!foundTexture)
-        return;
+    // handle pbr material parameters
+    if (m_material.useAlbedoTex)
+    {
+        pbrShader->setInt("material.useAlbedoTex", 1);
+    }
+    else
+    {
+        pbrShader->setInt("material.useAlbedoTex", 0);
+        pbrShader->setVec4("material.albedo", m_material.albedo);
+    }
+
+    if (m_material.useEmissiveTex)
+    {
+        pbrShader->setInt("material.useEmissiveTex", 1);
+    }
+    else
+    {
+        pbrShader->setInt("material.useEmissiveTex", 0);
+        pbrShader->setVec3("material.emissiveFactor", m_material.emissiveFactor);
+        pbrShader->setFloat("material.emissiveIntensity", m_material.emissiveIntensity);
+    }
+
+    if (m_material.useMetallicTex)
+    {
+        pbrShader->setInt("material.useMetallicTex", 1);
+    } else
+    {
+        pbrShader->setInt("material.useMetallicTex", 0);
+        pbrShader->setFloat("material.metallic", m_material.metallicFactor);
+    }
+
+    if (m_material.useRoughnessTex)
+    {
+        pbrShader->setInt("material.useRoughnessTex", 1);
+    } else
+    {
+        pbrShader->setInt("material.useRoughnessTex", 0);
+        pbrShader->setFloat("material.roughness", m_material.roughnessFactor);
+    }
+
+    if (m_material.useAOTex)
+    {
+        pbrShader->setInt("material.useAOTex", 1);
+    }
 
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
@@ -163,7 +204,7 @@ void Mesh::calculateMidpoint(const glm::mat4& transform)
         maxPoint.z = std::max(maxPoint.z, m_vertices[i].position.z);
     }
 
-    const glm::vec3 localPos {(minPoint + maxPoint) * 0.5f};
+    const glm::vec3 localPos{(minPoint + maxPoint) * 0.5f};
     m_localPos = localPos;
     m_midPoint = glm::vec3{transform * glm::vec4{localPos, 1.0f}};
 }

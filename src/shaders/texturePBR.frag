@@ -10,6 +10,7 @@ in VS_OUT
     vec3 TangentViewPos;
     vec3 TangentFragPos;
     mat3 TBN;
+    vec3 Normal;
 }
 fs_in;
 
@@ -33,11 +34,11 @@ struct Material
     sampler2D normalMap;
     sampler2D emissiveMap;
 
-    vec3 albedo;
+    vec4 albedo;
     float metallic;
     float roughness;
-    float ao;
-    vec3 emissive;
+    vec3 emissiveFactor;
+    float emissiveIntensity;
 };
 
 uniform Material material;
@@ -55,7 +56,7 @@ const float PI = 3.14159265359;
 // F0 = surface reflection at zero incidence
 vec3 fresnelSchlick(float cosTheta, vec3 F0, float roughness)
 {
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0); 
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 // normal distrobution function
@@ -105,16 +106,47 @@ float geomSmith(vec3 norm, vec3 view, vec3 light, float roughness)
 void main()
 {
     // albedo with g.c
-    vec4 albedoSample = texture(material.albedoMap, fs_in.TexCoords);
+    vec4 albedoSample;
+    if (material.useAlbedoTex == 1)
+    {
+        albedoSample = texture(material.albedoMap, fs_in.TexCoords);
+    } else {
+        albedoSample = material.albedo;
+    }
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2));
     float alpha = albedoSample.a;
     if (alpha < 0.1)
-	discard;
+    discard;
 
-    float metallic = texture(material.metallicMap, fs_in.TexCoords).r;
-    float roughness = texture(material.roughnessMap, fs_in.TexCoords).r;
-    float ao = texture(material.aoMap, fs_in.TexCoords).r;
-    vec3 emissive = texture(material.emissiveMap, fs_in.TexCoords).rgb;
+    float metallic;
+    if (material.useMetallicTex == 1)
+    {
+        metallic = texture(material.metallicMap, fs_in.TexCoords).r;
+    } else {
+        metallic = material.metallic;
+    }
+    float roughness;
+    if (material.useRoughnessTex == 1)
+    {
+        roughness = texture(material.roughnessMap, fs_in.TexCoords).r;
+    } else {
+        roughness = material.roughness;
+    }
+    float ao;
+    if (material.useAOTex == 1)
+    {
+        ao = texture(material.aoMap, fs_in.TexCoords).r;
+    } else {
+        ao = 1.0;
+    }
+
+    vec3 emissive;
+    if (material.useEmissiveTex == 1)
+    {
+        emissive = texture(material.emissiveMap, fs_in.TexCoords).rgb;
+    } else {
+        emissive = material.emissiveFactor * material.emissiveIntensity * 100.0;
+    }
 
     vec3 norm = texture(material.normalMap, fs_in.TexCoords).rgb;
     norm = normalize(norm * 2.0 - 1.0); // normal in tangent space
