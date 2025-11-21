@@ -209,6 +209,10 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     }
 
     // load bones
+    for (MeshN::Vertex& vertex : vertices)
+    {
+        setDefaultBoneData(vertex);
+    }
     extractBoneWeights(vertices, mesh, scene);
 
     // materials

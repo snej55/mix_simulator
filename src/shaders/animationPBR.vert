@@ -37,30 +37,31 @@ uniform mat4 finalBonesMatrices[MAX_BONES];
 void main()
 {
     // calculate bone influence
-    vec4 totalPosition = vec4(0.0);
+    vec4 totalPosition = vec4(0.0f);
     vec3 localNormal = aNormal;
-    for (uint i = 0; i < MAX_BONE_INFLUENCE; ++i)
+    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
     {
         if (aBoneIDs[i] == -1)
-        continue;
+        {
+            continue;
+        }
+
         if (aBoneIDs[i] >= MAX_BONES)
         {
             totalPosition = vec4(aPos, 1.0);
-            break;
         }
 
         vec4 localPosition = finalBonesMatrices[aBoneIDs[i]] * vec4(aPos, 1.0);
         totalPosition += localPosition * aWeights[i];
         localNormal = mat3(finalBonesMatrices[aBoneIDs[i]]) * aNormal;
     }
-
     vs_out.FragPos = vec3(model * totalPosition);
     vs_out.TexCoords = aTexCoords;
-    vs_out.Normal = aNormal;
+    vs_out.Normal = localNormal;
 
     // create TBN matrix
     vec3 T = normalize(normalMat * aTangent.xyz);
-    vec3 N = normalize(normalMat * aNormal);
+    vec3 N = normalize(normalMat * localNormal);
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
     // get perpendicular vector B 
@@ -73,5 +74,6 @@ void main()
     vs_out.TangentFragPos = TBN * vs_out.FragPos;
     vs_out.TBN = TBN;
 
-    gl_Position = projection * view * model * totalPosition;
+    mat4 viewModel = view * model;
+    gl_Position = projection * viewModel * totalPosition;
 }
