@@ -1,11 +1,13 @@
 //
 // Created by Jens Kromdijk on 07/11/2025.
 
-#include "bones.hpp"
 #include <cmath>
-#include "assimp/anim.h"
+#include <assimp/anim.h>
+#include <assimp/postprocess.h>
+
 #include "mesh.hpp"
 #include "util.hpp"
+#include "bones.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/ext/matrix_transform.hpp>

@@ -8,8 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "assimp/anim.h"
-#include "assimp/postprocess.h"
+#include <assimp/anim.h>
 #include "mesh.hpp"
 #include "model.hpp"
 

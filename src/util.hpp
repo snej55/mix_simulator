@@ -14,6 +14,7 @@
 #include <assimp/quaternion.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace Util
 {
@@ -57,6 +58,20 @@ namespace Util
     inline glm::quat convertQuaternionGLM(const aiQuaternion& quat)
     {
         return glm::quat{quat.w, quat.x, quat.y, quat.z};
+    }
+
+    inline glm::mat4 stipScale(const glm::mat4& mat)
+    {
+        glm::vec3 scale;
+        glm::quat rotation;
+        glm::vec3 translation;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::decompose(mat, scale, rotation, translation, skew, perspective);
+
+        const glm::mat4 rotationMatrix{glm::mat4_cast(rotation)};
+        const glm::mat4 translationMatrix{glm::translate(glm::mat4{1.0f}, translation)};
+        return translationMatrix * rotationMatrix;
     }
 } // namespace Util
 
