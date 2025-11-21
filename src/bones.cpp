@@ -181,6 +181,7 @@ BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
     Assimp::Importer importer;
     const aiScene* scene{importer.ReadFile(animationPath, aiProcess_Triangulate)};
     assert(scene && scene->mRootNode);
+    m_rootInverseTransform = glm::inverse(Util::convertMatrixGLM(scene->mRootNode->mTransformation));
 
     const aiAnimation* anim{scene->mAnimations[0]};
     m_duration = static_cast<float>(anim->mDuration);
@@ -279,11 +280,12 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
     }
 
     const glm::mat4 globalTransformation{parentTransform * nodeTransform};
+    const glm::mat4 globalInverseTransform{m_currentAnimation->getRootInverseTransform()};
 
     std::map<std::string, MeshN::BoneInfo>& boneInfoMap{m_currentAnimation->getBoneInfoMap()};
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
-        m_finalBoneMatrices[boneInfoMap[node->name].id] = globalTransformation * boneInfoMap[node->name].offset;
+        m_finalBoneMatrices[boneInfoMap[node->name].id] = globalInverseTransform * boneInfoMap[node->name].offset;
     }
 
     for (std::size_t i{0}; i < node->childrenCount; ++i)

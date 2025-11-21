@@ -99,13 +99,6 @@
         "frag": "bloomSS.frag",
         "vert": "bloomSS.vert"
       }
-    },
-    {
-      "name": "animationPBR",
-      "shader": {
-        "frag": "animationPBR.frag",
-        "vert": "animationPBR.vert"
-      }
     }
   ]
 }

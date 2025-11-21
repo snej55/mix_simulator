@@ -50,7 +50,7 @@ private:
     static void setDefaultBoneData(MeshN::Vertex& vertex);
     static void setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight);
 
-    void extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh, const aiScene* scene);
+    void extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh);
 
     void handleTransparentTextures(const aiScene* scene);
 

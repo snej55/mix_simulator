@@ -106,6 +106,7 @@ public:
     [[nodiscard]] float getDuration() const { return m_duration; }
     [[nodiscard]] const BonesN::AssimpNodeData& getRootNode() const { return m_rootNode; }
     [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
+    [[nodiscard]] const glm::mat4& getRootInverseTransform() const {return m_rootInverseTransform;}
 
 private:
     float m_duration{0.0f};
@@ -114,6 +115,7 @@ private:
     std::vector<Bone> m_bones{};
     BonesN::AssimpNodeData m_rootNode{};
     std::map<std::string, MeshN::BoneInfo> m_boneInfoMap{};
+    glm::mat4 m_rootInverseTransform{1.0f};
 
     void readMissingBones(const aiAnimation* animation, Model* model);
     void readHierarchyData(BonesN::AssimpNodeData& dest, const aiNode* src);

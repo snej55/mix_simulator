@@ -213,7 +213,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     {
         setDefaultBoneData(vertex);
     }
-    extractBoneWeights(vertices, mesh, scene);
+    extractBoneWeights(vertices, mesh);
 
     // materials
     aiMaterial* material{scene->mMaterials[mesh->mMaterialIndex]};
@@ -452,7 +452,7 @@ void Model::setDefaultBoneData(MeshN::Vertex& vertex)
     }
 }
 
-void Model::setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight)
+void Model::setVertexBoneData(MeshN::Vertex& vertex, const int boneID, const float weight)
 {
     for (unsigned int i{0}; i < MAX_BONE_INFLUENCE; ++i)
     {
@@ -465,7 +465,7 @@ void Model::setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight)
     }
 }
 
-void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh, const aiScene* scene)
+void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh)
 {
     for (unsigned int boneIdx{0}; boneIdx < mesh->mNumBones; ++boneIdx)
     {

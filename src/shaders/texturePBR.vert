@@ -15,6 +15,8 @@ out VS_OUT
     vec3 TangentFragPos;
     mat3 TBN;
     vec3 Normal;
+    vec4 TotalPosition;
+    vec3 LocalNormal;
 }
 vs_out;
 
