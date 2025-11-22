@@ -14,6 +14,7 @@
 #include <assimp/quaternion.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 
 namespace Util
@@ -49,10 +50,7 @@ namespace Util
     }
 
     // convert aiVector3D to glm::vec3
-    inline glm::vec3 convertVectorGLM(const aiVector3D& vec)
-    {
-        return glm::vec3{vec.x, vec.y, vec.z};
-    }
+    inline glm::vec3 convertVectorGLM(const aiVector3D& vec) { return glm::vec3{vec.x, vec.y, vec.z}; }
 
     // convert aiQuaternion to glm::quat
     inline glm::quat convertQuaternionGLM(const aiQuaternion& quat)
@@ -60,7 +58,7 @@ namespace Util
         return glm::quat{quat.w, quat.x, quat.y, quat.z};
     }
 
-    inline glm::mat4 stipScale(const glm::mat4& mat)
+    inline glm::mat4 stripScale(const glm::mat4& mat)
     {
         glm::vec3 scale;
         glm::quat rotation;

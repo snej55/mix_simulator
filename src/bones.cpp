@@ -15,8 +15,7 @@
 
 #include <algorithm>
 
-Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) :
-    m_name{name}, m_ID{ID} { init(channel); }
+Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) : m_name{name}, m_ID{ID} { init(channel); }
 
 void Bone::init(const aiNodeAnim* channel)
 {
@@ -68,47 +67,38 @@ void Bone::update(const float time)
 
 int Bone::getPositionIndex(const float time) const
 {
-    for (std::size_t i{0}; i < m_numPositions; ++i)
+    for (std::size_t i{0}; i < m_numPositions - 1; ++i)
     {
-        if (time < m_positions[i].timeStamp)
+        if (time < m_positions[i + 1].timeStamp)
         {
             return static_cast<int>(i);
         }
     }
-    Util::beginError();
-    std::cout << "BONE::GET_POSITION_INDEX::ERROR: Could not find animation time stamp!" << std::endl;
-    Util::endError();
-    return 0;
+    return m_numPositions - 1;
 }
 
 int Bone::getRotationIndex(const float time) const
 {
-    for (std::size_t i{0}; i < m_numRotations; ++i)
+    for (std::size_t i{0}; i < m_numRotations - 1; ++i)
     {
-        if (time < m_rotations[i].timeStamp)
+        if (time < m_rotations[i + 1].timeStamp)
         {
             return static_cast<int>(i);
         }
     }
-    Util::beginError();
-    std::cout << "BONE::GET_ROTATION_INDEX::ERROR: Could not find animation time stamp!" << std::endl;
-    Util::endError();
-    return 0;
+    return m_numRotations - 1;
 }
 
 int Bone::getScaleIndex(const float time) const
 {
-    for (std::size_t i{0}; i < m_numScales; ++i)
+    for (std::size_t i{0}; i < m_numScales - 1; ++i)
     {
-        if (time < m_scales[i].timeStamp)
+        if (time < m_scales[i + 1].timeStamp)
         {
             return static_cast<int>(i);
         }
     }
-    Util::beginError();
-    std::cout << "BONE::GET_SCALE_INDEX::ERROR: Could not find animation time stamp!" << std::endl;
-    Util::endError();
-    return 0;
+    return m_numScales - 1;
 }
 
 float Bone::getScaleFactor(const float lastTimeStamp, const float nextTimeStamp, const float animationTime)
@@ -127,10 +117,10 @@ glm::mat4 Bone::interpolatePosition(const float animationTime) const
 
     // get indices
     const int position0Idx{getPositionIndex(animationTime)};
-    int position1Idx{position0Idx + 1};
-    if (position1Idx >= m_positions.size())
+    const int position1Idx{position0Idx + 1};
+    if (position1Idx >= m_numPositions)
     {
-        position1Idx = 0;
+        return glm::translate(glm::mat4{1.0f}, m_positions[position0Idx].position);
     }
     // and the scale factor
     const float scaleFactor{
@@ -146,11 +136,12 @@ glm::mat4 Bone::interpolateRotation(const float animationTime) const
     if (m_numRotations == 1)
         return glm::toMat4(glm::normalize(m_rotations[0].orientation));
 
+    // get indices
     const int rotation0Idx{getRotationIndex(animationTime)};
-    int rotation1Idx{rotation0Idx + 1};
-    if (rotation1Idx >= m_rotations.size())
+    const int rotation1Idx{rotation0Idx + 1};
+    if (rotation1Idx >= m_numRotations)
     {
-        rotation1Idx = 0;
+        return glm::toMat4(glm::normalize(m_rotations[rotation0Idx].orientation));
     }
     const float scaleFactor{
         getScaleFactor(m_rotations[rotation0Idx].timeStamp, m_rotations[rotation1Idx].timeStamp, animationTime)};
@@ -165,11 +156,12 @@ glm::mat4 Bone::interpolateScaling(const float animationTime) const
     if (m_numScales == 1)
         return glm::scale(glm::mat4{1.0f}, m_scales[0].scale);
 
+    // get indices
     const int scale0Idx{getScaleIndex(animationTime)};
-    int scale1Idx{scale0Idx + 1};
-    if (scale1Idx >= m_scales.size())
+    const int scale1Idx{scale0Idx + 1};
+    if (scale1Idx >= m_numScales)
     {
-        scale1Idx = 0;
+        return glm::scale(glm::mat4{1.0f}, m_scales[scale0Idx].scale);
     }
     const float scaleFactor{
         getScaleFactor(m_scales[scale0Idx].timeStamp, m_scales[scale1Idx].timeStamp, animationTime)};
@@ -244,8 +236,7 @@ void BoneAnimation::readHierarchyData(BonesN::AssimpNodeData& dest, const aiNode
 }
 
 // the actual animator class
-BoneAnimator::BoneAnimator(BoneAnimation* animation) :
-    m_currentAnimation{animation}, m_currentTime{0.0f}
+BoneAnimator::BoneAnimator(BoneAnimation* animation) : m_currentAnimation{animation}, m_currentTime{0.0f}
 {
     m_finalBoneMatrices.reserve(100);
     for (std::size_t i{0}; i < 100; ++i)
@@ -287,7 +278,8 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
     std::map<std::string, MeshN::BoneInfo>& boneInfoMap{m_currentAnimation->getBoneInfoMap()};
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
-        m_finalBoneMatrices[boneInfoMap[node->name].id] = globalInverseTransform * boneInfoMap[node->name].offset;
+        m_finalBoneMatrices[boneInfoMap[node->name].id] =
+            globalInverseTransform * globalTransformation * boneInfoMap[node->name].offset;
     }
 
     for (std::size_t i{0}; i < node->childrenCount; ++i)
