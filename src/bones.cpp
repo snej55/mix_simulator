@@ -5,6 +5,7 @@
 #include <assimp/anim.h>
 #include <assimp/postprocess.h>
 
+#include "glm/trigonometric.hpp"
 #include "mesh.hpp"
 #include "util.hpp"
 #include "bones.hpp"
@@ -273,13 +274,13 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
     }
 
     const glm::mat4 globalTransformation{parentTransform * nodeTransform};
-    const glm::mat4 globalInverseTransform{m_currentAnimation->getRootInverseTransform()};
+    const glm::mat4 correctionMatrix {glm::rotate(glm::mat4{1.0f}, glm::radians(-90.f), glm::vec3{1.0f, 0.0f, 0.0f})};
+    const glm::mat4 globalInverseTransformation{correctionMatrix * m_currentAnimation->getRootInverseTransform()};
 
     std::map<std::string, MeshN::BoneInfo>& boneInfoMap{m_currentAnimation->getBoneInfoMap()};
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
-        m_finalBoneMatrices[boneInfoMap[node->name].id] =
-            globalInverseTransform * globalTransformation * boneInfoMap[node->name].offset;
+        m_finalBoneMatrices[boneInfoMap[node->name].id] = globalInverseTransformation * globalTransformation * boneInfoMap[node->name].offset;
     }
 
     for (std::size_t i{0}; i < node->childrenCount; ++i)
