@@ -489,7 +489,7 @@ void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMes
         {
             const unsigned int vertexID{weights[weightIdx].mVertexId};
             const float weight{weights[weightIdx].mWeight};
-            assert(vertexID <= vertices.size());
+            assert(vertexID < vertices.size());
             setVertexBoneData(vertices[vertexID], boneID, weight);
         }
     }

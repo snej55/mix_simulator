@@ -39,8 +39,9 @@ uniform mat4 finalBonesMatrices[MAX_BONES];
 void main()
 {
     // calculate bone influence
-    vec4 totalPosition = vec4(0.0f);
-    vec3 localNormal = vec3(0.0f);
+    vec4 totalPosition = vec4(0.0);
+    vec3 localNormal = vec3(0.0);
+    vec3 localTangent = vec3(0.0);
     for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
     {
         int boneID = aBoneIDs[i];
@@ -55,16 +56,23 @@ void main()
 
         vec3 boneLocalNormal = mat3(finalBonesMatrices[boneID]) * aNormal;
         localNormal += boneLocalNormal * weight;
+        vec3 boneLocalTangent = mat3(finalBonesMatrices[boneID]) * aTangent.xyz;
+        localTangent += boneLocalTangent * weight;
     }
 
-    if (totalPosition == vec4(0.0f))
+    if (totalPosition == vec4(0.0))
     {
-        totalPosition = vec4(aPos, 1.0f);
+        totalPosition = vec4(aPos, 1.0);
     }
 
-    if (localNormal == vec3(0.0f))
+    if (localNormal == vec3(0.0))
     {
         localNormal = aNormal;
+    }
+
+    if (localTangent == vec3(0.0))
+    {
+        localTangent = aTangent.xyz;
     }
 
     vs_out.FragPos = vec3(model * totalPosition);
@@ -74,7 +82,7 @@ void main()
     vs_out.LocalNormal = localNormal;
 
     // create TBN matrix
-    vec3 T = normalize(normalMat * aTangent.xyz);
+    vec3 T = normalize(normalMat * localTangent);
     vec3 N = vs_out.Normal;
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
