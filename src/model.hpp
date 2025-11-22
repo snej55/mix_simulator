@@ -49,6 +49,7 @@ private:
 
     static void setDefaultBoneData(MeshN::Vertex& vertex);
     static void setVertexBoneData(MeshN::Vertex& vertex, int boneID, float weight);
+    static bool checkVertexWeights(const MeshN::Vertex& vertex);
 
     void extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh);
 

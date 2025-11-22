@@ -4,7 +4,9 @@
 
 #include <STB/stb_image.h>
 #include <assimp/postprocess.h>
+#include <cstddef>
 #include <glad/glad.h>
+#include <limits>
 #include <mikktspace.h>
 #include <assimp/material.h>
 #include <assimp/GltfMaterial.h>
@@ -465,8 +467,20 @@ void Model::setVertexBoneData(MeshN::Vertex& vertex, const int boneID, const flo
     }
 }
 
+// check if vertex weights are zeroed
+bool Model::checkVertexWeights(const MeshN::Vertex& vertex)
+{
+    float totalWeight{0.0f};
+    for (std::size_t w{0}; w < MAX_BONE_INFLUENCE; ++w)
+    {
+        totalWeight += vertex.weights[w];
+    }
+    return totalWeight > 0.001f;
+}
+
 void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMesh* mesh)
 {
+    // get weights for each bone
     for (unsigned int boneIdx{0}; boneIdx < mesh->mNumBones; ++boneIdx)
     {
         int boneID{-1};
@@ -491,6 +505,56 @@ void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMes
             const float weight{weights[weightIdx].mWeight};
             assert(vertexID < vertices.size());
             setVertexBoneData(vertices[vertexID], boneID, weight);
+        }
+    }
+
+    // fix vertex spikes (try and get rid of any vertices with zeroed weights)
+    for (std::size_t i{0}; i < vertices.size(); ++i)
+    {
+        if (!checkVertexWeights(vertices[i]))
+        {
+            // try and match vertex to nearest vertex with a bone
+            float minDistance2{std::numeric_limits<float>::max()};
+            int minIdx{-1};
+            for (std::size_t j{0}; j < vertices.size(); ++j)
+            {
+                if (j == i)
+                    continue;
+
+                if (!checkVertexWeights(vertices[j]))
+                    continue;
+
+                const float dx{vertices[i].position.x - vertices[j].position.x};
+                const float dy{vertices[i].position.y - vertices[j].position.y};
+                const float dz{vertices[i].position.z - vertices[j].position.z};
+                const float dist2{dx * dx + dy * dy + dz * dz};
+                if (dist2 < minDistance2)
+                {
+                    minDistance2 = dist2;
+                    minIdx = static_cast<int>(j);
+                }
+            }
+
+            if (minIdx >= 0)
+            {
+                // get bone info from nearest good vertex
+                for (std::size_t v{0}; v < MAX_BONE_INFLUENCE; ++v)
+                {
+                    vertices[i].boneIDs[v] = vertices[minIdx].boneIDs[v];
+                    vertices[i].weights[v] = vertices[minIdx].weights[v];
+                }
+            }
+            else if (m_boneCounter > 0)
+            {
+                // fallback
+                vertices[i].boneIDs[0] = 0;
+                vertices[i].weights[0] = 1.0f;
+                for (std::size_t v{1}; v < MAX_BONE_INFLUENCE; ++v)
+                {
+                    vertices[i].boneIDs[v] = -1;
+                    vertices[i].weights[v] = 0.0f;
+                }
+            }
         }
     }
 }

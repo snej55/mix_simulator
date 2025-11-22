@@ -1,16 +1,16 @@
 #ifndef BONES_H
 #define BONES_H
 
-#include <glm/glm.hpp>
-#include <glm/detail/type_quat.hpp>
 #include <assimp/scene.h>
+#include <glm/detail/type_quat.hpp>
+#include <glm/glm.hpp>
 #include <map>
 #include <string>
 #include <vector>
 
-#include <assimp/anim.h>
 #include "mesh.hpp"
 #include "model.hpp"
+#include <assimp/anim.h>
 
 namespace BonesN
 {
@@ -39,7 +39,7 @@ namespace BonesN
         int childrenCount;
         std::vector<AssimpNodeData> children;
     };
-}
+} // namespace BonesN
 
 class Bone
 {
@@ -90,7 +90,6 @@ private:
     [[nodiscard]] glm::mat4 interpolateScaling(float animationTime) const;
 };
 
-
 class BoneAnimation
 {
 public:
@@ -105,7 +104,7 @@ public:
     [[nodiscard]] float getDuration() const { return m_duration; }
     [[nodiscard]] const BonesN::AssimpNodeData& getRootNode() const { return m_rootNode; }
     [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
-    [[nodiscard]] const glm::mat4& getRootInverseTransform() const {return m_rootInverseTransform;}
+    [[nodiscard]] const glm::mat4& getRootInverseTransform() const { return m_rootInverseTransform; }
 
 private:
     float m_duration{0.0f};
