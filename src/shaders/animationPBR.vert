@@ -16,9 +16,6 @@ out VS_OUT
     vec3 TangentViewPos;
     vec3 TangentFragPos;
     mat3 TBN;
-    vec3 Normal;
-    vec4 TotalPosition;
-    vec3 LocalNormal;
 }
 vs_out;
 
@@ -77,13 +74,10 @@ void main()
 
     vs_out.FragPos = vec3(model * totalPosition);
     vs_out.TexCoords = aTexCoords;
-    vs_out.Normal = normalize(normalMat * localNormal);
-    vs_out.TotalPosition = totalPosition;
-    vs_out.LocalNormal = localNormal;
 
     // create TBN matrix
     vec3 T = normalize(normalMat * localTangent);
-    vec3 N = vs_out.Normal;
+    vec3 N = normalize(normalMat * localNormal);
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
     // get perpendicular vector B 

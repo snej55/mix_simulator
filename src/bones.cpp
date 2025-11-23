@@ -16,7 +16,8 @@
 
 #include <algorithm>
 
-Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) : m_name{name}, m_ID{ID} { init(channel); }
+Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) :
+    m_name{name}, m_ID{ID} { init(channel); }
 
 void Bone::init(const aiNodeAnim* channel)
 {
@@ -178,11 +179,15 @@ BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
     assert(scene && scene->mRootNode);
     m_rootInverseTransform = glm::inverse(Util::convertMatrixGLM(scene->mRootNode->mTransformation));
 
-    const aiAnimation* anim{scene->mAnimations[0]};
-    m_duration = static_cast<float>(anim->mDuration);
-    m_tps = static_cast<int>(anim->mTicksPerSecond);
-    readHierarchyData(m_rootNode, scene->mRootNode);
-    readMissingBones(anim, model);
+
+    if (scene->mNumAnimations > 0)
+    {
+        const aiAnimation* anim{scene->mAnimations[0]};
+        m_duration = static_cast<float>(anim->mDuration);
+        m_tps = static_cast<int>(anim->mTicksPerSecond);
+        readHierarchyData(m_rootNode, scene->mRootNode);
+        readMissingBones(anim, model);
+    }
 }
 
 // find bone using std::find_if
@@ -237,7 +242,8 @@ void BoneAnimation::readHierarchyData(BonesN::AssimpNodeData& dest, const aiNode
 }
 
 // the actual animator class
-BoneAnimator::BoneAnimator(BoneAnimation* animation) : m_currentAnimation{animation}, m_currentTime{0.0f}
+BoneAnimator::BoneAnimator(BoneAnimation* animation) :
+    m_currentAnimation{animation}, m_currentTime{0.0f}
 {
     m_finalBoneMatrices.reserve(100);
     for (std::size_t i{0}; i < 100; ++i)
@@ -274,15 +280,19 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
     }
 
     const glm::mat4 globalTransformation{parentTransform * nodeTransform};
-    const glm::mat4 correctionMatrix {glm::rotate(glm::mat4{1.0f}, glm::radians(-90.f), glm::vec3{1.0f, 0.0f, 0.0f})};
+    const glm::mat4 correctionMatrix{glm::rotate(glm::mat4{1.0f}, glm::radians(-90.f), glm::vec3{1.0f, 0.0f, 0.0f})};
     const glm::mat4 globalInverseTransformation{correctionMatrix * m_currentAnimation->getRootInverseTransform()};
 
     std::map<std::string, MeshN::BoneInfo>& boneInfoMap{m_currentAnimation->getBoneInfoMap()};
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
-        m_finalBoneMatrices[boneInfoMap[node->name].id] = globalInverseTransformation * globalTransformation * boneInfoMap[node->name].offset;
+        if (boneInfoMap[node->name].id < m_finalBoneMatrices.size())
+            m_finalBoneMatrices[boneInfoMap[node->name].id] = globalInverseTransformation * globalTransformation *
+                boneInfoMap[node->name].offset;
     }
 
     for (std::size_t i{0}; i < node->childrenCount; ++i)
+    {
         calculateBoneTransform(&node->children[i], globalTransformation);
+    }
 }

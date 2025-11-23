@@ -10,9 +10,6 @@ in VS_OUT
     vec3 TangentViewPos;
     vec3 TangentFragPos;
     mat3 TBN;
-    vec3 Normal;
-    vec4 TotalPosition;
-    vec3 LocalNormal;
 }
 fs_in;
 
