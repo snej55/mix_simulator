@@ -54,7 +54,8 @@ int main()
         spartanAnimator.updateAnimation(engine.getDeltaTime());
 
         // do rendering
-
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         dfRenderer.setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(), engine.getViewMatrix());
         // clear screen
@@ -73,15 +74,14 @@ int main()
         light->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
 
         dfRenderer.closeGeometryPass();
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer.getGBuffer());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, engine.getPostProcessor()->getFBO());
+        glBlitFramebuffer(0, 0, engine.getWidth(), engine.getHeight(), 0, 0, engine.getWidth(), engine.getHeight(),
+                          GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         engine.enablePostProcessing();
-        // clear screen
-        engine.clear();
-
-        // render skybox first
-        glDepthMask(GL_FALSE);
-        iblGenerator.renderSkybox(&engine);
-        glDepthMask(GL_TRUE);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         engine.useShader("deferredShading");
         engine.setVec3("viewPos", engine.getCameraPosition(), "deferredShading");
@@ -107,7 +107,16 @@ int main()
         glActiveTexture(GL_TEXTURE12);
         glBindTexture(GL_TEXTURE_2D, iblGenerator.getBRDFLutMap());
 
+        glDepthMask(GL_FALSE);
+        glDisable(GL_DEPTH_TEST);
         renderQuad();
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+
+        glDepthFunc(GL_LEQUAL);
+        glDepthMask(GL_FALSE);
+        iblGenerator.renderSkybox(&engine);
+        glDepthMask(GL_TRUE);
 
         engine.disablePostProcessing();
         engine.renderPostProcessing();
