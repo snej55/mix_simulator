@@ -6,9 +6,9 @@ OpenGL rendering framework.
 
 ## TODO:
 - [X] Finish IBL
-- [ ] Skeletal animation
+- [X] Skeletal animation
 - [X] PBR Textures
-- [ ] PBR Material loading
+- [X] PBR Material loading
 - [ ] Get scene set up
 - [ ] Main game class
 - [ ] Level editor
