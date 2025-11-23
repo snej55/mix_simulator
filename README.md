@@ -9,9 +9,12 @@ OpenGL rendering framework.
 - [X] Skeletal animation
 - [X] PBR Textures
 - [X] PBR Material loading
+- [ ] Deferred rendering
+- [ ] SSAO
 - [ ] Get scene set up
 - [ ] Main game class
 - [ ] Level editor
 - [ ] Rag dolls
 - [ ] Physics engine (Jolt? Box2D?)
 - [ ] Optimize static shader uniforms
+- [ ] Create player models
