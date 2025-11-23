@@ -18,7 +18,7 @@ public:
     ~DeferredRenderer() override;
 
     // setup framebuffers
-    void init(unsigned int scrWidth, unsigned int scrHeight);
+    void init(int scrWidth, int scrHeight);
 
     // setup for geometry pass
     void setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view);
@@ -57,8 +57,8 @@ private:
     unsigned int m_RBO{};
 
     // view port dimensions
-    unsigned int m_scrWidth{};
-    unsigned int m_scrHeight{};
+    int m_scrWidth{};
+    int m_scrHeight{};
 };
 
 

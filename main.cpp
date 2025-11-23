@@ -7,6 +7,7 @@
 #include "src/engine.hpp"
 #include "src/ibl.hpp"
 #include "src/bones.hpp"
+#include "src/renderer.hpp"
 
 int main()
 {
@@ -37,6 +38,10 @@ int main()
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine};
     iblGenerator.init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png", &engine);
+
+    // ----------- Deferred Rendering ----------- //
+    DeferredRenderer dfRenderer{&engine};
+    dfRenderer.init(engine.getWidth(), engine.getHeight());
 
     // reset window viewport
     glViewport(0, 0, engine.getWidth(), engine.getHeight());
