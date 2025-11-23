@@ -5,7 +5,11 @@
 #ifndef MAIN_RENDERER_H
 #define MAIN_RENDERER_H
 
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+
 #include "engine_types.hpp"
+#include "shader.hpp"
 
 class DeferredRenderer final : public EngineObject
 {
@@ -15,6 +19,23 @@ public:
 
     // setup framebuffers
     void init(unsigned int scrWidth, unsigned int scrHeight);
+
+    // setup for geometry pass
+    void setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view);
+    // unbind framebuffer
+    void closeGeometryPass() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+
+    // -------- getters -------- //
+    [[nodiscard]] unsigned int getGBuffer() const { return m_gBuffer; }
+    // different gBuffer components
+    [[nodiscard]] unsigned int getPositionEBuffer() const { return m_positionEBuffer; }
+    [[nodiscard]] unsigned int getColorBuffer() const { return m_colorBuffer; }
+    [[nodiscard]] unsigned int getNormalEBuffer() const { return m_normalEBuffer; }
+    [[nodiscard]] unsigned int getARMEBuffer() const { return m_ARMEBuffer; }
+
+    [[nodiscard]] unsigned int getRenderbuffer() const { return m_RBO; }
+    [[nodiscard]] unsigned int getWidth() const { return m_scrWidth; }
+    [[nodiscard]] unsigned int getHeight() const { return m_scrHeight; }
 
 private:
     // graphics buffer

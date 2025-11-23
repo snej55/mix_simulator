@@ -77,6 +77,7 @@ void main()
     // aTangent.w is tangent sign calculated using mikktspace.h to make sure tangent handedness is correct
     vec3 B = cross(N, T) * aTangent.w;
     mat3 TBN = transpose(mat3(T, B, N));
+
     vs_out.Normal = N;
     vs_out.TBN = TBN;
 

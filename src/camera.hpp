@@ -34,7 +34,7 @@ class Camera final : public EngineObject
 public:
     explicit Camera(EngineObject* engine) : EngineObject{"Camera", engine}
     {
-        m_position = glm::vec3(0.0f, 0.0f, 3.0f);
+        m_position = glm::vec3(0.0f, 50.0f, 100.0f);
         m_front = glm::vec3(0.0f, 0.0f, -1.0f);
         m_up = glm::vec3(0.0f, 1.0f, 0.0f);
         m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);

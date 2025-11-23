@@ -63,4 +63,15 @@ void DeferredRenderer::init(const unsigned int scrWidth, const unsigned int scrH
         Util::endError();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    m_scrWidth = scrWidth;
+    m_scrHeight = scrHeight;
+}
+
+void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+    gpShader->use();
+    gpShader->setMat4("projection", projection);
+    gpShader->setMat4("view", view);
 }
