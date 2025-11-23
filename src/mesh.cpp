@@ -123,26 +123,22 @@ void Mesh::renderPBR(const Shader* pbrShader) const
         pbrShader->setInt("material.useAOTex", 1);
     }
 
+    if (m_material.useNormalTex)
+    {
+        pbrShader->setInt("material.useNormalTex", 1);
+    }
+    else
+    {
+        pbrShader->setInt("material.useNormalTex", 0);
+    }
+
     glBindVertexArray(m_VAO);
-    // enable back-face culling for correct face culling during model rendering
-    GLboolean wasCullEnabled = glIsEnabled(GL_CULL_FACE);
-    GLint prevCullFaceMode = 0;
-    glGetIntegerv(GL_CULL_FACE_MODE, &prevCullFaceMode);
-    if (!wasCullEnabled)
-        glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
 
-    // reset
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-
-    // restore previous culling state
-    if (!wasCullEnabled)
-        glDisable(GL_CULL_FACE);
-    else
-        glCullFace(static_cast<GLenum>(prevCullFaceMode));
+    glDisable(GL_CULL_FACE);
 
     // reset
     glBindVertexArray(0);

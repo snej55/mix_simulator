@@ -15,6 +15,7 @@ out VS_OUT
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
+    vec3 Normal;
     mat3 TBN;
 }
 vs_out;
@@ -88,6 +89,7 @@ void main()
     vs_out.TangentLightPos = TBN * lightPos;
     vs_out.TangentViewPos = TBN * viewPos;
     vs_out.TangentFragPos = TBN * vs_out.FragPos;
+    vs_out.Normal = N;
     vs_out.TBN = TBN;
 
     mat4 viewModel = view * model;

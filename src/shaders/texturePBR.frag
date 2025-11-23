@@ -9,6 +9,7 @@ in VS_OUT
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
+    vec3 Normal;
     mat3 TBN;
 }
 fs_in;
@@ -145,8 +146,14 @@ void main()
         emissive = material.emissiveFactor * material.emissiveIntensity;
     }
 
-    vec3 norm = texture(material.normalMap, fs_in.TexCoords).rgb;
-    norm = normalize(norm * 2.0 - 1.0); // normal in tangent space
+    vec3 norm;
+    if (material.useNormalTex == 1)
+    {
+        norm = texture(material.normalMap, fs_in.TexCoords).rgb;
+        norm = normalize(norm * 2.0 - 1.0); // normal in tangent space
+    } else {
+        norm = normalize(transpose(fs_in.TBN) * fs_in.Normal);
+    }
     vec3 V = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 
     // outgoing radiance
