@@ -106,6 +106,13 @@
         "frag": "gBuffer.frag",
         "vert": "gBuffer.vert"
       }
+    },
+    {
+      "name": "deferredShading",
+      "shader": {
+        "frag": "deferredShading.frag",
+        "vert": "deferredShading.vert"
+      }
     }
   ]
 }

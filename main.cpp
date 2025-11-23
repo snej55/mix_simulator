@@ -9,6 +9,8 @@
 #include "src/bones.hpp"
 #include "src/renderer.hpp"
 
+void renderQuad();
+
 int main()
 {
     // initialize engine
@@ -52,17 +54,11 @@ int main()
         spartanAnimator.updateAnimation(engine.getDeltaTime());
 
         // do rendering
-        engine.enablePostProcessing();
-        // clear screen
-        engine.clear();
 
-        // render skybox first
-        glDepthMask(GL_FALSE);
-        iblGenerator.renderSkybox(&engine);
-        glDepthMask(GL_TRUE);
-        engine.disablePostProcessing();
 
         dfRenderer.setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(), engine.getViewMatrix());
+        // clear screen
+        engine.clear();
 
         const std::vector<glm::mat4>& transforms{spartanAnimator.getFinalBoneMatrices()};
         for (std::size_t i{0}; i < transforms.size(); ++i)
@@ -78,6 +74,42 @@ int main()
 
         dfRenderer.closeGeometryPass();
 
+        engine.enablePostProcessing();
+        // clear screen
+        engine.clear();
+
+        // render skybox first
+        glDepthMask(GL_FALSE);
+        iblGenerator.renderSkybox(&engine);
+        glDepthMask(GL_TRUE);
+
+        engine.useShader("deferredShading");
+        engine.setVec3("viewPos", engine.getCameraPosition(), "deferredShading");
+        engine.setInt("gPositionE", 0, "deferredShading");
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, dfRenderer.getPositionEBuffer());
+        engine.setInt("gAlbedo", 1, "deferredShading");
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, dfRenderer.getColorBuffer());
+        engine.setInt("gNormalE", 2, "deferredShading");
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, dfRenderer.getNormalEBuffer());
+        engine.setInt("gARME", 3, "deferredShading");
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, dfRenderer.getARMEBuffer());
+        engine.setInt("irradianceMap", 10, "deferredShading");
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getIrradianceMap());
+        engine.setInt("prefilterMap", 11, "deferredShading");
+        glActiveTexture(GL_TEXTURE11);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getPrefilterMap());
+        engine.setInt("brdfLUT", 12, "deferredShading");
+        glActiveTexture(GL_TEXTURE12);
+        glBindTexture(GL_TEXTURE_2D, iblGenerator.getBRDFLutMap());
+
+        renderQuad();
+
+        engine.disablePostProcessing();
         engine.renderPostProcessing();
 
         // update engine
@@ -86,4 +118,32 @@ int main()
     }
 
     return 0;
+}
+
+// renderQuad() renders a 1x1 XY quad in NDC
+// -----------------------------------------
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }
