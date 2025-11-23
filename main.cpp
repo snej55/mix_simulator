@@ -22,7 +22,6 @@ int main()
     engine.setCameraEnabled(true);
 
     // use only gltf files for now
-    engine.addModel("cube", "data/models/monkey.glb");
     engine.addModel("light", "data/models/spartan.glb");
 
     Model* light{engine.getModel("light")};
@@ -52,6 +51,11 @@ int main()
         // clear screen
         engine.clear();
 
+        // render skybox first
+        glDepthMask(GL_FALSE);
+        iblGenerator.renderSkybox(&engine);
+        glDepthMask(GL_TRUE);
+
         engine.useShader("texturePBR");
         engine.setVec3("viewPos", engine.getCameraPosition(), "texturePBR");
 
@@ -74,9 +78,8 @@ int main()
         engine.setInt("brdfLUT", 12, "texturePBR");
         glActiveTexture(GL_TEXTURE12);
         glBindTexture(GL_TEXTURE_2D, iblGenerator.getBRDFLutMap());
-        light->renderPBR(engine.getShader("texturePBR"));
 
-        iblGenerator.renderSkybox(&engine);
+        light->renderFull(engine.getShader("texturePBR"), engine.getCameraPosition(), model);
 
         engine.disablePostProcessing();
         engine.renderPostProcessing();

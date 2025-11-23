@@ -117,8 +117,6 @@ void main()
     }
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2));
     float alpha = albedoSample.a;
-    if (alpha < 0.1)
-    discard;
 
     float metallic;
     if (material.useMetallicTex == 1)

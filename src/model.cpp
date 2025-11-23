@@ -75,11 +75,16 @@ void Model::renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, cons
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // avoid writing to the depth buffer while drawing blended objects
+    glDepthMask(GL_FALSE);
+
     for (std::map<float, std::size_t>::reverse_iterator it{sortedMeshes.rbegin()}; it != sortedMeshes.rend(); ++it)
     {
         m_meshes[it->second].renderPBR(pbrShader);
     }
 
+    // restore depth writes and blending state
+    glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
 }
 
