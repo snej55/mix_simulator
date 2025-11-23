@@ -12,7 +12,8 @@ out VS_OUT
     vec2 TexCoords;
     vec3 Normal;
     // for normal mapping
-    mat3 TBN;
+    vec3 Tangent;
+    float BitangentSign;
 }
 vs_out;
 
@@ -40,7 +41,7 @@ void main()
         }
 
         vec4 localPosition = finalBonesMatrices[boneID] * vec4(aPos, 1.0);
-        totalPosition = localPosition * weight;
+        totalPosition += localPosition * weight;
 
         vec3 boneLocalNormal = mat3(finalBonesMatrices[boneID]) * aNormal;
         localNormal += boneLocalNormal * weight;
@@ -73,13 +74,10 @@ void main()
     vec3 N = normalize(normalMat * localNormal);
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
-    // get perpendicular vector B
-    // aTangent.w is tangent sign calculated using mikktspace.h to make sure tangent handedness is correct
-    vec3 B = cross(N, T) * aTangent.w;
-    mat3 TBN = transpose(mat3(T, B, N));
 
     vs_out.Normal = N;
-    vs_out.TBN = TBN;
+    vs_out.Tangent = T;
+    vs_out.BitangentSign = aTangent.w;
 
     gl_Position = projection * view * model * totalPosition;
 }

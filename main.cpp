@@ -8,6 +8,7 @@
 #include "src/ibl.hpp"
 #include "src/bones.hpp"
 #include "src/renderer.hpp"
+#include "src/util.hpp"
 
 void renderQuad();
 
@@ -69,7 +70,7 @@ int main()
         engine.setMat4("model", model, "gBuffer");
         engine.setMat4("view", engine.getViewMatrix(), "gBuffer");
         engine.setMat4("projection", engine.getProjectionMatrix(), "gBuffer");
-        engine.setMat3("normalMat", engine.getNormalMatrix(model), "gBuffer");
+        engine.setMat3("normalMat", engine.getNormalMatrix(Util::stripScale(model)), "gBuffer");
 
         light->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
 

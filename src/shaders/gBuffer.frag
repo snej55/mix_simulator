@@ -10,7 +10,8 @@ in VS_OUT
     vec2 TexCoords;
     vec3 Normal;
     // for normal mapping
-    mat3 TBN;
+    vec3 Tangent;
+    float BitangentSign;
 }
 fs_in;
 
@@ -51,9 +52,16 @@ void main()
     vec3 normal;
     if (material.useNormalTex == 1)
     {
+        // reorthogonalize TBN to fix handedness after fragment interpolation
+        vec3 N = normalize(fs_in.Normal);
+        vec3 T = normalize(fs_in.Tangent - N * dot(N, fs_in.Tangent));
+        vec3 B = cross(N, T) * fs_in.BitangentSign;
+        mat3 TBN = mat3(T, B, N);
+
+        // sample normal map (tangent space)
         normal = texture(material.normalMap, fs_in.TexCoords).rgb;
-        normal = normalize(normal * 2.0 - 1.0); // normal in tangent space
-        normal = normalize(fs_in.TBN * normal);
+        normal = normalize(normal * 2.0 - 1.0);
+        normal = normalize(TBN * normal);
     } else {
         normal = normalize(fs_in.Normal);
     }
