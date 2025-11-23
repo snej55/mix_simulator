@@ -31,7 +31,7 @@ private:
     // y = Roughness
     // z = Metallic
     // a = Emissive.b
-    unsigned int m_AMREBuffer{};
+    unsigned int m_ARMEBuffer{};
     // render buffer
     unsigned int m_RBO{};
 
@@ -41,4 +41,4 @@ private:
 };
 
 
-#endif //MAIN_RENDERER_H
+#endif // MAIN_RENDERER_H

@@ -39,12 +39,12 @@ void DeferredRenderer::init(const unsigned int scrWidth, const unsigned int scrH
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_normalEBuffer, 0);
     // AMRE color buffer (AO, metallic, roughness, emissive)
-    glGenTextures(1, &m_AMREBuffer);
-    glBindTexture(GL_TEXTURE_2D, m_AMREBuffer);
+    glGenTextures(1, &m_ARMEBuffer);
+    glBindTexture(GL_TEXTURE_2D, m_ARMEBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, scrWidth, scrHeight, 0, GL_RGBA8, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_AMREBuffer, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_ARMEBuffer, 0);
 
     // add color attachments to framebuffer (let OpenGL know which ones to use for rendering)
     unsigned int attachments[4]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT2};
@@ -58,9 +58,9 @@ void DeferredRenderer::init(const unsigned int scrWidth, const unsigned int scrH
     // check framebuffer status
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-	Util::beginError();
-	std::cout << "DEFERRED_RENDERER::INIT::ERROR: Framebuffer is not complete!" << std::endl;
-	Util::endError();
+        Util::beginError();
+        std::cout << "DEFERRED_RENDERER::INIT::ERROR: Framebuffer is not complete!" << std::endl;
+        Util::endError();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -99,6 +99,13 @@
         "frag": "bloomSS.frag",
         "vert": "bloomSS.vert"
       }
+    },
+    {
+      "name": "gBuffer",
+      "shader": {
+        "frag": "gBuffer.frag",
+        "vert": "gBuffer.vert"
+      }
     }
   ]
 }
