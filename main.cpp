@@ -60,33 +60,24 @@ int main()
         glDepthMask(GL_FALSE);
         iblGenerator.renderSkybox(&engine);
         glDepthMask(GL_TRUE);
+        engine.disablePostProcessing();
 
-        engine.useShader("texturePBR");
-        engine.setVec3("viewPos", engine.getCameraPosition(), "texturePBR");
+        dfRenderer.setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(), engine.getViewMatrix());
 
         const std::vector<glm::mat4>& transforms{spartanAnimator.getFinalBoneMatrices()};
         for (std::size_t i{0}; i < transforms.size(); ++i)
-            engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "texturePBR");
+            engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "gBuffer");
 
         glm::mat4 model{glm::mat4{1.0f}};
-        // model = glm::rotate(model, engine.getTime() * 0.6f, {0.0f, 1.0f, 0.0f});
-        engine.setMat4("model", model, "texturePBR");
-        engine.setMat4("view", engine.getViewMatrix(), "texturePBR");
-        engine.setMat4("projection", engine.getProjectionMatrix(), "texturePBR");
-        engine.setMat3("normalMat", engine.getNormalMatrix(model), "texturePBR");
-        engine.setInt("irradianceMap", 10, "texturePBR");
-        glActiveTexture(GL_TEXTURE10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getIrradianceMap());
-        engine.setInt("prefilterMap", 11, "texturePBR");
-        glActiveTexture(GL_TEXTURE11);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getPrefilterMap());
-        engine.setInt("brdfLUT", 12, "texturePBR");
-        glActiveTexture(GL_TEXTURE12);
-        glBindTexture(GL_TEXTURE_2D, iblGenerator.getBRDFLutMap());
+        engine.setMat4("model", model, "gBuffer");
+        engine.setMat4("view", engine.getViewMatrix(), "gBuffer");
+        engine.setMat4("projection", engine.getProjectionMatrix(), "gBuffer");
+        engine.setMat3("normalMat", engine.getNormalMatrix(model), "gBuffer");
 
-        light->renderFull(engine.getShader("texturePBR"), engine.getCameraPosition(), model);
+        light->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
 
-        engine.disablePostProcessing();
+        dfRenderer.closeGeometryPass();
+
         engine.renderPostProcessing();
 
         // update engine

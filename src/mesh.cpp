@@ -1,9 +1,10 @@
-#include "mesh.hpp"
-#include <cstddef>
 #include <glad/glad.h>
-#include "mikktspace.h"
+#include <mikktspace.h>
 
 #include <cassert>
+#include <cstddef>
+
+#include "mesh.hpp"
 
 Mesh::Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigned int>& indices,
            const std::vector<MeshN::Texture>& textures, const MeshN::Material& material) :
