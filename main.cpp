@@ -96,7 +96,7 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        engine.renderDeferredRenderer(&iblGenerator);
+        engine.renderGBuffer(&iblGenerator);
         glDisable(GL_BLEND);
 
         glDepthFunc(GL_LEQUAL);

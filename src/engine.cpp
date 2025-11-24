@@ -177,10 +177,10 @@ bool Engine::init(const int width, const int height, const char* title)
 
     if (!createDeferredRenderer())
     {
-	Util::beginError();
-	std::cout << "ENGINE::INIT::ERROR: Failed to create DeferredRenderer!";
-	Util::endError();
-	return false;
+        Util::beginError();
+        std::cout << "ENGINE::INIT::ERROR: Failed to create DeferredRenderer!";
+        Util::endError();
+        return false;
     }
     m_deferredRenderer->init(getWidth(), getHeight());
 
@@ -743,7 +743,7 @@ glm::mat4 Engine::getViewMatrix() const { return m_camera->getViewMatrix(); }
 glm::mat4 Engine::getProjectionMatrix() const
 {
     return glm::perspective(glm::radians(m_camera->getZoom()),
-                            static_cast<float>(getWidth()) / static_cast<float>(getHeight()), 0.1f, 100000.0f);
+                            static_cast<float>(getWidth()) / static_cast<float>(getHeight()), 1.f, 10000.0f);
 }
 
 glm::vec3 Engine::getCameraPosition() const { return m_camera->getPosition(); }
@@ -823,9 +823,10 @@ bool Engine::createDeferredRenderer()
     if (m_deferredRenderer != nullptr)
     {
         Util::beginError();
-	std::cout << "ENGINE::CREATE_DEFERRED_RENDERER::ERROR: Deferred renderer already exists at `" << m_deferredRenderer << "`";
-	Util::endError();
-	return false;
+        std::cout << "ENGINE::CREATE_DEFERRED_RENDERER::ERROR: Deferred renderer already exists at `"
+                  << m_deferredRenderer << "`";
+        Util::endError();
+        return false;
     }
 
     m_deferredRenderer = new DeferredRenderer{this};
@@ -833,12 +834,9 @@ bool Engine::createDeferredRenderer()
     return true;
 }
 
-void Engine::updateDeferredRenderer(const int width, const int height)
-{
-    m_deferredRenderer->init(width, height);
-}
+void Engine::updateDeferredRenderer(const int width, const int height) { m_deferredRenderer->init(width, height); }
 
-void Engine::renderDeferredRenderer(const IBLGenerator* ibl)
+void Engine::renderGBuffer(const IBLGenerator* ibl)
 {
     useShader("deferredShading");
     setVec3("viewPos", getCameraPosition(), "deferredShading");
@@ -879,7 +877,7 @@ void Engine::removeObject(EngineObject*& object) const
 {
     if (object != nullptr)
     {
-	m_arena->removeObject(object->getID());
+        m_arena->removeObject(object->getID());
     }
 }
 

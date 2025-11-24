@@ -183,7 +183,7 @@ public:
     // ------ Deferred Renderer ------ //
     bool createDeferredRenderer();
     void updateDeferredRenderer(int width, int height);
-    void renderDeferredRenderer(const IBLGenerator* ibl);
+    void renderGBuffer(const IBLGenerator* ibl);
 
     [[nodiscard]] DeferredRenderer* getDeferredRenderer() const { return m_deferredRenderer; }
 
