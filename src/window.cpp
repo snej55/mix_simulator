@@ -120,8 +120,9 @@ void Window::framebuffer_size_callback(const int width, const int height)
     setHeight(height);
     glViewport(0, 0, width, height);
 
-    // update post processor
+    // update framebuffers
     dynamic_cast<Engine*>(m_parent)->updatePostProcessor(width, height);
+    dynamic_cast<Engine*>(m_parent)->updateDeferredRenderer(width, height);
 }
 
 // gets called from glfw cursor pos callback

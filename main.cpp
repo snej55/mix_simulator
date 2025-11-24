@@ -10,8 +10,6 @@
 #include "src/renderer.hpp"
 #include "src/util.hpp"
 
-void renderQuad();
-
 int main()
 {
     // initialize engine
@@ -43,8 +41,7 @@ int main()
     iblGenerator.init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png", &engine);
 
     // ----------- Deferred Rendering ----------- //
-    DeferredRenderer dfRenderer{&engine};
-    dfRenderer.init(engine.getWidth(), engine.getHeight());
+    DeferredRenderer* dfRenderer{engine.getDeferredRenderer()};
 
     // reset window viewport
     glViewport(0, 0, engine.getWidth(), engine.getHeight());
@@ -58,7 +55,7 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        dfRenderer.setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(), engine.getViewMatrix());
+        dfRenderer->setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(), engine.getViewMatrix());
         // clear screen
         engine.clear();
 
@@ -74,8 +71,8 @@ int main()
 
         light->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
 
-        dfRenderer.closeGeometryPass();
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer.getGBuffer());
+        dfRenderer->closeGeometryPass();
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer->getGBuffer());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, engine.getPostProcessor()->getFBO());
         glBlitFramebuffer(0, 0, engine.getWidth(), engine.getHeight(), 0, 0, engine.getWidth(), engine.getHeight(),
                           GL_DEPTH_BUFFER_BIT, GL_NEAREST);
@@ -88,16 +85,16 @@ int main()
         engine.setVec3("viewPos", engine.getCameraPosition(), "deferredShading");
         engine.setInt("gPositionE", 0, "deferredShading");
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer.getPositionEBuffer());
+        glBindTexture(GL_TEXTURE_2D, dfRenderer->getPositionEBuffer());
         engine.setInt("gAlbedo", 1, "deferredShading");
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer.getColorBuffer());
+        glBindTexture(GL_TEXTURE_2D, dfRenderer->getColorBuffer());
         engine.setInt("gNormalE", 2, "deferredShading");
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer.getNormalEBuffer());
+        glBindTexture(GL_TEXTURE_2D, dfRenderer->getNormalEBuffer());
         engine.setInt("gARME", 3, "deferredShading");
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer.getARMEBuffer());
+        glBindTexture(GL_TEXTURE_2D, dfRenderer->getARMEBuffer());
         engine.setInt("irradianceMap", 10, "deferredShading");
         glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getIrradianceMap());
@@ -110,7 +107,7 @@ int main()
 
         glDepthMask(GL_FALSE);
         glDisable(GL_DEPTH_TEST);
-        renderQuad();
+        dfRenderer->renderQuad();
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
 
@@ -128,32 +125,4 @@ int main()
     }
 
     return 0;
-}
-
-// renderQuad() renders a 1x1 XY quad in NDC
-// -----------------------------------------
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
-{
-    if (quadVAO == 0)
-    {
-        float quadVertices[] = {
-            -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-            1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
-        };
-        // setup plane VAO
-        glGenVertexArrays(1, &quadVAO);
-        glGenBuffers(1, &quadVBO);
-        glBindVertexArray(quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    }
-    glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
 }

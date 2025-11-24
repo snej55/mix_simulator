@@ -14,6 +14,7 @@
 #include "shapes.hpp"
 #include "texture.hpp"
 #include "window.hpp"
+#include "renderer.hpp"
 
 class Engine final : public EngineObject
 {
@@ -178,6 +179,12 @@ public:
     // update framebuffer
     void updatePostProcessor(int width, int height);
 
+    // ------ Deferred Renderer ------ //
+    bool createDeferredRenderer();
+    void updateDeferredRenderer(int width, int height);
+
+    [[nodiscard]] DeferredRenderer* getDeferredRenderer() const { return m_deferredRenderer; }
+
     // ------ Arena ------ //
 
     // Arena operations
@@ -211,6 +218,7 @@ private:
 
     // other components
     PostProcessor* m_postProcessor{nullptr};
+    DeferredRenderer* m_deferredRenderer{nullptr};
 
     // camera stuff
     Camera* m_camera{nullptr};

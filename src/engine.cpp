@@ -7,6 +7,7 @@
 #include <numeric>
 
 #include "glm/ext/matrix_clip_space.hpp"
+#include "renderer.hpp"
 #include "shapes.hpp"
 using json = nlohmann::json;
 
@@ -16,8 +17,7 @@ using json = nlohmann::json;
 #include "engine.hpp"
 #include "util.hpp"
 
-Engine::Engine() :
-    EngineObject{"Engine"}
+Engine::Engine() : EngineObject{"Engine"}
 {
     // memory manager
     m_arena = new Arena{this};
@@ -86,8 +86,8 @@ bool Engine::init(const int width, const int height, const char* title)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_FRONT);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_FRONT);
 
     std::cout << "ENGINE::INIT: Initialized global OpenGL state!\n";
 
@@ -174,6 +174,15 @@ bool Engine::init(const int width, const int height, const char* title)
     m_postProcessor->init(getWidth(), getHeight());
     m_postProcessor->enableBloom(this);
 
+    if (!createDeferredRenderer())
+    {
+	Util::beginError();
+	std::cout << "ENGINE::INIT::ERROR: Failed to create DeferredRenderer!";
+	Util::endError();
+	return false;
+    }
+    m_deferredRenderer->init(getWidth(), getHeight());
+
     std::cout << "ENGINE::INIT: Successfully created components!\n";
 
     return true;
@@ -237,15 +246,9 @@ bool Engine::createWindow(const int width, const int height, const char* title)
 void Engine::clear() const { m_window->clear(); }
 
 // enable wireframe rendering
-void Engine::enableWireframe() const
-{
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
+void Engine::enableWireframe() const { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
 
-void Engine::disableWireframe() const
-{
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
+void Engine::disableWireframe() const { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
 void Engine::displayFrameTime()
 {
@@ -327,7 +330,7 @@ bool Engine::createShaderManager()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_SHADER_MANAGER::ERROR: Shader manager already exists at `" << m_shaderManager
-            << "`";
+                  << "`";
         Util::endError();
         return false;
     }
@@ -377,7 +380,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find vertex shader for *" << name << "* at: `"
-                << vertPath << "`!";
+                      << vertPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -388,7 +391,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find fragment shader for *" << name << "* at: `"
-                << fragPath << "`!";
+                      << fragPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -409,7 +412,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find vertex shader for *" << name << "* at: `"
-                << vertPath << "`!";
+                      << vertPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -420,7 +423,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find fragment shader for *" << name << "* at: `"
-                << fragPath << "`!";
+                      << fragPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -589,7 +592,7 @@ bool Engine::createTextureManager()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_TEXTURE_MANAGER::ERROR: Texture manager already exists at `" << m_textureManager
-            << "`";
+                  << "`";
         Util::endError();
         return false;
     }
@@ -791,7 +794,7 @@ bool Engine::createPostProcessor()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_POST_PROCESSOR::ERROR: Post processor already exists at `" << m_postProcessor
-            << "`";
+                  << "`";
         Util::endError();
         return false;
     }
@@ -812,6 +815,27 @@ void Engine::updatePostProcessor(const int width, const int height)
     m_postProcessor->generate(width, height, static_cast<void*>(this));
 }
 
+// ------ Deferred Renderer ----- //
+
+bool Engine::createDeferredRenderer()
+{
+    if (m_deferredRenderer != nullptr)
+    {
+        Util::beginError();
+	std::cout << "ENGINE::CREATE_DEFERRED_RENDERER::ERROR: Deferred renderer already exists at `" << m_deferredRenderer << "`";
+	Util::endError();
+	return false;
+    }
+
+    m_deferredRenderer = new DeferredRenderer{this};
+    m_arena->addObject(m_deferredRenderer);
+    return true;
+}
+
+void Engine::updateDeferredRenderer(const int width, const int height)
+{
+    m_deferredRenderer->init(width, height);
+}
 
 // ------ Arena ------ //
 
