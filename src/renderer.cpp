@@ -7,12 +7,19 @@
 #include "renderer.hpp"
 #include "util.hpp"
 
-DeferredRenderer::DeferredRenderer(EngineObject* parent) : EngineObject{"DeferredRenderer", parent} {}
+DeferredRenderer::DeferredRenderer(EngineObject* parent) : EngineObject{"DeferredRenderer", parent} { initQuad(); }
 
-DeferredRenderer::~DeferredRenderer() = default;
+DeferredRenderer::~DeferredRenderer()
+{
+    freeQuad();
+    free();
+}
 
 void DeferredRenderer::init(const int scrWidth, const int scrHeight)
 {
+    if (m_init)
+        free();
+
     // create graphics buffer framebuffer
     glGenFramebuffers(1, &m_gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
@@ -66,6 +73,30 @@ void DeferredRenderer::init(const int scrWidth, const int scrHeight)
 
     m_scrWidth = scrWidth;
     m_scrHeight = scrHeight;
+    m_init = true;
+}
+
+void DeferredRenderer::free()
+{
+    if (m_init)
+    {
+        glDeleteTextures(1, &m_ARMEBuffer);
+        glDeleteTextures(1, &m_colorBuffer);
+        glDeleteTextures(1, &m_normalEBuffer);
+        glDeleteTextures(1, &m_positionEBuffer);
+        glDeleteRenderbuffers(1, &m_RBO);
+        glDeleteFramebuffers(1, &m_gBuffer);
+        m_scrWidth = 0;
+        m_scrHeight = 0;
+        m_init = false;
+    }
+}
+
+void DeferredRenderer::renderQuad()
+{
+    glBindVertexArray(m_quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }
 
 void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view)
@@ -74,4 +105,28 @@ void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4
     gpShader->use();
     gpShader->setMat4("projection", projection);
     gpShader->setMat4("view", view);
+}
+
+// setup quad for rendering
+void DeferredRenderer::initQuad()
+{
+    constexpr float quadVertices[]{
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+    };
+    glGenVertexArrays(1, &m_quadVAO);
+    glGenBuffers(1, &m_quadVBO);
+    glBindVertexArray(m_quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(0));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+}
+
+void DeferredRenderer::freeQuad()
+{
+    glDeleteBuffers(1, &m_quadVBO);
+    glDeleteVertexArrays(1, &m_quadVAO);
 }

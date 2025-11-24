@@ -19,6 +19,10 @@ public:
 
     // setup framebuffers
     void init(int scrWidth, int scrHeight);
+    void free();
+
+    // render gbuffer
+    void renderQuad();
 
     // setup for geometry pass
     void setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view);
@@ -34,8 +38,10 @@ public:
     [[nodiscard]] unsigned int getARMEBuffer() const { return m_ARMEBuffer; }
 
     [[nodiscard]] unsigned int getRenderbuffer() const { return m_RBO; }
-    [[nodiscard]] unsigned int getWidth() const { return m_scrWidth; }
-    [[nodiscard]] unsigned int getHeight() const { return m_scrHeight; }
+    [[nodiscard]] int getWidth() const { return m_scrWidth; }
+    [[nodiscard]] int getHeight() const { return m_scrHeight; }
+
+    [[nodiscard]] bool getInitFlag() const { return m_init; }
 
 private:
     // graphics buffer
@@ -59,6 +65,16 @@ private:
     // view port dimensions
     int m_scrWidth{};
     int m_scrHeight{};
+
+    // init flag
+    bool m_init{false};
+
+    // quad vertex array object
+    unsigned int m_quadVAO{};
+    unsigned int m_quadVBO{};
+
+    void initQuad();
+    void freeQuad();
 };
 
 
