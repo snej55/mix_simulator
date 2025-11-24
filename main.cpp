@@ -64,13 +64,23 @@ int main()
         for (std::size_t i{0}; i < transforms.size(); ++i)
             engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "gBuffer");
 
-        glm::mat4 model{glm::mat4{1.0f}};
-        engine.setMat4("model", model, "gBuffer");
         engine.setMat4("view", engine.getViewMatrix(), "gBuffer");
         engine.setMat4("projection", engine.getProjectionMatrix(), "gBuffer");
-        engine.setMat3("normalMat", engine.getNormalMatrix(Util::stripScale(model)), "gBuffer");
 
-        spartan->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
+        for (std::size_t z{0}; z < 10; ++z)
+        {
+            for (std::size_t x{0}; x < 10; ++x)
+            {
+                glm::mat4 model;
+                model = glm::translate(
+                    glm::mat4{1.0f},
+                    {static_cast<float>(x) * 100.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
+                     static_cast<float>(z) * 100.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
+                engine.setMat4("model", model, "gBuffer");
+                engine.setMat3("normalMat", engine.getNormalMatrix(Util::stripScale(model)), "gBuffer");
+                spartan->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
+            }
+        }
 
         dfRenderer->closeGeometryPass();
         glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer->getGBuffer());
@@ -80,9 +90,14 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         engine.enablePostProcessing();
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         engine.renderDeferredRenderer(&iblGenerator);
+        glDisable(GL_BLEND);
 
         glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);

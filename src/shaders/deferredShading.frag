@@ -81,6 +81,8 @@ void main()
     vec4 albedoSample = texture(gAlbedo, TexCoords);
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2));
     float alpha = albedoSample.a;
+    if (alpha < 0.1)
+    discard;
 
     vec4 gNormalSample = texture(gNormalE, TexCoords);
     vec3 norm = normalize(gNormalSample.rgb);
