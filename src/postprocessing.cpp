@@ -5,10 +5,7 @@
 #include "util.hpp"
 #include "shapes.hpp"
 
-PostProcessor::PostProcessor(EngineObject* parent) :
-    EngineObject{"PostProcessor", parent}
-{
-}
+PostProcessor::PostProcessor(EngineObject* parent) : EngineObject{"PostProcessor", parent} {}
 
 PostProcessor::~PostProcessor() { free(); }
 
@@ -140,7 +137,7 @@ void PostProcessor::generateRenderbuffer()
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_width, m_height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, m_width, m_height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     // attach rbo to framebuffer
@@ -151,7 +148,7 @@ void PostProcessor::generateRenderbuffer()
 void PostProcessor::generateQuad()
 {
     constexpr float quadVerticesTexCoords[]{-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-                                            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+                                            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
     unsigned int quadVAO, quadVBO;
     glGenVertexArrays(1, &quadVAO);
     glGenBuffers(1, &quadVBO);
@@ -169,10 +166,7 @@ void PostProcessor::generateQuad()
     glBindVertexArray(0);
 }
 
-void PostProcessor::enable() const
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-}
+void PostProcessor::enable() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
 
 void PostProcessor::disable() const
 {
@@ -208,15 +202,9 @@ void PostProcessor::disableBloom()
     m_bloomEnabled = false;
 }
 
-BloomFBO::BloomFBO(EngineObject* parent) :
-    EngineObject{"BloomFBO", parent}
-{
-}
+BloomFBO::BloomFBO(EngineObject* parent) : EngineObject{"BloomFBO", parent} {}
 
-BloomFBO::~BloomFBO()
-{
-    free();
-}
+BloomFBO::~BloomFBO() { free(); }
 
 // free resources
 void BloomFBO::free()
@@ -296,20 +284,11 @@ bool BloomFBO::init(const unsigned int width, const unsigned int height, const u
     return true;
 }
 
-void BloomFBO::bind()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-}
+void BloomFBO::bind() { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
 
-BloomRenderer::BloomRenderer(EngineObject* parent) :
-    EngineObject{"BloomRenderer", parent}, m_FBO{this}
-{
-}
+BloomRenderer::BloomRenderer(EngineObject* parent) : EngineObject{"BloomRenderer", parent}, m_FBO{this} {}
 
-BloomRenderer::~BloomRenderer()
-{
-    free();
-}
+BloomRenderer::~BloomRenderer() { free(); }
 
 void BloomRenderer::free()
 {
