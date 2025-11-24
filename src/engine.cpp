@@ -7,6 +7,7 @@
 #include <numeric>
 
 #include "glm/ext/matrix_clip_space.hpp"
+#include "ibl.hpp"
 #include "renderer.hpp"
 #include "shapes.hpp"
 using json = nlohmann::json;
@@ -837,6 +838,39 @@ void Engine::updateDeferredRenderer(const int width, const int height)
     m_deferredRenderer->init(width, height);
 }
 
+void Engine::renderDeferredRenderer(const IBLGenerator* ibl)
+{
+    useShader("deferredShading");
+    setVec3("viewPos", getCameraPosition(), "deferredShading");
+    setInt("gPositionE", 0, "deferredShading");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getPositionEBuffer());
+    setInt("gAlbedo", 1, "deferredShading");
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getColorBuffer());
+    setInt("gNormalE", 2, "deferredShading");
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getNormalEBuffer());
+    setInt("gARME", 3, "deferredShading");
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getARMEBuffer());
+    setInt("irradianceMap", 10, "deferredShading");
+    glActiveTexture(GL_TEXTURE10);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getIrradianceMap());
+    setInt("prefilterMap", 11, "deferredShading");
+    glActiveTexture(GL_TEXTURE11);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getPrefilterMap());
+    setInt("brdfLUT", 12, "deferredShading");
+    glActiveTexture(GL_TEXTURE12);
+    glBindTexture(GL_TEXTURE_2D, ibl->getBRDFLutMap());
+
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+    m_deferredRenderer->renderQuad();
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+}
+
 // ------ Arena ------ //
 
 void Engine::addObject(EngineObject*& object) const { m_arena->addObject(object); }
@@ -845,7 +879,7 @@ void Engine::removeObject(EngineObject*& object) const
 {
     if (object != nullptr)
     {
-        m_arena->removeObject(object->getID());
+	m_arena->removeObject(object->getID());
     }
 }
 

@@ -26,8 +26,8 @@ int main()
     // use only gltf files for now
     engine.addModel("light", "data/models/spartan.glb");
 
-    Model* light{engine.getModel("light")};
-    BoneAnimation spartanAnimation{"data/models/spartan.glb", light};
+    Model* spartan{engine.getModel("light")};
+    BoneAnimation spartanAnimation{"data/models/spartan.glb", spartan};
     BoneAnimator spartanAnimator{&spartanAnimation};
     // engine.enableWireframe();
     const std::vector<glm::vec3> spheres{{1.f, 4.f, 2.f}};
@@ -55,7 +55,8 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        dfRenderer->setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(), engine.getViewMatrix());
+        dfRenderer->setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(),
+                                      engine.getViewMatrix());
         // clear screen
         engine.clear();
 
@@ -69,7 +70,7 @@ int main()
         engine.setMat4("projection", engine.getProjectionMatrix(), "gBuffer");
         engine.setMat3("normalMat", engine.getNormalMatrix(Util::stripScale(model)), "gBuffer");
 
-        light->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
+        spartan->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
 
         dfRenderer->closeGeometryPass();
         glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer->getGBuffer());
@@ -81,35 +82,7 @@ int main()
         engine.enablePostProcessing();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        engine.useShader("deferredShading");
-        engine.setVec3("viewPos", engine.getCameraPosition(), "deferredShading");
-        engine.setInt("gPositionE", 0, "deferredShading");
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer->getPositionEBuffer());
-        engine.setInt("gAlbedo", 1, "deferredShading");
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer->getColorBuffer());
-        engine.setInt("gNormalE", 2, "deferredShading");
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer->getNormalEBuffer());
-        engine.setInt("gARME", 3, "deferredShading");
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, dfRenderer->getARMEBuffer());
-        engine.setInt("irradianceMap", 10, "deferredShading");
-        glActiveTexture(GL_TEXTURE10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getIrradianceMap());
-        engine.setInt("prefilterMap", 11, "deferredShading");
-        glActiveTexture(GL_TEXTURE11);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, iblGenerator.getPrefilterMap());
-        engine.setInt("brdfLUT", 12, "deferredShading");
-        glActiveTexture(GL_TEXTURE12);
-        glBindTexture(GL_TEXTURE_2D, iblGenerator.getBRDFLutMap());
-
-        glDepthMask(GL_FALSE);
-        glDisable(GL_DEPTH_TEST);
-        dfRenderer->renderQuad();
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
+        engine.renderDeferredRenderer(&iblGenerator);
 
         glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);

@@ -15,6 +15,7 @@
 #include "texture.hpp"
 #include "window.hpp"
 #include "renderer.hpp"
+#include "ibl.hpp"
 
 class Engine final : public EngineObject
 {
@@ -182,6 +183,7 @@ public:
     // ------ Deferred Renderer ------ //
     bool createDeferredRenderer();
     void updateDeferredRenderer(int width, int height);
+    void renderDeferredRenderer(const IBLGenerator* ibl);
 
     [[nodiscard]] DeferredRenderer* getDeferredRenderer() const { return m_deferredRenderer; }
 
