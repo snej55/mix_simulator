@@ -785,6 +785,57 @@ void Engine::renderModel(const std::string& name, const Shader* shader) const
     m_modelManager->renderModel(shader, name);
 }
 
+void Engine::renderModelForward(const std::string& modelName, const std::string& shaderName,
+                                const glm::mat4& modelTransform, const IBLGenerator* ibl)
+{
+    Model* model{getModel(modelName)};
+    const Shader* shader{getShader(shaderName)};
+
+    assert(model != nullptr);
+    assert(shader != nullptr);
+
+    renderModelForward(model, shader, modelTransform, ibl);
+}
+
+void Engine::renderModelForward(const std::string& modelName, const Shader* shader, const glm::mat4& modelTransform,
+                                const IBLGenerator* ibl)
+{
+    Model* model{getModel(modelName)};
+    assert(model != nullptr);
+
+    renderModelForward(model, shader, modelTransform, ibl);
+}
+
+void Engine::renderModelForward(Model* model, const Shader* shader, const glm::mat4& modelTransform,
+                                const IBLGenerator* ibl)
+{
+    assert(model != nullptr);
+    assert(shader != nullptr);
+
+    // set shader uniforms
+    shader->use();
+    shader->setMat4("view", getViewMatrix());
+    shader->setMat4("projection", getProjectionMatrix());
+    shader->setMat4("model", modelTransform);
+    shader->setMat4("normalMat", getNormalMatrix(modelTransform));
+    shader->setVec3("viewPos", getCameraPosition());
+
+    if (ibl != nullptr)
+    {
+        shader->setInt("irradianceMap", 10);
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getIrradianceMap());
+        shader->setInt("prefilterMap", 11);
+        glActiveTexture(GL_TEXTURE11);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getPrefilterMap());
+        shader->setInt("brdfLUT", 12);
+        glActiveTexture(GL_TEXTURE12);
+        glBindTexture(GL_TEXTURE_2D, ibl->getBRDFLutMap());
+    }
+
+    model->renderFull(shader, getCameraPosition(), modelTransform);
+}
+
 bool Engine::modelExists(const std::string& name) const { return m_modelManager->modelExists(name); }
 
 // ------ Post Processor ------ //

@@ -32,9 +32,6 @@ int main()
     // engine.enableWireframe();
     const std::vector<glm::vec3> spheres{{1.f, 4.f, 2.f}};
 
-    engine.useShader("lightPBR");
-    engine.setVec3("albedo", glm::vec3{0.5, 0.0f, 0.0f}, "lightPBR");
-    engine.setFloat("ao", 1.0f, "lightPBR");
 
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine};
@@ -67,9 +64,9 @@ int main()
         engine.setMat4("view", engine.getViewMatrix(), "gBuffer");
         engine.setMat4("projection", engine.getProjectionMatrix(), "gBuffer");
 
-        for (std::size_t z{0}; z < 10; ++z)
+        for (std::size_t z{0}; z < 3; ++z)
         {
-            for (std::size_t x{0}; x < 10; ++x)
+            for (std::size_t x{0}; x < 3; ++x)
             {
                 glm::mat4 model;
                 model = glm::translate(
@@ -90,9 +87,6 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         engine.enablePostProcessing();
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glClear(GL_COLOR_BUFFER_BIT);
 

@@ -48,6 +48,7 @@ void Model::renderPBR(const Shader* pbrShader) const
     }
 }
 
+// forward render the model
 void Model::renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model)
 {
     std::map<float, std::size_t> sortedMeshes{};

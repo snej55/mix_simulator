@@ -165,6 +165,16 @@ public:
     void renderModel(const std::string& name, const Shader* shader) const;
     [[nodiscard]] bool modelExists(const std::string& name) const;
 
+    void renderModelForward(const std::string& modelName, const std::string& shaderName,
+                            const glm::mat4& modelTransform, const IBLGenerator* ibl = nullptr);
+    void renderModelForward(const std::string& modelName, const Shader* shader, const glm::mat4& modelTransform,
+                            const IBLGenerator* ibl = nullptr);
+    void renderModelForward(Model* model, const Shader* shader, const glm::mat4& modelTransform,
+                            const IBLGenerator* ibl = nullptr);
+
+    void renderModelDeferred(const std::string& modelName, const glm::mat4& modelTransform) const;
+    void renderModelDeferred(const Model* model, const glm::mat4& modelTransform) const;
+
     // ------ Post Processor ------ //
 
     bool createPostProcessor();

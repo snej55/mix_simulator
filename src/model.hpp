@@ -22,6 +22,7 @@ public:
 
     void render(const Shader* shader) const;
     void renderPBR(const Shader* pbrShader) const;
+    // forward render the model
     void renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model);
 
     [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
