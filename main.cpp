@@ -52,6 +52,7 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // -------- DEFERRED RENDERING -------- //
         dfRenderer->setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(),
                                       engine.getViewMatrix());
         // clear screen
@@ -64,11 +65,11 @@ int main()
         engine.setMat4("view", engine.getViewMatrix(), "gBuffer");
         engine.setMat4("projection", engine.getProjectionMatrix(), "gBuffer");
 
+        glm::mat4 model;
         for (std::size_t z{0}; z < 3; ++z)
         {
             for (std::size_t x{0}; x < 3; ++x)
             {
-                glm::mat4 model;
                 model = glm::translate(
                     glm::mat4{1.0f},
                     {static_cast<float>(x) * 100.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
@@ -78,13 +79,16 @@ int main()
                 spartan->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
             }
         }
-
         dfRenderer->closeGeometryPass();
+        // -------------------------------- //
+
+        // -------- COMBINE FRAMEBUFFERS -------- //
         glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer->getGBuffer());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, engine.getPostProcessor()->getFBO());
         glBlitFramebuffer(0, 0, engine.getWidth(), engine.getHeight(), 0, 0, engine.getWidth(), engine.getHeight(),
                           GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // -------------------------------- //
 
         engine.enablePostProcessing();
 
@@ -97,6 +101,14 @@ int main()
         glDepthMask(GL_FALSE);
         iblGenerator.renderSkybox(&engine);
         glDepthMask(GL_TRUE);
+
+        engine.useShader("texturePBR");
+        for (std::size_t i{0}; i < transforms.size(); ++i)
+            engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "texturePBR");
+
+        model = glm::mat4{1.0f};
+        model = glm::translate(model, glm::vec3{-100.0f, 0.0f, -100.0f});
+        engine.renderModelForward(spartan, engine.getShader("texturePBR"), model);
 
         engine.disablePostProcessing();
         engine.renderPostProcessing();
