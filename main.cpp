@@ -24,14 +24,11 @@ int main()
     engine.setCameraEnabled(true);
 
     // use only gltf files for now
-    engine.addModel("light", "data/models/spartan.glb");
+    engine.addModel("spartan", "data/models/spartan.glb");
 
-    Model* spartan{engine.getModel("light")};
+    Model* spartan{engine.getModel("spartan")};
     BoneAnimation spartanAnimation{"data/models/spartan.glb", spartan};
     BoneAnimator spartanAnimator{&spartanAnimation};
-    // engine.enableWireframe();
-    const std::vector<glm::vec3> spheres{{1.f, 4.f, 2.f}};
-
 
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine};
@@ -48,10 +45,7 @@ int main()
         // update game state
         spartanAnimator.updateAnimation(engine.getDeltaTime());
 
-        // do rendering
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        // -------- GEOMETRY PASS --------- //
         // -------- DEFERRED RENDERING -------- //
         dfRenderer->setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(),
                                       engine.getViewMatrix());
@@ -89,29 +83,35 @@ int main()
                           GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // -------------------------------- //
+        // -------------------------------- //
 
+        // ----- LIGHTING PASS ----- //
         engine.enablePostProcessing();
 
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // render deferred graphics buffer
         engine.renderGBuffer(&iblGenerator);
-        glDisable(GL_BLEND);
 
+        // render skybox
         glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);
         iblGenerator.renderSkybox(&engine);
         glDepthMask(GL_TRUE);
 
+        // render remaining meshes using forward rendering
         engine.useShader("texturePBR");
         for (std::size_t i{0}; i < transforms.size(); ++i)
             engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "texturePBR");
 
         model = glm::mat4{1.0f};
         model = glm::translate(model, glm::vec3{-100.0f, 0.0f, -100.0f});
-        engine.renderModelForward(spartan, engine.getShader("texturePBR"), model);
+        engine.renderModelForward(spartan, engine.getShader("texturePBR"), model, &iblGenerator);
 
+        // render framebuffer
         engine.disablePostProcessing();
         engine.renderPostProcessing();
+        // ------------------------- //
 
         // update engine
         engine.displayFrameTime();

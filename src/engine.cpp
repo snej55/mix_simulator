@@ -812,13 +812,12 @@ void Engine::renderModelForward(Model* model, const Shader* shader, const glm::m
     assert(model != nullptr);
     assert(shader != nullptr);
 
-    // set shader uniforms
     shader->use();
+    shader->setVec3("viewPos", getCameraPosition());
+    shader->setMat4("model", modelTransform);
     shader->setMat4("view", getViewMatrix());
     shader->setMat4("projection", getProjectionMatrix());
-    shader->setMat4("model", modelTransform);
-    shader->setMat4("normalMat", getNormalMatrix(modelTransform));
-    shader->setVec3("viewPos", getCameraPosition());
+    shader->setMat3("normalMat", getNormalMatrix(modelTransform));
 
     if (ibl != nullptr)
     {
