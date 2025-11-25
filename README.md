@@ -10,6 +10,8 @@ OpenGL rendering framework.
 - [X] PBR Textures
 - [X] PBR Material loading
 - [X] Deferred rendering
+- [ ] Mesh sorting (render opaque meshes deferred and transparent/translucent using forward)
+- [ ] Duplicate material checks? Batch render meshes using material index vertex data?
 - [ ] SSAO
 - [ ] Get scene set up
 - [ ] Main game class
