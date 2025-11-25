@@ -9,7 +9,7 @@ OpenGL rendering framework.
 - [X] Skeletal animation
 - [X] PBR Textures
 - [X] PBR Material loading
-- [ ] Deferred rendering
+- [X] Deferred rendering
 - [ ] SSAO
 - [ ] Get scene set up
 - [ ] Main game class
