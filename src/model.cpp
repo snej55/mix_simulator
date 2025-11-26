@@ -54,6 +54,15 @@ void Model::renderPBR(const Shader* pbrShader) const
 // forward render the model
 void Model::renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model) const
 {
+    if (m_animated)
+    {
+        const std::vector<glm::mat4>& transforms{getAnimationTransforms()};
+        for (std::size_t i{0}; i < transforms.size(); ++i)
+        {
+            pbrShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
+        }
+    }
+
     std::map<float, Mesh*> sortedMeshes{};
     for (Mesh* mesh : m_transparentMeshes)
     {
@@ -86,6 +95,15 @@ void Model::renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, c
 
 void Model::renderDeferred(const Shader* dfShader, const glm::mat4& model) const
 {
+    if (m_animated)
+    {
+        const std::vector<glm::mat4>& transforms{getAnimationTransforms()};
+        for (std::size_t i{0}; i < transforms.size(); ++i)
+        {
+            dfShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
+        }
+    }
+
     // render opaque meshes deferred
     dfShader->setMat4("model", model);
     for (const Mesh* mesh : m_opaqueMeshes)
@@ -145,7 +163,7 @@ bool Model::loadModel(const std::string& path)
     const aiScene* scene{importer.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
+        aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -157,6 +175,7 @@ bool Model::loadModel(const std::string& path)
         return false;
     }
 
+    m_path = path;
     m_directory = path.substr(0, path.find_last_of('/'));
     processNode(scene->mRootNode, scene);
     handleTransparentTextures(scene);
@@ -687,7 +706,10 @@ void Model::loadRoughnessFactor(const aiMaterial* mat, float& roughnessFactor)
 }
 
 // -------------- Model Manager -------------- //
-ModelManager::ModelManager(EngineObject* parent) : EngineObject{"ModelManager", parent} {}
+ModelManager::ModelManager(EngineObject* parent) :
+    EngineObject{"ModelManager", parent}
+{
+}
 
 // load new model
 void ModelManager::addModel(const std::string& name, const std::string& path, Arena* arena)

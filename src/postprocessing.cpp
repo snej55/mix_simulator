@@ -381,7 +381,7 @@ void BloomRenderer::renderBloomTexture(const unsigned int srcTexture, const floa
 }
 
 // downsample source texture
-void BloomRenderer::renderDownSamples(const unsigned int srcTexture)
+void BloomRenderer::renderDownSamples(const unsigned int srcTexture) const
 {
     const std::vector<PostProcessingN::BloomMip>& mipChain{m_FBO.mipChain()};
 

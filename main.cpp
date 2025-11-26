@@ -25,8 +25,7 @@ int main()
     engine.addModel("spartan", "data/models/spartan.glb");
 
     Model* spartan{engine.getModel("spartan")};
-    BoneAnimation spartanAnimation{"data/models/spartan.glb", spartan};
-    BoneAnimator spartanAnimator{&spartanAnimation};
+    spartan->loadAnimation();
 
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine};
@@ -43,7 +42,7 @@ int main()
     while (!engine.getQuit())
     {
         // update game state
-        spartanAnimator.updateAnimation(engine.getDeltaTime());
+        spartan->updateAnimation(engine.getDeltaTime());
 
         glm::mat4 model;
         for (std::size_t z{0}; z < 3; ++z)

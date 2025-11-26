@@ -58,7 +58,7 @@ private:
 
     unsigned int m_quadVAO{0}, m_quadVBO{0};
 
-    void renderDownSamples(unsigned int srcTexture);
+    void renderDownSamples(unsigned int srcTexture) const;
     void renderUpSamples(float filterRadius) const;
 
     void setupQuad();
