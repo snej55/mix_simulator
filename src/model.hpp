@@ -27,16 +27,32 @@ public:
     // deferred render the model
     void renderDeferred(const Shader* dfShader, const glm::mat4& model) const;
 
+    // animation loading & playback
+    void updateAnimation(float deltaTime) const;
+    void loadAnimation();
+    void freeAnimation();
+
+    // getters
+    [[nodiscard]] std::string_view getDirectory() const { return m_directory; }
+    [[nodiscard]] std::string_view getPath() const { return m_path; }
+
     [[nodiscard]] const std::vector<Mesh*>& getOpaqueMeshes() const {return m_opaqueMeshes;}
     [[nodiscard]] const std::vector<Mesh*>& getTransparentMeshes() const {return m_transparentMeshes;}
 
     [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
     [[nodiscard]] int& getBoneCounter() { return m_boneCounter; }
 
+    [[nodiscard]] bool isAnimated() const { return m_animated; }
+    [[nodiscard]] void* getAnimation() const { return m_animation; }
+    [[nodiscard]] void* getAnimator() const { return m_animator; }
+    [[nodiscard]] const std::vector<glm::mat4>& getAnimationTransforms() const;
+
 private:
-    std::vector<Mesh> m_meshes{};
-    std::string directory{};
     std::string m_modelName;
+
+    std::vector<Mesh> m_meshes{};
+    std::string m_directory{};
+    std::string m_path{};
 
     // loaded mesh textures (to avoid loading the same texture twice)
     std::vector<MeshN::Texture> m_loadedTextures{};
@@ -49,6 +65,10 @@ private:
     // bones
     std::map<std::string, MeshN::BoneInfo> m_boneInfoMap{};
     int m_boneCounter{0};
+
+    bool m_animated{false};
+    void* m_animation{nullptr};
+    void* m_animator{nullptr};
 
     void processNode(const aiNode* node, const aiScene* scene);
     Mesh processMesh(const aiMesh* mesh, const aiScene* scene);

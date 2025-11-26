@@ -32,6 +32,7 @@ Model::~Model()
     {
         m_meshes[i].free();
     }
+    freeAnimation();
 }
 
 void Model::render(const Shader* shader) const
@@ -93,6 +94,45 @@ void Model::renderDeferred(const Shader* dfShader, const glm::mat4& model) const
     }
 }
 
+void Model::updateAnimation(const float deltaTime) const
+{
+    if (m_animated)
+    {
+        static_cast<BoneAnimator*>(m_animator)->updateAnimation(deltaTime);
+    }
+}
+
+void Model::loadAnimation()
+{
+    freeAnimation();
+
+    m_animation = static_cast<void*>(new BoneAnimation{m_path, this});
+    m_animator = static_cast<void*>(new BoneAnimator(static_cast<BoneAnimation*>(m_animation)));
+    m_animated = true;
+}
+
+void Model::freeAnimation()
+{
+    if (m_animated)
+    {
+        delete static_cast<BoneAnimation*>(m_animation);
+        m_animation = nullptr;
+        delete static_cast<BoneAnimator*>(m_animator);
+        m_animator = nullptr;
+    }
+
+    m_animated = false;
+}
+
+const std::vector<glm::mat4>& Model::getAnimationTransforms() const
+{
+    if (m_animated)
+    {
+        return static_cast<BoneAnimator*>(m_animator)->getFinalBoneMatrices();
+    }
+    return {};
+}
+
 bool Model::loadModel(const std::string& path)
 {
     // check if model already exists
@@ -121,7 +161,7 @@ bool Model::loadModel(const std::string& path)
         return false;
     }
 
-    directory = path.substr(0, path.find_last_of('/'));
+    m_directory = path.substr(0, path.find_last_of('/'));
     processNode(scene->mRootNode, scene);
     handleTransparentTextures(scene);
 
@@ -357,7 +397,7 @@ std::vector<MeshN::Texture> Model::loadMaterialTextures(const aiScene* scene, co
         else
         {
             // get texture path
-            std::string filename{directory + '/' + str.C_Str()};
+            std::string filename{m_directory + '/' + str.C_Str()};
             // load texture id
             texID = TextureN::loadFromFile(filename.c_str(), nullptr, nullptr, nullptr, &success, typeName);
         }
