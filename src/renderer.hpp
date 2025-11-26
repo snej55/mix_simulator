@@ -91,11 +91,11 @@ public:
 
     // clear queue
     void update();
-    // hybrid render
-    // TODO: Add dfRenderer and PostProcessor framebuffer actions
+
+    // hybrid renderer
     void renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer,
                      const Shader* fdShader, const PostProcessor* postProcessor,
-                     void* engine, IBLGenerator* ibl, const glm::vec3& cameraPos);
+                     void* engine, IBLGenerator* ibl, const glm::vec3& cameraPos) const;
 
     // add static model
     void addStaticModel(const Model* model, const glm::mat4& modelTransform);

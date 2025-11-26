@@ -37,6 +37,8 @@ int main()
     // ----------- Deferred Rendering ----------- //
     DeferredRenderer* dfRenderer{engine.getDeferredRenderer()};
 
+    RenderQueue renderQueue{&engine};
+
     // reset window viewport
     glViewport(0, 0, engine.getWidth(), engine.getHeight());
 
@@ -44,18 +46,6 @@ int main()
     {
         // update game state
         spartanAnimator.updateAnimation(engine.getDeltaTime());
-
-        // -------- GEOMETRY PASS --------- //
-        // -------- DEFERRED RENDERING -------- //
-        dfRenderer->setupGeometryPass(engine.getShader("gBuffer"), engine.getProjectionMatrix(),
-                                      engine.getViewMatrix());
-        // clear screen
-        engine.clear();
-
-        const std::vector<glm::mat4>& transforms{spartanAnimator.getFinalBoneMatrices()};
-        for (std::size_t i{0}; i < transforms.size(); ++i)
-            engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "gBuffer");
-
 
         glm::mat4 model;
         for (std::size_t z{0}; z < 3; ++z)
@@ -66,51 +56,16 @@ int main()
                     glm::mat4{1.0f},
                     {static_cast<float>(x) * 100.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
                      static_cast<float>(z) * 100.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
-                engine.setMat4("model", model, "gBuffer");
-                engine.setMat3("normalMat", Util::stripScale(model), "gBuffer");
-                spartan->renderForward(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
+                renderQueue.addDynamicModel(spartan, model);
             }
         }
-        dfRenderer->closeGeometryPass();
-        // -------------------------------- //
 
-        // -------- COMBINE FRAMEBUFFERS -------- //
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer->getGBuffer());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, engine.getPostProcessor()->getFBO());
-        glBlitFramebuffer(0, 0, engine.getWidth(), engine.getHeight(), 0, 0, engine.getWidth(), engine.getHeight(),
-                          GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        // -------------------------------- //
-        // -------------------------------- //
-
-        // ----- LIGHTING PASS ----- //
-        engine.enablePostProcessing();
-
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // render deferred graphics buffer
-        engine.renderGBuffer(&iblGenerator);
-
-        // render skybox
-        glDepthFunc(GL_LEQUAL);
-        glDepthMask(GL_FALSE);
-        iblGenerator.renderSkybox(&engine);
-        glDepthMask(GL_TRUE);
-
-        // render remaining meshes using forward rendering
-        engine.useShader("texturePBR");
-        for (std::size_t i{0}; i < transforms.size(); ++i)
-            engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "texturePBR");
-
-        model = glm::mat4{1.0f};
-        model = glm::translate(model, glm::vec3{-100.0f, 0.0f, -100.0f});
-        engine.renderModelForward(spartan, engine.getShader("texturePBR"), model, &iblGenerator);
-
-        // render framebuffer
-        engine.disablePostProcessing();
-        engine.renderPostProcessing();
-        // ------------------------- //
+        renderQueue.renderFrame(engine.getShader("gBuffer"), dfRenderer, engine.getShader("texturePBR"),
+                                engine.getPostProcessor(), &engine, &iblGenerator,
+                                engine.getCameraPosition());
 
         // update engine
+        renderQueue.update();
         engine.displayFrameTime();
         engine.update();
     }

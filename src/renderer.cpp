@@ -151,7 +151,7 @@ void RenderQueue::update()
 
 void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer,
                               const Shader* fdShader, const PostProcessor* postProcessor, void* engine,
-                              IBLGenerator* ibl, const glm::vec3& cameraPos)
+                              IBLGenerator* ibl, const glm::vec3& cameraPos) const
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
 
