@@ -9,6 +9,8 @@
 #include "arena.hpp"
 #include "engine_types.hpp"
 
+extern unsigned int CURRENT_SHADER_PROGRAM;
+
 class Shader final : public EngineObject
 {
 public:

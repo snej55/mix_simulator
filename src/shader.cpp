@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 
+unsigned int CURRENT_SHADER_PROGRAM {0};
 
 Shader::Shader(const std::string& name, EngineObject* parent) :
     EngineObject{("SHADER " + name).c_str(), parent}, m_shaderName{name}
@@ -148,7 +149,17 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
     return shaderSuccess;
 }
 
-void Shader::use() const { glUseProgram(m_ID); }
+void Shader::use() const
+{
+    if (CURRENT_SHADER_PROGRAM != m_ID)
+    {
+        glUseProgram(m_ID);
+        CURRENT_SHADER_PROGRAM = m_ID;
+    } else
+    {
+        std::cout << "oh no!" << std::endl;
+    }
+}
 
 // initialize all samplers to avoid different type samplers using the same texture
 void Shader::initializeSamplers(const unsigned int id) const
