@@ -49,7 +49,7 @@ void Model::renderPBR(const Shader* pbrShader) const
 }
 
 // forward render the model
-void Model::renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model)
+void Model::renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model) const
 {
     std::map<float, Mesh*> sortedMeshes{};
     for (Mesh* mesh : m_transparentMeshes)
@@ -75,6 +75,38 @@ void Model::renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, c
     for (std::map<float, Mesh*>::reverse_iterator it{sortedMeshes.rbegin()}; it != sortedMeshes.rend(); ++it)
     {
         it->second->renderPBR(pbrShader);
+    }
+
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
+}
+
+void Model::renderHybrid(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos,
+    const glm::mat4& model) const
+{
+    // sort transparent meshes (to be rendered forward)
+    std::map<float, Mesh*> sortedMeshes{};
+    for (Mesh* mesh : m_transparentMeshes)
+    {
+        mesh->updateMidpoint(model);
+        const float distance {glm::length(cameraPos - mesh->getMidpoint())};
+        sortedMeshes[distance] = mesh;
+    }
+
+    // render opaque meshes deferred
+    for (const Mesh* mesh : m_opaqueMeshes)
+    {
+        mesh->renderPBR(dfShader);
+    }
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glDepthMask(GL_FALSE);
+
+    for (std::map<float, Mesh*>::reverse_iterator it{sortedMeshes.rbegin()}; it != sortedMeshes.rend(); ++it)
+    {
+        it->second->renderPBR(fdShader);
     }
 
     glDepthMask(GL_TRUE);

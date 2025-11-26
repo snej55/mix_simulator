@@ -140,20 +140,35 @@ RenderQueue::~RenderQueue() = default;
 
 void RenderQueue::update()
 {
-    m_dynamicOpaqueMeshes.clear();
-    m_dynamicBlendMeshes.clear();
+    m_dynamicModels.clear();
 }
 
-void RenderQueue::render(const Shader* shader, const glm::vec3& cameraPos)
+void RenderQueue::render(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos)
 {
+    renderOpaqueMeshes();
+    renderBlendMeshes();
 }
 
-void RenderQueue::addStaticModel(Model* model, const glm::mat4& modelTransform)
+void RenderQueue::addStaticModel(const Model* model, const glm::mat4& modelTransform)
 {
+    // extract transparent meshes (need to be sorted)
+    const std::vector<Mesh*>& transparentMeshes{model->getTransparentMeshes()};
+    for (std::size_t i{0}; i < transparentMeshes.size(); ++i)
+    {
+        m_staticBlendMeshes.emplace_back(transparentMeshes[i], modelTransform);
+    }
+
+    // extract opaque meshes
+    const std::vector<Mesh*>& opaqueMeshes{model->getOpaqueMeshes()};
+    for (std::size_t i{0}; i < opaqueMeshes.size(); ++i)
+    {
+        m_staticOpaqueMeshes.emplace_back(opaqueMeshes[i], modelTransform);
+    }
 }
 
 void RenderQueue::addDynamicModel(Model* model, const glm::mat4& modelTransform)
 {
+    m_dynamicModels.emplace_back(model, modelTransform);
 }
 
 void RenderQueue::renderOpaqueMeshes()

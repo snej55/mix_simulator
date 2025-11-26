@@ -23,7 +23,9 @@ public:
     void render(const Shader* shader) const;
     void renderPBR(const Shader* pbrShader) const;
     // forward render the model
-    void renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model);
+    void renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model) const;
+    // deferred render the model
+    void renderHybrid(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos, const glm::mat4& model) const;
 
     [[nodiscard]] const std::vector<Mesh*>& getOpaqueMeshes() const {return m_opaqueMeshes;}
     [[nodiscard]] const std::vector<Mesh*>& getTransparentMeshes() const {return m_transparentMeshes;}

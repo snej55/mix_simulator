@@ -87,28 +87,29 @@ public:
     // update queue
     void update();
     // hybrid render
-    void render(const Shader* shader, const glm::vec3& cameraPos);
+    void render(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos);
 
     // add static model
-    void addStaticModel(Model* model, const glm::mat4& modelTransform);
+    void addStaticModel(const Model* model, const glm::mat4& modelTransform);
     // add dynamic model (updated every frame)
     void addDynamicModel(Model* model, const glm::mat4& modelTransform);
 
     // meshes to be rendered deferred
     [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticOpaqueMeshes() const { return m_staticOpaqueMeshes; }
-    [[nodiscard]] const std::vector<Mesh*>& getDynamicOpaqueMeshes() const { return m_dynamicOpaqueMeshes; }
     // meshes to be rendered forwardly
     [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticBlendMeshes() const { return m_staticBlendMeshes; }
-    [[nodiscard]] const std::vector<Mesh*>& getDynamicBlendMeshes() const { return m_dynamicBlendMeshes; }
+
+    // dynamic models (updated every frame)
+    [[nodiscard]] const std::vector<std::pair<Model*, glm::mat4>>& getDynamicModels() const { return m_dynamicModels; }
 
 private:
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticOpaqueMeshes{};
-    std::vector<Mesh*> m_dynamicOpaqueMeshes{};
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticBlendMeshes{};
-    std::vector<Mesh*> m_dynamicBlendMeshes{};
+    std::vector<std::pair<Model*, glm::mat4>> m_dynamicModels{};
 
-    // NOTE: Add previous capacity thing for dynamic meshes
+    /*NOTE: Add previous capacity thing for dynamic vector*/
 
+    // for static meshes
     void renderOpaqueMeshes();
     void renderBlendMeshes();
 };
