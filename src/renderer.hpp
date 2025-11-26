@@ -11,6 +11,8 @@
 #include "engine_types.hpp"
 #include "shader.hpp"
 #include "model.hpp"
+#include "postprocessing.hpp"
+#include "ibl.hpp"
 
 class DeferredRenderer final : public EngineObject
 {
@@ -28,7 +30,10 @@ public:
     // setup for geometry pass
     void setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view) const;
     // unbind framebuffer
-    void closeGeometryPass() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+    void closeGeometryPass() const
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 
     // -------- getters -------- //
     [[nodiscard]] unsigned int getGBuffer() const { return m_gBuffer; }
@@ -84,11 +89,13 @@ public:
     explicit RenderQueue(EngineObject* parent);
     ~RenderQueue() override;
 
-    // update queue
+    // clear queue
     void update();
     // hybrid render
     // TODO: Add dfRenderer and PostProcessor framebuffer actions
-    void render(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos);
+    void renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer,
+                     const Shader* fdShader, const PostProcessor* postProcessor,
+                     void* engine, IBLGenerator* ibl, const glm::vec3& cameraPos);
 
     // add static model
     void addStaticModel(const Model* model, const glm::mat4& modelTransform);
@@ -96,9 +103,16 @@ public:
     void addDynamicModel(Model* model, const glm::mat4& modelTransform);
 
     // meshes to be rendered deferred
-    [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticOpaqueMeshes() const { return m_staticOpaqueMeshes; }
+    [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticOpaqueMeshes() const
+    {
+        return m_staticOpaqueMeshes;
+    }
+
     // meshes to be rendered forwardly
-    [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticBlendMeshes() const { return m_staticBlendMeshes; }
+    [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticBlendMeshes() const
+    {
+        return m_staticBlendMeshes;
+    }
 
     // dynamic models (updated every frame)
     [[nodiscard]] const std::vector<std::pair<Model*, glm::mat4>>& getDynamicModels() const { return m_dynamicModels; }

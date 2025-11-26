@@ -56,8 +56,6 @@ int main()
         for (std::size_t i{0}; i < transforms.size(); ++i)
             engine.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i], "gBuffer");
 
-        engine.setMat4("view", engine.getViewMatrix(), "gBuffer");
-        engine.setMat4("projection", engine.getProjectionMatrix(), "gBuffer");
 
         glm::mat4 model;
         for (std::size_t z{0}; z < 3; ++z)
@@ -69,7 +67,7 @@ int main()
                     {static_cast<float>(x) * 100.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
                      static_cast<float>(z) * 100.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
                 engine.setMat4("model", model, "gBuffer");
-                engine.setMat3("normalMat", engine.getNormalMatrix(Util::stripScale(model)), "gBuffer");
+                engine.setMat3("normalMat", Util::stripScale(model), "gBuffer");
                 spartan->renderForward(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
             }
         }
@@ -81,7 +79,6 @@ int main()
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, engine.getPostProcessor()->getFBO());
         glBlitFramebuffer(0, 0, engine.getWidth(), engine.getHeight(), 0, 0, engine.getWidth(), engine.getHeight(),
                           GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // -------------------------------- //
         // -------------------------------- //
 

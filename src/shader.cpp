@@ -155,9 +155,6 @@ void Shader::use() const
     {
         glUseProgram(m_ID);
         CURRENT_SHADER_PROGRAM = m_ID;
-    } else
-    {
-        std::cout << "oh no!" << std::endl;
     }
 }
 

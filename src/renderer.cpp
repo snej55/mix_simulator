@@ -5,9 +5,14 @@
 #include <glad/glad.h>
 
 #include "renderer.hpp"
-#include "util.hpp"
 
-DeferredRenderer::DeferredRenderer(EngineObject* parent) : EngineObject{"DeferredRenderer", parent} { initQuad(); }
+#include "bones.hpp"
+#include "bones.hpp"
+#include "util.hpp"
+#include "engine.hpp"
+
+DeferredRenderer::DeferredRenderer(EngineObject* parent) :
+    EngineObject{"DeferredRenderer", parent} { initQuad(); }
 
 DeferredRenderer::~DeferredRenderer()
 {
@@ -99,7 +104,8 @@ void DeferredRenderer::renderQuad() const
     glBindVertexArray(0);
 }
 
-void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view) const
+void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection,
+                                         const glm::mat4& view) const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
     gpShader->use();
@@ -112,7 +118,7 @@ void DeferredRenderer::initQuad()
 {
     constexpr float quadVertices[]{
         -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-        1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
     };
     glGenVertexArrays(1, &m_quadVAO);
     glGenBuffers(1, &m_quadVBO);
@@ -131,8 +137,8 @@ void DeferredRenderer::freeQuad() const
     glDeleteVertexArrays(1, &m_quadVAO);
 }
 
-RenderQueue::RenderQueue(EngineObject* parent)
-    : EngineObject{"RenderQueue", parent}
+RenderQueue::RenderQueue(EngineObject* parent) :
+    EngineObject{"RenderQueue", parent}
 {
 }
 
@@ -143,9 +149,15 @@ void RenderQueue::update()
     m_dynamicModels.clear();
 }
 
-void RenderQueue::render(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos)
+void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer,
+                              const Shader* fdShader, const PostProcessor* postProcessor, void* engine,
+                              IBLGenerator* ibl, const glm::vec3& cameraPos)
 {
+    Engine* enginePtr{static_cast<Engine*>(engine)};
+
     // ------ DEFERRED RENDERING PASS ------ //
+    dfRenderer->setupGeometryPass(dfShader, enginePtr->getProjectionMatrix(), enginePtr->getViewMatrix());
+    enginePtr->clear();
 
     // sort transparent meshes based on distance
     // <distance, <Mesh, model>>
@@ -155,6 +167,7 @@ void RenderQueue::render(const Shader* dfShader, const Shader* fdShader, const g
     for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
     {
         // render opaque components using deferred renderer
+        dfShader->setMat3("normalMat", Util::stripScale(model.second));
         model.first->renderDeferred(dfShader, model.second);
 
         // extract transparent meshes from model
@@ -163,7 +176,7 @@ void RenderQueue::render(const Shader* dfShader, const Shader* fdShader, const g
         {
             Mesh* tMesh{transparentMeshes[i]};
             tMesh->updateMidpoint(model.second);
-            const float distance {glm::length(cameraPos - tMesh->getMidpoint())};
+            const float distance{glm::length(cameraPos - tMesh->getMidpoint())};
             sortedBlendMeshes[distance] = std::pair{tMesh, model.second};
         }
     }
@@ -171,18 +184,42 @@ void RenderQueue::render(const Shader* dfShader, const Shader* fdShader, const g
     // render static meshes
     renderOpaqueMeshes(dfShader);
 
-    // ------------------------------------ //
+    dfRenderer->closeGeometryPass();
+    // ------------------------------------- //
+
+    // combine framebuffers
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, dfRenderer->getGBuffer());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcessor->getFBO());
+    glBlitFramebuffer(0, 0, enginePtr->getWidth(), enginePtr->getHeight(), 0, 0, enginePtr->getWidth(),
+                      enginePtr->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     // ------ FORWARD RENDERING PASS ------ //
+    enginePtr->enablePostProcessing();
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // render gbuffer
+    enginePtr->renderGBuffer(ibl);
+
+    // render skybox
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
+    ibl->renderSkybox(engine);
+    glDepthMask(GL_TRUE);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glDepthMask(GL_FALSE);
 
+    // ---- render leftovers using forward rendering ---
     // render dynamic meshes
     fdShader->use();
-    for (std::map<float, std::pair<Mesh*, glm::mat4>>::reverse_iterator it{sortedBlendMeshes.rbegin()}; it != sortedBlendMeshes.rend(); ++it)
+    for (std::map<float, std::pair<Mesh*, glm::mat4>>::reverse_iterator it{sortedBlendMeshes.rbegin()}; it !=
+         sortedBlendMeshes.rend(); ++it)
     {
         fdShader->setMat4("model", it->second.second);
+        fdShader->setMat3("normalMat", enginePtr->getNormalMatrix(it->second.second));
         it->second.first->renderPBR(fdShader);
     }
 
@@ -191,6 +228,9 @@ void RenderQueue::render(const Shader* dfShader, const Shader* fdShader, const g
 
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
+
+    enginePtr->disablePostProcessing();
+    enginePtr->renderPostProcessing();
 }
 
 void RenderQueue::addStaticModel(const Model* model, const glm::mat4& modelTransform)
@@ -221,6 +261,7 @@ void RenderQueue::renderOpaqueMeshes(const Shader* dfShader) const
     for (const std::pair<Mesh*, glm::mat4>& meshPair : m_staticOpaqueMeshes)
     {
         dfShader->setMat4("model", meshPair.second);
+        dfShader->setMat3("normalMat", Util::stripScale(meshPair.second));
         meshPair.first->renderPBR(dfShader);
     }
 }
