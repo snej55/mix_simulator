@@ -278,7 +278,7 @@ bool BloomFBO::init(const unsigned int width, const unsigned int height, const u
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_mipChain[0].texture, 0);
 
     // setup attachments
-    unsigned int attachments[1]{GL_COLOR_ATTACHMENT0};
+    constexpr unsigned int attachments[1]{GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, attachments);
 
     // check framebuffer status
@@ -369,7 +369,7 @@ bool BloomRenderer::init(const unsigned int width, const unsigned int height, vo
     return true;
 }
 
-void BloomRenderer::renderBloomTexture(const unsigned int srcTexture, const float filterRadius)
+void BloomRenderer::renderBloomTexture(const unsigned int srcTexture, const float filterRadius) const
 {
     m_FBO.bind();
 
@@ -519,6 +519,7 @@ void SSAOGenerator::init(const int width, const int height)
     m_ssaoKernel.reserve(SSAO_KERNEL_SIZE);
     for (unsigned int i{0}; i < SSAO_KERNEL_SIZE; ++i)
     {
+        // x & y from -1.0 - 1.0, z from 0.0 to 1.0 (-1.0 to 1.0 for z is a full sphere, we want a hemisphere)
         glm::vec3 sample{randomF(generator) * 2.0f - 1.0f, randomF(generator) * 2.0f - 1.0f, randomF(generator)};
         sample = glm::normalize(sample);
         sample *= randomF(generator);
@@ -561,4 +562,35 @@ void SSAOGenerator::free()
 
         m_init = false;
     }
+}
+
+void SSAOGenerator::renderQuad() const
+{
+    glBindVertexArray(m_quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
+
+// setup quad for rendering
+void SSAOGenerator::initQuad()
+{
+    constexpr float quadVertices[]{
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+    };
+    glGenVertexArrays(1, &m_quadVAO);
+    glGenBuffers(1, &m_quadVBO);
+    glBindVertexArray(m_quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(0));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+}
+
+void SSAOGenerator::freeQuad() const
+{
+    glDeleteBuffers(1, &m_quadVBO);
+    glDeleteVertexArrays(1, &m_quadVAO);
 }

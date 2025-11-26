@@ -30,10 +30,7 @@ public:
     // setup for geometry pass
     void setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view) const;
     // unbind framebuffer
-    void closeGeometryPass() const
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
+    void closeGeometryPass() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
     // -------- getters -------- //
     [[nodiscard]] unsigned int getGBuffer() const { return m_gBuffer; }
@@ -93,9 +90,9 @@ public:
     void update();
 
     // hybrid renderer
-    void renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer,
-                     const Shader* fdShader, const PostProcessor* postProcessor,
-                     void* engine, IBLGenerator* ibl, const glm::vec3& cameraPos) const;
+    void renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
+                     const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl,
+                     const glm::vec3& cameraPos) const;
 
     // add static model
     void addStaticModel(const Model* model, const glm::mat4& modelTransform);

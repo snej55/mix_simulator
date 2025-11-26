@@ -42,7 +42,7 @@ public:
 
     bool init(unsigned int width, unsigned int height, void* engine);
     void free();
-    void renderBloomTexture(unsigned int srcTexture, float filterRadius);
+    void renderBloomTexture(unsigned int srcTexture, float filterRadius) const;
 
     [[nodiscard]] unsigned int bloomTexture() const { return m_FBO.mipChain()[0].texture; }
 
@@ -76,6 +76,8 @@ public:
     void init(int width, int height);
     void free();
 
+    void renderQuad() const;
+
     // getters
     [[nodiscard]] bool getInit() const { return m_init; }
     [[nodiscard]] int getWidth() const { return m_width; }
@@ -100,6 +102,13 @@ private:
 
     std::vector<glm::vec3> m_ssaoKernel{};
     std::vector<glm::vec3> m_ssaoNoise{};
+
+    // quad vertex array object
+    unsigned int m_quadVAO{};
+    unsigned int m_quadVBO{};
+
+    void initQuad();
+    void freeQuad() const;
 };
 
 

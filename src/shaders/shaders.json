@@ -113,6 +113,13 @@
         "frag": "deferredShading.frag",
         "vert": "deferredShading.vert"
       }
+    },
+    {
+      "name": "ssao",
+      "shader": {
+        "frag": "ssao.frag",
+        "vert": "ssao.vert"
+      }
     }
   ]
 }
