@@ -6,13 +6,10 @@
 
 #include "renderer.hpp"
 
-#include "bones.hpp"
-#include "bones.hpp"
 #include "util.hpp"
 #include "engine.hpp"
 
-DeferredRenderer::DeferredRenderer(EngineObject* parent) :
-    EngineObject{"DeferredRenderer", parent} { initQuad(); }
+DeferredRenderer::DeferredRenderer(EngineObject* parent) : EngineObject{"DeferredRenderer", parent} { initQuad(); }
 
 DeferredRenderer::~DeferredRenderer()
 {
@@ -118,7 +115,7 @@ void DeferredRenderer::initQuad()
 {
     constexpr float quadVertices[]{
         -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
     };
     glGenVertexArrays(1, &m_quadVAO);
     glGenBuffers(1, &m_quadVBO);
@@ -137,21 +134,15 @@ void DeferredRenderer::freeQuad() const
     glDeleteVertexArrays(1, &m_quadVAO);
 }
 
-RenderQueue::RenderQueue(EngineObject* parent) :
-    EngineObject{"RenderQueue", parent}
-{
-}
+RenderQueue::RenderQueue(EngineObject* parent) : EngineObject{"RenderQueue", parent} {}
 
 RenderQueue::~RenderQueue() = default;
 
-void RenderQueue::update()
-{
-    m_dynamicModels.clear();
-}
+void RenderQueue::update() { m_dynamicModels.clear(); }
 
-void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer,
-                              const Shader* fdShader, const PostProcessor* postProcessor, void* engine,
-                              IBLGenerator* ibl, const glm::vec3& cameraPos) const
+void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
+                              const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl,
+                              const glm::vec3& cameraPos) const
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
 
@@ -215,8 +206,20 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     // ---- render leftovers using forward rendering ---
     // render dynamic meshes
     fdShader->use();
-    for (std::map<float, std::pair<Mesh*, glm::mat4>>::reverse_iterator it{sortedBlendMeshes.rbegin()}; it !=
-         sortedBlendMeshes.rend(); ++it)
+    fdShader->setVec3("viewPos", enginePtr->getCameraPosition());
+    fdShader->setMat4("projection", enginePtr->getProjectionMatrix());
+    fdShader->setMat4("view", enginePtr->getViewMatrix());
+    fdShader->setInt("irradianceMap", 10);
+    glActiveTexture(GL_TEXTURE10);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getIrradianceMap());
+    fdShader->setInt("prefilterMap", 11);
+    glActiveTexture(GL_TEXTURE11);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getPrefilterMap());
+    fdShader->setInt("brdfLUT", 12);
+    glActiveTexture(GL_TEXTURE12);
+    glBindTexture(GL_TEXTURE_2D, ibl->getBRDFLutMap());
+    for (std::map<float, std::pair<Mesh*, glm::mat4>>::reverse_iterator it{sortedBlendMeshes.rbegin()};
+         it != sortedBlendMeshes.rend(); ++it)
     {
         fdShader->setMat4("model", it->second.second);
         fdShader->setMat3("normalMat", enginePtr->getNormalMatrix(it->second.second));
@@ -272,6 +275,8 @@ void RenderQueue::renderBlendMeshes(const Shader* fdShader) const
     for (const std::pair<Mesh*, glm::mat4>& meshPair : m_staticBlendMeshes)
     {
         fdShader->setMat4("model", meshPair.second);
+        glm::mat4 normalMat{glm::transpose(glm::inverse(meshPair.second))};
+        fdShader->setMat3("normalMat", normalMat);
         meshPair.first->renderPBR(fdShader);
     }
 }

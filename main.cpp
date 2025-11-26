@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,7 +7,6 @@
 #include "src/ibl.hpp"
 #include "src/bones.hpp"
 #include "src/renderer.hpp"
-#include "src/util.hpp"
 
 int main()
 {
@@ -61,8 +59,7 @@ int main()
         }
 
         renderQueue.renderFrame(engine.getShader("gBuffer"), dfRenderer, engine.getShader("texturePBR"),
-                                engine.getPostProcessor(), &engine, &iblGenerator,
-                                engine.getCameraPosition());
+                                engine.getPostProcessor(), &engine, &iblGenerator, engine.getCameraPosition());
 
         // update engine
         renderQueue.update();
