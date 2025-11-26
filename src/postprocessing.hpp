@@ -2,7 +2,6 @@
 #define POSTPROCESSING_H
 
 #include "engine_types.hpp"
-#include "glm/ext/vector_int2.hpp"
 #include "shader.hpp"
 
 #include <vector>
@@ -24,7 +23,7 @@ public:
     ~BloomFBO() override;
 
     bool init(unsigned int width, unsigned int height, unsigned int mipChainLength);
-    void bind();
+    void bind() const;
     void free();
 
     [[nodiscard]] const std::vector<PostProcessingN::BloomMip>& mipChain() const { return m_mipChain; }
@@ -60,10 +59,49 @@ private:
     unsigned int m_quadVAO{0}, m_quadVBO{0};
 
     void renderDownSamples(unsigned int srcTexture);
-    void renderUpSamples(float filterRadius);
+    void renderUpSamples(float filterRadius) const;
 
     void setupQuad();
 };
+
+#define SSAO_KERNEL_SIZE 64
+#define SSAO_NOISE_SIZE 16
+
+class SSAOGenerator final : public EngineObject
+{
+public:
+    explicit SSAOGenerator(EngineObject* parent);
+    ~SSAOGenerator() override;
+
+    void init(int width, int height);
+    void free();
+
+    // getters
+    [[nodiscard]] bool getInit() const { return m_init; }
+    [[nodiscard]] int getWidth() const { return m_width; }
+    [[nodiscard]] int getHeight() const { return m_height; }
+
+    [[nodiscard]] unsigned int getNoiseTexture() const {return m_noiseTexture;}
+    [[nodiscard]] unsigned int getSSAO_FBO() const {return m_ssaoFBO;}
+    [[nodiscard]] unsigned int getSSAO_FBOBlur() const {return m_ssaoFBOBlur;}
+    [[nodiscard]] unsigned int getSSAO_ColorBuffer() const {return m_ssaoColorBuffer;}
+    [[nodiscard]] unsigned int getSSAO_ColorBufferBlur() const {return m_ssaoColorBufferBlur;}
+
+private:
+    bool m_init{false};
+    int m_width{0};
+    int m_height{0};
+
+    unsigned int m_noiseTexture{};
+    unsigned int m_ssaoFBO{};
+    unsigned int m_ssaoFBOBlur{};
+    unsigned int m_ssaoColorBuffer{};
+    unsigned int m_ssaoColorBufferBlur{};
+
+    std::vector<glm::vec3> m_ssaoKernel{};
+    std::vector<glm::vec3> m_ssaoNoise{};
+};
+
 
 class PostProcessor final : public EngineObject
 {

@@ -35,7 +35,7 @@ namespace Util
     // Reset texture color.
     inline void endError() { std::cout << "\033[m" << std::endl; }
 
-    inline float lerp(const float a, const float b, const float amount) { return a + (b - a) * amount; }
+    inline float lerp(const float a, const float b, const float f) { return a + (b - a) * f; }
 
     // convert mat4 from assimp format to glm format
     inline glm::mat4 convertMatrixGLM(const aiMatrix4x4& mat)

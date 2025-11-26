@@ -5,7 +5,12 @@
 #include "util.hpp"
 #include "shapes.hpp"
 
-PostProcessor::PostProcessor(EngineObject* parent) : EngineObject{"PostProcessor", parent} {}
+#include <random>
+
+PostProcessor::PostProcessor(EngineObject* parent) :
+    EngineObject{"PostProcessor", parent}
+{
+}
 
 PostProcessor::~PostProcessor() { free(); }
 
@@ -148,7 +153,7 @@ void PostProcessor::generateRenderbuffer()
 void PostProcessor::generateQuad()
 {
     constexpr float quadVerticesTexCoords[]{-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-                                            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+                                            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
     unsigned int quadVAO, quadVBO;
     glGenVertexArrays(1, &quadVAO);
     glGenBuffers(1, &quadVBO);
@@ -166,7 +171,10 @@ void PostProcessor::generateQuad()
     glBindVertexArray(0);
 }
 
-void PostProcessor::enable() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
+void PostProcessor::enable() const
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+}
 
 void PostProcessor::disable() const
 {
@@ -202,7 +210,10 @@ void PostProcessor::disableBloom()
     m_bloomEnabled = false;
 }
 
-BloomFBO::BloomFBO(EngineObject* parent) : EngineObject{"BloomFBO", parent} {}
+BloomFBO::BloomFBO(EngineObject* parent) :
+    EngineObject{"BloomFBO", parent}
+{
+}
 
 BloomFBO::~BloomFBO() { free(); }
 
@@ -244,7 +255,7 @@ bool BloomFBO::init(const unsigned int width, const unsigned int height, const u
 
     for (unsigned int i{0}; i < mipChainLength; ++i)
     {
-        PostProcessingN::BloomMip mip;
+        PostProcessingN::BloomMip mip{};
 
         mipSize *= 0.5f;
         mipIntSize /= 2;
@@ -284,9 +295,15 @@ bool BloomFBO::init(const unsigned int width, const unsigned int height, const u
     return true;
 }
 
-void BloomFBO::bind() { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
+void BloomFBO::bind() const
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+}
 
-BloomRenderer::BloomRenderer(EngineObject* parent) : EngineObject{"BloomRenderer", parent}, m_FBO{this} {}
+BloomRenderer::BloomRenderer(EngineObject* parent) :
+    EngineObject{"BloomRenderer", parent}, m_FBO{this}
+{
+}
 
 BloomRenderer::~BloomRenderer() { free(); }
 
@@ -380,7 +397,7 @@ void BloomRenderer::renderDownSamples(const unsigned int srcTexture)
     {
         m_downSampleShader->setInt("mipLevel", static_cast<int>(i));
         const PostProcessingN::BloomMip& mip{mipChain[i]};
-        glViewport(0, 0, mip.size.x, mip.size.y);
+        glViewport(0, 0, static_cast<int>(mip.size.x), static_cast<int>(mip.size.y));
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mip.texture, 0);
 
         glBindVertexArray(m_quadVAO);
@@ -395,7 +412,7 @@ void BloomRenderer::renderDownSamples(const unsigned int srcTexture)
 }
 
 // upsample source texture
-void BloomRenderer::renderUpSamples(const float filterRadius)
+void BloomRenderer::renderUpSamples(const float filterRadius) const
 {
     const std::vector<PostProcessingN::BloomMip>& mipChain{m_FBO.mipChain()};
 
@@ -414,7 +431,7 @@ void BloomRenderer::renderUpSamples(const float filterRadius)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mip.texture);
 
-        glViewport(0, 0, nextMip.size.x, nextMip.size.y);
+        glViewport(0, 0, static_cast<int>(nextMip.size.x), static_cast<int>(nextMip.size.y));
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, nextMip.texture, 0);
 
         glBindVertexArray(m_quadVAO);
@@ -443,5 +460,105 @@ void BloomRenderer::setupQuad()
         glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
+    }
+}
+
+SSAOGenerator::SSAOGenerator(EngineObject* parent) :
+    EngineObject{"SSAOGenerator", parent}
+{
+}
+
+SSAOGenerator::~SSAOGenerator()
+{
+    free();
+}
+
+void SSAOGenerator::init(const int width, const int height)
+{
+    if (m_init)
+        free();
+
+    // generate framebuffers
+    glGenFramebuffers(1, &m_ssaoFBO);
+    glGenFramebuffers(1, &m_ssaoFBOBlur);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBO);
+
+    // color buffer
+    glGenTextures(1, &m_ssaoColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssaoColorBuffer, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        Util::beginError();
+        std::cout << "SSAO_GENERATOR::INIT::ERROR: Failed to create framebuffer!" << std::endl;
+        Util::endError();
+    }
+
+    // same for blur color buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBOBlur);
+    glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssaoColorBuffer, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        Util::beginError();
+        std::cout << "SSAO_GENERATOR::INIT::ERROR: Failed to create framebuffer!" << std::endl;
+        Util::endError();
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // generate random kernel
+    std::uniform_real_distribution<GLfloat> randomF{0.0f, 1.0f};
+    std::default_random_engine generator;
+    m_ssaoKernel.clear();
+    m_ssaoKernel.reserve(SSAO_KERNEL_SIZE);
+    for (unsigned int i{0}; i < SSAO_KERNEL_SIZE; ++i)
+    {
+        glm::vec3 sample{randomF(generator) * 2.0f - 1.0f, randomF(generator) * 2.0f - 1.0f, randomF(generator)};
+        sample = glm::normalize(sample);
+        sample *= randomF(generator);
+        float scale{static_cast<float>(i) / static_cast<float>(SSAO_KERNEL_SIZE)};
+
+        scale = Util::lerp(0.1f, 1.0f, scale * scale);
+        sample *= scale;
+        m_ssaoKernel.emplace_back(sample);
+    }
+
+    // generate noise texture
+    m_ssaoNoise.clear();
+    m_ssaoNoise.reserve(SSAO_NOISE_SIZE);
+    for (unsigned int i{0}; i < SSAO_NOISE_SIZE; ++i)
+    {
+        glm::vec3 noise{randomF(generator) * 2.0f - 1.0f, randomF(generator) * 2.0f - 1.0f, 0.0f};
+        m_ssaoNoise.emplace_back(noise);
+    }
+
+    glGenTextures(1, &m_noiseTexture);
+    glBindTexture(GL_TEXTURE_2D, m_noiseTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGBA, GL_FLOAT, &m_ssaoNoise[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    m_init = true;
+}
+
+void SSAOGenerator::free()
+{
+    if (m_init)
+    {
+        glDeleteTextures(1, &m_noiseTexture);
+        glDeleteTextures(1, &m_ssaoColorBuffer);
+        glDeleteFramebuffers(1, &m_ssaoFBO);
+        glDeleteTextures(1, &m_ssaoColorBufferBlur);
+        glDeleteFramebuffers(1, &m_ssaoFBOBlur);
+
+        m_init = false;
     }
 }
