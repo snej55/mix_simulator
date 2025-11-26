@@ -23,7 +23,10 @@ public:
     void render(const Shader* shader) const;
     void renderPBR(const Shader* pbrShader) const;
     // forward render the model
-    void renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model);
+    void renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model);
+
+    [[nodiscard]] const std::vector<Mesh*>& getOpaqueMeshes() const {return m_opaqueMeshes;}
+    [[nodiscard]] const std::vector<Mesh*>& getTransparentMeshes() const {return m_transparentMeshes;}
 
     [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
     [[nodiscard]] int& getBoneCounter() { return m_boneCounter; }
@@ -35,6 +38,11 @@ private:
 
     // loaded mesh textures (to avoid loading the same texture twice)
     std::vector<MeshN::Texture> m_loadedTextures{};
+
+    // opaque meshes (rendered deferred)
+    std::vector<Mesh*> m_opaqueMeshes{};
+    // transparent meshes (require blending so rendered forward)
+    std::vector<Mesh*> m_transparentMeshes{};
 
     // bones
     std::map<std::string, MeshN::BoneInfo> m_boneInfoMap{};

@@ -1,5 +1,5 @@
 //
-// Created by jenskromdijk on 23/11/2025.
+// Created by Jens Kromdijk on 23/11/2025.
 //
 
 #include <glad/glad.h>
@@ -26,7 +26,7 @@ void DeferredRenderer::init(const int scrWidth, const int scrHeight)
     // position color buffer
     glGenTextures(1, &m_positionEBuffer);
     glBindTexture(GL_TEXTURE_2D, m_positionEBuffer);
-    // NOTE: upgrade to GL_RGBA32F incase of precision artifacts
+    // NOTE: upgrade to GL_RGBA32F in case of precision artifacts
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, scrWidth, scrHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -92,14 +92,14 @@ void DeferredRenderer::free()
     }
 }
 
-void DeferredRenderer::renderQuad()
+void DeferredRenderer::renderQuad() const
 {
     glBindVertexArray(m_quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
 }
 
-void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view)
+void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view) const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
     gpShader->use();
@@ -125,8 +125,41 @@ void DeferredRenderer::initQuad()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
 }
 
-void DeferredRenderer::freeQuad()
+void DeferredRenderer::freeQuad() const
 {
     glDeleteBuffers(1, &m_quadVBO);
     glDeleteVertexArrays(1, &m_quadVAO);
+}
+
+RenderQueue::RenderQueue(EngineObject* parent)
+    : EngineObject{"RenderQueue", parent}
+{
+}
+
+RenderQueue::~RenderQueue() = default;
+
+void RenderQueue::update()
+{
+    m_dynamicOpaqueMeshes.clear();
+    m_dynamicBlendMeshes.clear();
+}
+
+void RenderQueue::render(const Shader* shader, const glm::vec3& cameraPos)
+{
+}
+
+void RenderQueue::addStaticModel(Model* model, const glm::mat4& modelTransform)
+{
+}
+
+void RenderQueue::addDynamicModel(Model* model, const glm::mat4& modelTransform)
+{
+}
+
+void RenderQueue::renderOpaqueMeshes()
+{
+}
+
+void RenderQueue::renderBlendMeshes()
+{
 }

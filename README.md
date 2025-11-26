@@ -12,7 +12,9 @@ OpenGL rendering framework.
 - [X] Deferred rendering
 - [ ] Mesh sorting (render opaque meshes deferred and transparent/translucent using forward)
 - [ ] Duplicate material checks? Batch render meshes using material index vertex data?
+- [X] Fix transparent mesh culling
 - [ ] SSAO
+- [ ] Global materials
 - [ ] Get scene set up
 - [ ] Main game class
 - [ ] Level editor

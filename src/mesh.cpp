@@ -134,12 +134,19 @@ void Mesh::renderPBR(const Shader* pbrShader) const
     }
 
     glBindVertexArray(m_VAO);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+
+    if (m_blendMode != MeshN::BLEND_TRANSPARENT)
+    {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+    }
 
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
 
-    glDisable(GL_CULL_FACE);
+    if (m_blendMode != MeshN::BLEND_TRANSPARENT)
+    {
+        glDisable(GL_CULL_FACE);
+    }
 
     // reset
     glBindVertexArray(0);

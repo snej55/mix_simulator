@@ -70,7 +70,7 @@ int main()
                      static_cast<float>(z) * 100.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
                 engine.setMat4("model", model, "gBuffer");
                 engine.setMat3("normalMat", engine.getNormalMatrix(Util::stripScale(model)), "gBuffer");
-                spartan->renderFull(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
+                spartan->renderForward(engine.getShader("gBuffer"), engine.getCameraPosition(), model);
             }
         }
         dfRenderer->closeGeometryPass();

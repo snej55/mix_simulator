@@ -49,26 +49,20 @@ void Model::renderPBR(const Shader* pbrShader) const
 }
 
 // forward render the model
-void Model::renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model)
+void Model::renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model)
 {
-    std::map<float, std::size_t> sortedMeshes{};
-    for (std::size_t i{0}; i < m_meshes.size(); ++i)
+    std::map<float, Mesh*> sortedMeshes{};
+    for (Mesh* mesh : m_transparentMeshes)
     {
-        if (m_meshes[i].getBlendMode() == MeshN::BLEND_TRANSPARENT)
-        {
-            m_meshes[i].updateMidpoint(model);
-            const float distance{glm::length(cameraPos - m_meshes[i].getMidpoint())};
-            sortedMeshes[distance] = i;
-        }
+        mesh->updateMidpoint(model);
+        const float distance {glm::length(cameraPos - mesh->getMidpoint())};
+        sortedMeshes[distance] = mesh;
     }
 
     // ----- render the opaque meshes first ----- //
-    for (const Mesh& mesh : m_meshes)
+    for (const Mesh* mesh : m_opaqueMeshes)
     {
-        if (mesh.getBlendMode() != MeshN::BLEND_TRANSPARENT)
-        {
-            mesh.renderPBR(pbrShader);
-        }
+        mesh->renderPBR(pbrShader);
     }
 
     // ----- render the transparent objects ----- //
@@ -78,9 +72,9 @@ void Model::renderFull(const Shader* pbrShader, const glm::vec3& cameraPos, cons
 
     glDepthMask(GL_FALSE);
 
-    for (std::map<float, std::size_t>::reverse_iterator it{sortedMeshes.rbegin()}; it != sortedMeshes.rend(); ++it)
+    for (std::map<float, Mesh*>::reverse_iterator it{sortedMeshes.rbegin()}; it != sortedMeshes.rend(); ++it)
     {
-        m_meshes[it->second].renderPBR(pbrShader);
+        it->second->renderPBR(pbrShader);
     }
 
     glDepthMask(GL_TRUE);
@@ -103,7 +97,7 @@ bool Model::loadModel(const std::string& path)
     const aiScene* scene{importer.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
+        aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -121,9 +115,18 @@ bool Model::loadModel(const std::string& path)
 
     // overkill log
     int numVertices{};
-    for (const Mesh& mesh : m_meshes)
+    for (std::size_t i{0}; i < m_meshes.size(); ++i)
     {
-        numVertices += static_cast<int>(mesh.getVertices().size());
+        numVertices += static_cast<int>(m_meshes[i].getVertices().size());
+        // we're looping anyway so might as well add it here (sort meshes into opaque and blended)
+        if (m_meshes[i].getBlendMode() == MeshN::BLEND_TRANSPARENT)
+        {
+            m_transparentMeshes.emplace_back(&m_meshes[i]);
+        }
+        else
+        {
+            m_opaqueMeshes.emplace_back(&m_meshes[i]);
+        }
     }
 
     // just some useful info :)
@@ -636,7 +639,10 @@ void Model::loadRoughnessFactor(const aiMaterial* mat, float& roughnessFactor)
 }
 
 // -------------- Model Manager -------------- //
-ModelManager::ModelManager(EngineObject* parent) : EngineObject{"ModelManager", parent} {}
+ModelManager::ModelManager(EngineObject* parent) :
+    EngineObject{"ModelManager", parent}
+{
+}
 
 // load new model
 void ModelManager::addModel(const std::string& name, const std::string& path, Arena* arena)

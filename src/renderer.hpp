@@ -10,6 +10,7 @@
 
 #include "engine_types.hpp"
 #include "shader.hpp"
+#include "model.hpp"
 
 class DeferredRenderer final : public EngineObject
 {
@@ -22,10 +23,10 @@ public:
     void free();
 
     // render gbuffer
-    void renderQuad();
+    void renderQuad() const;
 
     // setup for geometry pass
-    void setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view);
+    void setupGeometryPass(const Shader* gpShader, const glm::mat4& projection, const glm::mat4& view) const;
     // unbind framebuffer
     void closeGeometryPass() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
@@ -74,8 +75,42 @@ private:
     unsigned int m_quadVBO{};
 
     void initQuad();
-    void freeQuad();
+    void freeQuad() const;
 };
 
+class RenderQueue final : public EngineObject
+{
+public:
+    explicit RenderQueue(EngineObject* parent);
+    ~RenderQueue() override;
+
+    // update queue
+    void update();
+    // hybrid render
+    void render(const Shader* shader, const glm::vec3& cameraPos);
+
+    // add static model
+    void addStaticModel(Model* model, const glm::mat4& modelTransform);
+    // add dynamic model (updated every frame)
+    void addDynamicModel(Model* model, const glm::mat4& modelTransform);
+
+    // meshes to be rendered deferred
+    [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticOpaqueMeshes() const { return m_staticOpaqueMeshes; }
+    [[nodiscard]] const std::vector<Mesh*>& getDynamicOpaqueMeshes() const { return m_dynamicOpaqueMeshes; }
+    // meshes to be rendered forwardly
+    [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticBlendMeshes() const { return m_staticBlendMeshes; }
+    [[nodiscard]] const std::vector<Mesh*>& getDynamicBlendMeshes() const { return m_dynamicBlendMeshes; }
+
+private:
+    std::vector<std::pair<Mesh*, glm::mat4>> m_staticOpaqueMeshes{};
+    std::vector<Mesh*> m_dynamicOpaqueMeshes{};
+    std::vector<std::pair<Mesh*, glm::mat4>> m_staticBlendMeshes{};
+    std::vector<Mesh*> m_dynamicBlendMeshes{};
+
+    // NOTE: Add previous capacity thing for dynamic meshes
+
+    void renderOpaqueMeshes();
+    void renderBlendMeshes();
+};
 
 #endif // MAIN_RENDERER_H

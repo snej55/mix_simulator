@@ -832,7 +832,7 @@ void Engine::renderModelForward(Model* model, const Shader* shader, const glm::m
         glBindTexture(GL_TEXTURE_2D, ibl->getBRDFLutMap());
     }
 
-    model->renderFull(shader, getCameraPosition(), modelTransform);
+    model->renderForward(shader, getCameraPosition(), modelTransform);
 }
 
 bool Engine::modelExists(const std::string& name) const { return m_modelManager->modelExists(name); }
