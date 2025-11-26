@@ -110,8 +110,8 @@ private:
     /*NOTE: Add previous capacity thing for dynamic vector*/
 
     // for static meshes
-    void renderOpaqueMeshes();
-    void renderBlendMeshes();
+    void renderOpaqueMeshes(const Shader* dfShader) const;
+    void renderBlendMeshes(const Shader* fdShader) const;
 };
 
 #endif // MAIN_RENDERER_H

@@ -19,6 +19,8 @@
 #include <sstream>
 #include <string>
 
+#include "bones.hpp"
+
 Model::Model(const std::string& name, EngineObject* parent) :
     EngineObject{("MODEL " + name).c_str(), parent}, m_modelName{name}
 {
@@ -81,36 +83,14 @@ void Model::renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, c
     glDisable(GL_BLEND);
 }
 
-void Model::renderHybrid(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos,
-    const glm::mat4& model) const
+void Model::renderDeferred(const Shader* dfShader, const glm::mat4& model) const
 {
-    // sort transparent meshes (to be rendered forward)
-    std::map<float, Mesh*> sortedMeshes{};
-    for (Mesh* mesh : m_transparentMeshes)
-    {
-        mesh->updateMidpoint(model);
-        const float distance {glm::length(cameraPos - mesh->getMidpoint())};
-        sortedMeshes[distance] = mesh;
-    }
-
     // render opaque meshes deferred
+    dfShader->setMat4("model", model);
     for (const Mesh* mesh : m_opaqueMeshes)
     {
         mesh->renderPBR(dfShader);
     }
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glDepthMask(GL_FALSE);
-
-    for (std::map<float, Mesh*>::reverse_iterator it{sortedMeshes.rbegin()}; it != sortedMeshes.rend(); ++it)
-    {
-        it->second->renderPBR(fdShader);
-    }
-
-    glDepthMask(GL_TRUE);
-    glDisable(GL_BLEND);
 }
 
 bool Model::loadModel(const std::string& path)

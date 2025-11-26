@@ -145,8 +145,52 @@ void RenderQueue::update()
 
 void RenderQueue::render(const Shader* dfShader, const Shader* fdShader, const glm::vec3& cameraPos)
 {
-    renderOpaqueMeshes();
-    renderBlendMeshes();
+    // ------ DEFERRED RENDERING PASS ------ //
+
+    // sort transparent meshes based on distance
+    // <distance, <Mesh, model>>
+    std::map<float, std::pair<Mesh*, glm::mat4>> sortedBlendMeshes{};
+
+    // render dynamic models
+    for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
+    {
+        // render opaque components using deferred renderer
+        model.first->renderDeferred(dfShader, model.second);
+
+        // extract transparent meshes from model
+        const std::vector<Mesh*>& transparentMeshes{model.first->getTransparentMeshes()};
+        for (std::size_t i{0}; i < transparentMeshes.size(); ++i)
+        {
+            Mesh* tMesh{transparentMeshes[i]};
+            tMesh->updateMidpoint(model.second);
+            const float distance {glm::length(cameraPos - tMesh->getMidpoint())};
+            sortedBlendMeshes[distance] = std::pair{tMesh, model.second};
+        }
+    }
+
+    // render static meshes
+    renderOpaqueMeshes(dfShader);
+
+    // ------------------------------------ //
+    // ------ FORWARD RENDERING PASS ------ //
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glDepthMask(GL_FALSE);
+
+    // render dynamic meshes
+    fdShader->use();
+    for (std::map<float, std::pair<Mesh*, glm::mat4>>::reverse_iterator it{sortedBlendMeshes.rbegin()}; it != sortedBlendMeshes.rend(); ++it)
+    {
+        fdShader->setMat4("model", it->second.second);
+        it->second.first->renderPBR(fdShader);
+    }
+
+    // render static meshes
+    renderBlendMeshes(fdShader);
+
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 }
 
 void RenderQueue::addStaticModel(const Model* model, const glm::mat4& modelTransform)
@@ -171,10 +215,22 @@ void RenderQueue::addDynamicModel(Model* model, const glm::mat4& modelTransform)
     m_dynamicModels.emplace_back(model, modelTransform);
 }
 
-void RenderQueue::renderOpaqueMeshes()
+void RenderQueue::renderOpaqueMeshes(const Shader* dfShader) const
 {
+    dfShader->use();
+    for (const std::pair<Mesh*, glm::mat4>& meshPair : m_staticOpaqueMeshes)
+    {
+        dfShader->setMat4("model", meshPair.second);
+        meshPair.first->renderPBR(dfShader);
+    }
 }
 
-void RenderQueue::renderBlendMeshes()
+void RenderQueue::renderBlendMeshes(const Shader* fdShader) const
 {
+    fdShader->use();
+    for (const std::pair<Mesh*, glm::mat4>& meshPair : m_staticBlendMeshes)
+    {
+        fdShader->setMat4("model", meshPair.second);
+        meshPair.first->renderPBR(fdShader);
+    }
 }
