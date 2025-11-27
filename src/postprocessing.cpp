@@ -2,15 +2,13 @@
 
 #include "engine.hpp"
 #include "engine_types.hpp"
+#include "renderer.hpp"
 #include "util.hpp"
 #include "shapes.hpp"
 
 #include <random>
 
-PostProcessor::PostProcessor(EngineObject* parent) :
-    EngineObject{"PostProcessor", parent}
-{
-}
+PostProcessor::PostProcessor(EngineObject* parent) : EngineObject{"PostProcessor", parent} {}
 
 PostProcessor::~PostProcessor() { free(); }
 
@@ -153,7 +151,7 @@ void PostProcessor::generateRenderbuffer()
 void PostProcessor::generateQuad()
 {
     constexpr float quadVerticesTexCoords[]{-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-                                            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+                                            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
     unsigned int quadVAO, quadVBO;
     glGenVertexArrays(1, &quadVAO);
     glGenBuffers(1, &quadVBO);
@@ -171,10 +169,7 @@ void PostProcessor::generateQuad()
     glBindVertexArray(0);
 }
 
-void PostProcessor::enable() const
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-}
+void PostProcessor::enable() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
 
 void PostProcessor::disable() const
 {
@@ -210,10 +205,7 @@ void PostProcessor::disableBloom()
     m_bloomEnabled = false;
 }
 
-BloomFBO::BloomFBO(EngineObject* parent) :
-    EngineObject{"BloomFBO", parent}
-{
-}
+BloomFBO::BloomFBO(EngineObject* parent) : EngineObject{"BloomFBO", parent} {}
 
 BloomFBO::~BloomFBO() { free(); }
 
@@ -295,15 +287,9 @@ bool BloomFBO::init(const unsigned int width, const unsigned int height, const u
     return true;
 }
 
-void BloomFBO::bind() const
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-}
+void BloomFBO::bind() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FBO); }
 
-BloomRenderer::BloomRenderer(EngineObject* parent) :
-    EngineObject{"BloomRenderer", parent}, m_FBO{this}
-{
-}
+BloomRenderer::BloomRenderer(EngineObject* parent) : EngineObject{"BloomRenderer", parent}, m_FBO{this} {}
 
 BloomRenderer::~BloomRenderer() { free(); }
 
@@ -463,15 +449,9 @@ void BloomRenderer::setupQuad()
     }
 }
 
-SSAOGenerator::SSAOGenerator(EngineObject* parent) :
-    EngineObject{"SSAOGenerator", parent}
-{
-}
+SSAOGenerator::SSAOGenerator(EngineObject* parent) : EngineObject{"SSAOGenerator", parent} {}
 
-SSAOGenerator::~SSAOGenerator()
-{
-    free();
-}
+SSAOGenerator::~SSAOGenerator() { free(); }
 
 void SSAOGenerator::init(const int width, const int height)
 {
@@ -593,4 +573,32 @@ void SSAOGenerator::freeQuad() const
 {
     glDeleteBuffers(1, &m_quadVBO);
     glDeleteVertexArrays(1, &m_quadVAO);
+}
+
+void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection)
+{
+    const DeferredRenderer* dfRendererPtr{static_cast<DeferredRenderer*>(dfRenderer)};
+    glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBO);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ssaoShader->use();
+
+    // send kernel rotations
+    for (std::size_t i{0}; i < SSAO_KERNEL_SIZE; ++i)
+    {
+        ssaoShader->setVec3("samples[" + std::to_string(i) + "]", m_ssaoKernel[i]);
+    }
+    ssaoShader->setMat4("projection", projection);
+    ssaoShader->setInt("gPositionE", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, dfRendererPtr->getPositionEBuffer());
+    ssaoShader->setInt("gNormalE", 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, dfRendererPtr->getNormalEBuffer());
+    ssaoShader->setInt("texNoise", 2);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_noiseTexture);
+
+    renderQuad();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

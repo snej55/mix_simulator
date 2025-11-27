@@ -14,7 +14,7 @@ namespace PostProcessingN
         glm::ivec2 intSize;
         unsigned int texture;
     };
-}
+} // namespace PostProcessingN
 
 class BloomFBO final : public EngineObject
 {
@@ -76,6 +76,8 @@ public:
     void init(int width, int height);
     void free();
 
+    void render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection);
+
     void renderQuad() const;
 
     // getters
@@ -83,11 +85,11 @@ public:
     [[nodiscard]] int getWidth() const { return m_width; }
     [[nodiscard]] int getHeight() const { return m_height; }
 
-    [[nodiscard]] unsigned int getNoiseTexture() const {return m_noiseTexture;}
-    [[nodiscard]] unsigned int getSSAO_FBO() const {return m_ssaoFBO;}
-    [[nodiscard]] unsigned int getSSAO_FBOBlur() const {return m_ssaoFBOBlur;}
-    [[nodiscard]] unsigned int getSSAO_ColorBuffer() const {return m_ssaoColorBuffer;}
-    [[nodiscard]] unsigned int getSSAO_ColorBufferBlur() const {return m_ssaoColorBufferBlur;}
+    [[nodiscard]] unsigned int getNoiseTexture() const { return m_noiseTexture; }
+    [[nodiscard]] unsigned int getSSAO_FBO() const { return m_ssaoFBO; }
+    [[nodiscard]] unsigned int getSSAO_FBOBlur() const { return m_ssaoFBOBlur; }
+    [[nodiscard]] unsigned int getSSAO_ColorBuffer() const { return m_ssaoColorBuffer; }
+    [[nodiscard]] unsigned int getSSAO_ColorBufferBlur() const { return m_ssaoColorBufferBlur; }
 
 private:
     bool m_init{false};

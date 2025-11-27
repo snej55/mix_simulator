@@ -5,7 +5,6 @@
 
 #include "src/engine.hpp"
 #include "src/ibl.hpp"
-#include "src/bones.hpp"
 #include "src/renderer.hpp"
 
 int main()
