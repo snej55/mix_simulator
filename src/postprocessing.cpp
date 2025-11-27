@@ -575,7 +575,8 @@ void SSAOGenerator::freeQuad() const
     glDeleteVertexArrays(1, &m_quadVAO);
 }
 
-void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection)
+void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection,
+                           const Shader* ssaoBlurShader)
 {
     const DeferredRenderer* dfRendererPtr{static_cast<DeferredRenderer*>(dfRenderer)};
     glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBO);
@@ -600,5 +601,15 @@ void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm
 
     renderQuad();
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // blur ssao texture to remove noise
+    glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBOBlur);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ssaoBlurShader->use();
+    ssaoBlurShader->setInt("ssaoTex", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
+    renderQuad();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

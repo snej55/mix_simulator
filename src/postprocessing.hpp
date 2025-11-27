@@ -76,7 +76,7 @@ public:
     void init(int width, int height);
     void free();
 
-    void render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection);
+    void render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection, const Shader* ssaoBlurShader);
 
     void renderQuad() const;
 
