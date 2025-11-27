@@ -120,6 +120,13 @@
         "frag": "ssao.frag",
         "vert": "ssao.vert"
       }
+    },
+    {
+      "name": "ssaoBlur",
+      "shader": {
+        "frag": "ssaoBlur.frag",
+        "vert": "ssaoBlur.vert"
+      }
     }
   ]
 }
