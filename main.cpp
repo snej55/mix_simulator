@@ -32,7 +32,6 @@ int main()
 
     // ----------- Deferred Rendering ----------- //
     DeferredRenderer* dfRenderer{engine.getDeferredRenderer()};
-
     RenderQueue renderQueue{&engine};
 
     // reset window viewport

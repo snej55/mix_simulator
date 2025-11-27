@@ -8,6 +8,8 @@ uniform sampler2D gPositionE;
 uniform sampler2D gAlbedo;
 uniform sampler2D gNormalE;
 uniform sampler2D gARME;
+uniform int ssaoEnabled = 0;
+uniform sampler2D ssao;
 
 uniform vec3 lightColor;
 
@@ -146,7 +148,15 @@ void main()
 
     vec3 irradiance = texture(irradianceMap, norm).rgb;
     vec3 diffuse = irradiance * albedo;
-    vec3 ambient = (diffuse * kD + spec) * ao;
+
+    // add SSAO
+    float ssaoFactor = 1.0;
+    if (ssaoEnabled > 0)
+    {
+        ssaoFactor = texture(ssao, TexCoords).r;
+    }
+
+    vec3 ambient = (diffuse * kD + spec) * ao * ssaoFactor;
     // final color
     vec3 color = emissive + ambient + Lo;
 

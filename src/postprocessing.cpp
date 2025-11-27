@@ -449,7 +449,7 @@ void BloomRenderer::setupQuad()
     }
 }
 
-SSAOGenerator::SSAOGenerator(EngineObject* parent) : EngineObject{"SSAOGenerator", parent} {}
+SSAOGenerator::SSAOGenerator(EngineObject* parent) : EngineObject{"SSAOGenerator", parent} { initQuad(); }
 
 SSAOGenerator::~SSAOGenerator() { free(); }
 
@@ -479,11 +479,12 @@ void SSAOGenerator::init(const int width, const int height)
 
     // same for blur color buffer
     glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBOBlur);
-    glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
+    glGenTextures(1, &m_ssaoColorBufferBlur);
+    glBindTexture(GL_TEXTURE_2D, m_ssaoColorBufferBlur);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssaoColorBuffer, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssaoColorBufferBlur, 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         Util::beginError();
@@ -527,6 +528,8 @@ void SSAOGenerator::init(const int width, const int height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+    m_width = width;
+    m_height = height;
     m_init = true;
 }
 
@@ -539,6 +542,7 @@ void SSAOGenerator::free()
         glDeleteFramebuffers(1, &m_ssaoFBO);
         glDeleteTextures(1, &m_ssaoColorBufferBlur);
         glDeleteFramebuffers(1, &m_ssaoFBOBlur);
+        freeQuad();
 
         m_init = false;
     }
@@ -578,6 +582,9 @@ void SSAOGenerator::freeQuad() const
 void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection,
                            const Shader* ssaoBlurShader)
 {
+    assert(dfRenderer != nullptr);
+    assert(ssaoShader != nullptr);
+    assert(ssaoBlurShader != nullptr);
     const DeferredRenderer* dfRendererPtr{static_cast<DeferredRenderer*>(dfRenderer)};
     glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBO);
     glClear(GL_COLOR_BUFFER_BIT);

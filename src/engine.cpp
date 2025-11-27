@@ -8,6 +8,7 @@
 
 #include "glm/ext/matrix_clip_space.hpp"
 #include "ibl.hpp"
+#include "postprocessing.hpp"
 #include "renderer.hpp"
 #include "shapes.hpp"
 using json = nlohmann::json;
@@ -183,6 +184,15 @@ bool Engine::init(const int width, const int height, const char* title)
         return false;
     }
     m_deferredRenderer->init(getWidth(), getHeight());
+
+    if (!createSSAOGenerator())
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT::ERROR: Failed to create SSAOGenerator!" << std::endl;
+        Util::endError();
+        return false;
+    }
+    m_ssaoGenerator->init(getWidth(), getHeight());
 
     std::cout << "ENGINE::INIT: Successfully created components!\n";
 
@@ -902,6 +912,10 @@ void Engine::renderGBuffer(const IBLGenerator* ibl)
     setInt("gARME", 3, "deferredShading");
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getARMEBuffer());
+    setInt("ssaoEnabled", 1, "deferredShading");
+    setInt("ssao", 4, "deferredShading");
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, m_ssaoGenerator->getSSAO_ColorBufferBlur());
     setInt("irradianceMap", 10, "deferredShading");
     glActiveTexture(GL_TEXTURE10);
     glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getIrradianceMap());
@@ -917,6 +931,30 @@ void Engine::renderGBuffer(const IBLGenerator* ibl)
     m_deferredRenderer->renderQuad();
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
+}
+
+// ------ SSAO ------- //
+bool Engine::createSSAOGenerator()
+{
+    if (m_ssaoGenerator != nullptr)
+    {
+        Util::beginError();
+        std::cout << "ENGINE::CREATE_SSAO_GENERATOR::ERROR: SSAOGenerator already exists at `" << m_ssaoGenerator
+                  << "`";
+        Util::endError();
+        return false;
+    }
+
+    m_ssaoGenerator = new SSAOGenerator{this};
+    m_arena->addObject(m_ssaoGenerator);
+    return true;
+}
+
+void Engine::updateSSAOGenerator() { m_ssaoGenerator->init(getWidth(), getHeight()); }
+
+void Engine::renderSSAO()
+{
+    m_ssaoGenerator->render(m_deferredRenderer, getShader("ssao"), getProjectionMatrix(), getShader("ssaoBlur"));
 }
 
 // ------ Arena ------ //

@@ -197,6 +197,13 @@ public:
 
     [[nodiscard]] DeferredRenderer* getDeferredRenderer() const { return m_deferredRenderer; }
 
+    // ------ SSAO ------ //
+    bool createSSAOGenerator();
+    void updateSSAOGenerator();
+    void renderSSAO();
+
+    [[nodiscard]] SSAOGenerator* getSSAOGenerator() const { return m_ssaoGenerator; }
+
     // ------ Arena ------ //
 
     // Arena operations
@@ -231,6 +238,7 @@ private:
     // other components
     PostProcessor* m_postProcessor{nullptr};
     DeferredRenderer* m_deferredRenderer{nullptr};
+    SSAOGenerator* m_ssaoGenerator{nullptr};
 
     // camera stuff
     Camera* m_camera{nullptr};

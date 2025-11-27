@@ -185,6 +185,9 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
                       enginePtr->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    // render ssao
+    enginePtr->renderSSAO();
+
     // ------ FORWARD RENDERING PASS ------ //
     enginePtr->enablePostProcessing();
     glClear(GL_COLOR_BUFFER_BIT);
