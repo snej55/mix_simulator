@@ -49,8 +49,8 @@ int main()
             {
                 model = glm::translate(
                     glm::mat4{1.0f},
-                    {static_cast<float>(x) * 100.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
-                     static_cast<float>(z) * 100.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
+                    {static_cast<float>(x) * 150.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
+                     static_cast<float>(z) * 150.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
                 renderQueue.addDynamicModel(spartan, model);
             }
         }

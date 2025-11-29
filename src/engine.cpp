@@ -230,6 +230,15 @@ void Engine::update()
             m_camera->processInput(CameraN::CameraMotion::RIGHT, getDeltaTime());
         }
     }
+
+    // if (m_iohandler->getPressed(GLFW_KEY_T))
+    // {
+    //     m_ssaoEnabled = false;
+    // }
+    // if (m_iohandler->getPressed(GLFW_KEY_E))
+    // {
+    //     m_ssaoEnabled = true;
+    // }
 }
 
 // ------ Window ------ //
@@ -912,10 +921,13 @@ void Engine::renderGBuffer(const IBLGenerator* ibl)
     setInt("gARME", 3, "deferredShading");
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getARMEBuffer());
-    // setInt("ssaoEnabled", 1, "deferredShading");
-    // setInt("ssao", 4, "deferredShading");
-    // glActiveTexture(GL_TEXTURE4);
-    // glBindTexture(GL_TEXTURE_2D, m_ssaoGenerator->getSSAO_ColorBufferBlur());
+    setInt("ssaoEnabled", m_ssaoEnabled ? 1 : 0, "deferredShading");
+    if (m_ssaoEnabled)
+    {
+        setInt("ssao", 4, "deferredShading");
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_2D, m_ssaoGenerator->getSSAO_ColorBufferBlur());
+    }
     setInt("irradianceMap", 10, "deferredShading");
     glActiveTexture(GL_TEXTURE10);
     glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getIrradianceMap());
@@ -950,11 +962,21 @@ bool Engine::createSSAOGenerator()
     return true;
 }
 
-void Engine::updateSSAOGenerator() { m_ssaoGenerator->init(getWidth(), getHeight()); }
+void Engine::updateSSAOGenerator(const int width, const int height)
+{
+    m_arena->removeObject(m_ssaoGenerator->getID());
+    m_ssaoGenerator = nullptr;
+    createSSAOGenerator();
+    m_ssaoGenerator->init(width, height);
+}
 
 void Engine::renderSSAO()
 {
-    m_ssaoGenerator->render(m_deferredRenderer, getShader("ssao"), getProjectionMatrix(), getShader("ssaoBlur"));
+    if (m_ssaoEnabled)
+    {
+        m_ssaoGenerator->render(m_deferredRenderer, getShader("ssao"), getProjectionMatrix(), getShader("ssaoBlur"),
+                                getViewMatrix());
+    }
 }
 
 // ------ Arena ------ //

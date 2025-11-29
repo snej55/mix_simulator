@@ -5,9 +5,7 @@
 #include <iostream>
 
 // initialize EngineObject
-Window::Window(EngineObject* parent) : EngineObject{"Window", parent}
-{
-}
+Window::Window(EngineObject* parent) : EngineObject{"Window", parent} {}
 
 // free
 Window::~Window() { free(); }
@@ -36,7 +34,7 @@ bool Window::init(const int width, const int height, const char* title)
     setTitle(title); // implicit conversion
 
     std::cout << "WINDOW::INIT: Created GLFW window: {dimensions: " << width << " * " << height << ", title: " << title
-        << "}\n";
+              << "}\n";
 
     // success!
     return true;
@@ -123,6 +121,7 @@ void Window::framebuffer_size_callback(const int width, const int height)
     // update framebuffers
     dynamic_cast<Engine*>(m_parent)->updatePostProcessor(width, height);
     dynamic_cast<Engine*>(m_parent)->updateDeferredRenderer(width, height);
+    dynamic_cast<Engine*>(m_parent)->updateSSAOGenerator(width, height);
 }
 
 // gets called from glfw cursor pos callback

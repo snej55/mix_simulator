@@ -511,10 +511,10 @@ void SSAOGenerator::init(const int width, const int height)
         m_ssaoKernel.emplace_back(sample);
     }
 
-    // generate noise texture
+    // generate noise texture - larger for better sampling
     m_ssaoNoise.clear();
-    m_ssaoNoise.reserve(SSAO_NOISE_SIZE);
-    for (unsigned int i{0}; i < SSAO_NOISE_SIZE; ++i)
+    m_ssaoNoise.reserve(SSAO_NOISE_SIZE * SSAO_NOISE_SIZE);
+    for (unsigned int i{0}; i < SSAO_NOISE_SIZE * SSAO_NOISE_SIZE; ++i)
     {
         glm::vec3 noise{randomF(generator) * 2.0f - 1.0f, randomF(generator) * 2.0f - 1.0f, 0.0f};
         m_ssaoNoise.emplace_back(noise);
@@ -522,7 +522,7 @@ void SSAOGenerator::init(const int width, const int height)
 
     glGenTextures(1, &m_noiseTexture);
     glBindTexture(GL_TEXTURE_2D, m_noiseTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGBA, GL_FLOAT, &m_ssaoNoise[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SSAO_NOISE_SIZE, SSAO_NOISE_SIZE, 0, GL_RGBA, GL_FLOAT, &m_ssaoNoise[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -580,22 +580,32 @@ void SSAOGenerator::freeQuad() const
 }
 
 void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection,
-                           const Shader* ssaoBlurShader)
+                           const Shader* ssaoBlurShader, const glm::mat4& view)
 {
     assert(dfRenderer != nullptr);
     assert(ssaoShader != nullptr);
     assert(ssaoBlurShader != nullptr);
     const DeferredRenderer* dfRendererPtr{static_cast<DeferredRenderer*>(dfRenderer)};
+
+    // SSAO Pass
     glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBO);
+    glViewport(0, 0, m_width, m_height);
     glClear(GL_COLOR_BUFFER_BIT);
     ssaoShader->use();
 
-    // send kernel rotations
+    // send kernel samples
     for (std::size_t i{0}; i < SSAO_KERNEL_SIZE; ++i)
     {
         ssaoShader->setVec3("samples[" + std::to_string(i) + "]", m_ssaoKernel[i]);
     }
     ssaoShader->setMat4("projection", projection);
+    ssaoShader->setMat4("view", view);
+    ssaoShader->setInt("scrWidth", m_width);
+    ssaoShader->setInt("scrHeight", m_height);
+    ssaoShader->setInt("kernelSize", SSAO_KERNEL_SIZE);
+    ssaoShader->setFloat("radius", 2.0f);
+    ssaoShader->setFloat("bias", 0.025f);
+
     ssaoShader->setInt("gPositionE", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, dfRendererPtr->getPositionEBuffer());
@@ -610,8 +620,9 @@ void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // blur ssao texture to remove noise
+    // blur the result
     glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBOBlur);
+    glViewport(0, 0, m_width, m_height);
     glClear(GL_COLOR_BUFFER_BIT);
     ssaoBlurShader->use();
     ssaoBlurShader->setInt("ssaoTex", 0);

@@ -186,7 +186,7 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // render ssao
-    // enginePtr->renderSSAO();
+    enginePtr->renderSSAO();
 
     // ------ FORWARD RENDERING PASS ------ //
     enginePtr->enablePostProcessing();

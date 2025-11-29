@@ -64,7 +64,7 @@ private:
     void setupQuad();
 };
 
-#define SSAO_KERNEL_SIZE 64
+#define SSAO_KERNEL_SIZE 24
 #define SSAO_NOISE_SIZE 16
 
 class SSAOGenerator final : public EngineObject
@@ -76,7 +76,8 @@ public:
     void init(int width, int height);
     void free();
 
-    void render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection, const Shader* ssaoBlurShader);
+    void render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection, const Shader* ssaoBlurShader,
+                const glm::mat4& view);
 
     void renderQuad() const;
 

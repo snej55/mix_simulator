@@ -199,10 +199,12 @@ public:
 
     // ------ SSAO ------ //
     bool createSSAOGenerator();
-    void updateSSAOGenerator();
+    void updateSSAOGenerator(int width, int height);
     void renderSSAO();
 
     [[nodiscard]] SSAOGenerator* getSSAOGenerator() const { return m_ssaoGenerator; }
+    [[nodiscard]] bool getSSAOEnabled() const { return m_ssaoEnabled; }
+    void setSSAOEnabled(const bool val) { m_ssaoEnabled = val; }
 
     // ------ Arena ------ //
 
@@ -239,6 +241,7 @@ private:
     PostProcessor* m_postProcessor{nullptr};
     DeferredRenderer* m_deferredRenderer{nullptr};
     SSAOGenerator* m_ssaoGenerator{nullptr};
+    bool m_ssaoEnabled{true};
 
     // camera stuff
     Camera* m_camera{nullptr};
