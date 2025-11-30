@@ -466,9 +466,12 @@ void SSAOGenerator::init(const int width, const int height)
     // color buffer
     glGenTextures(1, &m_ssaoColorBuffer);
     glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width / SSAO_SCALE, height / SSAO_SCALE, 0, GL_RED, GL_UNSIGNED_BYTE,
+                 nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssaoColorBuffer, 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -484,6 +487,8 @@ void SSAOGenerator::init(const int width, const int height)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssaoColorBufferBlur, 0);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -522,7 +527,7 @@ void SSAOGenerator::init(const int width, const int height)
 
     glGenTextures(1, &m_noiseTexture);
     glBindTexture(GL_TEXTURE_2D, m_noiseTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SSAO_NOISE_SIZE, SSAO_NOISE_SIZE, 0, GL_RGBA, GL_FLOAT, &m_ssaoNoise[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SSAO_NOISE_SIZE, SSAO_NOISE_SIZE, 0, GL_RGB, GL_FLOAT, &m_ssaoNoise[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -589,7 +594,7 @@ void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm
 
     // SSAO Pass
     glBindFramebuffer(GL_FRAMEBUFFER, m_ssaoFBO);
-    glViewport(0, 0, m_width, m_height);
+    glViewport(0, 0, m_width / SSAO_SCALE, m_height / SSAO_SCALE);
     glClear(GL_COLOR_BUFFER_BIT);
     ssaoShader->use();
 
@@ -600,8 +605,8 @@ void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm
     }
     ssaoShader->setMat4("projection", projection);
     ssaoShader->setMat4("view", view);
-    ssaoShader->setInt("scrWidth", m_width);
-    ssaoShader->setInt("scrHeight", m_height);
+    ssaoShader->setInt("scrWidth", m_width / SSAO_SCALE);
+    ssaoShader->setInt("scrHeight", m_height / SSAO_SCALE);
     ssaoShader->setInt("kernelSize", SSAO_KERNEL_SIZE);
     ssaoShader->setFloat("radius", 2.0f);
     ssaoShader->setFloat("bias", 0.025f);

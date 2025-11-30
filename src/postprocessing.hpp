@@ -64,8 +64,9 @@ private:
     void setupQuad();
 };
 
-#define SSAO_KERNEL_SIZE 24
+#define SSAO_KERNEL_SIZE 32
 #define SSAO_NOISE_SIZE 16
+#define SSAO_SCALE 1
 
 class SSAOGenerator final : public EngineObject
 {

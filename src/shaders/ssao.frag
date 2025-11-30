@@ -1,14 +1,12 @@
 #version 410 core
 out float FragColor;
 
-in vec2 TexCoords;
-
 uniform sampler2D gPositionE;
 uniform sampler2D gNormalE;
 uniform sampler2D texNoise;
 
-#define SAMPLE_SIZE 64
-#define NOISE_SIZE 4
+#define SAMPLE_SIZE 32
+#define NOISE_SIZE 16
 
 uniform vec3 samples[SAMPLE_SIZE];
 
@@ -26,12 +24,13 @@ uniform mat4 view;
 
 void main()
 {
+    vec2 TexCoords = gl_FragCoord.xy / vec2(float(scrWidth), float(scrHeight));
     vec2 noiseScale = vec2(float(scrWidth) / float(NOISE_SIZE), float(scrHeight) / float(NOISE_SIZE));
 
     // sample data from gBuffer
     vec3 fragPos = texture(gPositionE, TexCoords).xyz; // world space
     vec3 normal = normalize(texture(gNormalE, TexCoords).rgb); // world space
-    vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
+    vec3 randomVec = normalize(texture(texNoise, fract(TexCoords) * noiseScale).xyz);
 
     // convert to view space
     vec3 fragPosVS = vec3(view * vec4(fragPos, 1.0));
@@ -43,9 +42,8 @@ void main()
     mat3 TBN = mat3(tangent, bitangent, normalViewSpace);
 
     float occlusion = 0.0;
-    int validSamples = 0;
     
-    // adaptive sampling: reduce kernel size for close-up geometry to maintain performance
+    // adaptive kernel sample size
     int effectiveKernelSize = kernelSize;
     float distance = abs(fragPosVS.z);
     if (distance < 5.0)  // very close, reduce samples significantly
@@ -53,11 +51,8 @@ void main()
     else if (distance < 10.0)  // close, reduce samples moderately
         effectiveKernelSize = kernelSize / 4;
     
-    for (int i = 0; i < kernelSize; ++i)
+    for (int i = 0; i < effectiveKernelSize; ++i)
     {
-        if (i >= effectiveKernelSize)
-            break;
-            
         // transform sample to view space
         vec3 samplePos = fragPosVS + TBN * samples[i] * radius;
 
@@ -83,15 +78,8 @@ void main()
         // range check - fade occlusion based on distance
         float rangeCheck = smoothstep(0.0, 1.0, radius / (abs(fragPosVS.z - sampleDepth) * rangeInfluence));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;
-        validSamples++;
     }
     
-    if (validSamples == 0)
-    {
-        FragColor = 1.0;
-        return;
-    }
-    
-    occlusion = 1.0 - (occlusion / float(validSamples));
+    occlusion = 1.0 - (occlusion / float(effectiveKernelSize));
     FragColor = pow(occlusion, power);
 }
