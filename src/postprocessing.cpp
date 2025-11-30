@@ -466,7 +466,7 @@ void SSAOGenerator::init(const int width, const int height)
     // color buffer
     glGenTextures(1, &m_ssaoColorBuffer);
     glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width / SSAO_SCALE, height / SSAO_SCALE, 0, GL_RED, GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width / SSAO_SCALE, height / SSAO_SCALE, 0, GL_RG, GL_UNSIGNED_BYTE,
                  nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

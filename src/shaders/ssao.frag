@@ -1,5 +1,5 @@
 #version 410 core
-out float FragColor;
+out vec2 FragColor;
 
 uniform sampler2D gPositionE;
 uniform sampler2D gNormalE;
@@ -81,5 +81,5 @@ void main()
     }
     
     occlusion = 1.0 - (occlusion / float(effectiveKernelSize));
-    FragColor = pow(occlusion, power);
+    FragColor = vec2(pow(occlusion, power), abs(fragPosVS.z / 100.0));
 }

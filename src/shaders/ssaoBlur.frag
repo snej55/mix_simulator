@@ -5,20 +5,54 @@ in vec2 TexCoords;
 
 uniform sampler2D ssaoTex;
 
+uniform float blurRadius = 2.0;        // blur radius in pixels
+uniform float spatialSigma = 1.5; // spatial gaussian sigma
+uniform float depthSigma = 0.1;   // range gaussian sigma (in view-space depth units)
+
 void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(ssaoTex, 0));
+
+    // center values
+    vec4 centerSample = texture(ssaoTex, TexCoords);
+    float centerAO = centerSample.r;
+    float centerDepth = centerSample.g;
+
+    int radius = int(max(1.0, blurRadius));
+    float twoSpatialSigma2 = 2.0 * spatialSigma * spatialSigma;
+    float twoDepthSigma2 = 2.0 * depthSigma * depthSigma;
+
     float result = 0.0;
-    
-    for (int x = -2; x < 2; ++x)
+    float totalWeight = 0.0;
+
+    for (int x = -radius; x <= radius; ++x)
     {
-        for (int y = -2; y < 2; ++y)
+        for (int y = -radius; y <= radius; ++y)
         {
             vec2 offset = vec2(float(x), float(y)) * texelSize;
-            vec2 sampleCoord = TexCoords + offset;
-      
-            result += texture(ssaoTex, sampleCoord).r;
-        } 
+            vec2 coord = clamp(TexCoords + offset, texelSize, 1.0 - texelSize);
+
+            vec4 texSample = texture(ssaoTex, coord);
+            float sampleAO = texSample.r;
+            float sampleDepth = texSample.g;
+
+            float spatialDist2 = float(x * x + y * y);
+            float spatialWeight = exp(-spatialDist2 / twoSpatialSigma2);
+
+            float depthDiff = sampleDepth - centerDepth;
+            float depthWeight = exp(-(depthDiff * depthDiff) / twoDepthSigma2);
+
+            float weight = spatialWeight * depthWeight;
+            result += sampleAO * weight;
+            totalWeight += weight;
+        }
     }
-    FragColor = result / 16.0;
+
+    if (totalWeight > 0.0)
+    {
+        result /= totalWeight;
+    } else {
+        result = centerAO;
+    }
+    FragColor = result;
 }
