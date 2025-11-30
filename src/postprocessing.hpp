@@ -134,7 +134,8 @@ public:
     void generate(int width, int height, void* engine);
 
     // render framebuffer to screen
-    void render(const Shader* screenShader) const;
+    void renderHDR(const Shader* screenShader) const;
+    void renderFinal(const Shader* fxaaShader) const;
 
     // bind framebuffer
     void enable() const;
@@ -156,6 +157,9 @@ public:
     [[nodiscard]] unsigned int getVAO() const { return m_VAO; }
     [[nodiscard]] unsigned int getVBO() const { return m_VBO; }
 
+    [[nodiscard]] unsigned int getFXAA_FBO() const { return m_fxaaFBO; }
+    [[nodiscard]] unsigned int getFXAA_TEX() const { return m_fxaaTex; }
+
 private:
     // framebuffer dimensions
     int m_width{0};
@@ -169,6 +173,9 @@ private:
     // simple quad
     unsigned int m_VAO{};
     unsigned int m_VBO{};
+
+    unsigned int m_fxaaFBO{};
+    unsigned int m_fxaaTex{};
 
     bool m_bloomEnabled{false};
     BloomRenderer* m_bloomRenderer{nullptr};

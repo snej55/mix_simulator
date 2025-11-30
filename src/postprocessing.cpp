@@ -19,6 +19,9 @@ void PostProcessor::free()
     glDeleteTextures(1, &m_TEX);
     glDeleteRenderbuffers(1, &m_RBO);
     glDeleteFramebuffers(1, &m_FBO);
+
+    glDeleteTextures(1, &m_fxaaTex);
+    glDeleteFramebuffers(1, &m_fxaaFBO);
 }
 
 // check framebuffer
@@ -64,13 +67,35 @@ void PostProcessor::init(const int width, const int height)
         Util::endError();
     }
 
+    // FXAA framebuffer
+    glGenFramebuffers(1, &m_fxaaFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fxaaFBO);
+    // create texture to apply FXAA on
+    glGenTextures(1, &m_fxaaTex);
+    glBindTexture(GL_TEXTURE_2D, m_fxaaTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // attach to framebuffer
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_fxaaTex, 0);
+    // check framebuffer
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        Util::beginError();
+        std::cout << "POST_PROCESSOR::INIT::ERROR: FXAA Framebuffer is not complete!";
+        Util::endError();
+    }
+
     // create quad
     generateQuad();
 }
 
-void PostProcessor::render(const Shader* screenShader) const
+void PostProcessor::renderHDR(const Shader* screenShader) const
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fxaaFBO);
+    glViewport(0, 0, m_width, m_height);
 
     glDisable(GL_DEPTH_TEST);
     // clear buffers
@@ -92,6 +117,28 @@ void PostProcessor::render(const Shader* screenShader) const
     glBindVertexArray(m_VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_TEX);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+    glEnable(GL_DEPTH_TEST);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void PostProcessor::renderFinal(const Shader* fxaaShader) const
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_DEPTH_TEST);
+    // clear buffers
+    glClearColor(0.0f, 0.0f, 0.0, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    fxaaShader->use();
+    fxaaShader->setInt("screenTexture", 0);
+    fxaaShader->setInt("scrWidth", m_width);
+    fxaaShader->setInt("scrHeight", m_height);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_fxaaTex);
+    glBindVertexArray(m_VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
     glEnable(GL_DEPTH_TEST);
@@ -121,7 +168,8 @@ void PostProcessor::generateFramebufferTexture()
     unsigned int textureColorBuffer;
     glGenTextures(1, &textureColorBuffer);
     glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    // Allocate HDR texture with correct data type
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -357,13 +405,17 @@ bool BloomRenderer::init(const unsigned int width, const unsigned int height, vo
 
 void BloomRenderer::renderBloomTexture(const unsigned int srcTexture, const float filterRadius) const
 {
+    GLint origFBO;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &origFBO);
+    GLint origViewport[4];
+    glGetIntegerv(GL_VIEWPORT, origViewport);
     m_FBO.bind();
 
     renderDownSamples(srcTexture);
     renderUpSamples(filterRadius);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, m_srcViewportSize.x, m_srcViewportSize.y);
+    glBindFramebuffer(GL_FRAMEBUFFER, origFBO);
+    glViewport(origViewport[0], origViewport[1], origViewport[2], origViewport[3]);
 }
 
 // downsample source texture

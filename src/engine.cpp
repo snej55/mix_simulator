@@ -876,7 +876,11 @@ void Engine::enablePostProcessing() const { m_postProcessor->enable(); }
 
 void Engine::disablePostProcessing() const { m_postProcessor->disable(); }
 
-void Engine::renderPostProcessing() const { m_postProcessor->render(getShader("bloomSS")); }
+void Engine::renderPostProcessing() const
+{
+    m_postProcessor->renderHDR(getShader("bloomSS"));
+    m_postProcessor->renderFinal(getShader("FXAA"));
+}
 
 void Engine::updatePostProcessor(const int width, const int height)
 {

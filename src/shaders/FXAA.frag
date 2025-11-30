@@ -17,14 +17,11 @@ uniform int scrHeight;
 #define EDGE_THRESHOLD_MIN 0.0312
 #define EDGE_THRESHOLD_MAX 0.125
 #define ITERATIONS 12
-#define SUBPIXEL_QUALITY 0.75;
+#define SUBPIXEL_QUALITY 0.75
 
 const float steps[ITERATIONS] = float[ITERATIONS](1.0, 1.0, 1.0, 1.0, 1.0, 1.5, 2.0, 2.0, 2.0, 2.0, 4.0, 8.0);
 
-float QUALITY(int i)
-{
-    return steps[i];
-}
+float QUALITY(int i) { return steps[i]; }
 
 float rgb2luma(vec3 rgb) { return sqrt(dot(rgb, vec3(0.299, 0.587, 0.114))); }
 
@@ -64,7 +61,7 @@ void main()
     float lumaDownRight = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(1, -1)).rgb);
 
     // combine four edge lumas
-    float lumaDownUp = lumaDown = lumaUp;
+    float lumaDownUp = lumaDown + lumaUp;
     float lumaLeftRight = lumaLeft + lumaRight;
 
     // same for corners
@@ -123,7 +120,7 @@ void main()
     // first iteration
     vec2 offset = isHorizontal ? vec2(invScreenSize.x, 0.0) : vec2(0.0, invScreenSize.y);
     vec2 uv1 = currentUV - offset;
-    vec2 uv2 = currentUV - offset;
+    vec2 uv2 = currentUV + offset; // search opposite direction
 
     float lumaEnd1 = rgb2luma(texture(screenTexture, uv1).rgb);
     float lumaEnd2 = rgb2luma(texture(screenTexture, uv2).rgb);

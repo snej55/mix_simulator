@@ -13,7 +13,8 @@ OpenGL rendering framework.
 - [ ] Mesh sorting (render opaque meshes deferred and transparent/translucent using forward)
 - [ ] Duplicate material checks? Batch render meshes using material index vertex data?
 - [X] Fix transparent mesh culling
-- [ ] SSAO
+- [X] SSAO
+- [X] Add FXAA anti-aliasing
 - [ ] Global materials
 - [ ] Get scene set up
 - [ ] Main game class
