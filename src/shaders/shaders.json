@@ -127,6 +127,13 @@
         "frag": "ssaoBlur.frag",
         "vert": "ssaoBlur.vert"
       }
+    },
+    {
+      "name": "FXAA",
+      "shader": {
+        "frag": "FXAA.frag",
+        "vert": "FXAA.vert"
+      }
     }
   ]
 }
