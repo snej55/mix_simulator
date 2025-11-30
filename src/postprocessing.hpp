@@ -65,7 +65,7 @@ private:
 };
 
 #define SSAO_KERNEL_SIZE 32
-#define SSAO_NOISE_SIZE 16
+#define SSAO_NOISE_SIZE 4
 #define SSAO_SCALE 2
 
 class SSAOGenerator final : public EngineObject

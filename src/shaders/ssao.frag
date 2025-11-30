@@ -6,7 +6,7 @@ uniform sampler2D gNormalE;
 uniform sampler2D texNoise;
 
 #define SAMPLE_SIZE 32
-#define NOISE_SIZE 16
+#define NOISE_SIZE 4
 
 uniform vec3 samples[SAMPLE_SIZE];
 
