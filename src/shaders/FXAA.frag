@@ -19,16 +19,14 @@ uniform int scrHeight;
 #define ITERATIONS 12
 #define SUBPIXEL_QUALITY 0.75;
 
+const float steps[ITERATIONS] = float[ITERATIONS](1.0, 1.0, 1.0, 1.0, 1.0, 1.5, 2.0, 2.0, 2.0, 2.0, 4.0, 8.0);
+
 float QUALITY(int i)
 {
-    float steps[ITERATIONS] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.5, 2.0, 2.0, 2.0, 2.0, 4.0, 8.0};
     return steps[i];
 }
 
-float rgb2luma(vec3 rgb)
-{
-    return sqrt(dot(rgb, vec3(0.299, 0.587, 0.114)));
-}
+float rgb2luma(vec3 rgb) { return sqrt(dot(rgb, vec3(0.299, 0.587, 0.114))); }
 
 void main()
 {
@@ -43,7 +41,7 @@ void main()
     float lumaUp = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(0, 1)).rgb);
     float lumaLeft = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(-1, 0)).rgb);
     float lumaRight = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(1, 0)).rgb);
-    
+
     // find the min and max luma around the current fragment
     float lumaMin = min(lumaCenter, min(min(lumaDown, lumaUp), min(lumaRight, lumaLeft)));
     float lumaMax = max(lumaCenter, max(max(lumaDown, lumaUp), max(lumaRight, lumaLeft)));
@@ -52,11 +50,11 @@ void main()
     float lumaRange = lumaMax - lumaMin;
 
     // if luma variation isn't low enough or area is really dark there is no need for AA
-    if (lumaRange < max(EDGE_THRESHOLD_MIN, lumaMax*EDGE_THRESHOLD_MAX))
+    if (lumaRange < max(EDGE_THRESHOLD_MIN, lumaMax * EDGE_THRESHOLD_MAX))
     {
-	vec3 mapped = pow(mapped, vec3(1.0 / GAMMA));
-	FragColor = vec4(mapped, 1.0);
-	return;
+        vec3 mapped = pow(colorCenter, vec3(1.0 / GAMMA));
+        FragColor = vec4(mapped, 1.0);
+        return;
     }
 
     // get remaining 4 corners
@@ -76,8 +74,10 @@ void main()
     float lumaUpCorners = lumaUpRight + lumaUpLeft;
 
     // estimation for gradient along horizontal and vertical axis
-    float edgeHorizontal = abs(-2.0 * lumaLeft + lumaLeftCorners) + abs(-2.0 * lumaCenter + lumaDownUp) * 2.0 + abs(-2.0 * lumaRight + lumaRightCorners);
-    float edgeVertical = abs(-2.0 * lumaUp + lumaUpCorners) + abs(-2.0 * lumaCenter + lumaLeftRight) * 2.0 + abs(-2.0 * lumaDown + lumaDownCorners);
+    float edgeHorizontal = abs(-2.0 * lumaLeft + lumaLeftCorners) + abs(-2.0 * lumaCenter + lumaDownUp) * 2.0 +
+        abs(-2.0 * lumaRight + lumaRightCorners);
+    float edgeVertical = abs(-2.0 * lumaUp + lumaUpCorners) + abs(-2.0 * lumaCenter + lumaLeftRight) * 2.0 +
+        abs(-2.0 * lumaDown + lumaDownCorners);
 
     bool isHorizontal = (edgeHorizontal >= edgeVertical);
 
@@ -101,19 +101,23 @@ void main()
     float lumaLocalAverage = 0.0;
     if (is1Steepest)
     {
-	stepLength = -stepLength;
-	lumaLocalAverage = 0.5 * (luma1 + lumaCenter);
-    } else {
-	lumaLocalAverage = 0.5 * (luma2 + lumaCenter);
+        stepLength = -stepLength;
+        lumaLocalAverage = 0.5 * (luma1 + lumaCenter);
+    }
+    else
+    {
+        lumaLocalAverage = 0.5 * (luma2 + lumaCenter);
     }
 
     // shift UV
     vec2 currentUV = TexCoords;
     if (isHorizontal)
     {
-	currentUV.y += stepLength * 0.5;
-    } else {
-	currentUV.x += stepLength * 0.5;
+        currentUV.y += stepLength * 0.5;
+    }
+    else
+    {
+        currentUV.x += stepLength * 0.5;
     }
 
     // first iteration
@@ -132,49 +136,49 @@ void main()
 
     if (!reached1)
     {
-	uv1 -= offset;
+        uv1 -= offset;
     }
 
     if (!reached2)
     {
-	uv2 += offset;
+        uv2 += offset;
     }
-    
+
     if (!reachedBoth)
     {
-	for (int i = 2; i < ITERATIONS; ++i)
-	{
-	    if (!reached1)
-	    {
-		lumaEnd1 = rgb2luma(texture(screenTexture, uv1).rgb);
-		lumaEnd1 = lumaEnd1 - lumaLocalAverage;
-	    }
+        for (int i = 2; i < ITERATIONS; ++i)
+        {
+            if (!reached1)
+            {
+                lumaEnd1 = rgb2luma(texture(screenTexture, uv1).rgb);
+                lumaEnd1 = lumaEnd1 - lumaLocalAverage;
+            }
 
-	    if (!reached2)
-	    {
-		lumaEnd2 = rgb2luma(texture(screenTexture, uv2).rgb);
-		lumaEnd2 = lumaEnd2 - lumaLocalAverage;
-	    }
+            if (!reached2)
+            {
+                lumaEnd2 = rgb2luma(texture(screenTexture, uv2).rgb);
+                lumaEnd2 = lumaEnd2 - lumaLocalAverage;
+            }
 
-	    reached1 = abs(lumaEnd1) >= gradientScaled;
-	    reached2 = abs(lumaEnd2) >= gradientScaled;
-	    reachedBoth = reached1 && reached2;
+            reached1 = abs(lumaEnd1) >= gradientScaled;
+            reached2 = abs(lumaEnd2) >= gradientScaled;
+            reachedBoth = reached1 && reached2;
 
-	    if (!reached1)
-	    {
-		uv1 -= offset * QUALITY(i);
-	    }
-	    
-	    if (!reached2)
-	    {
-		uv2 += offset * QUALITY(i);
-	    }
+            if (!reached1)
+            {
+                uv1 -= offset * QUALITY(i);
+            }
 
-	    if (reachedBoth)
-	    {
-		break;
-	    }
-	}
+            if (!reached2)
+            {
+                uv2 += offset * QUALITY(i);
+            }
+
+            if (reachedBoth)
+            {
+                break;
+            }
+        }
     }
 
     float distance1 = isHorizontal ? (TexCoords.x - uv1.x) : (TexCoords.y - uv1.y);
@@ -188,12 +192,13 @@ void main()
     float pixelOffset = -distanceFinal / edgeThickness + 0.5;
 
     bool isLumaCenterSmaller = lumaCenter < lumaLocalAverage;
-    bool correctVariation = ((isDirection1 ? lumaEnd1 : lumaEnd2) < 0.0) != isLumaCenterSmaller);
+    bool correctVariation = ((isDirection1 ? lumaEnd1 : lumaEnd2) < 0.0) != isLumaCenterSmaller;
 
     float finalOffset = correctVariation ? pixelOffset : 0.0;
 
     // sub pixel antialiasing
-    float lumaAverage = (1.0/float(ITERATIONS)) * (2.0 * (lumaDownUp + lumaLeftRight) + lumaLeftCorners + lumaRightCorners);
+    float lumaAverage =
+        (1.0 / float(ITERATIONS)) * (2.0 * (lumaDownUp + lumaLeftRight) + lumaLeftCorners + lumaRightCorners);
 
     float subPixelOffset1 = clamp(abs(lumaAverage - lumaCenter) / lumaRange, 0.0, 1.0);
     float subPixelOffset2 = (-2.0 * subPixelOffset1 + 3.0) * subPixelOffset1 * subPixelOffset1;
@@ -206,13 +211,15 @@ void main()
     vec2 finalUV = TexCoords;
     if (isHorizontal)
     {
-	finalUV.y += finalOffset * stepLength;
-    } else {
-	finalUV.x += finalOffset * stepLength;
+        finalUV.y += finalOffset * stepLength;
+    }
+    else
+    {
+        finalUV.x += finalOffset * stepLength;
     }
 
     vec3 mapped = texture(screenTexture, finalUV).rgb;
     mapped = pow(mapped, vec3(1.0 / GAMMA));
-    
+
     FragColor = vec4(mapped, 1.0);
 }
