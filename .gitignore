@@ -11,3 +11,4 @@
 .kateproject
 /releases
 compile_commands.json
+/.venv/

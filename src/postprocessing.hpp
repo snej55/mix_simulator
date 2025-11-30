@@ -66,7 +66,7 @@ private:
 
 #define SSAO_KERNEL_SIZE 32
 #define SSAO_NOISE_SIZE 16
-#define SSAO_SCALE 1
+#define SSAO_SCALE 2
 
 class SSAOGenerator final : public EngineObject
 {
@@ -78,7 +78,7 @@ public:
     void free();
 
     void render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection, const Shader* ssaoBlurShader,
-                const glm::mat4& view);
+                const glm::mat4& view) const;
 
     void renderQuad() const;
 

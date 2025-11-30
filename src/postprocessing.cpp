@@ -522,7 +522,7 @@ void SSAOGenerator::init(const int width, const int height)
     for (unsigned int i{0}; i < SSAO_NOISE_SIZE * SSAO_NOISE_SIZE; ++i)
     {
         glm::vec3 noise{randomF(generator) * 2.0f - 1.0f, randomF(generator) * 2.0f - 1.0f, 0.0f};
-        m_ssaoNoise.emplace_back(noise);
+        m_ssaoNoise.emplace_back(glm::normalize(noise));
     }
 
     glGenTextures(1, &m_noiseTexture);
@@ -585,7 +585,7 @@ void SSAOGenerator::freeQuad() const
 }
 
 void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection,
-                           const Shader* ssaoBlurShader, const glm::mat4& view)
+                           const Shader* ssaoBlurShader, const glm::mat4& view) const
 {
     assert(dfRenderer != nullptr);
     assert(ssaoShader != nullptr);
