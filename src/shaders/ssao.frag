@@ -25,12 +25,14 @@ uniform mat4 view;
 void main()
 {
     vec2 TexCoords = gl_FragCoord.xy / vec2(float(scrWidth), float(scrHeight));
-    vec2 noiseScale = vec2(float(scrWidth) / float(NOISE_SIZE), float(scrHeight) / float(NOISE_SIZE));
 
     // sample data from gBuffer
     vec3 fragPos = texture(gPositionE, TexCoords).xyz; // world space
     vec3 normal = normalize(texture(gNormalE, TexCoords).rgb); // world space
-    vec3 randomVec = normalize(texture(texNoise, fract(TexCoords) * noiseScale).xyz);
+    
+    // use screen-space pixel coordinates for noise lookup
+    vec2 noiseCoords = gl_FragCoord.xy / float(NOISE_SIZE);
+    vec3 randomVec = normalize(texture(texNoise, noiseCoords).xyz);
 
     // convert to view space
     vec3 fragPosVS = vec3(view * vec4(fragPos, 1.0));
@@ -46,9 +48,9 @@ void main()
     // adaptive kernel sample size
     int effectiveKernelSize = kernelSize;
     float distance = abs(fragPosVS.z);
-    if (distance < 5.0)  // very close, reduce samples significantly
+    if (distance < 5.0) 
         effectiveKernelSize = kernelSize / 8;
-    else if (distance < 10.0)  // close, reduce samples moderately
+    else if (distance < 10.0)
         effectiveKernelSize = kernelSize / 4;
     
     for (int i = 0; i < effectiveKernelSize; ++i)

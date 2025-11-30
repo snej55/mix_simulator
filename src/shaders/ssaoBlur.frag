@@ -5,9 +5,9 @@ in vec2 TexCoords;
 
 uniform sampler2D ssaoTex;
 
-uniform float blurRadius = 2.0;        // blur radius in pixels
-uniform float spatialSigma = 1.5; // spatial gaussian sigma
-uniform float depthSigma = 0.1;   // range gaussian sigma (in view-space depth units)
+uniform float blurRadius = 3.0;        // blur radius in pixels
+uniform float spatialSigma = 2.0; // spatial gaussian sigma
+uniform float depthSigma = 1.5;   // range gaussian sigma
 
 void main()
 {

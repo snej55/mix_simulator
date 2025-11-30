@@ -485,8 +485,8 @@ void SSAOGenerator::init(const int width, const int height)
     glGenTextures(1, &m_ssaoColorBufferBlur);
     glBindTexture(GL_TEXTURE_2D, m_ssaoColorBufferBlur);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssaoColorBufferBlur, 0);
@@ -631,6 +631,9 @@ void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm
     glClear(GL_COLOR_BUFFER_BIT);
     ssaoBlurShader->use();
     ssaoBlurShader->setInt("ssaoTex", 0);
+    ssaoBlurShader->setFloat("blurRadius", 3.0f);
+    ssaoBlurShader->setFloat("spatialSigma", 2.0f);
+    ssaoBlurShader->setFloat("depthSigma", 0.15f);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
     renderQuad();
