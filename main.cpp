@@ -21,10 +21,9 @@ int main()
     engine.setCameraEnabled(true);
 
     // use only gltf files for now
-    engine.addModel("spartan", "data/models/spartan.glb");
+    engine.addModel("spartan", "data/models/table.glb");
 
     Model* spartan{engine.getModel("spartan")};
-    spartan->loadAnimation();
 
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine};
@@ -47,8 +46,9 @@ int main()
         {
             for (std::size_t x{0}; x < 3; ++x)
             {
+                model = glm::scale(glm::mat4{1.0f}, glm::vec3{5.f});
                 model = glm::translate(
-                    glm::mat4{1.0f},
+                    model,
                     {static_cast<float>(x) * 150.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
                      static_cast<float>(z) * 150.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
                 renderQueue.addDynamicModel(spartan, model);

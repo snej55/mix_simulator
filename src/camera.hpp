@@ -24,7 +24,7 @@ namespace CameraN
     // defaults
     constexpr float YAW{-90.0f};
     constexpr float PITCH{0.0f};
-    constexpr float SPEED{75.f};
+    constexpr float SPEED{10.f};
     constexpr float SENSITIVITY{0.05f};
     constexpr float ZOOM{45.0f};
 } // namespace CameraN
@@ -34,7 +34,7 @@ class Camera final : public EngineObject
 public:
     explicit Camera(EngineObject* engine) : EngineObject{"Camera", engine}
     {
-        m_position = glm::vec3(0.0f, 50.0f, 100.0f);
+        m_position = glm::vec3(0.0f, 5.0f, 10.0f);
         m_front = glm::vec3(0.0f, 0.0f, -1.0f);
         m_up = glm::vec3(0.0f, 1.0f, 0.0f);
         m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
