@@ -5,7 +5,7 @@ uniform sampler2D gPositionE;
 uniform sampler2D gNormalE;
 uniform sampler2D texNoise;
 
-#define SAMPLE_SIZE 32
+#define SAMPLE_SIZE 24
 #define NOISE_SIZE 4
 
 uniform vec3 samples[SAMPLE_SIZE];
@@ -14,7 +14,8 @@ uniform int kernelSize = SAMPLE_SIZE;
 uniform float radius = 0.5;
 uniform float bias = 0.025;
 uniform float rangeInfluence = 1.0;
-uniform float power = 4.0;
+uniform float power = 2.0;
+uniform float theshold = 0.15;
 
 uniform int scrWidth;
 uniform int scrHeight;
@@ -43,25 +44,27 @@ void main()
     vec3 bitangent = cross(normalViewSpace, tangent);
     mat3 TBN = mat3(tangent, bitangent, normalViewSpace);
 
+    vec3 viewRow2 = vec3(view[0][2], view[1][2], view[2][2]);
+    float viewZ = view[3][2];
+
     float occlusion = 0.0;
     
-    // adaptive kernel sample size
-    int effectiveKernelSize = kernelSize;
-    float distance = abs(fragPosVS.z);
-    if (distance < 5.0) 
-        effectiveKernelSize = kernelSize / 8;
-    else if (distance < 10.0)
-        effectiveKernelSize = kernelSize / 4;
-    
-    for (int i = 0; i < effectiveKernelSize; ++i)
+    float validSamples = 0.0;
+    for (int i = 0; i < kernelSize; ++i)
     {
         // transform sample to view space
         vec3 samplePos = fragPosVS + TBN * samples[i] * radius;
+        if (dot(samplePos, normalViewSpace) > 0.5)
+            continue;
+
+        vec3 rayDir = normalize(samplePos - fragPosVS);
+        if (abs(dot(normalViewSpace, rayDir)) < theshold)
+            continue;
 
         // project to screen space
         vec4 offset = vec4(samplePos, 1.0);
         offset = projection * offset;
-        offset.xyz /= offset.w;
+        offset.xyz /= max(offset.w, 1e-4);
         offset.xyz = offset.xyz * 0.5 + 0.5; // NDC to texture coordinates
 
         // discard samples outside screen
@@ -75,13 +78,14 @@ void main()
         if (length(sampleDepthWorldSpace) < 0.001)
             continue;
         
-        float sampleDepth = (view * vec4(sampleDepthWorldSpace, 1.0)).z;
+        float sampleDepth = dot(viewRow2, sampleDepthWorldSpace) + viewZ;
 
         // range check - fade occlusion based on distance
         float rangeCheck = smoothstep(0.0, 1.0, radius / (abs(fragPosVS.z - sampleDepth) * rangeInfluence));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;
+        validSamples += 1.0;
     }
     
-    occlusion = 1.0 - (occlusion / float(effectiveKernelSize));
+    occlusion = 1.0 - (occlusion / float(max(validSamples, 1.0)));
     FragColor = vec2(pow(occlusion, power), abs(fragPosVS.z / 100.0));
 }

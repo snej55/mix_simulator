@@ -760,7 +760,7 @@ glm::mat4 Engine::getViewMatrix() const { return m_camera->getViewMatrix(); }
 glm::mat4 Engine::getProjectionMatrix() const
 {
     return glm::perspective(glm::radians(m_camera->getZoom()),
-                            static_cast<float>(getWidth()) / static_cast<float>(getHeight()), 1.f, 10000.0f);
+                            static_cast<float>(getWidth()) / static_cast<float>(getHeight()), 0.1f, 10000.0f);
 }
 
 glm::vec3 Engine::getCameraPosition() const { return m_camera->getPosition(); }

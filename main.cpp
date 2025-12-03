@@ -46,11 +46,11 @@ int main()
         {
             for (std::size_t x{0}; x < 3; ++x)
             {
-                model = glm::scale(glm::mat4{1.0f}, glm::vec3{5.f});
                 model = glm::translate(
-                    model,
-                    {static_cast<float>(x) * 150.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
-                     static_cast<float>(z) * 150.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
+                    glm::mat4{1.0f},
+                    {static_cast<float>(x) * 45.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
+                     static_cast<float>(z) * 45.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
+                model = glm::scale(model, glm::vec3{5.f});
                 renderQueue.addDynamicModel(spartan, model);
             }
         }

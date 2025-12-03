@@ -160,5 +160,5 @@ void main()
     // final color
     vec3 color = emissive + ambient + Lo;
 
-    FragColor = vec4(color, alpha);
+    FragColor = vec4(vec3(ssaoFactor), alpha);
 }
