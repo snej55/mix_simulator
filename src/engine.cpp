@@ -15,6 +15,7 @@ using json = nlohmann::json;
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "engine.hpp"
 #include "util.hpp"

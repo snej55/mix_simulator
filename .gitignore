@@ -12,3 +12,8 @@
 /releases
 compile_commands.json
 /.venv/
+/out/
+*.swp
+*.swo
+/.vs
+*.editorconfig
