@@ -16,8 +16,7 @@
 
 #include <algorithm>
 
-Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) :
-    m_name{name}, m_ID{ID} { init(channel); }
+Bone::Bone(const std::string& name, const int ID, const aiNodeAnim* channel) : m_name{name}, m_ID{ID} { init(channel); }
 
 void Bone::init(const aiNodeAnim* channel)
 {
@@ -242,8 +241,7 @@ void BoneAnimation::readHierarchyData(BonesN::AssimpNodeData& dest, const aiNode
 }
 
 // the actual animator class
-BoneAnimator::BoneAnimator(BoneAnimation* animation) :
-    m_currentAnimation{animation}, m_currentTime{0.0f}
+BoneAnimator::BoneAnimator(BoneAnimation* animation) : m_currentAnimation{animation}, m_currentTime{0.0f}
 {
     m_finalBoneMatrices.reserve(100);
     for (std::size_t i{0}; i < 100; ++i)
@@ -287,8 +285,8 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
         if (boneInfoMap[node->name].id < m_finalBoneMatrices.size())
-            m_finalBoneMatrices[boneInfoMap[node->name].id] = globalInverseTransformation * globalTransformation *
-                boneInfoMap[node->name].offset;
+            m_finalBoneMatrices[boneInfoMap[node->name].id] =
+                globalInverseTransformation * globalTransformation * boneInfoMap[node->name].offset;
     }
 
     for (std::size_t i{0}; i < node->childrenCount; ++i)

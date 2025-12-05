@@ -10,10 +10,7 @@
 
 #include <cassert>
 
-IBLGenerator::IBLGenerator(EngineObject* parent) :
-    EngineObject{"IBL", parent}
-{
-}
+IBLGenerator::IBLGenerator(EngineObject* parent) : EngineObject{"IBL", parent} {}
 
 IBLGenerator::~IBLGenerator() { free(); }
 
@@ -67,8 +64,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}),
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, -1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}),
         glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, -1.0f, 0.0f}),
-        glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}, glm::vec3{0.0f, -1.0f, 0.0f})
-    };
+        glm::lookAt(glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}, glm::vec3{0.0f, -1.0f, 0.0f})};
 
     const Engine* enginePtr{static_cast<Engine*>(engine)};
 
@@ -147,8 +143,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     {
         enginePtr->setMat4("view", captureViews[i], "erCubeMapConvert");
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                               m_irradianceMap,
-                               0);
+                               m_irradianceMap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         renderCube();

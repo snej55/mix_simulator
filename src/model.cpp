@@ -163,7 +163,7 @@ bool Model::loadModel(const std::string& path)
     const aiScene* scene{importer.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-        aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
+            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -706,10 +706,7 @@ void Model::loadRoughnessFactor(const aiMaterial* mat, float& roughnessFactor)
 }
 
 // -------------- Model Manager -------------- //
-ModelManager::ModelManager(EngineObject* parent) :
-    EngineObject{"ModelManager", parent}
-{
-}
+ModelManager::ModelManager(EngineObject* parent) : EngineObject{"ModelManager", parent} {}
 
 // load new model
 void ModelManager::addModel(const std::string& name, const std::string& path, Arena* arena)

@@ -7,9 +7,7 @@
 
 #include "fonts.hpp"
 
-FontRenderer::FontRenderer(EngineObject* parent) : EngineObject{"FontRenderer", parent}
-{
-}
+FontRenderer::FontRenderer(EngineObject* parent) : EngineObject{"FontRenderer", parent} {}
 
 FontRenderer::~FontRenderer() { free(); }
 
@@ -59,11 +57,9 @@ bool FontRenderer::init(const std::string& fontPath, const int height)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         // store the character in character map
-        Character character{
-            tex, glm::ivec2{m_face->glyph->bitmap.width, m_face->glyph->bitmap.rows},
-            glm::ivec2{m_face->glyph->bitmap_left, m_face->glyph->bitmap_top},
-            static_cast<unsigned int>(m_face->glyph->advance.x)
-        };
+        Character character{tex, glm::ivec2{m_face->glyph->bitmap.width, m_face->glyph->bitmap.rows},
+                            glm::ivec2{m_face->glyph->bitmap_left, m_face->glyph->bitmap_top},
+                            static_cast<unsigned int>(m_face->glyph->advance.x)};
         // insert character into map
         m_characters.insert(std::pair<char, Character>{c, character});
     }
@@ -122,16 +118,14 @@ void FontRenderer::renderText(const Shader& shader, const std::string& text, flo
         const float w{static_cast<float>(c.size.x) * scale};
         const float h{static_cast<float>(c.size.y) * scale};
         // update vbo for each character
-        const float vertices[6][4] = {
-            // first triangle
-            {xpos, ypos + h, 0.0f, 0.0f},
-            {xpos, ypos, 0.0f, 1.0f},
-            {xpos + w, ypos, 1.0f, 1.0f},
-            // second triangle
-            {xpos, ypos + h, 0.0f, 0.0f},
-            {xpos + w, ypos, 1.0f, 1.0f},
-            {xpos + w, ypos + h, 1.0f, 0.0f}
-        };
+        const float vertices[6][4] = {// first triangle
+                                      {xpos, ypos + h, 0.0f, 0.0f},
+                                      {xpos, ypos, 0.0f, 1.0f},
+                                      {xpos + w, ypos, 1.0f, 1.0f},
+                                      // second triangle
+                                      {xpos, ypos + h, 0.0f, 0.0f},
+                                      {xpos + w, ypos, 1.0f, 1.0f},
+                                      {xpos + w, ypos + h, 1.0f, 0.0f}};
         // render glyph texture on quad
         glBindTexture(GL_TEXTURE_2D, c.textureID);
         // update VBO memory

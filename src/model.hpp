@@ -36,8 +36,8 @@ public:
     [[nodiscard]] std::string_view getDirectory() const { return m_directory; }
     [[nodiscard]] std::string_view getPath() const { return m_path; }
 
-    [[nodiscard]] const std::vector<Mesh*>& getOpaqueMeshes() const {return m_opaqueMeshes;}
-    [[nodiscard]] const std::vector<Mesh*>& getTransparentMeshes() const {return m_transparentMeshes;}
+    [[nodiscard]] const std::vector<Mesh*>& getOpaqueMeshes() const { return m_opaqueMeshes; }
+    [[nodiscard]] const std::vector<Mesh*>& getTransparentMeshes() const { return m_transparentMeshes; }
 
     [[nodiscard]] std::map<std::string, MeshN::BoneInfo>& getBoneInfoMap() { return m_boneInfoMap; }
     [[nodiscard]] int& getBoneCounter() { return m_boneCounter; }
