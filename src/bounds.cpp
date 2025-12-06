@@ -7,6 +7,11 @@
 #include "bounds.hpp"
 #include "mesh.hpp"
 
+Bounds::Transform::Transform(const glm::vec3& pos, const glm::vec3& rotation, const glm::vec3& scale) :
+    m_pos{pos}, m_eulerRot{rotation}, m_scale{scale}
+{
+}
+
 void Bounds::Transform::computeModelMatrix()
 {
     m_modelMat = getLocalModelMat();

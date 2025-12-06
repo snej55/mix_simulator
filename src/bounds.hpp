@@ -15,6 +15,9 @@ namespace Bounds
     class Transform
     {
     public:
+        Transform() = default;
+        Transform(const glm::vec3& pos, const glm::vec3& rotation, const glm::vec3& scale);
+
         void computeModelMatrix();
         void computeModelMatrix(const glm::mat4& parentGlobalModelMatrix);
         void setLocalPosition(const glm::vec3& localPosition);
