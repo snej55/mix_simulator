@@ -1,2 +1,2 @@
 #!/usr/bin/fish
-./.venv/bin/python ./util/level_editor.py
+./.venv/bin/python ./util/level_viewer.py

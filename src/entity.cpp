@@ -2,9 +2,9 @@
 
 #include "entity.hpp"
 
-Entity::Entity(EngineObject* parent, const std::string& entityName, const char* modelPath, const glm::vec3& position,
+Entity::Entity(const std::string& entityName, const char* modelPath, const glm::vec3& position,
                const bool animated) :
-    EngineObject{entityName.c_str(), parent}, m_entityName{entityName}, m_path{modelPath}, m_position{position}
+    m_entityName{entityName}, m_path{modelPath}, m_position{position}, m_animated{animated}
 {
     loadModel(modelPath);
 }
@@ -28,7 +28,7 @@ void Entity::loadModel(const char* modelPath)
     }
 
     // we want to own the model
-    m_model = new Model{modelPath, this};
+    m_model = new Model{modelPath, nullptr};
     m_model->loadModel(modelPath);
 
     if (m_animated)
@@ -44,4 +44,11 @@ void Entity::freeModel()
         delete m_model;
         m_model = nullptr;
     }
+}
+
+template <typename ... Targs>
+void Entity::addChild(const Targs&... args)
+{
+    m_children.emplace_back(std::make_unique<Entity>(args...));
+    m_children.back()->setParent(this);
 }

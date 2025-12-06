@@ -30,7 +30,7 @@ int main()
     iblGenerator.init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png", &engine);
 
     // ----------- Deferred Rendering ----------- //
-    DeferredRenderer* dfRenderer{engine.getDeferredRenderer()};
+    const DeferredRenderer* dfRenderer{engine.getDeferredRenderer()};
     RenderQueue renderQueue{&engine};
 
     // reset window viewport

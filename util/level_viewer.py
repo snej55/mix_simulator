@@ -1,4 +1,5 @@
 import pygame, sys, time, json
+from pygltflib import GLTF2
 
 pygame.init()
 pygame.mixer.init()
@@ -16,7 +17,23 @@ class Editor:
         self.dt = 1
         self.last_time = time.time() - 1/60
 
+        self.models = {
+            "data/models/table.glb",
+            "data/models/spartan.glb"
+        }
+        for model_path in self.models:
+            self.loadXYAABB(model_path)
+
         self.objects: list[dict] = []
+    
+    # load AABB bounding box from GLTF model
+    def loadXYAABB(self, model_path):
+        data = None
+        if model_path.endswith(".glb"):
+            data = GLTF2().load_binary(model_path)
+        else:
+            data = GLTF2().load(model_path)
+        print(data)
     
     def load_level_data(self, level_path):
         with open(level_path, "r") as f:

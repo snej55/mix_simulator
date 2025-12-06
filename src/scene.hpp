@@ -3,11 +3,11 @@
 
 #include "engine_types.hpp"
 
-class Scene final : public EngineObject
+class SceneGraph final : public EngineObject
 {
 public:
-    explicit Scene(EngineObject* parent);
-    ~Scene() override;
+    explicit SceneGraph(EngineObject* parent);
+    ~SceneGraph() override;
 
     bool init(const char* scenePath);
 
