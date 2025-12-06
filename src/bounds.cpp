@@ -74,3 +74,49 @@ bool Bounds::Sphere::onFrustum(const Frustum& camFrustum, const Transform& trans
             globalSphere.onForwardPlane(camFrustum.farFace) && globalSphere.onForwardPlane(camFrustum.nearFace) &&
             globalSphere.onForwardPlane(camFrustum.topFace) && globalSphere.onForwardPlane(camFrustum.bottomFace));
 }
+
+Bounds::AABB::AABB(const glm::vec3& min, const glm::vec3& max) :
+    Volume{}, center{(min + max) * 0.5f},
+    extents{(min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, (min.z + max.z) * 0.5f}
+{
+}
+
+Bounds::AABB::AABB(const glm::vec3& aCenter, float eX, float eY, float eZ) :
+    Volume{}, center{aCenter}, extents{eX, eY, eZ}
+{
+}
+
+bool Bounds::AABB::onForwardPlane(const Plane& plane) const
+{
+    const float r{extents.x * std::abs(plane.normal.x) + extents.y * std::abs(plane.normal.y) +
+                  extents.z * std::abs(plane.normal.z)};
+    return -r <= plane.getSignedDistance(center);
+}
+
+bool Bounds::AABB::onFrustum(const Frustum& camFrustum, const Transform& transform) const
+{
+    const glm::vec3 globalCenter{transform.getModelMat() * glm::vec4{center, 1.f}};
+
+    // scaled orientation
+    const glm::vec3 right{transform.getRight() * extents.x};
+    const glm::vec3 up{transform.getUp() * extents.y};
+    const glm::vec3 forward{transform.getForward() * extents.z};
+
+    // new x extent
+    const float nEX{std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, right)) +
+                    std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, up)) +
+                    std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, forward))};
+    // new y extent
+    const float nEY{std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, right)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, up)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, forward))};
+    // new z extent
+    const float nEZ{std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, right)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, up)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, forward))};
+
+    const AABB globalAABB{globalCenter, nEX, nEY, nEZ};
+    return (globalAABB.onForwardPlane(camFrustum.leftFace) && globalAABB.onForwardPlane(camFrustum.rightFace) &&
+            globalAABB.onForwardPlane(camFrustum.farFace) && globalAABB.onForwardPlane(camFrustum.nearFace) &&
+            globalAABB.onForwardPlane(camFrustum.topFace) && globalAABB.onForwardPlane(camFrustum.bottomFace));
+}

@@ -80,6 +80,7 @@ namespace Bounds
         bool onFrustum(const Frustum& camFrustum) const;
     };
 
+    // simple sphere bounding volume
     struct Sphere final : public Volume
     {
         glm::vec3 center{0.f, 0.f, 0.f};
@@ -87,6 +88,20 @@ namespace Bounds
 
         Sphere() = default;
         Sphere(const glm::vec3& aCenter, float aRadius);
+
+        bool onForwardPlane(const Plane& plane) const override;
+        bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
+    };
+
+    // AABB bounding volume
+    struct AABB final : public Volume
+    {
+        glm::vec3 center{0.f, 0.f, 0.f};
+        glm::vec3 extents{0.f, 0.f, 0.f};
+
+        AABB() = default;
+        AABB(const glm::vec3& min, const glm::vec3& max); // construct between two points
+        AABB(const glm::vec3& aCenter, float eX, float eY, float eZ); // construct using center and extent
 
         bool onForwardPlane(const Plane& plane) const override;
         bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
