@@ -17,3 +17,7 @@ compile_commands.json
 *.swo
 /.vs
 *.editorconfig
+/.hg
+/.svn
+/.DS_Store
+/Thumbs.db

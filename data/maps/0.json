@@ -1,0 +1,34 @@
+{
+    "level": {
+        "models": [
+            {
+                "spartan": {
+                    "path": "data/models/spartan.glb",
+                    "scale": 1.0
+                },
+                "table": {
+                    "path": "data/models/table.glb",
+                    "scale": 1.0
+                }
+            }
+        ],
+        "objects": [
+            {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "modelID": 0
+            },
+            {
+                "position": [
+                    45.0,
+                    0.0,
+                    45.0
+                ],
+                "modelID": 1
+            }
+        ]
+    }
+}

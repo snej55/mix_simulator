@@ -1,4 +1,4 @@
-import pygame, sys, time
+import pygame, sys, time, json
 
 pygame.init()
 pygame.mixer.init()
@@ -15,6 +15,12 @@ class Editor:
 
         self.dt = 1
         self.last_time = time.time() - 1/60
+
+        self.objects: list[dict] = []
+    
+    def load_level_data(self, level_path):
+        with open(level_path, "r") as f:
+            data = json.load(f)
     
     def close(self):
         self.running = False
