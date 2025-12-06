@@ -24,30 +24,28 @@ void Bounds::Transform::setLocalPosition(const glm::vec3& localPosition)
 
 glm::mat4 Bounds::Transform::getLocalModelMat() const
 {
-    const glm::mat4 transformX {glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.x), glm::vec3{1.0f, 0.0f, 0.0f})};
-    const glm::mat4 transformY {glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.y), glm::vec3{0.0f, 1.0f, 0.0f})};
-    const glm::mat4 transformZ {glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.z), glm::vec3{0.0f, 0.0f, 1.0f})};
+    const glm::mat4 transformX{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.x), glm::vec3{1.0f, 0.0f, 0.0f})};
+    const glm::mat4 transformY{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.y), glm::vec3{0.0f, 1.0f, 0.0f})};
+    const glm::mat4 transformZ{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.z), glm::vec3{0.0f, 0.0f, 1.0f})};
 
     const glm::mat4 rotationMatrix = transformY * transformX * transformZ;
     return glm::translate(glm::mat4{1.0f}, m_pos) * rotationMatrix * glm::scale(glm::mat4{1.0f}, m_scale);
 }
 
-Bounds::Plane::Plane(const glm::vec3& p1, const glm::vec3& norm)
-    : normal{glm::normalize(norm)}, distance{glm::dot(normal, p1)}
+Bounds::Plane::Plane(const glm::vec3& p1, const glm::vec3& norm) :
+    normal{glm::normalize(norm)}, distance{glm::dot(normal, p1)}
 {
 }
 
-float Bounds::Plane::getSignedDistance(const glm::vec3& p) const
-{
-    return glm::dot(normal, p) - distance;
-}
+float Bounds::Plane::getSignedDistance(const glm::vec3& p) const { return glm::dot(normal, p) - distance; }
 
-Bounds::Frustum Bounds::createFrustum(const Camera& cam, float aspectR, float fovY, float zNear, float zFar)
+Bounds::Frustum Bounds::createFrustum(const Camera& cam, const float aspectR, const float fovY, const float zNear,
+                                      const float zFar)
 {
 
-    const float halfVSide {zFar * std::tanf(fovY * 0.5f)};
-    const float halfHSide {halfVSide * aspectR};
-    const glm::vec3 frontMultFar {zFar * cam.getFront()};
+    const float halfVSide{zFar * std::tanf(fovY * 0.5f)};
+    const float halfHSide{halfVSide * aspectR};
+    const glm::vec3 frontMultFar{zFar * cam.getFront()};
 
     Frustum frustum;
     frustum.nearFace = {cam.getPosition() + zNear * cam.getFront(), cam.getFront()};
@@ -58,4 +56,21 @@ Bounds::Frustum Bounds::createFrustum(const Camera& cam, float aspectR, float fo
     frustum.bottomFace = {cam.getPosition(), glm::cross(frontMultFar + cam.getUp() * halfVSide, cam.getRight())};
 
     return frustum;
+}
+
+Bounds::Sphere::Sphere(const glm::vec3& aCenter, const float aRadius) : Volume{}, center{aCenter}, radius{aRadius} {}
+
+bool Bounds::Sphere::onForwardPlane(const Plane& plane) const { return plane.getSignedDistance(center) > -radius; }
+
+bool Bounds::Sphere::onFrustum(const Frustum& camFrustum, const Transform& transform) const
+{
+    const glm::vec3 globalScale{transform.getGlobalScale()};
+    const glm::vec3 globalCenter{transform.getModelMat() * glm::vec4{center, 1.f}};
+    const float maxScale{std::max(std::max(globalScale.x, globalScale.y), globalScale.z)};
+
+    Sphere globalSphere{globalCenter, radius * (maxScale * 0.5f)};
+
+    return (globalSphere.onForwardPlane(camFrustum.leftFace) && globalSphere.onForwardPlane(camFrustum.rightFace) &&
+            globalSphere.onForwardPlane(camFrustum.farFace) && globalSphere.onForwardPlane(camFrustum.nearFace) &&
+            globalSphere.onForwardPlane(camFrustum.topFace) && globalSphere.onForwardPlane(camFrustum.bottomFace));
 }
