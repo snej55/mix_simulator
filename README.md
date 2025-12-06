@@ -19,7 +19,7 @@ OpenGL rendering framework.
 - [ ] JSON Scene loading
 - [ ] Frustum culling
 - [ ] Space partitioning
-- [ ] Bounding volume generation
+- [X] Bounding volume generation
 - [ ] Main game class
 - [ ] Level editor
 - [ ] Rag dolls
