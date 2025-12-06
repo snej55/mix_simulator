@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include "camera.hpp"
+#include "model.hpp"
 
 namespace Bounds
 {
@@ -93,6 +94,8 @@ namespace Bounds
         bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
     };
 
+    Sphere generateSphereBV(const Model* model);
+
     // AABB bounding volume
     struct AABB final : public Volume
     {
@@ -106,6 +109,8 @@ namespace Bounds
         bool onForwardPlane(const Plane& plane) const override;
         bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
     };
+
+    AABB generateAABB_BV(const Model* model);
 } // namespace Bounds
 
 #endif // MAIN_BOUNDS_HPP

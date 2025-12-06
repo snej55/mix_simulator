@@ -16,7 +16,10 @@ OpenGL rendering framework.
 - [X] SSAO
 - [X] Add FXAA anti-aliasing
 - [ ] Global materials
-- [ ] Get scene set up
+- [ ] JSON Scene loading
+- [ ] Frustum culling
+- [ ] Space partitioning
+- [ ] Bounding volume generation
 - [ ] Main game class
 - [ ] Level editor
 - [ ] Rag dolls

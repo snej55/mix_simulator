@@ -2,7 +2,10 @@
 // Created by Jens Kromdijk on 06/12/2025.
 //
 
+#include <limits>
+
 #include "bounds.hpp"
+#include "mesh.hpp"
 
 void Bounds::Transform::computeModelMatrix()
 {
@@ -75,6 +78,43 @@ bool Bounds::Sphere::onFrustum(const Frustum& camFrustum, const Transform& trans
             globalSphere.onForwardPlane(camFrustum.topFace) && globalSphere.onForwardPlane(camFrustum.bottomFace));
 }
 
+Bounds::Sphere Bounds::generateSphereBV(const Model* model)
+{
+    glm::vec3 minAABB{glm::vec3{std::numeric_limits<float>::max()}};
+    glm::vec3 maxAABB{glm::vec3{std::numeric_limits<float>::min()}};
+
+    for (const Mesh* mesh : model->getOpaqueMeshes())
+    {
+        for (const MeshN::Vertex& vertex : mesh->getVertices())
+        {
+            minAABB.x = std::min(minAABB.x, vertex.position.x);
+            minAABB.y = std::min(minAABB.y, vertex.position.y);
+            minAABB.z = std::min(minAABB.z, vertex.position.z);
+
+            maxAABB.x = std::max(maxAABB.x, vertex.position.x);
+            maxAABB.y = std::max(maxAABB.y, vertex.position.y);
+            maxAABB.z = std::max(maxAABB.z, vertex.position.z);
+        }
+    }
+
+    // repeat for transparent meshes
+    for (const Mesh* mesh : model->getTransparentMeshes())
+    {
+        for (const MeshN::Vertex& vertex : mesh->getVertices())
+        {
+            minAABB.x = std::min(minAABB.x, vertex.position.x);
+            minAABB.y = std::min(minAABB.y, vertex.position.y);
+            minAABB.z = std::min(minAABB.z, vertex.position.z);
+
+            maxAABB.x = std::max(maxAABB.x, vertex.position.x);
+            maxAABB.y = std::max(maxAABB.y, vertex.position.y);
+            maxAABB.z = std::max(maxAABB.z, vertex.position.z);
+        }
+    }
+
+    return Sphere{(maxAABB + minAABB) * 0.5f, glm::length(minAABB - maxAABB)};
+}
+
 Bounds::AABB::AABB(const glm::vec3& min, const glm::vec3& max) :
     Volume{}, center{(min + max) * 0.5f},
     extents{(min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, (min.z + max.z) * 0.5f}
@@ -119,4 +159,41 @@ bool Bounds::AABB::onFrustum(const Frustum& camFrustum, const Transform& transfo
     return (globalAABB.onForwardPlane(camFrustum.leftFace) && globalAABB.onForwardPlane(camFrustum.rightFace) &&
             globalAABB.onForwardPlane(camFrustum.farFace) && globalAABB.onForwardPlane(camFrustum.nearFace) &&
             globalAABB.onForwardPlane(camFrustum.topFace) && globalAABB.onForwardPlane(camFrustum.bottomFace));
+}
+
+Bounds::AABB Bounds::generateAABB_BV(const Model* model)
+{
+    glm::vec3 minAABB{glm::vec3{std::numeric_limits<float>::max()}};
+    glm::vec3 maxAABB{glm::vec3{std::numeric_limits<float>::min()}};
+
+    for (const Mesh* mesh : model->getOpaqueMeshes())
+    {
+        for (const MeshN::Vertex& vertex : mesh->getVertices())
+        {
+            minAABB.x = std::min(minAABB.x, vertex.position.x);
+            minAABB.y = std::min(minAABB.y, vertex.position.y);
+            minAABB.z = std::min(minAABB.z, vertex.position.z);
+
+            maxAABB.x = std::max(maxAABB.x, vertex.position.x);
+            maxAABB.y = std::max(maxAABB.y, vertex.position.y);
+            maxAABB.z = std::max(maxAABB.z, vertex.position.z);
+        }
+    }
+
+    // repeat for transparent meshes
+    for (const Mesh* mesh : model->getTransparentMeshes())
+    {
+        for (const MeshN::Vertex& vertex : mesh->getVertices())
+        {
+            minAABB.x = std::min(minAABB.x, vertex.position.x);
+            minAABB.y = std::min(minAABB.y, vertex.position.y);
+            minAABB.z = std::min(minAABB.z, vertex.position.z);
+
+            maxAABB.x = std::max(maxAABB.x, vertex.position.x);
+            maxAABB.y = std::max(maxAABB.y, vertex.position.y);
+            maxAABB.z = std::max(maxAABB.z, vertex.position.z);
+        }
+    }
+
+    return AABB{minAABB, maxAABB};
 }
