@@ -17,6 +17,12 @@ Entity::~Entity() { freeModel(); }
 
 void Entity::update(const float deltaTime)
 {
+    if (m_transform.getDirty())
+    {
+        // TODO: Integrate with scene graph?
+        m_transform.computeModelMatrix();
+    }
+
     if (m_animated && m_model != nullptr)
     {
         m_model->updateAnimation(deltaTime);

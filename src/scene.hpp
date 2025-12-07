@@ -2,16 +2,24 @@
 #define SCENE_H
 
 #include "engine_types.hpp"
+#include "entity.hpp"
 
-class SceneGraph final : public EngineObject
+class Scene final : public EngineObject
 {
 public:
-    explicit SceneGraph(EngineObject* parent);
-    ~SceneGraph() override;
+    explicit Scene(EngineObject* parent);
+    ~Scene() override;
 
+    // load entities from json
     bool init(const char* scenePath);
 
+    // free all entities
+    void free();
+
+    void addEntity(Entity* entity);
+
 private:
+    std::vector<Entity*> m_entities{};
 };
 
 #endif // SCENE_H
