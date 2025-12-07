@@ -16,6 +16,7 @@
 #include "window.hpp"
 #include "renderer.hpp"
 #include "ibl.hpp"
+#include "bounds.hpp"
 
 class Engine final : public EngineObject
 {
@@ -142,6 +143,7 @@ public:
 
     bool createCamera();
     [[nodiscard]] Camera* getCamera() const { return m_camera; }
+    [[nodiscard]] Bounds::Frustum getCameraFrustum() const;
 
     // view & perspective matrices getters
     [[nodiscard]] glm::mat4 getViewMatrix() const;

@@ -72,7 +72,7 @@ namespace Bounds
         Plane nearFace;
     };
 
-    inline Frustum createFrustum(const Camera& cam, float aspectR, float fovY, float zNear, float zFar);
+    Frustum createFrustum(const Camera* cam, float aspectR, float fovY, float zNear, float zFar);
 
     // bounding volume for frustum culling
     struct Volume

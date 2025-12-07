@@ -6,6 +6,8 @@
 #include <JSON/json.hpp>
 #include <numeric>
 
+#include "bounds.hpp"
+#include "camera.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "ibl.hpp"
 #include "postprocessing.hpp"
@@ -756,12 +758,19 @@ bool Engine::createCamera()
     return true;
 }
 
+Bounds::Frustum Engine::getCameraFrustum() const
+{
+    return Bounds::createFrustum(m_camera, static_cast<float>(getWidth()) / static_cast<float>(getHeight()),
+                                 glm::radians(m_camera->getZoom()), CAMERA_Z_NEAR, CAMERA_Z_FAR);
+}
+
 glm::mat4 Engine::getViewMatrix() const { return m_camera->getViewMatrix(); }
 
 glm::mat4 Engine::getProjectionMatrix() const
 {
     return glm::perspective(glm::radians(m_camera->getZoom()),
-                            static_cast<float>(getWidth()) / static_cast<float>(getHeight()), 0.1f, 10000.0f);
+                            static_cast<float>(getWidth()) / static_cast<float>(getHeight()), CAMERA_Z_NEAR,
+                            CAMERA_Z_FAR);
 }
 
 glm::vec3 Engine::getCameraPosition() const { return m_camera->getPosition(); }

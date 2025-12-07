@@ -47,21 +47,21 @@ Bounds::Plane::Plane(const glm::vec3& p1, const glm::vec3& norm) :
 
 float Bounds::Plane::getSignedDistance(const glm::vec3& p) const { return glm::dot(normal, p) - distance; }
 
-Bounds::Frustum Bounds::createFrustum(const Camera& cam, const float aspectR, const float fovY, const float zNear,
+Bounds::Frustum Bounds::createFrustum(const Camera* cam, const float aspectR, const float fovY, const float zNear,
                                       const float zFar)
 {
 
     const float halfVSide{zFar * std::tanf(fovY * 0.5f)};
     const float halfHSide{halfVSide * aspectR};
-    const glm::vec3 frontMultFar{zFar * cam.getFront()};
+    const glm::vec3 frontMultFar{zFar * cam->getFront()};
 
     Frustum frustum;
-    frustum.nearFace = {cam.getPosition() + zNear * cam.getFront(), cam.getFront()};
-    frustum.farFace = {cam.getPosition() + frontMultFar, -cam.getFront()};
-    frustum.rightFace = {cam.getPosition(), glm::cross(frontMultFar - cam.getRight() * halfHSide, cam.getUp())};
-    frustum.leftFace = {cam.getPosition(), glm::cross(cam.getUp(), frontMultFar + cam.getRight() * halfHSide)};
-    frustum.topFace = {cam.getPosition(), glm::cross(cam.getRight(), frontMultFar - cam.getUp() * halfVSide)};
-    frustum.bottomFace = {cam.getPosition(), glm::cross(frontMultFar + cam.getUp() * halfVSide, cam.getRight())};
+    frustum.nearFace = {cam->getPosition() + zNear * cam->getFront(), cam->getFront()};
+    frustum.farFace = {cam->getPosition() + frontMultFar, -cam->getFront()};
+    frustum.rightFace = {cam->getPosition(), glm::cross(frontMultFar - cam->getRight() * halfHSide, cam->getUp())};
+    frustum.leftFace = {cam->getPosition(), glm::cross(cam->getUp(), frontMultFar + cam->getRight() * halfHSide)};
+    frustum.topFace = {cam->getPosition(), glm::cross(cam->getRight(), frontMultFar - cam->getUp() * halfVSide)};
+    frustum.bottomFace = {cam->getPosition(), glm::cross(frontMultFar + cam->getUp() * halfVSide, cam->getRight())};
 
     return frustum;
 }
