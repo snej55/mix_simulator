@@ -5,15 +5,20 @@
 #include "entity.hpp"
 #include "bounds.hpp"
 
-Entity::Entity(const std::string& entityName, const char* modelPath, const Bounds::Transform& transform,
-               const bool animated) :
-    m_entityName{entityName}, m_path{modelPath}, m_transform{transform}, m_animated{animated}
+Entity::Entity(const Model* model, const Bounds::Transform& transform, const bool animated) :
+    m_model{const_cast<Model*>(model)}, m_transform{transform}, m_animated{animated}
 {
-    loadModel(modelPath);
-    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model));
+    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get()));
 }
 
-Entity::~Entity() { freeModel(); }
+Entity::Entity(const char* modelPath, const Bounds::Transform& transform, const bool animated) :
+    m_path{modelPath}, m_transform{transform}, m_animated{animated}
+{
+    loadModel(modelPath);
+    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get()));
+}
+
+Entity::~Entity() {}
 
 void Entity::update(const float deltaTime)
 {
@@ -56,27 +61,12 @@ Bounds::AABB Entity::getGlobalAABB() const
 
 void Entity::loadModel(const char* modelPath)
 {
-    if (m_model != nullptr)
-    {
-        freeModel();
-        m_model = nullptr;
-    }
-
     // we want to own the model
-    m_model = new Model{modelPath, nullptr};
+    m_model = std::make_unique<Model>(Model{modelPath, nullptr});
     m_model->loadModel(modelPath);
 
     if (m_animated)
     {
         m_model->loadAnimation();
-    }
-}
-
-void Entity::freeModel()
-{
-    if (m_model != nullptr)
-    {
-        delete m_model;
-        m_model = nullptr;
     }
 }

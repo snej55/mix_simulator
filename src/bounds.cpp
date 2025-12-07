@@ -30,6 +30,18 @@ void Bounds::Transform::setLocalPosition(const glm::vec3& localPosition)
     m_dirty = true;
 }
 
+void Bounds::Transform::setLocalRotation(const glm::vec3& localRotation)
+{
+    m_eulerRot = localRotation;
+    m_dirty = true;
+}
+
+void Bounds::Transform::setLocalScale(const glm::vec3& localScale)
+{
+    m_scale = localScale;
+    m_dirty = true;
+}
+
 glm::mat4 Bounds::Transform::getLocalModelMat() const
 {
     const glm::mat4 transformX{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.x), glm::vec3{1.0f, 0.0f, 0.0f})};

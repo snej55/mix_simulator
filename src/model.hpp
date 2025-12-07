@@ -106,6 +106,7 @@ public:
     void renderModel(const Shader* shader, const std::string& name) const;
 
     [[nodiscard]] bool modelExists(const std::string& name) const;
+    [[nodiscard]] Model* getModelByPath(const std::string& paths) const;
 
 private:
     std::map<std::string, Model*> m_models{};

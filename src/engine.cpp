@@ -812,6 +812,9 @@ void Engine::renderModel(const std::string& name, const Shader* shader) const
     m_modelManager->renderModel(shader, name);
 }
 
+
+Model* Engine::getModelByPath(const std::string& path) const { return m_modelManager->getModelByPath(path); }
+
 void Engine::renderModelForward(const std::string& modelName, const std::string& shaderName,
                                 const glm::mat4& modelTransform, const IBLGenerator* ibl)
 {

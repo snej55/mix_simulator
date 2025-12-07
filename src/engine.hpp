@@ -166,6 +166,7 @@ public:
     [[nodiscard]] Model* getModel(const std::string& name) const;
     void renderModel(const std::string& name, const Shader* shader) const;
     [[nodiscard]] bool modelExists(const std::string& name) const;
+    [[nodiscard]] Model* getModelByPath(const std::string& path) const;
 
     void renderModelForward(const std::string& modelName, const std::string& shaderName,
                             const glm::mat4& modelTransform, const IBLGenerator* ibl = nullptr);

@@ -753,3 +753,15 @@ void ModelManager::renderModel(const Shader* shader, const std::string& name) co
 }
 
 bool ModelManager::modelExists(const std::string& name) const { return m_models.find(name) != m_models.end(); }
+
+Model* ModelManager::getModelByPath(const std::string& path) const
+{
+    for (const auto& pair : m_models)
+    {
+        if (pair.second->getPath() == path)
+        {
+            return pair.second;
+        }
+    }
+    return nullptr;
+}

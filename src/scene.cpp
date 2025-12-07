@@ -1,6 +1,8 @@
+#include <cassert>
 #include "scene.hpp"
+#include "engine.hpp"
 
-Scene::Scene(EngineObject* parent) : EngineObject{"Scene", parent} {}
+Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine(engine) {}
 
 Scene::~Scene() { free(); }
 
@@ -15,4 +17,15 @@ void Scene::free()
     m_entities.clear();
 }
 
+void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const bool animated)
+{
+    assert(m_engine != nullptr);
+    Engine* enginePtr{static_cast<Engine*>(m_engine)};
+
+    Model* modelPtr{enginePtr->getModelByPath(modelPath)};
+    if (modelPtr == nullptr)
+    {
+        enginePtr->addModel(modelPath, modelPath);
+    }
+}
 void Scene::addEntity(Entity* entity) { m_entities.emplace_back(entity); }

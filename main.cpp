@@ -6,6 +6,7 @@
 #include "src/engine.hpp"
 #include "src/ibl.hpp"
 #include "src/renderer.hpp"
+#include "src/scene.hpp"
 
 int main()
 {
@@ -35,6 +36,20 @@ int main()
 
     // reset window viewport
     glViewport(0, 0, engine.getWidth(), engine.getHeight());
+
+    Scene scene{&engine};
+    for (std::size_t z{0}; z < 3; ++z)
+    {
+        for (std::size_t x{0}; x < 3; ++x)
+        {
+            Bounds::Transform transform;
+            transform.setLocalPosition(
+                {static_cast<float>(x) * 45.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
+                 static_cast<float>(z) * 45.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
+            transform.setLocalScale({5.f, 5.f, 5.f});
+            scene.addEntity("data/models/table.glb", transform, false);
+        }
+    }
 
     while (!engine.getQuit())
     {

@@ -7,7 +7,7 @@
 class Scene final : public EngineObject
 {
 public:
-    explicit Scene(EngineObject* parent);
+    explicit Scene(void* engine);
     ~Scene() override;
 
     // load entities from json
@@ -16,9 +16,13 @@ public:
     // free all entities
     void free();
 
+    void addEntity(const char* modelPath, const Bounds::Transform& transform, bool animated = false);
     void addEntity(Entity* entity);
 
+    [[nodiscard]] const std::vector<Entity*>& getEntities() const { return m_entities; }
+
 private:
+    void* m_engine{nullptr};
     std::vector<Entity*> m_entities{};
 };
 
