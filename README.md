@@ -17,7 +17,7 @@ OpenGL rendering framework.
 - [X] Add FXAA anti-aliasing
 - [ ] Global materials
 - [ ] JSON Scene loading
-- [ ] Frustum culling
+- [X] Frustum culling
 - [ ] Space partitioning
 - [X] Bounding volume generation
 - [ ] Main game class
