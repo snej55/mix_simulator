@@ -44,8 +44,8 @@ int main()
         {
             Bounds::Transform transform;
             transform.setLocalPosition(
-                {static_cast<float>(x) * 45.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
-                 static_cast<float>(z) * 45.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
+            {static_cast<float>(x) * 45.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
+             static_cast<float>(z) * 45.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
             transform.setLocalScale({5.f, 5.f, 5.f});
             scene.addEntity("data/models/table.glb", transform, false);
         }
@@ -57,16 +57,14 @@ int main()
         spartan->updateAnimation(engine.getDeltaTime());
 
         glm::mat4 model;
-        for (std::size_t z{0}; z < 3; ++z)
+        const Bounds::Frustum camFrustum{engine.getCameraFrustum()};
+        for (Entity* entity : scene.getEntities())
         {
-            for (std::size_t x{0}; x < 3; ++x)
+            entity->update(engine.getDeltaTime());
+            if (entity->getBoundingVolume()->onFrustum(camFrustum, entity->getTransform()))
             {
-                model = glm::translate(
-                    glm::mat4{1.0f},
-                    {static_cast<float>(x) * 45.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
-                     static_cast<float>(z) * 45.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
-                model = glm::scale(model, glm::vec3{5.f});
-                renderQueue.addDynamicModel(spartan, model);
+                model = entity->getTransform().getModelMat();
+                renderQueue.addDynamicModel(entity->getModel(), model);
             }
         }
 

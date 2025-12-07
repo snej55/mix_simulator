@@ -26,6 +26,7 @@ public:
     [[nodiscard]] bool getAnimated() const { return m_animated; }
 
     [[nodiscard]] const Bounds::Transform& getTransform() const { return m_transform; }
+    [[nodiscard]] const Bounds::AABB* getBoundingVolume() const {return m_BV.get();}
     [[nodiscard]] bool getInFrustum() const { return m_inFrustum; }
 
 private:
