@@ -20,12 +20,17 @@ void Scene::free()
 void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const bool animated)
 {
     assert(m_engine != nullptr);
-    Engine* enginePtr{static_cast<Engine*>(m_engine)};
+    const Engine* enginePtr{static_cast<Engine*>(m_engine)};
 
-    Model* modelPtr{enginePtr->getModelByPath(modelPath)};
+    const Model* modelPtr{enginePtr->getModelByPath(modelPath)};
     if (modelPtr == nullptr)
     {
         enginePtr->addModel(modelPath, modelPath);
+        modelPtr = enginePtr->getModelByPath(modelPath);
     }
+
+    Entity* entity{new Entity{modelPtr, transform, animated}};
+    m_entities.push_back(entity);
 }
+
 void Scene::addEntity(Entity* entity) { m_entities.emplace_back(entity); }

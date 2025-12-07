@@ -8,17 +8,10 @@
 Entity::Entity(const Model* model, const Bounds::Transform& transform, const bool animated) :
     m_model{const_cast<Model*>(model)}, m_transform{transform}, m_animated{animated}
 {
-    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get()));
+    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model));
 }
 
-Entity::Entity(const char* modelPath, const Bounds::Transform& transform, const bool animated) :
-    m_path{modelPath}, m_transform{transform}, m_animated{animated}
-{
-    loadModel(modelPath);
-    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get()));
-}
-
-Entity::~Entity() {}
+Entity::~Entity() = default;
 
 void Entity::update(const float deltaTime)
 {
@@ -57,16 +50,4 @@ Bounds::AABB Entity::getGlobalAABB() const
                     std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, forward))};
 
     return Bounds::AABB{globalCenter, nEX, nEY, nEZ};
-}
-
-void Entity::loadModel(const char* modelPath)
-{
-    // we want to own the model
-    m_model = std::make_unique<Model>(Model{modelPath, nullptr});
-    m_model->loadModel(modelPath);
-
-    if (m_animated)
-    {
-        m_model->loadAnimation();
-    }
 }
