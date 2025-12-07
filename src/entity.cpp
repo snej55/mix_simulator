@@ -6,9 +6,10 @@
 #include "bounds.hpp"
 
 Entity::Entity(const Model* model, const Bounds::Transform& transform, const bool animated) :
-    m_model{const_cast<Model*>(model)}, m_transform{transform}, m_animated{animated}
+    m_transform{transform}, m_animated{animated}
 {
-    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model));
+    m_model = std::make_unique<Model>(*model);
+    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get()));
 }
 
 Entity::~Entity() = default;
@@ -21,7 +22,7 @@ void Entity::update(const float deltaTime)
         m_transform.computeModelMatrix();
     }
 
-    if (m_animated && m_model != nullptr)
+    if (m_animated)
     {
         m_model->updateAnimation(deltaTime);
     }

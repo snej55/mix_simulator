@@ -26,6 +26,33 @@ Model::Model(const std::string& name, EngineObject* parent) :
 {
 }
 
+Model::Model(const Model& other) :
+    EngineObject{("MODEL " + other.m_modelName).c_str(), other.m_parent}, m_modelName{other.m_modelName},
+    m_meshes{other.m_meshes}, m_directory{other.m_directory}, m_path{other.m_path},
+    m_loadedTextures{other.m_loadedTextures}, m_boneInfoMap{other.m_boneInfoMap}, m_boneCounter{other.m_boneCounter},
+    m_animated{false}, m_animation{nullptr}, m_animator{nullptr}
+{
+    m_opaqueMeshes.clear();
+    m_transparentMeshes.clear();
+
+    for (std::size_t i = 0; i < m_meshes.size(); ++i)
+    {
+        if (m_meshes[i].getBlendMode() == MeshN::BLEND_TRANSPARENT)
+        {
+            m_transparentMeshes.push_back(&m_meshes[i]);
+        }
+        else
+        {
+            m_opaqueMeshes.push_back(&m_meshes[i]);
+        }
+    }
+
+    if (other.m_animated)
+    {
+        loadAnimation();
+    }
+}
+
 Model::~Model()
 {
     for (std::size_t i{0}; i < m_meshes.size(); ++i)

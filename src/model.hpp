@@ -16,6 +16,8 @@ class Model final : public EngineObject
 {
 public:
     explicit Model(const std::string& name, EngineObject* parent);
+    Model(const Model& other);
+    Model& operator=(const Model& other) = delete;
     ~Model() override;
 
     bool loadModel(const std::string& path);

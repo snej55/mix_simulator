@@ -22,7 +22,7 @@ int main()
     engine.setCameraEnabled(true);
 
     // use only gltf files for now
-    engine.addModel("spartan", "data/models/table.glb");
+    engine.addModel("spartan", "data/models/spartan.glb");
 
     Model* spartan{engine.getModel("spartan")};
 
@@ -44,17 +44,15 @@ int main()
         {
             Bounds::Transform transform;
             transform.setLocalPosition(
-                {static_cast<float>(x) * 45.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
-                 static_cast<float>(z) * 45.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
+                {static_cast<float>(x) * 545.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
+                 static_cast<float>(z) * 545.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
             transform.setLocalScale({5.f, 5.f, 5.f});
-            scene.addEntity("data/models/table.glb", transform, false);
+            scene.addEntity("data/models/spartan.glb", transform, true);
         }
     }
 
     while (!engine.getQuit())
     {
-        // update game state
-        spartan->updateAnimation(engine.getDeltaTime());
 
         glm::mat4 model;
         const Bounds::Frustum camFrustum{engine.getCameraFrustum()};

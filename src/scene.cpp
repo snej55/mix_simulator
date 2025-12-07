@@ -1,4 +1,7 @@
+// Created by Jens Kromdijk 04-12-2025
+
 #include <cassert>
+#include <unordered_set>
 #include "scene.hpp"
 #include "engine.hpp"
 
@@ -28,6 +31,11 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
         enginePtr->addModel(modelPath, modelPath);
         modelPtr = enginePtr->getModelByPath(modelPath);
     }
+    if (animated && modelPtr != nullptr)
+    {
+        const_cast<Model*>(modelPtr)->loadAnimation();
+    }
+    std::cout << std::boolalpha << modelPtr->isAnimated() << "\n";
 
     Entity* entity{new Entity{modelPtr, transform, animated}};
     m_entities.push_back(entity);
