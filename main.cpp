@@ -38,22 +38,20 @@ int main()
     glViewport(0, 0, engine.getWidth(), engine.getHeight());
 
     Scene scene{&engine};
-    for (std::size_t z{0}; z < 3; ++z)
+    for (std::size_t z{0}; z < 1; ++z)
     {
-        for (std::size_t x{0}; x < 3; ++x)
+        for (std::size_t x{0}; x < 1; ++x)
         {
             Bounds::Transform transform;
             transform.setLocalPosition(
-                {static_cast<float>(x) * 545.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
-                 static_cast<float>(z) * 545.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
-            transform.setLocalScale({5.f, 5.f, 5.f});
+                {static_cast<float>(x) * 45.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
+                 static_cast<float>(z) * 45.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
             scene.addEntity("data/models/spartan.glb", transform, true);
         }
     }
 
     while (!engine.getQuit())
     {
-
         glm::mat4 model;
         const Bounds::Frustum camFrustum{engine.getCameraFrustum()};
         for (Entity* entity : scene.getEntities())

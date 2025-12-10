@@ -30,6 +30,9 @@ public:
     [[nodiscard]] const Bounds::AABB* getBoundingVolume() const { return m_BV.get(); }
     [[nodiscard]] bool getInFrustum() const { return m_inFrustum; }
 
+    void setStatic(const bool val) { m_static = val; }
+    [[nodiscard]] bool getStatic() const { return m_static; }
+
 private:
     std::string m_path{};
     Bounds::Transform m_transform{};
@@ -39,6 +42,7 @@ private:
     bool m_animated{false};
 
     bool m_inFrustum{false};
+    bool m_static{false};
 };
 
 #endif // ENTITY_H
