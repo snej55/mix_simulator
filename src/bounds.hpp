@@ -78,14 +78,16 @@ namespace Bounds
     struct Volume
     {
         Volume() = default;
-        virtual bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const = 0;
-        virtual bool onForwardPlane(const Plane& plane) const = 0;
+        virtual ~Volume() = default;
+        [[nodiscard]] virtual bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const = 0;
+        [[nodiscard]] virtual bool onForwardPlane(const Plane& plane) const = 0;
+        [[nodiscard]] virtual bool collidePoint(const glm::vec3& point) const = 0;
 
-        bool onFrustum(const Frustum& camFrustum) const;
+        [[nodiscard]] bool onFrustum(const Frustum& camFrustum) const;
     };
 
     // simple sphere bounding volume
-    struct Sphere final : public Volume
+    struct Sphere final : Volume
     {
         glm::vec3 center{0.f, 0.f, 0.f};
         float radius{0.f};
@@ -93,14 +95,15 @@ namespace Bounds
         Sphere() = default;
         Sphere(const glm::vec3& aCenter, float aRadius);
 
-        bool onForwardPlane(const Plane& plane) const override;
-        bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
+        [[nodiscard]] bool onForwardPlane(const Plane& plane) const override;
+        [[nodiscard]] bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
+        [[nodiscard]] bool collidePoint(const glm::vec3& point) const override;
     };
 
     Sphere generateSphereBV(const Model* model);
 
     // AABB bounding volume
-    struct AABB final : public Volume
+    struct AABB final : Volume
     {
         glm::vec3 center{0.f, 0.f, 0.f};
         glm::vec3 extents{0.f, 0.f, 0.f};
@@ -109,8 +112,9 @@ namespace Bounds
         AABB(const glm::vec3& min, const glm::vec3& max); // construct between two points
         AABB(const glm::vec3& aCenter, float eX, float eY, float eZ); // construct using center and extent
 
-        bool onForwardPlane(const Plane& plane) const override;
-        bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
+        [[nodiscard]] bool onForwardPlane(const Plane& plane) const override;
+        [[nodiscard]] bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
+        [[nodiscard]] bool collidePoint(const glm::vec3& point) const override;
     };
 
     AABB generateAABB_BV(const Model* model);

@@ -78,21 +78,29 @@ Bounds::Frustum Bounds::createFrustum(const Camera* cam, const float aspectR, co
     return frustum;
 }
 
-Bounds::Sphere::Sphere(const glm::vec3& aCenter, const float aRadius) : Volume{}, center{aCenter}, radius{aRadius} {}
+Bounds::Sphere::Sphere(const glm::vec3& aCenter, const float aRadius) :
+    Volume{}, center{aCenter}, radius{aRadius}
+{
+}
 
 bool Bounds::Sphere::onForwardPlane(const Plane& plane) const { return plane.getSignedDistance(center) > -radius; }
 
-bool Bounds::Sphere::onFrustum(const Frustum& camFrustum, const Transform& transform) const
+bool Bounds::Sphere::onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const
 {
-    const glm::vec3 globalScale{transform.getGlobalScale()};
-    const glm::vec3 globalCenter{transform.getModelMat() * glm::vec4{center, 1.f}};
+    const glm::vec3 globalScale{modelTransform.getGlobalScale()};
+    const glm::vec3 globalCenter{modelTransform.getModelMat() * glm::vec4{center, 1.f}};
     const float maxScale{std::max(std::max(globalScale.x, globalScale.y), globalScale.z)};
 
     Sphere globalSphere{globalCenter, radius * (maxScale * 0.5f)};
 
     return (globalSphere.onForwardPlane(camFrustum.leftFace) && globalSphere.onForwardPlane(camFrustum.rightFace) &&
-            globalSphere.onForwardPlane(camFrustum.farFace) && globalSphere.onForwardPlane(camFrustum.nearFace) &&
-            globalSphere.onForwardPlane(camFrustum.topFace) && globalSphere.onForwardPlane(camFrustum.bottomFace));
+        globalSphere.onForwardPlane(camFrustum.farFace) && globalSphere.onForwardPlane(camFrustum.nearFace) &&
+        globalSphere.onForwardPlane(camFrustum.topFace) && globalSphere.onForwardPlane(camFrustum.bottomFace));
+}
+
+bool Bounds::Sphere::collidePoint(const glm::vec3& point) const
+{
+    return glm::length(point - center) <= radius;
 }
 
 Bounds::Sphere Bounds::generateSphereBV(const Model* model)
@@ -132,6 +140,17 @@ Bounds::Sphere Bounds::generateSphereBV(const Model* model)
     return Sphere{(maxAABB + minAABB) * 0.5f, glm::length(minAABB - maxAABB)};
 }
 
+bool Bounds::AABB::collidePoint(const glm::vec3& point) const
+{
+    const glm::vec3 min{center.x - extents.x, center.y - extents.y, center.z - extents.z};
+    const glm::vec3 max{center.x + extents.x, center.y + extents.y, center.z + extents.z};
+    return (
+        min.x <= point.x && point.x <= max.x &&
+        min.y <= point.y && point.y <= max.y &&
+        min.z <= point.z && point.z <= max.z
+    );
+}
+
 Bounds::AABB::AABB(const glm::vec3& min, const glm::vec3& max) :
     Volume{}, center{(min + max) * 0.5f},
     extents{(max.x - min.x) * 0.5f, (max.y - min.y) * 0.5f, (max.z - min.z) * 0.5f}
@@ -146,7 +165,7 @@ Bounds::AABB::AABB(const glm::vec3& aCenter, float eX, float eY, float eZ) :
 bool Bounds::AABB::onForwardPlane(const Plane& plane) const
 {
     const float r{extents.x * std::abs(plane.normal.x) + extents.y * std::abs(plane.normal.y) +
-                  extents.z * std::abs(plane.normal.z)};
+        extents.z * std::abs(plane.normal.z)};
     return -r <= plane.getSignedDistance(center);
 }
 
@@ -161,21 +180,21 @@ bool Bounds::AABB::onFrustum(const Frustum& camFrustum, const Transform& transfo
 
     // new x extent
     const float nEX{std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, right)) +
-                    std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, up)) +
-                    std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, forward))};
+        std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, up)) +
+        std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, forward))};
     // new y extent
     const float nEY{std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, right)) +
-                    std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, up)) +
-                    std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, forward))};
+        std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, up)) +
+        std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, forward))};
     // new z extent
     const float nEZ{std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, right)) +
-                    std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, up)) +
-                    std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, forward))};
+        std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, up)) +
+        std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, forward))};
 
     const AABB globalAABB{globalCenter, nEX, nEY, nEZ};
     return (globalAABB.onForwardPlane(camFrustum.leftFace) && globalAABB.onForwardPlane(camFrustum.rightFace) &&
-            globalAABB.onForwardPlane(camFrustum.farFace) && globalAABB.onForwardPlane(camFrustum.nearFace) &&
-            globalAABB.onForwardPlane(camFrustum.topFace) && globalAABB.onForwardPlane(camFrustum.bottomFace));
+        globalAABB.onForwardPlane(camFrustum.farFace) && globalAABB.onForwardPlane(camFrustum.nearFace) &&
+        globalAABB.onForwardPlane(camFrustum.topFace) && globalAABB.onForwardPlane(camFrustum.bottomFace));
 }
 
 Bounds::AABB Bounds::generateAABB_BV(const Model* model)

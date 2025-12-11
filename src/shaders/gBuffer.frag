@@ -1,8 +1,8 @@
 #version 410 core
-layout (location = 0) out vec4 gPositionE; // xyz = Position, w = Emissive.r
-layout (location = 1) out vec4 gAlbedo; // xyzw = Albedo.rgba
-layout (location = 2) out vec4 gNormalE; // xyz = Normal (world space), w = Emissive.g
-layout (location = 3) out vec4 gARME; // x = AO, y = Roughness, z = Metallic, w = Emissive.b
+layout(location = 0) out vec4 gPositionE; // xyz = Position, w = Emissive.r
+layout(location = 1) out vec4 gAlbedo; // xyzw = Albedo.rgba
+layout(location = 2) out vec4 gNormalE; // xyz = Normal (world space), w = Emissive.g
+layout(location = 3) out vec4 gARME; // x = AO, y = Roughness, z = Metallic, w = Emissive.b
 
 in VS_OUT
 {
@@ -43,10 +43,13 @@ uniform Material material;
 void main()
 {
     vec4 albedoSample = (material.useAlbedoTex == 1) ? texture(material.albedoMap, fs_in.TexCoords) : material.albedo;
-    float metallic = (material.useMetallicTex == 1) ? texture(material.metallicMap, fs_in.TexCoords).r : material.metallic;
-    float roughness = (material.useRoughnessTex == 1) ? texture(material.roughnessMap, fs_in.TexCoords).r : material.roughness;
+    float metallic =
+        (material.useMetallicTex == 1) ? texture(material.metallicMap, fs_in.TexCoords).r : material.metallic;
+    float roughness =
+        (material.useRoughnessTex == 1) ? texture(material.roughnessMap, fs_in.TexCoords).r : material.roughness;
     float ao = (material.useAOTex == 1) ? texture(material.aoMap, fs_in.TexCoords).r : 1.0;
-    vec3 emissive = (material.useEmissiveTex == 1) ? texture(material.emissiveMap, fs_in.TexCoords).rgb : material.emissiveFactor * material.emissiveIntensity;
+    vec3 emissive = (material.useEmissiveTex == 1) ? texture(material.emissiveMap, fs_in.TexCoords).rgb
+                                                   : material.emissiveFactor * material.emissiveIntensity;
 
     // calculate world space normal
     vec3 normal;
@@ -62,7 +65,9 @@ void main()
         normal = texture(material.normalMap, fs_in.TexCoords).rgb;
         normal = normalize(normal * 2.0 - 1.0);
         normal = normalize(TBN * normal);
-    } else {
+    }
+    else
+    {
         normal = normalize(fs_in.Normal);
     }
 

@@ -78,13 +78,13 @@ void main()
     vec3 emissive;
     vec4 gPositionSample = texture(gPositionE, TexCoords);
     vec3 FragPos = gPositionSample.rgb;
-    emissive.r = gPositionSample.a; 
-    
+    emissive.r = gPositionSample.a;
+
     vec4 albedoSample = texture(gAlbedo, TexCoords);
     vec3 albedo = pow(albedoSample.rgb, vec3(2.2));
     float alpha = albedoSample.a;
     if (alpha < 0.1)
-    discard;
+        discard;
 
     vec4 gNormalSample = texture(gNormalE, TexCoords);
     vec3 norm = normalize(gNormalSample.rgb);

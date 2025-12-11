@@ -21,11 +21,6 @@ int main()
     std::cout << "Initialized engine!\n";
     engine.setCameraEnabled(true);
 
-    // use only gltf files for now
-    engine.addModel("spartan", "data/models/spartan.glb");
-
-    Model* spartan{engine.getModel("spartan")};
-
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine};
     iblGenerator.init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png", &engine);

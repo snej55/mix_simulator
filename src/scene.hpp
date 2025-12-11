@@ -22,6 +22,9 @@ public:
 private:
     glm::vec3 m_pos;
     std::vector<Entity*> m_entities{};
+    std::unique_ptr<Bounds::AABB> m_aabb{nullptr};
+
+    void init();
 };
 
 class Scene final : public EngineObject
