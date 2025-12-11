@@ -9,7 +9,7 @@
 #include "model.hpp"
 #include "bounds.hpp"
 
-class Entity
+class Entity final
 {
 public:
     Entity() = default;
@@ -32,6 +32,8 @@ public:
 
     void setStatic(const bool val) { m_static = val; }
     [[nodiscard]] bool getStatic() const { return m_static; }
+
+    [[nodiscard]] glm::vec3 getMidpoint() const {return m_BV->center;}
 
 private:
     std::string m_path{};

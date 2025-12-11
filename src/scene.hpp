@@ -15,6 +15,8 @@ public:
     // update entities in chunk and return entities that have exited chunk (non-static)
     void updateEntities(float deltaTime, std::vector<Entity*>& discardEntities);
 
+    void removeEntity(std::size_t index);
+
     // getters
     [[nodiscard]] const glm::vec3& getPos() const { return m_pos; }
     [[nodiscard]] const std::vector<Entity*>& getEntities() const { return m_entities; }

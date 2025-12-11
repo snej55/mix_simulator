@@ -20,12 +20,29 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
 {
     for (std::size_t i{0}; i < m_entities.size(); ++i)
     {
-        Entity* entity{m_entities[i]};
-        if (entity != nullptr)
+        if (Entity* entity{m_entities[i]}; entity != nullptr)
         {
             entity->update(deltaTime);
+            if (!m_aabb->collidePoint(entity->getMidpoint()))
+            {
+                discardEntities.emplace_back(entity);
+                removeEntity(i);
+            }
         }
     }
+}
+
+void SceneChunk::removeEntity(const std::size_t index)
+{
+    assert(index < m_entities.size());
+    if (m_entities.size() == 1)
+    {
+        m_entities.clear();
+        return;
+    }
+
+    std::swap(m_entities[index], m_entities.back());
+    m_entities.pop_back();
 }
 
 void SceneChunk::init()
