@@ -7,6 +7,7 @@
 #include "bounds.hpp"
 #include "engine.hpp"
 #include "spatial_hashing.hpp"
+#include "util.hpp"
 
 SceneChunk::SceneChunk(const glm::vec3& pos) : m_pos{pos} { init(); }
 
@@ -145,19 +146,21 @@ void Scene::cleanupEmptyChunks()
 void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const bool animated)
 {
     assert(m_engine != nullptr);
-    const Engine* enginePtr{static_cast<Engine*>(m_engine)};
+    Engine* enginePtr{static_cast<Engine*>(m_engine)};
 
-    const Model* modelPtr{enginePtr->getModelByPath(modelPath)};
+    Model* modelPtr{enginePtr->getModelByPath(modelPath)};
     if (modelPtr == nullptr)
     {
-        enginePtr->addModel(modelPath, modelPath);
-        modelPtr = enginePtr->getModelByPath(modelPath);
+        Util::beginError();
+        std::cout << "SCENE::ADD_ENTITY::ERROR: Model at path `" << modelPath
+                  << "` does not exist! Ensure it is preloaded beforehand.";
+        Util::endError();
+        return;
     }
-    assert(modelPtr != nullptr);
 
     if (animated && modelPtr != nullptr)
     {
-        const_cast<Model*>(modelPtr)->loadAnimation();
+        modelPtr->loadAnimation();
     }
 
     Entity* entity{new Entity{modelPtr, transform, animated}};
@@ -177,7 +180,8 @@ void Scene::addEntity(Entity* entity)
     }
     else
     {
-        glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE, static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
+        glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE,
+                           static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
                            static_cast<float>(key.z) * SpatialHashing::CELL_SIZE};
         m_chunks[key] = std::make_unique<SceneChunk>(chunkPos, std::vector<Entity*>{entity});
     }

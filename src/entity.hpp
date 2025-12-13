@@ -33,7 +33,7 @@ public:
     void setStatic(const bool val) { m_static = val; }
     [[nodiscard]] bool getStatic() const { return m_static; }
 
-    [[nodiscard]] glm::vec3 getMidpoint() const {return m_BV->center;}
+    [[nodiscard]] glm::vec3 getMidpoint() const { return m_BV->center; }
 
 private:
     std::string m_path{};

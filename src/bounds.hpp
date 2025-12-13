@@ -49,7 +49,7 @@ namespace Bounds
 
         bool m_dirty{true};
 
-        glm::mat4 getLocalModelMat() const;
+        [[nodiscard]] glm::mat4 getLocalModelMat() const;
     };
 
     struct Plane
