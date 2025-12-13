@@ -29,16 +29,15 @@ void main()
 {
     vec2 TexCoords = gl_FragCoord.xy / vec2(float(scrWidth), float(scrHeight));
 
-    // sample data from gBuffer
-    vec3 fragPos = texture(gPositionE, TexCoords).xyz; // world space
+    // sample data from gBuffer is already in view space
+    vec3 fragPosVS = texture(gPositionE, TexCoords).xyz;
     vec3 normal = normalize(texture(gNormalE, TexCoords).rgb); // world space
-    
+
     // use screen-space pixel coordinates for noise lookup
     vec2 noiseCoords = gl_FragCoord.xy / float(NOISE_SIZE);
     vec3 randomVec = normalize(texture(texNoise, noiseCoords).xyz);
 
-    // convert to view space
-    vec3 fragPosVS = vec3(view * vec4(fragPos, 1.0));
+    // convert normal to view space
     vec3 normalViewSpace = normalize(mat3(view) * normal);
 
     if (fragPosVS.z > -0.1)
@@ -52,15 +51,11 @@ void main()
     vec3 bitangent = cross(normalViewSpace, tangent);
     mat3 TBN = mat3(tangent, bitangent, normalViewSpace);
 
-    vec3 viewRow2 = vec3(view[0][2], view[1][2], view[2][2]);
-    float viewZ = view[3][2];
-
     float occlusion = 0.0;
-    
+
     float validSamples = 0.0;
     for (int i = 0; i < kernelSize; ++i)
     {
-        // transform sample to view space
         vec3 samplePos = fragPosVS + TBN * samples[i] * radius;
         if (dot(samplePos, normalViewSpace) > 0.5)
             continue;
@@ -79,32 +74,27 @@ void main()
         if (offset.x < 0.0 || offset.x > 1.0 || offset.y < 0.0 || offset.y > 1.0)
             continue;
 
-        // convert to view space
-        vec3 sampleDepthWorldSpace = texture(gPositionE, offset.xy).xyz;
-        
-        // skip invalid samples
-        if (length(sampleDepthWorldSpace) < 0.001)
-            continue;
-        
-        float sampleDepth = dot(viewRow2, sampleDepthWorldSpace) + viewZ;
+        // already in view space
+        vec3 samplePosVS = texture(gPositionE, offset.xy).xyz;
 
-        vec3 samplePosVS = vec3(view * vec4(sampleDepthWorldSpace, 1.0));
-        
+        // skip invalid samples
+        if (length(samplePosVS) < 0.001)
+            continue;
+
         float distanceToSample = length(samplePosVS - fragPosVS);
-        
+
         float rangeCheck = smoothstep(radius * 1.2, radius * 0.2, distanceToSample);
 
-        float depthDifference = sampleDepth - samplePos.z;
+        float depthDifference = samplePosVS.z - samplePos.z;
         float occlusionWeight = (depthDifference >= bias ? 1.0 : 0.0);
         occlusionWeight *= smoothstep(radius * rangeInfluence, 0.0, abs(depthDifference));
-        
+
         occlusion += occlusionWeight * rangeCheck;
         validSamples += 1.0;
     }
-    
+
     occlusion = 1.0 - (occlusion / float(max(validSamples, 1.0)));
 
-    // Clamp AO to avoid black pixels from aggressive sampling or noise
     occlusion = clamp(occlusion, minAO, 1.0);
 
     FragColor = vec2(pow(occlusion, power), abs(fragPosVS.z / scale));

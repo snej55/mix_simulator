@@ -924,6 +924,7 @@ void Engine::renderGBuffer(const IBLGenerator* ibl)
 {
     useShader("deferredShading");
     setVec3("viewPos", getCameraPosition(), "deferredShading");
+    setMat4("view", getViewMatrix(), "deferredShading");
     setInt("gPositionE", 0, "deferredShading");
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getPositionEBuffer());

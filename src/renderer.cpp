@@ -30,7 +30,7 @@ void DeferredRenderer::init(const int scrWidth, const int scrHeight)
     glGenTextures(1, &m_positionEBuffer);
     glBindTexture(GL_TEXTURE_2D, m_positionEBuffer);
     // NOTE: upgrade to GL_RGBA32F in case of precision artifacts
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, scrWidth, scrHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, scrWidth, scrHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

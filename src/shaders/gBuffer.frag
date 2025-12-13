@@ -40,6 +40,8 @@ struct Material
 
 uniform Material material;
 
+uniform mat4 view;
+
 void main()
 {
     vec4 albedoSample = (material.useAlbedoTex == 1) ? texture(material.albedoMap, fs_in.TexCoords) : material.albedo;
@@ -71,7 +73,9 @@ void main()
         normal = normalize(fs_in.Normal);
     }
 
-    gPositionE = vec4(fs_in.FragPos, emissive.r);
+    // store view-space pos instead of world-space for better precision with GL_RGBA16F (reduce memory bandwidth too)
+    vec3 FragPosVS = vec3(view * vec4(fs_in.FragPos, 1.0));
+    gPositionE = vec4(FragPosVS, emissive.r);
     gAlbedo = albedoSample;
     gNormalE = vec4(normal, emissive.g);
     gARME = vec4(ao, roughness, metallic, emissive.b);

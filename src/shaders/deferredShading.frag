@@ -20,6 +20,7 @@ uniform sampler2D brdfLUT;
 
 uniform vec3 viewPos;
 uniform vec3 lightPos;
+uniform mat4 view;
 
 const float PI = 3.14159265359;
 
@@ -77,7 +78,10 @@ void main()
 {
     vec3 emissive;
     vec4 gPositionSample = texture(gPositionE, TexCoords);
-    vec3 FragPos = gPositionSample.rgb;
+
+    vec3 FragPosVS = gPositionSample.rgb;
+    // convert to world space
+    vec3 FragPos = vec3(inverse(view) * vec4(FragPosVS, 1.0));
     emissive.r = gPositionSample.a;
 
     vec4 albedoSample = texture(gAlbedo, TexCoords);
