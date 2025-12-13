@@ -8,7 +8,7 @@
 
 namespace SpatialHashing
 {
-    inline constexpr float CELL_SIZE{100.f};
+    inline constexpr float CELL_SIZE{24.f};
 
     // pcg3d hash function for 3D coordinates
     // https://jcgt.org/published/0009/03/02/paper.pdf
@@ -47,6 +47,12 @@ namespace SpatialHashing
                 (static_cast<std::size_t>(hashInput.z) * prime3);
         }
     };
+
+    inline std::ostream& operator<<(std::ostream& os, const ChunkKey& key)
+    {
+        os << key.x << ", " << key.y << ", " << key.z;
+        return os;
+    }
 } // namespace SpatialHashing
 
 #endif // SPATIAL_HASHING_HPP

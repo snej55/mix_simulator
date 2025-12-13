@@ -8,6 +8,7 @@
 Entity::Entity(const Model* model, const Bounds::Transform& transform, const bool animated) :
     m_transform{transform}, m_animated{animated}
 {
+    m_transform.computeModelMatrix();
     m_model = std::make_unique<Model>(*model);
     m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get()));
 }

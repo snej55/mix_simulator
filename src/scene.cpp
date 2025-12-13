@@ -33,7 +33,11 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         assert(entity != nullptr);
 
         entity->update(deltaTime);
+
         // check if entity is still in chunk
+        if (!entity->getTransform().getDirty())
+            continue;
+
         if (!m_aabb->collidePoint(entity->getTransform().getGlobalPosition()))
         {
             discardEntities.emplace_back(entity);
@@ -158,7 +162,7 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
         return;
     }
 
-    if (animated && modelPtr != nullptr)
+    if (animated)
     {
         modelPtr->loadAnimation();
     }
