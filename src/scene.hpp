@@ -64,8 +64,7 @@ private:
     std::unordered_map<SpatialHashing::ChunkKey, std::unique_ptr<SceneChunk>, SpatialHashing::ChunkKeyHasher>
         m_chunks{};
 
-    void generateChunks();
-    SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos) const;
+    static SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos);
 };
 
 #endif // SCENE_H

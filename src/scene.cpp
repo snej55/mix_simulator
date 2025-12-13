@@ -169,7 +169,7 @@ void Scene::addEntity(Entity* entity)
     assert(entity != nullptr);
 
     // get iterator
-    SpatialHashing::ChunkKey key{getChunkKey(entity->getTransform().getGlobalPosition())};
+    const SpatialHashing::ChunkKey key{getChunkKey(entity->getTransform().getGlobalPosition())};
     auto it{m_chunks.find(key)};
     if (it != m_chunks.end())
     {
@@ -177,13 +177,13 @@ void Scene::addEntity(Entity* entity)
     }
     else
     {
-        glm::vec3 chunkPos{key.x * SpatialHashing::CELL_SIZE, key.y * SpatialHashing::CELL_SIZE,
-                           key.z * SpatialHashing::CELL_SIZE};
+        glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE, static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
+                           static_cast<float>(key.z) * SpatialHashing::CELL_SIZE};
         m_chunks[key] = std::make_unique<SceneChunk>(chunkPos, std::vector<Entity*>{entity});
     }
 }
 
-SpatialHashing::ChunkKey Scene::getChunkKey(const glm::vec3& pos) const
+SpatialHashing::ChunkKey Scene::getChunkKey(const glm::vec3& pos)
 {
     SpatialHashing::ChunkKey key{};
     key.x = static_cast<long long>(std::floor(pos.x / SpatialHashing::CELL_SIZE));

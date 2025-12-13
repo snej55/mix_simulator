@@ -13,6 +13,7 @@
 #include "model.hpp"
 #include "postprocessing.hpp"
 #include "ibl.hpp"
+#include "scene.hpp"
 
 class DeferredRenderer final : public EngineObject
 {
@@ -98,6 +99,8 @@ public:
     void addStaticModel(const Model* model, const glm::mat4& modelTransform);
     // add dynamic model (updated every frame)
     void addDynamicModel(Model* model, const glm::mat4& modelTransform);
+
+    void addChunk(SceneChunk* chunk, const Bounds::Frustum& camFrustum);
 
     // meshes to be rendered deferred
     [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticOpaqueMeshes() const

@@ -54,14 +54,23 @@ int main()
 
     while (!engine.getQuit())
     {
-        glm::mat4 model;
         const Bounds::Frustum camFrustum{engine.getCameraFrustum()};
+
+        // update entities
         scene.updateEntities(engine.getDeltaTime());
+        scene.cleanupEmptyChunks();
+
+        // get visible chunks
         const Bounds::AABB camFrustumBV{Bounds::getFrustumBV(
             camFrustum, engine.getCamera(), CAMERA_Z_FAR, glm::radians(engine.getCamera()->getZoom()),
             static_cast<float>(engine.getWidth()) / static_cast<float>(engine.getHeight()))};
         std::vector<SceneChunk*> visibleChunks{};
         scene.getVisibleChunks(camFrustum, camFrustumBV, visibleChunks);
+
+        for (SceneChunk* chunk : visibleChunks)
+        {
+            renderQueue.addChunk(chunk, camFrustum);
+        }
         // for (Entity* entity : scene.getEntities())
         // {
         //     entity->update(engine.getDeltaTime());
