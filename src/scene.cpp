@@ -49,6 +49,11 @@ void SceneChunk::addEntity(Entity* entity)
     m_entities.emplace_back(entity);
 }
 
+void SceneChunk::getVisible(const Bounds::Frustum& camFrustum, bool& visible) const
+{
+    visible = m_aabb->onFrustum(camFrustum, {});
+}
+
 void SceneChunk::init()
 {
     m_aabb = std::make_unique<Bounds::AABB>(
@@ -99,12 +104,21 @@ void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AA
         {
             for (long long z{minKey.z}; z < maxKey.z; ++z)
             {
+                bool visible{false};
+
+                // find chunk
                 SpatialHashing::ChunkKey key{x, y, z};
                 auto it{m_chunks.find(key)};
                 if (it != m_chunks.end())
                 {
+                    const SceneChunk* chunk{it->second.get()};
+                    // check if chunk is visible
+                    chunk->getVisible(camFrustum, visible);
+                }
+
+                if (visible)
+                {
                     chunks.emplace_back(it->second.get());
-                    // TODO: Add chunk visibility check here
                 }
             }
         }

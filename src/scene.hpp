@@ -20,6 +20,8 @@ public:
 
     void addEntity(Entity* entity);
 
+    void getVisible(const Bounds::Frustum& camFrustum, bool& visible) const;
+
     // getters
     [[nodiscard]] const glm::vec3& getPos() const { return m_pos; }
     [[nodiscard]] const std::vector<Entity*>& getEntities() const { return m_entities; }
