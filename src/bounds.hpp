@@ -56,9 +56,10 @@ namespace Bounds
     {
         glm::vec3 normal{0.f, 1.f, 0.f};
         float distance{0.f};
+        glm::vec3 p1{0.f, 0.f, 0.f};
 
         Plane() = default;
-        Plane(const glm::vec3& p1, const glm::vec3& norm);
+        Plane(const glm::vec3& aP1, const glm::vec3& norm);
         [[nodiscard]] float getSignedDistance(const glm::vec3& p) const;
     };
 
@@ -118,6 +119,7 @@ namespace Bounds
     };
 
     AABB generateAABB_BV(const Model* model);
+    AABB getFrustumBV(const Frustum& frustum, const Camera* cam, float zFar, float fovY, float aspectR);
 } // namespace Bounds
 
 #endif // MAIN_BOUNDS_HPP

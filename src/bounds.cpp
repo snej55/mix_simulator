@@ -52,8 +52,8 @@ glm::mat4 Bounds::Transform::getLocalModelMat() const
     return glm::translate(glm::mat4{1.0f}, m_pos) * rotationMatrix * glm::scale(glm::mat4{1.0f}, m_scale);
 }
 
-Bounds::Plane::Plane(const glm::vec3& p1, const glm::vec3& norm) :
-    normal{glm::normalize(norm)}, distance{glm::dot(normal, p1)}
+Bounds::Plane::Plane(const glm::vec3& aP1, const glm::vec3& norm) :
+    normal{glm::normalize(norm)}, distance{glm::dot(normal, aP1)}, p1{aP1}
 {
 }
 
@@ -223,4 +223,64 @@ Bounds::AABB Bounds::generateAABB_BV(const Model* model)
     }
 
     return AABB{minAABB, maxAABB};
+}
+
+Bounds::AABB Bounds::getFrustumBV(const Frustum& frustum, const Camera* cam, float zFar, float fovY, float aspectR)
+{
+    // get Frustum coordinates
+    const float halfVSide{zFar * std::tanf(fovY * 0.5f)};
+    const float halfHSide{halfVSide * aspectR};
+
+    const glm::vec3 pos{cam->getPosition()};
+    const glm::vec3 front{cam->getFront()};
+    const glm::vec3 up{cam->getUp()};
+    const glm::vec3 right{cam->getRight()};
+
+    const glm::vec3 farCenter{pos + zFar * front};
+
+    // far plane vectors
+    const glm::vec3 farUp{halfVSide * up};
+    const glm::vec3 farRight{halfHSide * right};
+
+    // far plane corners
+    const glm::vec3 farTopLeft{farCenter + farUp - farRight};
+    const glm::vec3 farTopRight{farCenter + farUp + farRight};
+    const glm::vec3 farBottomLeft{farCenter - farUp - farRight};
+    const glm::vec3 farBottomRight{farCenter - farUp + farRight};
+
+    // corners of near plane
+    const float zNear{glm::distance(pos, frustum.nearFace.p1)};
+    const float nearHalfVSide{zNear * std::tanf(fovY * 0.5f)};
+    const float nearHalfHSide{nearHalfVSide * aspectR};
+
+    const glm::vec3 nearCenter{pos + zNear * front};
+    const glm::vec3 nearUp{nearHalfVSide * up};
+    const glm::vec3 nearRight{nearHalfHSide * right};
+
+    // actual corners
+    const glm::vec3 nearTopLeft {nearCenter + nearUp - nearRight};
+    const glm::vec3 nearTopRight {nearCenter + nearUp + nearRight};
+    const glm::vec3 nearBottomLeft {nearCenter - nearUp - nearRight};
+    const glm::vec3 nearBottomRight {nearCenter - nearUp + nearRight};
+
+    const glm::vec3 corners[8] {
+        farTopLeft, farTopRight, farBottomLeft, farBottomRight, nearTopLeft, nearTopRight, nearBottomLeft, nearBottomRight
+    };
+
+    // get actual bounding volume
+    glm::vec3 minAABB {std::numeric_limits<float>::max()};
+    glm::vec3 maxAABB {std::numeric_limits<float>::min()};
+    for (std::size_t i{0}; i < 8; ++i)
+    {
+        const glm::vec3* corner {&corners[i]};
+        minAABB.x = std::min(minAABB.x, corner->x);
+        minAABB.y = std::min(minAABB.y, corner->y);
+        minAABB.z = std::min(minAABB.z, corner->z);
+
+        maxAABB.x = std::max(maxAABB.x, corner->x);
+        maxAABB.y = std::max(maxAABB.y, corner->y);
+        maxAABB.z = std::max(maxAABB.z, corner->z);
+    }
+
+    return {minAABB, maxAABB};
 }
