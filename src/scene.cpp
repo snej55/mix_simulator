@@ -5,6 +5,7 @@
 
 #include "scene.hpp"
 #include "engine.hpp"
+#include "spatial_hashing.hpp"
 
 SceneChunk::SceneChunk(const glm::vec3& pos) : m_pos{pos} { init(); }
 
@@ -41,10 +42,18 @@ void SceneChunk::removeEntity(const std::size_t index)
     m_entities.pop_back();
 }
 
+void SceneChunk::addEntity(Entity* entity)
+{
+    assert(entity != nullptr);
+    m_entities.emplace_back(entity);
+}
+
 void SceneChunk::init()
 {
     m_aabb = std::make_unique<Bounds::AABB>(
-        Bounds::AABB{m_pos, {m_pos.x + CHUNK_SIZE, m_pos.y + CHUNK_SIZE, m_pos.z + CHUNK_SIZE}});
+        Bounds::AABB{m_pos,
+                     {m_pos.x + SpatialHashing::CELL_SIZE, m_pos.y + SpatialHashing::CELL_SIZE,
+                      m_pos.z + SpatialHashing::CELL_SIZE}});
 }
 
 Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine(engine) {}
@@ -85,4 +94,30 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
     m_entities.push_back(entity);
 }
 
-void Scene::addEntity(Entity* entity) { m_entities.emplace_back(entity); }
+void Scene::addEntity(Entity* entity)
+{
+    assert(entity != nullptr);
+
+    // get iterator
+    SpatialHashing::ChunkKey key{getChunkKey(entity->getTransform().getGlobalPosition())};
+    auto it{m_chunks.find(key)};
+    if (it != m_chunks.end())
+    {
+        it->second->addEntity(entity);
+    }
+    else
+    {
+        glm::vec3 chunkPos{key.x * SpatialHashing::CELL_SIZE, key.y * SpatialHashing::CELL_SIZE,
+                           key.z * SpatialHashing::CELL_SIZE};
+        m_chunks[key] = std::make_unique<SceneChunk>(chunkPos, std::vector<Entity*>{entity});
+    }
+}
+
+SpatialHashing::ChunkKey Scene::getChunkKey(const glm::vec3& pos) const
+{
+    SpatialHashing::ChunkKey key{};
+    key.x = static_cast<long long>(std::floor(pos.x / SpatialHashing::CELL_SIZE));
+    key.y = static_cast<long long>(std::floor(pos.y / SpatialHashing::CELL_SIZE));
+    key.z = static_cast<long long>(std::floor(pos.z / SpatialHashing::CELL_SIZE));
+    return key;
+}

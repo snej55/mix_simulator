@@ -1,10 +1,10 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <unordered_map>
 #include "engine_types.hpp"
 #include "entity.hpp"
-
-inline constexpr float CHUNK_SIZE{24.f};
+#include "spatial_hashing.hpp"
 
 class SceneChunk
 {
@@ -16,6 +16,8 @@ public:
     void updateEntities(float deltaTime, std::vector<Entity*>& discardEntities);
 
     void removeEntity(std::size_t index);
+
+    void addEntity(Entity* entity);
 
     // getters
     [[nodiscard]] const glm::vec3& getPos() const { return m_pos; }
@@ -49,6 +51,12 @@ public:
 private:
     void* m_engine{nullptr};
     std::vector<Entity*> m_entities{};
+
+    std::unordered_map<SpatialHashing::ChunkKey, std::unique_ptr<SceneChunk>, SpatialHashing::ChunkKeyHasher>
+        m_chunks{};
+
+    void generateChunks();
+    SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos) const;
 };
 
 #endif // SCENE_H
