@@ -228,6 +228,7 @@ Bounds::AABB Bounds::generateAABB_BV(const Model* model)
 Bounds::AABB Bounds::getFrustumBV(const Frustum& frustum, const Camera* cam, float zFar, float fovY, float aspectR)
 {
     // get Frustum coordinates
+    zFar = std::min(zFar, 1000.f);
     const float halfVSide{zFar * std::tanf(fovY * 0.5f)};
     const float halfHSide{halfVSide * aspectR};
 
@@ -258,21 +259,20 @@ Bounds::AABB Bounds::getFrustumBV(const Frustum& frustum, const Camera* cam, flo
     const glm::vec3 nearRight{nearHalfHSide * right};
 
     // actual corners
-    const glm::vec3 nearTopLeft {nearCenter + nearUp - nearRight};
-    const glm::vec3 nearTopRight {nearCenter + nearUp + nearRight};
-    const glm::vec3 nearBottomLeft {nearCenter - nearUp - nearRight};
-    const glm::vec3 nearBottomRight {nearCenter - nearUp + nearRight};
+    const glm::vec3 nearTopLeft{nearCenter + nearUp - nearRight};
+    const glm::vec3 nearTopRight{nearCenter + nearUp + nearRight};
+    const glm::vec3 nearBottomLeft{nearCenter - nearUp - nearRight};
+    const glm::vec3 nearBottomRight{nearCenter - nearUp + nearRight};
 
-    const glm::vec3 corners[8] {
-        farTopLeft, farTopRight, farBottomLeft, farBottomRight, nearTopLeft, nearTopRight, nearBottomLeft, nearBottomRight
-    };
+    const glm::vec3 corners[8]{farTopLeft,  farTopRight,  farBottomLeft,  farBottomRight,
+                               nearTopLeft, nearTopRight, nearBottomLeft, nearBottomRight};
 
     // get actual bounding volume
-    glm::vec3 minAABB {std::numeric_limits<float>::max()};
-    glm::vec3 maxAABB {std::numeric_limits<float>::min()};
+    glm::vec3 minAABB{std::numeric_limits<float>::max()};
+    glm::vec3 maxAABB{std::numeric_limits<float>::min()};
     for (std::size_t i{0}; i < 8; ++i)
     {
-        const glm::vec3* corner {&corners[i]};
+        const glm::vec3* corner{&corners[i]};
         minAABB.x = std::min(minAABB.x, corner->x);
         minAABB.y = std::min(minAABB.y, corner->y);
         minAABB.z = std::min(minAABB.z, corner->z);

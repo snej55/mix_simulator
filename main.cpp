@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "src/bounds.hpp"
+#include "src/camera.hpp"
 #include "src/engine.hpp"
 #include "src/ibl.hpp"
 #include "src/renderer.hpp"
@@ -54,15 +56,21 @@ int main()
     {
         glm::mat4 model;
         const Bounds::Frustum camFrustum{engine.getCameraFrustum()};
-        for (Entity* entity : scene.getEntities())
-        {
-            entity->update(engine.getDeltaTime());
-            if (entity->getBoundingVolume()->onFrustum(camFrustum, entity->getTransform()))
-            {
-                model = entity->getTransform().getModelMat();
-                renderQueue.addDynamicModel(entity->getModel(), model);
-            }
-        }
+        scene.updateEntities(engine.getDeltaTime());
+        const Bounds::AABB camFrustumBV{Bounds::getFrustumBV(
+            camFrustum, engine.getCamera(), CAMERA_Z_FAR, glm::radians(engine.getCamera()->getZoom()),
+            static_cast<float>(engine.getWidth()) / static_cast<float>(engine.getHeight()))};
+        std::vector<SceneChunk*> visibleChunks{};
+        scene.getVisibleChunks(camFrustum, camFrustumBV, visibleChunks);
+        // for (Entity* entity : scene.getEntities())
+        // {
+        //     entity->update(engine.getDeltaTime());
+        //     if (entity->getBoundingVolume()->onFrustum(camFrustum, entity->getTransform()))
+        //     {
+        //         model = entity->getTransform().getModelMat();
+        //         renderQueue.addDynamicModel(entity->getModel(), model);
+        //     }
+        // }
 
         renderQueue.renderFrame(engine.getShader("gBuffer"), dfRenderer, engine.getShader("texturePBR"),
                                 engine.getPostProcessor(), &engine, &iblGenerator, engine.getCameraPosition());

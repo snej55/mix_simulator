@@ -13,6 +13,8 @@ public:
     explicit SceneChunk(const glm::vec3& pos);
     SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entities);
 
+    ~SceneChunk();
+
     // update entities in chunk and return entities that have exited chunk (non-static)
     void updateEntities(float deltaTime, std::vector<Entity*>& discardEntities);
 
@@ -48,17 +50,16 @@ public:
     void getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
                           std::vector<SceneChunk*>& chunks);
 
+    void cleanupEmptyChunks();
+
     // free all entities
     void free();
 
     void addEntity(const char* modelPath, const Bounds::Transform& transform, bool animated = false);
     void addEntity(Entity* entity);
 
-    [[nodiscard]] const std::vector<Entity*>& getEntities() const { return m_entities; }
-
 private:
     void* m_engine{nullptr};
-    std::vector<Entity*> m_entities{};
 
     std::unordered_map<SpatialHashing::ChunkKey, std::unique_ptr<SceneChunk>, SpatialHashing::ChunkKeyHasher>
         m_chunks{};

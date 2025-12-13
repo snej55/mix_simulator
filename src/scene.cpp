@@ -15,19 +15,36 @@ SceneChunk::SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entitie
     init();
 }
 
+SceneChunk::~SceneChunk()
+{
+    for (std::size_t i{0}; i < m_entities.size(); ++i)
+    {
+        delete m_entities[i];
+    }
+    m_entities.clear();
+}
+
 void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& discardEntities)
 {
     for (std::size_t i{0}; i < m_entities.size(); ++i)
     {
         Entity* entity{m_entities[i]};
         assert(entity != nullptr);
+
         entity->update(deltaTime);
+        // check if entity is still in chunk
         if (!m_aabb->collidePoint(entity->getTransform().getGlobalPosition()))
         {
             discardEntities.emplace_back(entity);
-            removeEntity(i);
+            removeEntity(i); // swap entity with back and pop
+            --i; // make sure swapped entity is not skipped
         }
     }
+}
+
+void SceneChunk::getVisible(const Bounds::Frustum& camFrustum, bool& visible) const
+{
+    visible = m_aabb->onFrustum(camFrustum, {});
 }
 
 void SceneChunk::removeEntity(const std::size_t index)
@@ -49,10 +66,6 @@ void SceneChunk::addEntity(Entity* entity)
     m_entities.emplace_back(entity);
 }
 
-void SceneChunk::getVisible(const Bounds::Frustum& camFrustum, bool& visible) const
-{
-    visible = m_aabb->onFrustum(camFrustum, {});
-}
 
 void SceneChunk::init()
 {
@@ -68,14 +81,7 @@ Scene::~Scene() { free(); }
 
 bool Scene::init(const char* scenePath) { return true; }
 
-void Scene::free()
-{
-    for (std::size_t i{0}; i < std::size(m_entities); ++i)
-    {
-        delete m_entities[i];
-    }
-    m_entities.clear();
-}
+void Scene::free() {}
 
 void Scene::updateEntities(const float deltaTime)
 {
@@ -95,32 +101,43 @@ void Scene::updateEntities(const float deltaTime)
 void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
                              std::vector<SceneChunk*>& chunks)
 {
-    SpatialHashing::ChunkKey minKey{getChunkKey(frustumBV.center - frustumBV.extents)};
-    SpatialHashing::ChunkKey maxKey{getChunkKey(frustumBV.center + frustumBV.extents)};
-
-    for (long long x{minKey.x}; x <= maxKey.x; ++x)
+    int total{0};
+    for (const auto& [key, chunkPtr] : m_chunks)
     {
-        for (long long y{minKey.y}; y <= maxKey.y; ++y)
+        const glm::vec3& chunkPos{chunkPtr->getPos()};
+        const glm::vec3 chunkMax{chunkPos + glm::vec3{SpatialHashing::CELL_SIZE}};
+
+        const bool collideFrustumBV{frustumBV.center.x - frustumBV.extents.x <= chunkMax.x &&
+                                    frustumBV.center.x + frustumBV.extents.x >= chunkPos.x &&
+                                    frustumBV.center.y - frustumBV.extents.y <= chunkMax.y &&
+                                    frustumBV.center.y + frustumBV.extents.y >= chunkPos.y &&
+                                    frustumBV.center.z - frustumBV.extents.z <= chunkMax.z &&
+                                    frustumBV.center.z + frustumBV.extents.z >= chunkPos.z};
+
+        if (collideFrustumBV)
         {
-            for (long long z{minKey.z}; z < maxKey.z; ++z)
+            ++total;
+            bool visible{false};
+            chunkPtr->getVisible(camFrustum, visible);
+            if (visible)
             {
-                bool visible{false};
-
-                // find chunk
-                SpatialHashing::ChunkKey key{x, y, z};
-                auto it{m_chunks.find(key)};
-                if (it != m_chunks.end())
-                {
-                    const SceneChunk* chunk{it->second.get()};
-                    // check if chunk is visible
-                    chunk->getVisible(camFrustum, visible);
-                }
-
-                if (visible)
-                {
-                    chunks.emplace_back(it->second.get());
-                }
+                chunks.emplace_back(chunkPtr.get());
             }
+        }
+    }
+}
+
+void Scene::cleanupEmptyChunks()
+{
+    for (auto it{m_chunks.begin()}; it != m_chunks.end();)
+    {
+        if (it->second->getEntities().empty())
+        {
+            it = m_chunks.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
 }
@@ -142,7 +159,6 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
     {
         const_cast<Model*>(modelPtr)->loadAnimation();
     }
-    std::cout << std::boolalpha << modelPtr->isAnimated() << "\n";
 
     Entity* entity{new Entity{modelPtr, transform, animated}};
     addEntity(entity);
