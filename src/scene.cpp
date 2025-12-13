@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "scene.hpp"
+#include "bounds.hpp"
 #include "engine.hpp"
 #include "spatial_hashing.hpp"
 
@@ -21,7 +22,7 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         Entity* entity{m_entities[i]};
         assert(entity != nullptr);
         entity->update(deltaTime);
-        if (!m_aabb->collidePoint(entity->getMidpoint()))
+        if (!m_aabb->collidePoint(entity->getTransform().getGlobalPosition()))
         {
             discardEntities.emplace_back(entity);
             removeEntity(i);
@@ -71,6 +72,45 @@ void Scene::free()
     m_entities.clear();
 }
 
+void Scene::updateEntities(const float deltaTime)
+{
+    std::vector<Entity*> discardEntities;
+
+    for (const auto& [key, chunkPtr] : m_chunks)
+    {
+        chunkPtr->updateEntities(deltaTime, discardEntities);
+    }
+
+    for (Entity* entity : discardEntities)
+    {
+        addEntity(entity);
+    }
+}
+
+void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
+                             std::vector<SceneChunk*>& chunks)
+{
+    SpatialHashing::ChunkKey minKey{getChunkKey(frustumBV.center - frustumBV.extents)};
+    SpatialHashing::ChunkKey maxKey{getChunkKey(frustumBV.center + frustumBV.extents)};
+
+    for (long long x{minKey.x}; x <= maxKey.x; ++x)
+    {
+        for (long long y{minKey.y}; y <= maxKey.y; ++y)
+        {
+            for (long long z{minKey.z}; z < maxKey.z; ++z)
+            {
+                SpatialHashing::ChunkKey key{x, y, z};
+                auto it{m_chunks.find(key)};
+                if (it != m_chunks.end())
+                {
+                    chunks.emplace_back(it->second.get());
+                    // TODO: Add chunk visibility check here
+                }
+            }
+        }
+    }
+}
+
 void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const bool animated)
 {
     assert(m_engine != nullptr);
@@ -91,7 +131,7 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
     std::cout << std::boolalpha << modelPtr->isAnimated() << "\n";
 
     Entity* entity{new Entity{modelPtr, transform, animated}};
-    m_entities.push_back(entity);
+    addEntity(entity);
 }
 
 void Scene::addEntity(Entity* entity)

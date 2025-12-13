@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include <unordered_map>
+#include "bounds.hpp"
 #include "engine_types.hpp"
 #include "entity.hpp"
 #include "spatial_hashing.hpp"
@@ -39,6 +40,11 @@ public:
 
     // load entities from json
     bool init(const char* scenePath);
+
+    void updateEntities(float deltaTime);
+
+    void getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
+                          std::vector<SceneChunk*>& chunks);
 
     // free all entities
     void free();
