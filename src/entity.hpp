@@ -34,6 +34,13 @@ public:
     [[nodiscard]] bool getStatic() const { return m_static; }
 
     [[nodiscard]] glm::vec3 getMidpoint() const { return m_BV->center; }
+    [[nodiscard]] glm::vec3 getGlobalMidpoint() const;
+
+    void setDiscarded(const bool val) { m_discarded = val; }
+    [[nodiscard]] bool getDiscarded() const { return m_discarded; }
+
+    void setDirty(const bool val) { m_dirty = val; }
+    [[nodiscard]] bool getDirty() const { return m_dirty; }
 
 private:
     std::string m_path{};
@@ -45,6 +52,9 @@ private:
 
     bool m_inFrustum{false};
     bool m_static{false};
+
+    bool m_dirty{true};
+    bool m_discarded{false};
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Entity& entity)

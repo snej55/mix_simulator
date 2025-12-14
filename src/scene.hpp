@@ -14,7 +14,7 @@ public:
     explicit SceneChunk(const glm::vec3& pos);
     SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entities);
 
-    ~SceneChunk();
+    ~SceneChunk() = default;
 
     // update entities in chunk and return entities that have exited chunk (non-static)
     void updateEntities(float deltaTime, std::vector<Entity*>& discardEntities);

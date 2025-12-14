@@ -69,15 +69,6 @@ int main()
         {
             renderQueue.addChunk(chunk, camFrustum);
         }
-        // for (Entity* entity : scene.getEntities())
-        // {
-        //     entity->update(engine.getDeltaTime());
-        //     if (entity->getBoundingVolume()->onFrustum(camFrustum, entity->getTransform()))
-        //     {
-        //         model = entity->getTransform().getModelMat();
-        //         renderQueue.addDynamicModel(entity->getModel(), model);
-        //     }
-        // }
 
         renderQueue.renderFrame(engine.getShader("gBuffer"), dfRenderer, engine.getShader("texturePBR"),
                                 engine.getPostProcessor(), &engine, &iblGenerator, engine.getCameraPosition());

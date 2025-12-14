@@ -279,6 +279,9 @@ void RenderQueue::addChunk(SceneChunk* chunk, const Bounds::Frustum& camFrustum)
     {
         if (entity->getBoundingVolume()->onFrustum(camFrustum, entity->getTransform()))
         {
+            if (!entity->getDirty())
+                continue;
+            entity->setDirty(false);
             addDynamicModel(entity->getModel(), entity->getTransform().getModelMat());
         }
     }

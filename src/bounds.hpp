@@ -132,6 +132,7 @@ namespace Bounds
         [[nodiscard]] bool onForwardPlane(const Plane& plane) const override;
         [[nodiscard]] bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
         [[nodiscard]] bool collidePoint(const glm::vec3& point) const override;
+        [[nodiscard]] bool collideSphere(const Sphere& other) const;
     };
 
     inline std::ostream& operator<<(std::ostream& os, const Sphere& sphere)
@@ -155,7 +156,9 @@ namespace Bounds
 
         [[nodiscard]] bool onForwardPlane(const Plane& plane) const override;
         [[nodiscard]] bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
+        [[nodiscard]] bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform, float padding) const;
         [[nodiscard]] bool collidePoint(const glm::vec3& point) const override;
+        [[nodiscard]] bool collideAABB(const AABB& other) const;
     };
 
     inline std::ostream& operator<<(std::ostream& os, const AABB& aabb)

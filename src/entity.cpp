@@ -53,3 +53,11 @@ Bounds::AABB Entity::getGlobalAABB() const
 
     return Bounds::AABB{globalCenter, nEX, nEY, nEZ};
 }
+
+glm::vec3 Entity::getGlobalMidpoint() const
+{
+    glm::mat4 model{1.0f};
+    model = glm::translate(model, m_BV->center);
+    model = glm::translate(model, m_transform.getGlobalPosition());
+    return glm::vec3{model[3]};
+}

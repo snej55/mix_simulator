@@ -1,6 +1,7 @@
 // Created by Jens Kromdijk 04-12-2025
 
 #include <JSON/json.hpp>
+#include <array>
 #include <cassert>
 
 #include "scene.hpp"
@@ -16,15 +17,6 @@ SceneChunk::SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entitie
     init();
 }
 
-SceneChunk::~SceneChunk()
-{
-    for (std::size_t i{0}; i < m_entities.size(); ++i)
-    {
-        delete m_entities[i];
-    }
-    m_entities.clear();
-}
-
 void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& discardEntities)
 {
     for (std::size_t i{0}; i < m_entities.size(); ++i)
@@ -32,7 +24,18 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         Entity* entity{m_entities[i]};
         assert(entity != nullptr);
 
+        if (entity->getDiscarded())
+        {
+            removeEntity(i);
+            --i;
+            continue;
+        }
+
+        if (entity->getDirty())
+            continue;
+
         entity->update(deltaTime);
+        entity->setDirty(true);
 
         // check if entity is still in chunk
         if (!entity->getTransform().getDirty())
@@ -40,6 +43,7 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
 
         if (!m_aabb->collidePoint(entity->getTransform().getGlobalPosition()))
         {
+            entity->setDiscarded(true);
             discardEntities.emplace_back(entity);
             removeEntity(i); // swap entity with back and pop
             --i; // make sure swapped entity is not skipped
@@ -49,7 +53,7 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
 
 void SceneChunk::getVisible(const Bounds::Frustum& camFrustum, bool& visible) const
 {
-    visible = m_aabb->onFrustum(camFrustum, {});
+    visible = m_aabb->onFrustum(camFrustum, {}, SpatialHashing::CELL_PADDING);
 }
 
 void SceneChunk::removeEntity(const std::size_t index)
@@ -68,6 +72,7 @@ void SceneChunk::removeEntity(const std::size_t index)
 void SceneChunk::addEntity(Entity* entity)
 {
     assert(entity != nullptr);
+    entity->setDiscarded(false);
     m_entities.emplace_back(entity);
 }
 
@@ -86,7 +91,20 @@ Scene::~Scene() { free(); }
 
 bool Scene::init(const char* scenePath) { return true; }
 
-void Scene::free() {}
+void Scene::free()
+{
+    std::vector<Entity*> freedEntities;
+    for (auto& [key, chunkPtr] : m_chunks)
+    {
+        const std::vector<Entity*>& entities{chunkPtr->getEntities()};
+        for (Entity* entity : entities)
+        {
+            freedEntities.emplace_back(entity);
+            if (std::find(freedEntities.begin(), freedEntities.end(), entity) == freedEntities.end())
+                delete entity;
+        }
+    }
+}
 
 void Scene::updateEntities(const float deltaTime)
 {
@@ -106,29 +124,27 @@ void Scene::updateEntities(const float deltaTime)
 void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
                              std::vector<SceneChunk*>& chunks)
 {
-    int total{0};
     for (const auto& [key, chunkPtr] : m_chunks)
     {
-        const glm::vec3& chunkPos{chunkPtr->getPos()};
-        const glm::vec3 chunkMax{chunkPos + glm::vec3{SpatialHashing::CELL_SIZE}};
+        // const glm::vec3& chunkPos{chunkPtr->getPos()};
+        // const glm::vec3 chunkMax{chunkPos + glm::vec3{SpatialHashing::CELL_SIZE}};
 
-        const bool collideFrustumBV{frustumBV.center.x - frustumBV.extents.x <= chunkMax.x &&
-                                    frustumBV.center.x + frustumBV.extents.x >= chunkPos.x &&
-                                    frustumBV.center.y - frustumBV.extents.y <= chunkMax.y &&
-                                    frustumBV.center.y + frustumBV.extents.y >= chunkPos.y &&
-                                    frustumBV.center.z - frustumBV.extents.z <= chunkMax.z &&
-                                    frustumBV.center.z + frustumBV.extents.z >= chunkPos.z};
+        // const bool collideFrustumBV{frustumBV.center.x - frustumBV.extents.x <= chunkMax.x &&
+        //                             frustumBV.center.x + frustumBV.extents.x >= chunkPos.x &&
+        //                             frustumBV.center.y - frustumBV.extents.y <= chunkMax.y &&
+        //                             frustumBV.center.y + frustumBV.extents.y >= chunkPos.y &&
+        //                             frustumBV.center.z - frustumBV.extents.z <= chunkMax.z &&
+        //                             frustumBV.center.z + frustumBV.extents.z >= chunkPos.z};
 
-        if (collideFrustumBV)
+        // if (collideFrustumBV)
+        // {
+        bool visible{false};
+        chunkPtr->getVisible(camFrustum, visible);
+        if (visible)
         {
-            ++total;
-            bool visible{false};
-            chunkPtr->getVisible(camFrustum, visible);
-            if (visible)
-            {
-                chunks.emplace_back(chunkPtr.get());
-            }
+            chunks.emplace_back(chunkPtr.get());
         }
+        // }
     }
 }
 
@@ -176,18 +192,43 @@ void Scene::addEntity(Entity* entity)
     assert(entity != nullptr);
 
     // get iterator
-    const SpatialHashing::ChunkKey key{getChunkKey(entity->getTransform().getGlobalPosition())};
-    auto it{m_chunks.find(key)};
-    if (it != m_chunks.end())
+    std::cout << entity->getGlobalAABB() << "\n";
+    const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};
+    // auto it{m_chunks.find(key)};
+    // if (it != m_chunks.end())
+    // {
+    //     it->second->addEntity(entity);
+    // }
+    // else
+    // {
+    //     glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE,
+    //                        static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
+    //                        static_cast<float>(key.z) * SpatialHashing::CELL_SIZE};
+    //     m_chunks[key] = std::make_unique<SceneChunk>(chunkPos);
+    // }
+
+    constexpr std::array<glm::vec3, 9> neighbourOffsets{
+        glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f},
+        glm::vec3{-1.f, 0.f, -1.f},  glm::vec3{0.f, 0.f, -1.f},  glm::vec3{1.f, 0.f, -1.f},
+        glm::vec3{-1.f, 1.f, -1.f},  glm::vec3{0.f, 1.f, -1.f},  glm::vec3{1.f, 1.f, -1.f}};
+
+    for (const glm::vec3& offset : neighbourOffsets)
     {
-        it->second->addEntity(entity);
-    }
-    else
-    {
-        glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE,
-                           static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
-                           static_cast<float>(key.z) * SpatialHashing::CELL_SIZE};
-        m_chunks[key] = std::make_unique<SceneChunk>(chunkPos, std::vector<Entity*>{entity});
+        const SpatialHashing::ChunkKey neighbourKey{key.x + static_cast<long long>(offset.x),
+                                                    key.y + static_cast<long long>(offset.y),
+                                                    key.z + static_cast<long long>(offset.z)};
+        if (m_chunks.find(neighbourKey) == m_chunks.end())
+        {
+            glm::vec3 chunkPos{static_cast<float>(neighbourKey.x) * SpatialHashing::CELL_SIZE,
+                               static_cast<float>(neighbourKey.y) * SpatialHashing::CELL_SIZE,
+                               static_cast<float>(neighbourKey.z) * SpatialHashing::CELL_SIZE};
+            m_chunks[neighbourKey] = std::make_unique<SceneChunk>(chunkPos);
+        }
+        if (m_chunks[neighbourKey]->getAABB()->collideAABB(entity->getGlobalAABB()))
+        {
+            std::cout << "Adding entity to chunk " << neighbourKey << "\n";
+            m_chunks[neighbourKey]->addEntity(entity);
+        }
     }
 }
 

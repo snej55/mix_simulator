@@ -97,6 +97,11 @@ bool Bounds::Sphere::onFrustum(const Frustum& camFrustum, const Transform& model
 
 bool Bounds::Sphere::collidePoint(const glm::vec3& point) const { return glm::length(point - center) <= radius; }
 
+bool Bounds::Sphere::collideSphere(const Sphere& other) const
+{
+    return glm::length(other.center - center) <= radius + other.radius;
+}
+
 Bounds::Sphere Bounds::generateSphereBV(const Model* model)
 {
     glm::vec3 minAABB{glm::vec3{std::numeric_limits<float>::max()}};
@@ -132,14 +137,6 @@ Bounds::Sphere Bounds::generateSphereBV(const Model* model)
     }
 
     return Sphere{(maxAABB + minAABB) * 0.5f, glm::length(minAABB - maxAABB)};
-}
-
-bool Bounds::AABB::collidePoint(const glm::vec3& point) const
-{
-    const glm::vec3 min{center.x - extents.x, center.y - extents.y, center.z - extents.z};
-    const glm::vec3 max{center.x + extents.x, center.y + extents.y, center.z + extents.z};
-    return (min.x <= point.x && point.x <= max.x && min.y <= point.y && point.y <= max.y && min.z <= point.z &&
-            point.z <= max.z);
 }
 
 Bounds::AABB::AABB(const glm::vec3& min, const glm::vec3& max) :
@@ -186,6 +183,56 @@ bool Bounds::AABB::onFrustum(const Frustum& camFrustum, const Transform& transfo
     return (globalAABB.onForwardPlane(camFrustum.leftFace) && globalAABB.onForwardPlane(camFrustum.rightFace) &&
             globalAABB.onForwardPlane(camFrustum.farFace) && globalAABB.onForwardPlane(camFrustum.nearFace) &&
             globalAABB.onForwardPlane(camFrustum.topFace) && globalAABB.onForwardPlane(camFrustum.bottomFace));
+}
+
+bool Bounds::AABB::onFrustum(const Frustum& camFrustum, const Transform& transform, const float padding) const
+{
+    const glm::vec3 globalCenter{transform.getModelMat() * glm::vec4{center, 1.f}};
+
+    // scaled orientation
+    const glm::vec3 right{transform.getRight() * extents.x};
+    const glm::vec3 up{transform.getUp() * extents.y};
+    const glm::vec3 forward{transform.getForward() * extents.z};
+
+    // new x extent
+    const float nEX{std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, right)) +
+                    std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, up)) +
+                    std::abs(glm::dot(glm::vec3{1.0f, 0.0f, 0.0f}, forward))};
+    // new y extent
+    const float nEY{std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, right)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, up)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 1.0f, 0.0f}, forward))};
+    // new z extent
+    const float nEZ{std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, right)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, up)) +
+                    std::abs(glm::dot(glm::vec3{0.0f, 0.0f, 1.0f}, forward))};
+
+    const AABB globalAABB{globalCenter, nEX + padding, nEY + padding, nEZ + padding};
+    return (globalAABB.onForwardPlane(camFrustum.leftFace) && globalAABB.onForwardPlane(camFrustum.rightFace) &&
+            globalAABB.onForwardPlane(camFrustum.farFace) && globalAABB.onForwardPlane(camFrustum.nearFace) &&
+            globalAABB.onForwardPlane(camFrustum.topFace) && globalAABB.onForwardPlane(camFrustum.bottomFace));
+}
+
+bool Bounds::AABB::collidePoint(const glm::vec3& point) const
+{
+    const glm::vec3 min{center.x - extents.x, center.y - extents.y, center.z - extents.z};
+    const glm::vec3 max{center.x + extents.x, center.y + extents.y, center.z + extents.z};
+    return (min.x <= point.x && point.x <= max.x && min.y <= point.y && point.y <= max.y && min.z <= point.z &&
+            point.z <= max.z);
+}
+
+bool Bounds::AABB::collideAABB(const AABB& other) const
+{
+    const glm::vec3 minA{center.x - extents.x, center.y - extents.y, center.z - extents.z};
+    const glm::vec3 maxA{center.x + extents.x, center.y + extents.y, center.z + extents.z};
+
+    const glm::vec3 minB{other.center.x - other.extents.x, other.center.y - other.extents.y,
+                         other.center.z - other.extents.z};
+    const glm::vec3 maxB{other.center.x + other.extents.x, other.center.y + other.extents.y,
+                         other.center.z + other.extents.z};
+
+    return (minA.x <= maxB.x && maxA.x >= minB.x && minA.y <= maxB.y && maxA.y >= minB.y && minA.z <= maxB.z &&
+            maxA.z >= minB.z);
 }
 
 Bounds::AABB Bounds::generateAABB_BV(const Model* model)
