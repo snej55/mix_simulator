@@ -19,38 +19,63 @@ class Editor:
         }
         self.objects = []
 
-        self.load_level("data/maps/0.json")
+        self.level_path = "data/maps/0.json"
+        self.load_level(self.level_path)
 
         ray.set_config_flags(ray.ConfigFlags.FLAG_MSAA_4X_HINT | ray.ConfigFlags.FLAG_WINDOW_RESIZABLE | ray.ConfigFlags.FLAG_VSYNC_HINT)
         ray.disable_cursor()
         ray.set_target_fps(60)
 
     def load_level(self, path):
+        self.free_models()
         with open(path, "r") as f:
             data = json.load(f)
             for key in data["level"]["models"]:
-                self.assets["models"][key] = ray.load_model(data["level"]["models"][key]["path"])
-            
+                model_entry = data["level"]["models"][key]
+                self.assets["models"][key] = {"entry": model_entry, "model": ray.load_model(data["level"]["models"][key]["path"])}            
             for object in data["level"]["objects"]:
                 self.objects.append(object)
+            print(f"Loaded level data from `{path}`")
     
-    def close(self):
+    def save_level(self, path):
+        with open(path, "w") as f:
+            data = {
+                "level": {
+                    "models": {key: self.assets["models"][key]["entry"] for key in self.assets["models"]},
+                    "objects": self.objects
+                }
+            }
+            json.dump(data, f, separators=(',', ':'))
+            print(f"Saved level data to `{path}`")
+
+    def free_models(self):
         for key in self.assets["models"]:
             ray.unload_model(self.assets["models"][key])
-
+            del self.assets["models"][key]
+    
+    def close(self):
+        self.free_models()
         ray.close_window()
+
+    def handle_input(self):
+        if ray.is_key_pressed(ray.KeyboardKey.KEY_O):
+            self.save_level(self.level_path)
+    
+    def update(self):
+        self.handle_input()
+        ray.update_camera(self.camera, ray.CameraMode.CAMERA_FREE)
 
     def run(self):
         while not ray.window_should_close():
-            ray.update_camera(self.camera, ray.CameraMode.CAMERA_FREE)
-            
+            self.update()
+
             ray.begin_drawing()
             ray.clear_background(ray.DARKBLUE)
 
             ray.begin_mode_3d(self.camera)
 
             for obj in self.objects:
-                ray.draw_model_ex(self.assets["models"][str(obj["modelID"])],
+                ray.draw_model_ex(self.assets["models"][str(obj["modelID"])]["model"],
                                   obj["position"], obj["rotation"], 0.0, obj["scale"], ray.WHITE)
 
             ray.draw_grid(10, 1.0)
