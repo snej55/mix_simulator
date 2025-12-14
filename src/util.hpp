@@ -71,6 +71,44 @@ namespace Util
         const glm::mat4 translationMatrix{glm::translate(glm::mat4{1.0f}, translation)};
         return translationMatrix * rotationMatrix;
     }
+
+    inline void printVec2(const glm::vec2& v) { std::cout << "(" << v.x << ", " << v.y << ")" << std::endl; }
+
+    inline void printVec3(const glm::vec3& v)
+    {
+        std::cout << "(" << v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
+    }
+
+    inline void printVec4(const glm::vec4& v)
+    {
+        std::cout << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")" << std::endl;
+    }
+
+    inline void printMat3(const glm::mat3& m)
+    {
+        for (int i{0}; i < 3; ++i)
+        {
+            std::cout << "| ";
+            for (int j{0}; j < 3; ++j)
+            {
+                std::cout << m[i][j] << " ";
+            }
+            std::cout << "|" << std::endl;
+        }
+    }
+
+    inline void printMat4(const glm::mat4& m)
+    {
+        for (int i{0}; i < 4; ++i)
+        {
+            std::cout << "| ";
+            for (int j{0}; j < 4; ++j)
+            {
+                std::cout << m[i][j] << " ";
+            }
+            std::cout << "|" << std::endl;
+        }
+    }
 } // namespace Util
 
 #endif // UTIL_H

@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <ostream>
 #include <unordered_map>
 #include "bounds.hpp"
 #include "engine_types.hpp"
@@ -27,6 +28,7 @@ public:
     // getters
     [[nodiscard]] const glm::vec3& getPos() const { return m_pos; }
     [[nodiscard]] const std::vector<Entity*>& getEntities() const { return m_entities; }
+    [[nodiscard]] const Bounds::AABB* getAABB() const { return m_aabb.get(); }
 
 private:
     glm::vec3 m_pos;
@@ -35,6 +37,13 @@ private:
 
     void init();
 };
+
+inline std::ostream& operator<<(std::ostream& os, const SceneChunk& chunk)
+{
+    os << "SceneChunk(Position: (" << chunk.getPos().x << ", " << chunk.getPos().y << ", " << chunk.getPos().z
+       << "), EntityCount: " << chunk.getEntities().size() << ")";
+    return os;
+}
 
 class Scene final : public EngineObject
 {

@@ -2,6 +2,7 @@
 #ifndef SPATIAL_HASHING_HPP
 #define SPATIAL_HASHING_HPP
 
+#include <iostream>
 #include <cstddef>
 #include <glm/glm.hpp>
 #include <glm/ext/vector_uint3.hpp>

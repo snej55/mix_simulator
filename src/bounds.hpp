@@ -6,6 +6,7 @@
 #define MAIN_BOUNDS_HPP
 
 #include <glm/glm.hpp>
+#include <ostream>
 
 #include "camera.hpp"
 #include "model.hpp"
@@ -52,6 +53,17 @@ namespace Bounds
         [[nodiscard]] glm::mat4 getLocalModelMat() const;
     };
 
+    inline std::ostream& operator<<(std::ostream& os, const Transform& transform)
+    {
+        os << std::boolalpha << "Transform(Position: (" << transform.getGlobalPosition().x << ", "
+           << transform.getGlobalPosition().y << ", " << transform.getGlobalPosition().z << "), Rotation: ("
+           << transform.getLocalRotation().x << ", " << transform.getLocalRotation().y << ", "
+           << transform.getLocalRotation().z << "), Scale: (" << transform.getLocalScale().x << ", "
+           << transform.getLocalScale().y << ", " << transform.getLocalScale().z << "), Dirty: " << transform.getDirty()
+           << ")";
+        return os;
+    }
+
     struct Plane
     {
         glm::vec3 normal{0.f, 1.f, 0.f};
@@ -63,6 +75,14 @@ namespace Bounds
         [[nodiscard]] float getSignedDistance(const glm::vec3& p) const;
     };
 
+    inline std::ostream& operator<<(std::ostream& os, const Plane& plane)
+    {
+        os << "Plane(Point: (" << plane.p1.x << ", " << plane.p1.y << ", " << plane.p1.z << "), Normal: ("
+           << plane.normal.x << ", " << plane.normal.y << ", " << plane.normal.z << "), Distance: " << plane.distance
+           << ")";
+        return os;
+    }
+
     struct Frustum
     {
         Plane topFace;
@@ -72,6 +92,19 @@ namespace Bounds
         Plane farFace;
         Plane nearFace;
     };
+
+    inline std::ostream& operator<<(std::ostream& os, const Frustum& frustum)
+    {
+        os << "Frustum(\n"
+           << "  Top Face: " << frustum.topFace << "\n"
+           << "  Bottom Face: " << frustum.bottomFace << "\n"
+           << "  Right Face: " << frustum.rightFace << "\n"
+           << "  Left Face: " << frustum.leftFace << "\n"
+           << "  Far Face: " << frustum.farFace << "\n"
+           << "  Near Face: " << frustum.nearFace << "\n"
+           << ")";
+        return os;
+    }
 
     Frustum createFrustum(const Camera* cam, float aspectR, float fovY, float zNear, float zFar);
 
@@ -101,6 +134,13 @@ namespace Bounds
         [[nodiscard]] bool collidePoint(const glm::vec3& point) const override;
     };
 
+    inline std::ostream& operator<<(std::ostream& os, const Sphere& sphere)
+    {
+        os << "Sphere(Center: (" << sphere.center.x << ", " << sphere.center.y << ", " << sphere.center.z
+           << "), Radius: " << sphere.radius << ")";
+        return os;
+    }
+
     Sphere generateSphereBV(const Model* model);
 
     // AABB bounding volume
@@ -117,6 +157,13 @@ namespace Bounds
         [[nodiscard]] bool onFrustum(const Frustum& camFrustum, const Transform& modelTransform) const override;
         [[nodiscard]] bool collidePoint(const glm::vec3& point) const override;
     };
+
+    inline std::ostream& operator<<(std::ostream& os, const AABB& aabb)
+    {
+        os << "AABB(Center: (" << aabb.center.x << ", " << aabb.center.y << ", " << aabb.center.z << "), Extents: ("
+           << aabb.extents.x << ", " << aabb.extents.y << ", " << aabb.extents.z << "))";
+        return os;
+    }
 
     AABB generateAABB_BV(const Model* model);
     AABB getFrustumBV(const Frustum& frustum, const Camera* cam, float zFar, float fovY, float aspectR);
