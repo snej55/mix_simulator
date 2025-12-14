@@ -3,6 +3,7 @@
 #include <JSON/json.hpp>
 #include <array>
 #include <cassert>
+#include <iostream>
 
 #include "scene.hpp"
 #include "bounds.hpp"
@@ -126,25 +127,12 @@ void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AA
 {
     for (const auto& [key, chunkPtr] : m_chunks)
     {
-        // const glm::vec3& chunkPos{chunkPtr->getPos()};
-        // const glm::vec3 chunkMax{chunkPos + glm::vec3{SpatialHashing::CELL_SIZE}};
-
-        // const bool collideFrustumBV{frustumBV.center.x - frustumBV.extents.x <= chunkMax.x &&
-        //                             frustumBV.center.x + frustumBV.extents.x >= chunkPos.x &&
-        //                             frustumBV.center.y - frustumBV.extents.y <= chunkMax.y &&
-        //                             frustumBV.center.y + frustumBV.extents.y >= chunkPos.y &&
-        //                             frustumBV.center.z - frustumBV.extents.z <= chunkMax.z &&
-        //                             frustumBV.center.z + frustumBV.extents.z >= chunkPos.z};
-
-        // if (collideFrustumBV)
-        // {
         bool visible{false};
         chunkPtr->getVisible(camFrustum, visible);
         if (visible)
         {
             chunks.emplace_back(chunkPtr.get());
         }
-        // }
     }
 }
 
@@ -192,20 +180,7 @@ void Scene::addEntity(Entity* entity)
     assert(entity != nullptr);
 
     // get iterator
-    std::cout << entity->getGlobalAABB() << "\n";
     const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};
-    // auto it{m_chunks.find(key)};
-    // if (it != m_chunks.end())
-    // {
-    //     it->second->addEntity(entity);
-    // }
-    // else
-    // {
-    //     glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE,
-    //                        static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
-    //                        static_cast<float>(key.z) * SpatialHashing::CELL_SIZE};
-    //     m_chunks[key] = std::make_unique<SceneChunk>(chunkPos);
-    // }
 
     constexpr std::array<glm::vec3, 9> neighbourOffsets{
         glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f},
@@ -226,7 +201,6 @@ void Scene::addEntity(Entity* entity)
         }
         if (m_chunks[neighbourKey]->getAABB()->collideAABB(entity->getGlobalAABB()))
         {
-            std::cout << "Adding entity to chunk " << neighbourKey << "\n";
             m_chunks[neighbourKey]->addEntity(entity);
         }
     }

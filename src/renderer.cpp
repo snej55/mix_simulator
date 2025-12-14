@@ -282,7 +282,16 @@ void RenderQueue::addChunk(SceneChunk* chunk, const Bounds::Frustum& camFrustum)
             if (!entity->getDirty())
                 continue;
             entity->setDirty(false);
-            addDynamicModel(entity->getModel(), entity->getTransform().getModelMat());
+
+            if (entity->getGlobalAABB().onFrustum(camFrustum, {}))
+            {
+                entity->setInFrustum(true);
+                addDynamicModel(entity->getModel(), entity->getTransform().getModelMat());
+            }
+            else
+            {
+                entity->setInFrustum(false);
+            }
         }
     }
 }

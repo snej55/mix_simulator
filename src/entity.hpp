@@ -28,6 +28,8 @@ public:
 
     [[nodiscard]] const Bounds::Transform& getTransform() const { return m_transform; }
     [[nodiscard]] const Bounds::AABB* getBoundingVolume() const { return m_BV.get(); }
+
+    void setInFrustum(const bool val) { m_inFrustum = val; }
     [[nodiscard]] bool getInFrustum() const { return m_inFrustum; }
 
     void setStatic(const bool val) { m_static = val; }

@@ -36,7 +36,7 @@ Sketchfab GLTF model used: [https://sketchfab.com/3d-models/spartan-armour-mkv-h
 - [ ] Global materials
 - [ ] JSON Scene loading
 - [X] Frustum culling
-- [ ] Space partitioning
+- [X] Space partitioning
 - [X] Bounding volume generation
 - [ ] Main game class
 - [ ] Level editor
