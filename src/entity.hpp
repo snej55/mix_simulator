@@ -63,7 +63,7 @@ inline std::ostream& operator<<(std::ostream& os, const Entity& entity)
 {
     os << "Entity(Model: " << entity.getPath() << ", Position: (" << entity.getPosition().x << ", "
        << entity.getPosition().y << ", " << entity.getPosition().z << "), Animated: " << std::boolalpha
-       << entity.getAnimated() << " Transform: " << entity.getTransform() << ")";
+       << entity.getAnimated() << ", Transform: " << entity.getTransform() << ")";
     return os;
 }
 
@@ -71,7 +71,7 @@ inline std::ostream& operator<<(std::ostream& os, const Entity* entity)
 {
     os << "Entity(Model: " << entity->getPath() << ", Position: (" << entity->getPosition().x << ", "
        << entity->getPosition().y << ", " << entity->getPosition().z << "), Animated: " << std::boolalpha
-       << entity->getAnimated() << " Transform: " << entity->getTransform() << ")";
+       << entity->getAnimated() << ", Transform: " << entity->getTransform() << ")";
     return os;
 }
 

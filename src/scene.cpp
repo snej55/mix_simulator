@@ -1,6 +1,9 @@
 // Created by Jens Kromdijk 04-12-2025
 
+// for scene parsing
 #include <JSON/json.hpp>
+using json = nlohmann::json;
+
 #include <array>
 #include <cassert>
 #include <iostream>
@@ -90,7 +93,74 @@ Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(en
 
 Scene::~Scene() { free(); }
 
-bool Scene::init(const char* scenePath) { return true; }
+bool Scene::init(const char* scenePath)
+{
+    std::cout << "SCENE:::INIT: Loading scene from path `" << scenePath << "`...\n";
+    std::ifstream sceneFile{scenePath};
+    sceneFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try
+    {
+        json data{json::parse(sceneFile)};
+
+        // load models
+        std::cout << "SCENE::INIT: Loading models for scene...\n";
+        std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
+        for (const auto& [key, value] : data[0]["level"]["models"].items())
+        {
+            const std::size_t modelID{std::stoul(key)};
+            const std::string modelName{value["name"].get<std::string>()};
+            const std::string modelPath{value["path"].get<std::string>()};
+
+            modelMap[modelID] = std::pair{modelName, modelPath};
+
+            // preload model into engine
+            assert(m_engine != nullptr);
+            Engine* enginePtr{static_cast<Engine*>(m_engine)};
+            enginePtr->addModel(modelName, modelPath);
+        }
+        std::cout << "SCENE::INIT: Loaded " << modelMap.size() << " models for scene.\n";
+
+        // load entities
+        std::cout << "SCENE::INIT: Loading entities for scene...\n";
+        for (const auto& entityEntry : data[0]["level"]["objects"])
+        {
+            const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
+                                     entityEntry["position"][2].get<float>()};
+            const glm::vec3 scale{entityEntry["scale"][0].get<float>(), entityEntry["scale"][1].get<float>(),
+                                  entityEntry["scale"][2].get<float>()};
+            const glm::vec3 rotation{entityEntry["rotation"][0].get<float>(), entityEntry["rotation"][1].get<float>(),
+                                     entityEntry["rotation"][2].get<float>()};
+            const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
+            const bool animated{entityEntry.value("animated", false)};
+
+            Bounds::Transform transform{};
+            transform.setLocalPosition(position);
+            transform.setLocalScale(scale);
+            transform.setLocalRotation(rotation);
+
+            if (modelMap.find(modelID) == modelMap.end())
+            {
+                Util::beginError();
+                std::cout << "SCENE::INIT::ERROR: Model ID `" << modelID << "` not found in model map!";
+                Util::endError();
+                continue;
+            }
+
+            addEntity(modelMap[modelID].second.c_str(), transform, animated);
+        }
+        std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["objects"].size() << " entities for scene.\n";
+    }
+    catch ([[maybe_unused]] const std::ifstream::failure& e)
+    {
+        Util::beginError();
+        std::cout << "SCENE::INIT::ERROR: Could not read scene file at path `" << scenePath << "`!";
+        Util::endError();
+        return false;
+    }
+
+    sceneFile.close();
+    return true;
+}
 
 void Scene::free()
 {
@@ -105,6 +175,7 @@ void Scene::free()
                 delete entity;
         }
     }
+    m_chunks.clear();
 }
 
 void Scene::updateEntities(const float deltaTime)
@@ -181,11 +252,23 @@ void Scene::addEntity(Entity* entity)
 
     // get iterator
     const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};
+    // if (m_chunks.find(key) == m_chunks.end())
+    // {
+    //     glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE,
+    //                        static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
+    //                        static_cast<float>(key.z) * SpatialHashing::CELL_SIZE};
+    //     m_chunks[key] = std::make_unique<SceneChunk>(chunkPos);
+    // }
+    // m_chunks[key]->addEntity(entity);
 
-    constexpr std::array<glm::vec3, 9> neighbourOffsets{
-        glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f},
-        glm::vec3{-1.f, 0.f, -1.f},  glm::vec3{0.f, 0.f, -1.f},  glm::vec3{1.f, 0.f, -1.f},
-        glm::vec3{-1.f, 1.f, -1.f},  glm::vec3{0.f, 1.f, -1.f},  glm::vec3{1.f, 1.f, -1.f}};
+    constexpr std::array<glm::vec3, 27> neighbourOffsets{
+        glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f}, glm::vec3{-1.f, 0.f, -1.f},
+        glm::vec3{0.f, 0.f, -1.f},   glm::vec3{1.f, 0.f, -1.f},  glm::vec3{-1.f, 1.f, -1.f}, glm::vec3{0.f, 1.f, -1.f},
+        glm::vec3{1.f, 1.f, -1.f},   glm::vec3{-1.f, -1.f, 0.f}, glm::vec3{0.f, -1.f, 0.f},  glm::vec3{1.f, -1.f, 0.f},
+        glm::vec3{-1.f, 0.f, 0.f},   glm::vec3{0.f, 0.f, 0.f},   glm::vec3{1.f, 0.f, 0.f},   glm::vec3{-1.f, 1.f, 0.f},
+        glm::vec3{0.f, 1.f, 0.f},    glm::vec3{1.f, 1.f, 0.f},   glm::vec3{-1.f, -1.f, 1.f}, glm::vec3{0.f, -1.f, 1.f},
+        glm::vec3{1.f, -1.f, 1.f},   glm::vec3{-1.f, 0.f, 1.f},  glm::vec3{0.f, 0.f, 1.f},   glm::vec3{1.f, 0.f, 1.f},
+        glm::vec3{-1.f, 1.f, 1.f},   glm::vec3{0.f, 1.f, 1.f},   glm::vec3{1.f, 1.f, 1.f}};
 
     for (const glm::vec3& offset : neighbourOffsets)
     {
@@ -201,6 +284,7 @@ void Scene::addEntity(Entity* entity)
         }
         if (m_chunks[neighbourKey]->getAABB()->collideAABB(entity->getGlobalAABB()))
         {
+            // std::cout << "Adding entity to chunk at key " << neighbourKey << "\n";
             m_chunks[neighbourKey]->addEntity(entity);
         }
     }

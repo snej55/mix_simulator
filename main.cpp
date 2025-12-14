@@ -23,8 +23,10 @@ int main()
     std::cout << "Initialized engine!\n";
     engine.setCameraEnabled(true);
 
-    // use only gltf files for now
-    engine.addModel("spartan", "data/models/spartan.glb");
+    // ----------- Scene ------------ //
+    // NOTE: Load scene before IBL and DeferredRenderer so models load correctly
+    Scene scene{&engine};
+    scene.init("data/maps/0.json");
 
     // ----------- IBL ------------ //
     IBLGenerator iblGenerator{&engine};
@@ -36,19 +38,6 @@ int main()
 
     // reset window viewport
     glViewport(0, 0, engine.getWidth(), engine.getHeight());
-
-    Scene scene{&engine};
-    for (std::size_t z{0}; z < 3; ++z)
-    {
-        for (std::size_t x{0}; x < 3; ++x)
-        {
-            Bounds::Transform transform;
-            transform.setLocalPosition(
-                {static_cast<float>(x) * 145.0f + std::sin(static_cast<float>(x * (z + 1))) * 10.f, 0.0f,
-                 static_cast<float>(z) * 145.0f + std::cos(static_cast<float>(x * (z + 1))) * 10.f});
-            scene.addEntity("data/models/spartan.glb", transform, true);
-        }
-    }
 
     while (!engine.getQuit())
     {
