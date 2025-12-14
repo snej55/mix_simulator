@@ -34,7 +34,7 @@ Sketchfab GLTF model used: [https://sketchfab.com/3d-models/spartan-armour-mkv-h
 - [X] SSAO
 - [X] Add FXAA anti-aliasing
 - [ ] Global materials
-- [ ] JSON Scene loading
+- [X] JSON Scene loading
 - [X] Frustum culling
 - [X] Space partitioning
 - [X] Bounding volume generation
