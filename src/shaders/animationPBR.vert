@@ -1,11 +1,11 @@
 #version 410 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in vec4 aTangent;
-layout (location = 4) in ivec4 aBoneIDs;
-layout (location = 5) in vec4 aWeights;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec2 aTexCoords;
+layout(location = 3) in vec4 aTangent;
+layout(location = 4) in ivec4 aBoneIDs;
+layout(location = 5) in vec4 aWeights;
 
 out VS_OUT
 {
@@ -81,7 +81,7 @@ void main()
     vec3 N = normalize(normalMat * localNormal);
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
-    // get perpendicular vector B 
+    // get perpendicular vector B
     // aTangent.w is tangent sign calculated using mikktspace.h to make sure tangent handedness is correct
     vec3 B = cross(N, T) * aTangent.w;
     mat3 TBN = transpose(mat3(T, B, N));

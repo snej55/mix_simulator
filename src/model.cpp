@@ -255,6 +255,8 @@ void Model::processNode(const aiNode* node, const aiScene* scene)
         const aiMesh* mesh{scene->mMeshes[node->mMeshes[i]]};
 
         m_meshes.emplace_back(processMesh(mesh, scene));
+        m_meshes[m_meshes.size() - 1].calculateMidpoint(glm::mat4{1.0f});
+        Util::printVec3(m_meshes[m_meshes.size() - 1].getMidpoint());
     }
 
     // repeat recursively for all children

@@ -10,6 +10,22 @@ Mesh::Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigne
            const std::vector<MeshN::Texture>& textures, const MeshN::Material& material) :
     m_vertices{vertices}, m_indices{indices}, m_textures{textures}, m_material{material}
 {
+    // for (const MeshN::Vertex& vertex : m_vertices)
+    // {
+    //     constexpr float threshold{10.f};
+    //     if (std::abs(vertex.position.x) > threshold)
+    //     {
+    //         Util::printVec3(vertex.position);
+    //     }
+    //     if (std::abs(vertex.position.y) > threshold)
+    //     {
+    //         Util::printVec3(vertex.position);
+    //     }
+    //     if (std::abs(vertex.position.z) > threshold)
+    //     {
+    //         Util::printVec3(vertex.position);
+    //     }
+    // }
     // mikktspace.h callbacks
     m_SMT_iface.m_getNumFaces = SMTGetNumFaces;
     m_SMT_iface.m_getNumVerticesOfFace = SMTGetNumVerticesOfFace;
@@ -166,6 +182,7 @@ void Mesh::setupMesh()
     calcTangents();
     // calculate the world space mid-point for depth sorting
     calculateMidpoint(glm::mat4{1.0f});
+
     unsigned int meshVAO, meshVBO, meshEBO;
     glGenVertexArrays(1, &meshVAO);
     glGenBuffers(1, &meshVBO);
@@ -181,7 +198,8 @@ void Mesh::setupMesh()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_indices.size() * sizeof(unsigned int)),
                  m_indices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex), reinterpret_cast<void*>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
+                          reinterpret_cast<void*>(offsetof(MeshN::Vertex, position)));
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(MeshN::Vertex),
                           reinterpret_cast<void*>(offsetof(MeshN::Vertex, normal)));

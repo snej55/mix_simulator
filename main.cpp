@@ -23,6 +23,8 @@ int main()
     std::cout << "Initialized engine!\n";
     engine.setCameraEnabled(true);
 
+    engine.addModel("cube", "data/models/gold_cube.glb");
+
     // ----------- Scene ------------ //
     // NOTE: Load scene before IBL and DeferredRenderer so models load correctly
     Scene scene{&engine};
@@ -53,6 +55,10 @@ int main()
             static_cast<float>(engine.getWidth()) / static_cast<float>(engine.getHeight()))};
         std::vector<SceneChunk*> visibleChunks{};
         scene.getVisibleChunks(camFrustum, camFrustumBV, visibleChunks);
+
+        glm::mat4 modelMat{1.0f};
+        modelMat = glm::scale(modelMat, glm::vec3{80.6287, 1.6389, 80.6287});
+        renderQueue.addDynamicModel(engine.getModel("cube"), modelMat);
 
         for (SceneChunk* chunk : visibleChunks)
         {

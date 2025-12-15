@@ -1,10 +1,10 @@
 #version 410 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in vec4 aTangent;
-layout (location = 4) in ivec4 aBoneIDs;
-layout (location = 5) in vec4 aWeights;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec2 aTexCoords;
+layout(location = 3) in vec4 aTangent;
+layout(location = 4) in ivec4 aBoneIDs;
+layout(location = 5) in vec4 aWeights;
 
 out VS_OUT
 {
@@ -35,9 +35,14 @@ void main()
     {
         int boneID = aBoneIDs[i];
         float weight = aWeights[i];
-        if (boneID < 0 || weight == 0.0 || boneID >= MAX_BONES)
+        if (boneID < 0 || weight == 0.0)
         {
             continue;
+        }
+        if (aBoneIDs[i] >= MAX_BONES)
+        {
+            totalPosition = vec4(aPos, 1.0);
+            break;
         }
 
         vec4 localPosition = finalBonesMatrices[boneID] * vec4(aPos, 1.0);
@@ -48,7 +53,7 @@ void main()
         vec3 boneLocalTangent = mat3(finalBonesMatrices[boneID]) * aTangent.xyz;
         localTangent += boneLocalTangent * weight;
     }
-    
+
     // safeguard checks
     if (totalPosition == vec4(0.0))
     {

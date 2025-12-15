@@ -259,6 +259,19 @@ void BoneAnimator::updateAnimation(const float dt)
         m_currentTime = std::fmod(m_currentTime, m_currentAnimation->getDuration());
         calculateBoneTransform(&m_currentAnimation->getRootNode(), glm::mat4{1.0f});
     }
+
+    // static int frameCount = 0;
+    // if (frameCount++ % 30 == 0)
+    // {
+    //     for (int i = 0; i < std::min(5, (int)m_finalBoneMatrices.size()); ++i)
+    //     {
+    //         const glm::mat4& boneMat = m_finalBoneMatrices[i];
+    //         float scaleX = glm::length(glm::vec3(boneMat[0]));
+    //         float scaleY = glm::length(glm::vec3(boneMat[1]));
+    //         float scaleZ = glm::length(glm::vec3(boneMat[2]));
+    //         std::cout << "Bone " << i << " Scale: " << scaleX << ", " << scaleY << ", " << scaleZ << "\n";
+    //     }
+    // }
 }
 
 void BoneAnimator::playAnimation(BoneAnimation* animation)
@@ -285,8 +298,11 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
     if (boneInfoMap.find(node->name) != boneInfoMap.end())
     {
         if (boneInfoMap[node->name].id < m_finalBoneMatrices.size())
-            m_finalBoneMatrices[boneInfoMap[node->name].id] =
-                globalInverseTransformation * globalTransformation * boneInfoMap[node->name].offset;
+        {
+            glm::mat4 boneMatrix = globalInverseTransformation * globalTransformation * boneInfoMap[node->name].offset;
+
+            m_finalBoneMatrices[boneInfoMap[node->name].id] = boneMatrix;
+        }
     }
 
     for (std::size_t i{0}; i < node->childrenCount; ++i)

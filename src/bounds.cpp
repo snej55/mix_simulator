@@ -141,7 +141,7 @@ Bounds::Sphere Bounds::generateSphereBV(const Model* model)
 
 Bounds::AABB::AABB(const glm::vec3& min, const glm::vec3& max) :
     Volume{}, center{(min + max) * 0.5f},
-    extents{(max.x - min.x) * 0.5f, (max.y - min.y) * 0.5f, (max.z - min.z) * 0.5f}
+    extents{std::abs(max.x - min.x) * 0.5f, std::abs(max.y - min.y) * 0.5f, std::abs(max.z - min.z) * 0.5f}
 {
 }
 

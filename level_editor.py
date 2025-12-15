@@ -78,11 +78,11 @@ class Editor:
                 ray.draw_model_ex(self.assets["models"][str(obj["modelID"])]["model"],
                                   obj["position"], obj["rotation"], 0.0, obj["scale"], ray.WHITE)
 
-            ray.draw_grid(10, 1.0)
+            ray.draw_grid(100, 1.0)
 
             ray.end_mode_3d()
 
-            ray.draw_fps(10, 400)
+            ray.draw_fps(10, 10)
 
             ray.end_drawing()
 
