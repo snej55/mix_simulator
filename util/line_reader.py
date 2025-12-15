@@ -14,7 +14,7 @@ def read_lines_from_file(file_path):
 total = 0
 for file in os.listdir('.'):
     # can't be asked to make a list of extensions lol
-    if file.endswith('.cpp') or file.endswith('.hpp') or file.endswith('.frag') or file.endswith('.vert') or file.endswith('.sh') or file.endswith('.txt'):
+    if file.endswith('.cpp') or file.endswith('.hpp') or file.endswith('.frag') or file.endswith('.vert') or file.endswith('.sh') or file.endswith('.txt')  or file.endswith('.py'):
         file_path = os.path.join('.', file)
         try:
             line_count = read_lines_from_file(file_path)

@@ -271,7 +271,7 @@ void RenderQueue::addDynamicModel(Model* model, const glm::mat4& modelTransform)
 }
 
 // add entities from chunk
-void RenderQueue::addChunk(SceneChunk* chunk, const Bounds::Frustum& camFrustum)
+void RenderQueue::addChunk(const SceneChunk* chunk, const Bounds::Frustum& camFrustum)
 {
     assert(chunk != nullptr);
     const std::vector<Entity*>& entities{chunk->getEntities()};

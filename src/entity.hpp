@@ -14,9 +14,9 @@ class Entity final
 public:
     Entity() = default;
     Entity(const Model* model, const Bounds::Transform& transform, bool animated = false);
-    virtual ~Entity();
+    ~Entity();
 
-    virtual void update(float deltaTime);
+    void update(float deltaTime);
 
     [[nodiscard]] Bounds::AABB getGlobalAABB() const;
 
@@ -55,7 +55,7 @@ private:
     bool m_inFrustum{false};
     bool m_static{false};
 
-    bool m_dirty{true};
+    bool m_dirty{false};
     bool m_discarded{false};
 };
 

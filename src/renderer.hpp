@@ -100,7 +100,7 @@ public:
     // add dynamic model (updated every frame)
     void addDynamicModel(Model* model, const glm::mat4& modelTransform);
 
-    void addChunk(SceneChunk* chunk, const Bounds::Frustum& camFrustum);
+    void addChunk(const SceneChunk* chunk, const Bounds::Frustum& camFrustum);
 
     // meshes to be rendered deferred
     [[nodiscard]] const std::vector<std::pair<Mesh*, glm::mat4>>& getStaticOpaqueMeshes() const

@@ -45,6 +45,13 @@ inline std::ostream& operator<<(std::ostream& os, const SceneChunk& chunk)
     return os;
 }
 
+inline std::ostream& operator<<(std::ostream& os, const SceneChunk* chunk)
+{
+    os << "SceneChunk(Position: (" << chunk->getPos().x << ", " << chunk->getPos().y << ", " << chunk->getPos().z
+       << "), EntityCount: " << chunk->getEntities().size() << ")";
+    return os;
+}
+
 class Scene final : public EngineObject
 {
 public:

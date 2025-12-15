@@ -45,7 +45,7 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         if (!entity->getTransform().getDirty())
             continue;
 
-        if (!m_aabb->collidePoint(entity->getTransform().getGlobalPosition()))
+        if (!m_aabb->collideAABB(entity->getGlobalAABB()))
         {
             entity->setDiscarded(true);
             discardEntities.emplace_back(entity);
@@ -249,6 +249,7 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
 void Scene::addEntity(Entity* entity)
 {
     assert(entity != nullptr);
+    std::cout << entity->getGlobalAABB() << std::endl;
 
     // get iterator
     const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};

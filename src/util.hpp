@@ -91,7 +91,7 @@ namespace Util
             std::cout << "| ";
             for (int j{0}; j < 3; ++j)
             {
-                std::cout << m[i][j] << " ";
+                std::cout << m[i][j] << "\t";
             }
             std::cout << "|" << std::endl;
         }
@@ -104,7 +104,7 @@ namespace Util
             std::cout << "| ";
             for (int j{0}; j < 4; ++j)
             {
-                std::cout << m[i][j] << " ";
+                std::cout << m[i][j] << "\t";
             }
             std::cout << "|" << std::endl;
         }
