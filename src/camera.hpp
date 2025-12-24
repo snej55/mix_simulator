@@ -11,7 +11,7 @@
 
 #include "engine_types.hpp"
 
-#define CAMERA_Z_NEAR 0.1f
+#define CAMERA_Z_NEAR 1.0f
 #define CAMERA_Z_FAR 10000.0f
 
 namespace CameraN

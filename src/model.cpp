@@ -190,7 +190,10 @@ bool Model::loadModel(const std::string& path)
     const aiScene* scene{importer.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes)};
+            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
+            aiProcess_PreTransformVertices | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials |
+            aiProcess_FindDegenerates | aiProcess_FindInvalidData | aiProcess_GenUVCoords |
+            aiProcess_TransformUVCoords | aiProcess_LimitBoneWeights)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
