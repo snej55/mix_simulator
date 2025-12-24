@@ -109,6 +109,16 @@ namespace Util
             std::cout << "|" << std::endl;
         }
     }
+
+    inline glm::mat4 rotStripScale(const glm::mat4& mat)
+    {
+        glm::mat4 result{mat};
+        result[0] = glm::vec4{glm::normalize(glm::vec3(mat[0])), 0.0f};
+        result[1] = glm::vec4{glm::normalize(glm::vec3(mat[1])), 0.0f};
+        result[2] = glm::vec4{glm::normalize(glm::vec3(mat[2])), 0.0f};
+
+        return result;
+    }
 } // namespace Util
 
 #endif // UTIL_H

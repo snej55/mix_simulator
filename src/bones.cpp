@@ -177,7 +177,7 @@ BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
     const aiScene* scene{importer.ReadFile(animationPath, aiProcess_Triangulate)};
     assert(scene && scene->mRootNode);
     m_rootInverseTransform = glm::inverse(Util::convertMatrixGLM(scene->mRootNode->mTransformation));
-
+    m_rootInverseTransform = Util::rotStripScale(m_rootInverseTransform);
 
     if (scene->mNumAnimations > 0)
     {
@@ -263,7 +263,7 @@ void BoneAnimator::updateAnimation(const float dt)
     // static int frameCount = 0;
     // if (frameCount++ % 30 == 0)
     // {
-    //     for (int i = 0; i < std::min(5, (int)m_finalBoneMatrices.size()); ++i)
+    //     for (int i = 0; i < m_finalBoneMatrices.size(); ++i)
     //     {
     //         const glm::mat4& boneMat = m_finalBoneMatrices[i];
     //         float scaleX = glm::length(glm::vec3(boneMat[0]));
