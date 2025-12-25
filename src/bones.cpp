@@ -173,11 +173,11 @@ glm::mat4 Bone::interpolateScaling(const float animationTime) const
 BoneAnimation::BoneAnimation(const std::string& animationPath, Model* model)
 {
     // load model
+    std::cout << "Loading animation: " << animationPath << '\n';
     Assimp::Importer importer;
-    const aiScene* scene{importer.ReadFile(animationPath, aiProcess_Triangulate)};
+    const aiScene* scene{importer.ReadFile(animationPath, MeshN::ASSIMP_POSTPROCESS_FLAGS)};
     assert(scene && scene->mRootNode);
     m_rootInverseTransform = glm::inverse(Util::convertMatrixGLM(scene->mRootNode->mTransformation));
-    m_rootInverseTransform = Util::rotStripScale(m_rootInverseTransform);
 
     if (scene->mNumAnimations > 0)
     {
@@ -292,7 +292,7 @@ void BoneAnimator::calculateBoneTransform(const BonesN::AssimpNodeData* node, co
 
     const glm::mat4 globalTransformation{parentTransform * nodeTransform};
     const glm::mat4 correctionMatrix{glm::rotate(glm::mat4{1.0f}, glm::radians(-90.f), glm::vec3{1.0f, 0.0f, 0.0f})};
-    const glm::mat4 globalInverseTransformation{correctionMatrix * m_currentAnimation->getRootInverseTransform()};
+    const glm::mat4 globalInverseTransformation{m_currentAnimation->getRootInverseTransform()};
 
     std::map<std::string, MeshN::BoneInfo>& boneInfoMap{m_currentAnimation->getBoneInfoMap()};
     if (boneInfoMap.find(node->name) != boneInfoMap.end())

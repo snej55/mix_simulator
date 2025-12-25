@@ -187,13 +187,7 @@ bool Model::loadModel(const std::string& path)
 
     Assimp::Importer importer;
 
-    const aiScene* scene{importer.ReadFile(
-        path,
-        aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
-            aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
-            aiProcess_PreTransformVertices | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials |
-            aiProcess_FindDegenerates | aiProcess_FindInvalidData | aiProcess_GenUVCoords |
-            aiProcess_TransformUVCoords | aiProcess_LimitBoneWeights)};
+    const aiScene* scene{importer.ReadFile(path, MeshN::ASSIMP_POSTPROCESS_FLAGS)};
 
     // error handling
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -207,6 +201,7 @@ bool Model::loadModel(const std::string& path)
 
     m_path = path;
     m_directory = path.substr(0, path.find_last_of('/'));
+    Util::printMat4(glm::inverse(Util::convertMatrixGLM(scene->mRootNode->mTransformation)));
     processNode(scene->mRootNode, scene);
     handleTransparentTextures(scene);
 

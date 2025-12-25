@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <mikktspace.h>
+#include <assimp/postprocess.h>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -76,6 +77,14 @@ namespace MeshN
         int id;
         glm::mat4 offset; // from model space to bone space
     };
+
+    // keep the same across importers
+    inline constexpr unsigned int ASSIMP_POSTPROCESS_FLAGS{
+        aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
+        aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
+        aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials | aiProcess_FindDegenerates |
+        aiProcess_FindInvalidData | aiProcess_GenUVCoords | aiProcess_TransformUVCoords |
+        aiProcessPreset_TargetRealtime_Fast};
 } // namespace MeshN
 
 class Mesh
@@ -139,8 +148,8 @@ private:
 
     static void SMTGetTexCoords(const SMikkTSpaceContext* context, float outUV[], int iFace, int iVert);
 
-    static void SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float tangentU[], float fSign,
-                                  int iFace, int iVert);
+    static void SMTSetTSpaceBasic(const SMikkTSpaceContext* context, const float tangentU[], float fSign, int iFace,
+                                  int iVert);
 };
 
 #endif // MESH_H
