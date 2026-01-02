@@ -30,6 +30,7 @@ Sketchfab GLTF model used: [https://sketchfab.com/3d-models/spartan-armour-mkv-h
 - [X] Deferred rendering
 - [X] Mesh sorting (render opaque meshes deferred and transparent/translucent using forward)
 - [ ] Duplicate material checks? Batch render meshes using material index vertex data?
+- [ ] Animate transparent meshes
 - [X] Fix transparent mesh culling
 - [X] SSAO
 - [X] Add FXAA anti-aliasing

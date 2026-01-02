@@ -1,5 +1,6 @@
 //
 // Created by Jens Kromdijk on 07/11/2025.
+//
 
 #include <cmath>
 #include <assimp/anim.h>
