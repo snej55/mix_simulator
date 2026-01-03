@@ -22,6 +22,11 @@ class Engine final : public EngineObject
 {
 public:
     Engine();
+    Engine(const Engine&) = default;
+    Engine(Engine&&) = delete;
+    Engine& operator=(const Engine&) = default;
+    Engine& operator=(Engine&&) = delete;
+
     // free components
     ~Engine() override;
 

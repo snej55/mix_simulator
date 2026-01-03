@@ -56,10 +56,6 @@ int main()
         std::vector<SceneChunk*> visibleChunks{};
         scene.getVisibleChunks(camFrustum, camFrustumBV, visibleChunks);
 
-        glm::mat4 modelMat{1.0f};
-        modelMat = glm::scale(modelMat, glm::vec3{80.6287, 1.6389, 80.6287});
-        renderQueue.addDynamicModel(engine.getModel("cube"), modelMat);
-
         for (SceneChunk* chunk : visibleChunks)
         {
             renderQueue.addChunk(chunk, camFrustum);
