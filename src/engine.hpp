@@ -244,7 +244,7 @@ private:
     PostProcessor* m_postProcessor{nullptr};
     DeferredRenderer* m_deferredRenderer{nullptr};
     SSAOGenerator* m_ssaoGenerator{nullptr};
-    bool m_ssaoEnabled{true};
+    bool m_ssaoEnabled{false};
 
     // camera stuff
     Camera* m_camera{nullptr};
