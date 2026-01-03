@@ -17,8 +17,8 @@ elseif (CMAKE_SYSTEM MATCHES Linux)
             ${CMAKE_SOURCE_DIR}/src/glad)
     # link_directories(lib)
     link_directories(${CMAKE_SOURCE_DIR}/lib/linux)
-    # fedora: mesa-libGLU
-    set(GL_LIBS GL GLU glfw3 assimp freetype)
+    # fedora: mesa-libGLU-devel
+    set(GL_LIBS GL GLU glfw3 assimp freetype z)
 endif ()
 
 set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/engine.hpp src/engine.cpp
