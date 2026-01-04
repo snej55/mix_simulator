@@ -110,12 +110,14 @@ bool Scene::init(const char* scenePath)
             const std::size_t modelID{std::stoul(key)};
             const std::string modelName{value["name"].get<std::string>()};
             const std::string modelPath{value["path"].get<std::string>()};
+            std::cout << modelName << " " << modelPath << std::endl;
 
             modelMap[modelID] = std::pair{modelName, modelPath};
 
             // preload model into engine
             assert(m_engine != nullptr);
             Engine* enginePtr{static_cast<Engine*>(m_engine)};
+            std::cout << "Adding model..." << std::endl;
             enginePtr->addModel(modelName, modelPath);
         }
         std::cout << "SCENE::INIT: Loaded " << modelMap.size() << " models for scene.\n";

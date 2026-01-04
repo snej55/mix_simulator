@@ -201,7 +201,6 @@ bool Model::loadModel(const std::string& path)
 
     m_path = path;
     m_directory = path.substr(0, path.find_last_of('/'));
-    Util::printMat4(glm::inverse(Util::convertMatrixGLM(scene->mRootNode->mTransformation)));
     processNode(scene->mRootNode, scene);
     handleTransparentTextures(scene);
 
@@ -254,7 +253,6 @@ void Model::processNode(const aiNode* node, const aiScene* scene)
 
         m_meshes.emplace_back(processMesh(mesh, scene));
         m_meshes[m_meshes.size() - 1].calculateMidpoint(glm::mat4{1.0f});
-        Util::printVec3(m_meshes[m_meshes.size() - 1].getMidpoint());
     }
 
     // repeat recursively for all children
@@ -612,20 +610,32 @@ void Model::extractBoneWeights(std::vector<MeshN::Vertex>& vertices, const aiMes
         }
     }
 
-    // fix vertex spikes (try and get rid of any vertices with zeroed weights)
+    // find vertices that have bones
+    std::vector<std::size_t> boneVertices{};
+    std::vector<std::size_t> bonelessVertices{};
     for (std::size_t i{0}; i < vertices.size(); ++i)
+    {
+        if (checkVertexWeights(vertices[i]))
+        {
+            boneVertices.emplace_back(i);
+        }
+        else
+        {
+            bonelessVertices.emplace_back(i);
+        }
+    }
+
+    // fix vertex spikes (try and get rid of any vertices with zeroed weights)
+    for (const std::size_t& i : bonelessVertices)
     {
         if (!checkVertexWeights(vertices[i]))
         {
             // try and match vertex to nearest vertex with a bone
             float minDistance2{std::numeric_limits<float>::max()};
             int minIdx{-1};
-            for (std::size_t j{0}; j < vertices.size(); ++j)
+            for (const std::size_t& j : boneVertices)
             {
                 if (j == i)
-                    continue;
-
-                if (!checkVertexWeights(vertices[j]))
                     continue;
 
                 const float dx{vertices[i].position.x - vertices[j].position.x};

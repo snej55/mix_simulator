@@ -7,8 +7,8 @@ from rich.progress import track
 
 # ---- get paths ---- #
 parser = argparse.ArgumentParser("combine_mr")
-parser.add_argument("metallic_path", help="Path to metallic map texture", type=str)
-parser.add_argument("roughness_path", help="Path to roughness map texture", type=str)
+parser.add_argument("--metallic_path", help="Path to metallic map texture", type=str)
+parser.add_argument("--roughness_path", help="Path to roughness map texture", type=str)
 args = parser.parse_args()
 
 assert os.path.isfile(args.metallic_path), "Please enter a valid path to the metallic map texture!"

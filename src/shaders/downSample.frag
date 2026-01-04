@@ -50,6 +50,7 @@ void main()
     switch (mipLevel)
     {
     case 0:
+        // TODO: Precalculate this
         groups[0] = (a + b + d + e) * (0.125f / 4.0f);
         groups[1] = (b + c + e + f) * (0.125f / 4.0f);
         groups[2] = (d + e + g + h) * (0.125f / 4.0f);
