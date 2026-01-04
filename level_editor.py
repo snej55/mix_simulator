@@ -4,7 +4,6 @@ import pyray as ray
 
 WIDTH, HEIGHT = 1800, 1200
 
-
 class Editor:
     def __init__(self):
         ray.init_window(WIDTH, HEIGHT, "Level Editor")

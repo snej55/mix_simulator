@@ -74,12 +74,27 @@ float geomSmith(vec3 norm, vec3 view, vec3 light, float roughness)
     return ggx1 * ggx2;
 }
 
+// https://github.com/vicrucann/shader-3dcurve/blob/master/src/Shaders/bezier.frag
+float getFogFactor(float d)
+{
+    const float FogMax = 50.0;
+    const float FogMin = 10.0;
+
+    if (d >= FogMax)
+        return 1.0;
+    if (d <= FogMin)
+        return 0.0;
+
+    return 1 - (FogMax - d) / (FogMax - FogMin);
+}
+
 void main()
 {
     vec3 emissive;
     vec4 gPositionSample = texture(gPositionE, TexCoords);
 
     vec3 FragPosVS = gPositionSample.rgb;
+
     // convert to world space
     vec3 FragPos = vec3(inverse(view) * vec4(FragPosVS, 1.0));
     emissive.r = gPositionSample.a;
@@ -163,6 +178,11 @@ void main()
     vec3 ambient = (diffuse * kD + spec) * ao * ssaoFactor;
     // final color
     vec3 color = emissive + ambient + Lo;
+
+    // apply fog effect
+    float fogAlpha = getFogFactor(-FragPosVS.z * 0.1);
+    vec3 fogColor = vec3(color.r * 0.2126 + color.g * 0.7152 + color.b + 0.0722) * 0.7; // weighted grayscale
+    color = mix(color, fogColor, fogAlpha);
 
     FragColor = vec4(color, alpha);
 }
