@@ -3,7 +3,7 @@
     "models": {
       "0": {
         "name": "spartan",
-        "path": "data/models/spartan.glb"
+        "path": "data/models/floor.glb"
       },
       "1": {
         "name": "table",
@@ -12,16 +12,40 @@
     },
     "objects": [
       {
-        "position": [0.0, 0.0, 0.0],
-        "scale": [1.0, 1.0, 1.0],
-        "rotation": [0.0, 0.0, 0.0],
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
         "modelID": 0,
-        "animated": true
+        "animated": false
       },
       {
-        "position": [10.0, 0.0, 10.0],
-        "scale": [1.0, 1.0, 1.0],
-        "rotation": [0.0, 0.0, 0.0],
+        "position": [
+          10.0,
+          0.0,
+          10.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
         "modelID": 1,
         "animated": false
       }
