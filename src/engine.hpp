@@ -150,6 +150,7 @@ public:
     bool createCamera();
     [[nodiscard]] Camera* getCamera() const { return m_camera; }
     [[nodiscard]] Bounds::Frustum getCameraFrustum() const;
+    [[nodiscard]] Bounds::AABB getCameraFrustumBV() const;
 
     // view & perspective matrices getters
     [[nodiscard]] glm::mat4 getViewMatrix() const;

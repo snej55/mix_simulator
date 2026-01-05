@@ -214,13 +214,11 @@ bool Engine::init(const int width, const int height, const char* title)
 // update components
 void Engine::update()
 {
-    // update delta time
-    m_clock->update();
+    // ----- Handle IO ----- //
     // check for esc
+    // swap buffers
     m_iohandler->update();
     m_window->setQuit(m_iohandler->getQuit());
-    // swap buffers
-    m_window->tick();
 
     // update camera
     if (m_cameraEnabled)
@@ -251,6 +249,15 @@ void Engine::update()
     {
         m_ssaoEnabled = true;
     }
+
+    // ----- Update game state ----- //
+    // update player movement and other stuff here
+    m_joltInstance->update(m_clock->getDeltaTime());
+
+    // ----- Finish up ----- //
+    // update delta time
+    m_clock->update();
+    m_window->tick();
 }
 
 // ------ Window ------ //
@@ -773,6 +780,12 @@ Bounds::Frustum Engine::getCameraFrustum() const
 {
     return Bounds::createFrustum(m_camera, static_cast<float>(getWidth()) / static_cast<float>(getHeight()),
                                  glm::radians(m_camera->getZoom()), CAMERA_Z_NEAR, CAMERA_Z_FAR);
+}
+
+Bounds::AABB Engine::getCameraFrustumBV() const
+{
+    return Bounds::getFrustumBV(getCameraFrustum(), m_camera, CAMERA_Z_FAR, glm::radians(m_camera->getZoom()),
+                                static_cast<float>(getWidth()) / static_cast<float>(getHeight()));
 }
 
 glm::mat4 Engine::getViewMatrix() const { return m_camera->getViewMatrix(); }

@@ -50,11 +50,8 @@ int main()
         scene.cleanupEmptyChunks();
 
         // get visible chunks
-        const Bounds::AABB camFrustumBV{Bounds::getFrustumBV(
-            camFrustum, engine.getCamera(), CAMERA_Z_FAR, glm::radians(engine.getCamera()->getZoom()),
-            static_cast<float>(engine.getWidth()) / static_cast<float>(engine.getHeight()))};
         std::vector<SceneChunk*> visibleChunks{};
-        scene.getVisibleChunks(camFrustum, camFrustumBV, visibleChunks);
+        scene.getVisibleChunks(camFrustum, engine.getCameraFrustumBV(), visibleChunks);
 
         for (SceneChunk* chunk : visibleChunks)
         {

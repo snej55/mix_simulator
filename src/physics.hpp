@@ -32,6 +32,7 @@
 
 #include "engine_types.hpp"
 
+#define PHYSICS_TIME_STEP 0.0166667
 #define PHYSICS_DEBUG_LOG
 
 JPH_SUPPRESS_WARNINGS
@@ -79,7 +80,7 @@ public:
         switch (inObject1)
         {
         case ObjectLayers::NON_MOVING:
-            return inObject1 == ObjectLayers::MOVING;
+            return inObject2 == ObjectLayers::MOVING;
         case ObjectLayers::MOVING:
             return true;
         default:
@@ -241,17 +242,29 @@ public:
                            m_BroadPhaseLayerInterface, m_ObjectVsBroadphaseLayerFilter, m_ObjectVsObjectLayerFilter);
 
 #ifdef PHYSICS_DEBUG_LOG
-        static DebugContactListener contactListener;
-        physicsSystem.SetContactListener(&contactListener);
-
-        static DebugBodyActivationListener bodyActivationListener;
-        physicsSystem.SetBodyActivationListener(&bodyActivationListener);
+        physicsSystem.SetContactListener(&m_ContactListener);
+        physicsSystem.SetBodyActivationListener(&m_BodyActivationListener);
 #endif
 
         static JPH::BodyInterface& bodyInterface{physicsSystem.GetBodyInterface()};
         m_BodyInterface = &bodyInterface; // don't worry this works trust me
 
         m_init = true;
+    }
+
+    // deltatime is seconds
+    void update(float deltaTime)
+    {
+        static float accumulator{0.0f};
+
+        accumulator += deltaTime;
+        accumulator = std::min(accumulator, 0.25f);
+
+        while (accumulator >= PHYSICS_TIME_STEP)
+        {
+            m_PhysicsSystem->Update(PHYSICS_TIME_STEP, 1, m_TempAllocator, m_JobSystem);
+            accumulator -= PHYSICS_TIME_STEP;
+        }
     }
 
     [[nodiscard]] JPH::TempAllocatorImpl* getTempAllocator() const { return m_TempAllocator; }
@@ -266,6 +279,11 @@ public:
     [[nodiscard]] JPH::PhysicsSystem* getPhysicsSystem() const { return m_PhysicsSystem; }
     [[nodiscard]] JPH::BodyInterface* getBodyInterface() const { return m_BodyInterface; }
 
+#ifdef PHYSICS_DEBUG_LOG
+    [[nodiscard]] DebugContactListener& getContactListener() { return m_ContactListener; }
+    [[nodiscard]] DebugBodyActivationListener& getBodyActivationListener() { return m_BodyActivationListener; }
+#endif
+
     [[nodiscard]] bool getInit() const { return m_init; }
 
 private:
@@ -278,6 +296,11 @@ private:
 
     JPH::PhysicsSystem* m_PhysicsSystem;
     JPH::BodyInterface* m_BodyInterface;
+
+#ifdef PHYSICS_DEBUG_LOG
+    DebugContactListener m_ContactListener;
+    DebugBodyActivationListener m_BodyActivationListener;
+#endif
 
     bool m_init{false};
 };
