@@ -17,6 +17,7 @@
 #include "renderer.hpp"
 #include "ibl.hpp"
 #include "bounds.hpp"
+#include "physics.hpp"
 
 class Engine final : public EngineObject
 {

@@ -72,7 +72,8 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/engine.hpp sr
         src/scene.hpp
         src/scene.cpp
         src/bounds.hpp
-        src/bounds.cpp)
+        src/bounds.cpp
+        src/physics.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
