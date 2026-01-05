@@ -10,6 +10,7 @@
 #include "camera.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "ibl.hpp"
+#include "physics.hpp"
 #include "postprocessing.hpp"
 #include "renderer.hpp"
 #include "shapes.hpp"
@@ -194,6 +195,16 @@ bool Engine::init(const int width, const int height, const char* title)
         return false;
     }
     m_ssaoGenerator->init(getWidth(), getHeight());
+
+    if (!createJoltInstance())
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT::ERROR: Failed to initialize physics engine!" << std::endl;
+        Util::endError();
+        return false;
+    }
+    m_joltInstance->init();
+    std::cout << "ENGINE:INIT: Initialized JoltPhysics!" << std::endl;
 
     std::cout << "ENGINE::INIT: Successfully created components!\n";
 
@@ -973,7 +984,7 @@ bool Engine::createSSAOGenerator()
         return false;
     }
 
-    m_ssaoGenerator = new SSAOGenerator{this};
+    m_ssaoGenerator = new SSAOGenerator{m_postProcessor};
     m_arena->addObject(m_ssaoGenerator);
     return true;
 }
@@ -993,6 +1004,23 @@ void Engine::renderSSAO()
         m_ssaoGenerator->render(m_deferredRenderer, getShader("ssao"), getProjectionMatrix(), getShader("ssaoBlur"),
                                 getViewMatrix());
     }
+}
+
+// ------ Jolt Instance ------ //
+
+bool Engine::createJoltInstance()
+{
+    if (m_joltInstance != nullptr)
+    {
+        Util::beginError();
+        std::cout << "ENGINE::CREATE_JOLT_INSTANCE::ERROR: JoltInstance already exists at `" << m_joltInstance << "`";
+        Util::endError();
+        return false;
+    }
+
+    m_joltInstance = new JoltInstance{this};
+    m_arena->addObject(m_joltInstance);
+    return true;
 }
 
 // ------ Arena ------ //

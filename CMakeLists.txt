@@ -14,6 +14,9 @@ set(TARGET_SHADER_COMPILER OFF CACHE BOOL "" FORCE)
 set(Vulkan_GLSLC_EXECUTABLE "/usr/bin/true" CACHE FILEPATH "" FORCE)
 set(Vulkan_DXC_EXECUTABLE "/usr/bin/true" CACHE FILEPATH "" FORCE)
 
+set(JPH_DEBUG_RENDERER OFF CACHE BOOL "" FORCE)
+set(JPH_PROFILE_ENABLED OFF CACHE BOOL "" FORCE)
+
 include(FetchContent)
 FetchContent_Declare(
   Jolt
@@ -79,9 +82,6 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} Jolt)
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    JPH_DEBUG_RENDERER
-    JPH_PROFILE_ENABLED
-    JPH_EXTERNAL_PROFILE
     JPH_USE_SSE4_2
 )
 

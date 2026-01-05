@@ -215,6 +215,11 @@ public:
     [[nodiscard]] bool getSSAOEnabled() const { return m_ssaoEnabled; }
     void setSSAOEnabled(const bool val) { m_ssaoEnabled = val; }
 
+    // ------ Jolt Physics ------ //
+    bool createJoltInstance();
+
+    [[nodiscard]] JoltInstance* getJoltInstance() const { return m_joltInstance; }
+
     // ------ Arena ------ //
 
     // Arena operations
@@ -251,6 +256,9 @@ private:
     DeferredRenderer* m_deferredRenderer{nullptr};
     SSAOGenerator* m_ssaoGenerator{nullptr};
     bool m_ssaoEnabled{false};
+
+    // Physics
+    JoltInstance* m_joltInstance{nullptr};
 
     // camera stuff
     Camera* m_camera{nullptr};

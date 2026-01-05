@@ -30,6 +30,8 @@
 #include <cstdarg>
 #include <cassert>
 
+#include "engine_types.hpp"
+
 #define PHYSICS_DEBUG_LOG
 
 JPH_SUPPRESS_WARNINGS
@@ -196,13 +198,10 @@ public:
 
 #endif
 
-class JoltInstance final
+class JoltInstance final : public EngineObject
 {
 public:
-    JoltInstance(const JoltInstance&) = delete;
-    JoltInstance(JoltInstance&&) = delete;
-    JoltInstance& operator=(const JoltInstance&) = delete;
-    JoltInstance& operator=(JoltInstance&&) = delete;
+    explicit JoltInstance(EngineObject* parent) : EngineObject{"JoltInstance", parent} {}
 
     ~JoltInstance()
     {
@@ -237,6 +236,7 @@ public:
         constexpr JPH::uint cMaxContactContraints{10240};
 
         static JPH::PhysicsSystem physicsSystem;
+        m_PhysicsSystem = &physicsSystem;
         physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactContraints,
                            m_BroadPhaseLayerInterface, m_ObjectVsBroadphaseLayerFilter, m_ObjectVsObjectLayerFilter);
 
