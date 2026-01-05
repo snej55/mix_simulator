@@ -5,29 +5,11 @@
 #include <cstddef>
 
 #include "mesh.hpp"
-#include "util.hpp"
 
 Mesh::Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigned int>& indices,
            const std::vector<MeshN::Texture>& textures, const MeshN::Material& material) :
     m_vertices{vertices}, m_indices{indices}, m_textures{textures}, m_material{material}
 {
-    for (const MeshN::Vertex& vertex : m_vertices)
-    {
-        constexpr float threshold{10.f};
-        if (std::abs(vertex.position.x) > threshold)
-        {
-            Util::printVec3(vertex.position);
-        }
-        else if (std::abs(vertex.position.y) > threshold)
-        {
-            Util::printVec3(vertex.position);
-        }
-        else if (std::abs(vertex.position.z) > threshold)
-        {
-            Util::printVec3(vertex.position);
-        }
-    }
-
     // mikktspace.h callbacks
     m_SMT_iface.m_getNumFaces = SMTGetNumFaces;
     m_SMT_iface.m_getNumVerticesOfFace = SMTGetNumVerticesOfFace;

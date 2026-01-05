@@ -3,7 +3,7 @@
     "models": {
       "0": {
         "name": "spartan",
-        "path": "data/models/floor.glb"
+        "path": "data/models/concrete_floor.glb"
       },
       "1": {
         "name": "table",
