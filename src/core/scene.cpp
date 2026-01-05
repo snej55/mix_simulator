@@ -253,7 +253,6 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
 void Scene::addEntity(Entity* entity)
 {
     assert(entity != nullptr);
-    std::cout << entity->getGlobalAABB() << std::endl;
 
     // get iterator
     const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};

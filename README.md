@@ -55,9 +55,9 @@ cd build
 - [X] Frustum culling
 - [X] Space partitioning
 - [X] Bounding volume generation
-- [ ] Main game class
+- [X] Main game class
 - [ ] Level editor
 - [ ] Rag dolls
-- [ ] Physics engine (Jolt? Box2D?)
+- [X] Add Jolt Physics
 - [ ] Optimize static shader uniforms
 - [ ] Create player models
