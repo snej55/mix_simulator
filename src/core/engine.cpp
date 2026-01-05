@@ -212,8 +212,10 @@ bool Engine::init(const int width, const int height, const char* title)
 }
 
 // update components
-void Engine::update()
+void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl)
 {
+    assert((renderQueue != nullptr) == (ibl != nullptr));
+
     // ----- Handle IO ----- //
     // check for esc
     // swap buffers
@@ -253,6 +255,14 @@ void Engine::update()
     // ----- Update game state ----- //
     // update player movement and other stuff here
     m_joltInstance->update(m_clock->getDeltaTime());
+
+    // ----- Render Frame ----- //
+    if (renderQueue != nullptr)
+    {
+        renderQueue->renderFrame(getShader("gBuffer"), m_deferredRenderer, getShader("texturePBR"), m_postProcessor,
+                                 this, ibl, getCameraPosition());
+        renderQueue->update();
+    }
 
     // ----- Finish up ----- //
     // update delta time
@@ -305,6 +315,8 @@ void Engine::displayFrameTime()
     ss << "Frame time: " << static_cast<int>(avgFrameTime * 1000.f) << "ms";
     m_window->setTitle(ss.str().c_str());
 }
+
+void Engine::setupViewport() const { glViewport(0, 0, getWidth(), getHeight()); }
 
 // ------ IOHandler ------ //
 

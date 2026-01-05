@@ -34,7 +34,7 @@ public:
     // initialize components
     bool init(int width, int height, const char* title);
     // update components
-    void update();
+    void update(RenderQueue* renderQueue = nullptr, IBLGenerator* ibl = nullptr);
 
     // ------ Window ------ //
 
@@ -54,6 +54,8 @@ public:
     void disableWireframe() const;
 
     void displayFrameTime();
+
+    void setupViewport() const;
 
     // ------ IOHandler ------ //
 

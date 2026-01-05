@@ -193,6 +193,8 @@ void Scene::updateEntities(const float deltaTime)
     {
         addEntity(entity);
     }
+
+    cleanupEmptyChunks();
 }
 
 void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
@@ -255,14 +257,6 @@ void Scene::addEntity(Entity* entity)
 
     // get iterator
     const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};
-    // if (m_chunks.find(key) == m_chunks.end())
-    // {
-    //     glm::vec3 chunkPos{static_cast<float>(key.x) * SpatialHashing::CELL_SIZE,
-    //                        static_cast<float>(key.y) * SpatialHashing::CELL_SIZE,
-    //                        static_cast<float>(key.z) * SpatialHashing::CELL_SIZE};
-    //     m_chunks[key] = std::make_unique<SceneChunk>(chunkPos);
-    // }
-    // m_chunks[key]->addEntity(entity);
 
     constexpr std::array<glm::vec3, 27> neighbourOffsets{
         glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f}, glm::vec3{-1.f, 0.f, -1.f},

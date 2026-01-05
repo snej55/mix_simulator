@@ -1,0 +1,58 @@
+// Created by Jens Kromdijk 05-01-2025
+
+#include <memory>
+
+#include "constants.hpp"
+#include "core/bounds.hpp"
+#include "core/ibl.hpp"
+#include "core/renderer.hpp"
+
+#include "game.hpp"
+
+Game::~Game() {}
+
+bool Game::init()
+{
+    if (!m_engine.init(CST::WINDOW_START_WIDTH, CST::WINDOW_START_HEIGHT, "OpenGL Window"))
+    {
+        std::cout << "Failed to initialize engine!" << std::endl;
+        return false;
+    }
+    std::cout << "Initialized engine!" << std::endl;
+
+    m_engine.setCameraEnabled(true);
+
+    // load level data
+    m_scene = std::make_unique<Scene>(&m_engine);
+    m_scene->init("data/maps/0.json");
+
+    // load skybox
+    m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
+    m_iblGenerator->init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png",
+                         &m_engine);
+
+    m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
+    return true;
+}
+
+void Game::run()
+{
+    m_engine.setupViewport();
+    while (!m_engine.getQuit())
+    {
+        // update entities
+        m_scene->updateEntities(m_engine.getDeltaTime());
+
+        std::vector<SceneChunk*> visibleChunks{};
+        const Bounds::Frustum camFrustum{m_engine.getCameraFrustum()};
+        m_scene->getVisibleChunks(camFrustum, m_engine.getCameraFrustumBV(), visibleChunks);
+        for (std::size_t i{0}; i < std::size(visibleChunks); ++i)
+        {
+            m_renderQueue->addChunk(visibleChunks[i], camFrustum);
+        }
+
+        // render frame
+        m_engine.update(m_renderQueue.get(), m_iblGenerator.get());
+        m_engine.displayFrameTime();
+    }
+}

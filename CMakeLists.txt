@@ -38,45 +38,47 @@ if (CMAKE_SYSTEM MATCHES Windows)
 elseif (CMAKE_SYSTEM MATCHES Linux)
     message(STATUS "Target system is linux")
     include_directories(${CMAKE_SOURCE_DIR}/include/linux
-            ${CMAKE_SOURCE_DIR}/src/glad)
+            ${CMAKE_SOURCE_DIR}/src/core/glad)
     # link_directories(lib)
     link_directories(${CMAKE_SOURCE_DIR}/lib/linux)
     # fedora: mesa-libGLU-devel
     set(GL_LIBS GL GLU glfw3 assimp freetype z pthread)
 endif ()
 
-set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/engine.hpp src/engine.cpp
-        src/engine_types.hpp src/arena.hpp
-        src/window.hpp src/window.cpp
-        src/arena.cpp src/iohandler.hpp src/iohandler.cpp
-        src/clock.hpp src/clock.cpp src/shader.cpp src/shader.hpp
-        src/texture.hpp src/texture.cpp
-        src/util.hpp
-        src/shapes.hpp
-        src/shapes.cpp
-        src/camera.hpp
-        src/mesh.cpp
-        src/mesh.hpp
-        src/model.hpp
-        src/model.cpp
-        src/postprocessing.cpp
-        src/postprocessing.hpp
-        src/timer.cpp
-        src/fonts.hpp
-        src/fonts.cpp
-	src/ibl.hpp
-	src/ibl.cpp
-	src/bones.hpp
-        src/bones.cpp
-        src/renderer.cpp
-        src/renderer.hpp
-        src/entity.hpp
-        src/entity.cpp
-        src/scene.hpp
-        src/scene.cpp
-        src/bounds.hpp
-        src/bounds.cpp
-        src/physics.hpp)
+set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.hpp src/core/engine.cpp
+        src/core/engine_types.hpp src/core/arena.hpp
+        src/core/window.hpp src/core/window.cpp
+        src/core/arena.cpp src/core/iohandler.hpp src/core/iohandler.cpp
+        src/core/clock.hpp src/core/clock.cpp src/core/shader.cpp src/core/shader.hpp
+        src/core/texture.hpp src/core/texture.cpp
+        src/core/util.hpp
+        src/core/shapes.hpp
+        src/core/shapes.cpp
+        src/core/camera.hpp
+        src/core/mesh.cpp
+        src/core/mesh.hpp
+        src/core/model.hpp
+        src/core/model.cpp
+        src/core/postprocessing.cpp
+        src/core/postprocessing.hpp
+        src/core/timer.cpp
+        src/core/fonts.hpp
+        src/core/fonts.cpp
+	src/core/ibl.hpp
+	src/core/ibl.cpp
+	src/core/bones.hpp
+        src/core/bones.cpp
+        src/core/renderer.cpp
+        src/core/renderer.hpp
+        src/core/entity.hpp
+        src/core/entity.cpp
+        src/core/scene.hpp
+        src/core/scene.cpp
+        src/core/bounds.hpp
+        src/core/bounds.cpp
+        src/core/physics.hpp
+        src/game.hpp
+        src/game.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
