@@ -7,6 +7,21 @@ A physics based game made using C++ and OpenGL. Currently a renderer based off o
 
 Sketchfab GLTF model used: [https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66](https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66)
 
+## Building:
+
+```
+git clone --depth 1 https://github.com/snej55/mix_simulator.git
+cd mix_simulator
+
+# build it
+cmake -S . -B build
+cmake --build build/ -j$(nproc)
+
+# to run
+cd build
+./main
+```
+
 ## Features:
 - Physically based rendering
 - IBL (Image Based Lighting)

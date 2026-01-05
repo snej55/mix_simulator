@@ -14,8 +14,12 @@
 #include <assimp/quaternion.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
+
+#include <Jolt/Jolt.h>
+#include <Jolt/Math/MathTypes.h>
 
 namespace Util
 {
@@ -51,6 +55,7 @@ namespace Util
 
     // convert aiVector3D to glm::vec3
     inline glm::vec3 convertVectorGLM(const aiVector3D& vec) { return glm::vec3{vec.x, vec.y, vec.z}; }
+    inline glm::vec3 convertVectorGLM(const JPH::Vec3Arg& vec) { return glm::vec3{vec.GetX(), vec.GetY(), vec.GetZ()}; }
 
     // convert aiQuaternion to glm::quat
     inline glm::quat convertQuaternionGLM(const aiQuaternion& quat)
