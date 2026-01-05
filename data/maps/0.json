@@ -29,7 +29,7 @@
         ],
         "modelID": 0,
         "animated": false,
-        "body_type": "static"
+        "bodyType": "static"
       },
       {
         "position": [
@@ -49,7 +49,7 @@
         ],
         "modelID": 1,
         "animated": false,
-        "body_type": "dynamic"
+        "bodyType": "dynamic"
       }
     ]
   }

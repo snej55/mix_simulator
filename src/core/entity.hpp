@@ -8,12 +8,13 @@
 
 #include "model.hpp"
 #include "bounds.hpp"
+#include "physics.hpp"
 
 class Entity final
 {
 public:
     Entity() = default;
-    Entity(const Model* model, const Bounds::Transform& transform, bool animated = false);
+    Entity(const Model* model, const Bounds::Transform& transform, const BodyType& bodyType, bool animated = false);
     ~Entity();
 
     void update(float deltaTime);
@@ -44,6 +45,8 @@ public:
     void setDirty(const bool val) { m_dirty = val; }
     [[nodiscard]] bool getDirty() const { return m_dirty; }
 
+    [[nodiscard]] BodyType getBodyType() const { return m_bodyType; }
+
 private:
     std::string m_path{};
     Bounds::Transform m_transform{};
@@ -54,6 +57,7 @@ private:
 
     bool m_inFrustum{false};
     bool m_static{false};
+    BodyType m_bodyType{};
 
     bool m_dirty{false};
     bool m_discarded{false};

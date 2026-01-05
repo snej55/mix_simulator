@@ -2,6 +2,7 @@
 
 // for scene parsing
 #include <JSON/json.hpp>
+#include "physics.hpp"
 using json = nlohmann::json;
 
 #include <array>
@@ -134,6 +135,9 @@ bool Scene::init(const char* scenePath)
                                      entityEntry["rotation"][2].get<float>()};
             const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
             const bool animated{entityEntry.value("animated", false)};
+            const std::string_view bodyTypeStr{entityEntry.value("bodyType", "static")};
+            BodyType bodyType;
+            getBodyType(bodyTypeStr, &bodyType);
 
             Bounds::Transform transform{};
             transform.setLocalPosition(position);
@@ -148,7 +152,7 @@ bool Scene::init(const char* scenePath)
                 continue;
             }
 
-            addEntity(modelMap[modelID].second.c_str(), transform, animated);
+            addEntity(modelMap[modelID].second.c_str(), transform, bodyType, animated);
         }
         std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["objects"].size() << " entities for scene.\n";
     }
@@ -163,6 +167,8 @@ bool Scene::init(const char* scenePath)
     sceneFile.close();
     return true;
 }
+
+void Scene::initPhysicsBodies(JoltInstance* jolt) {}
 
 void Scene::free()
 {
@@ -226,7 +232,8 @@ void Scene::cleanupEmptyChunks()
     }
 }
 
-void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const bool animated)
+void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const BodyType& bodyType,
+                      const bool animated)
 {
     assert(m_engine != nullptr);
     Engine* enginePtr{static_cast<Engine*>(m_engine)};
@@ -246,7 +253,7 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
         modelPtr->loadAnimation();
     }
 
-    Entity* entity{new Entity{modelPtr, transform, animated}};
+    Entity* entity{new Entity{modelPtr, transform, bodyType, animated}};
     addEntity(entity);
 }
 

@@ -7,6 +7,7 @@
 #include "engine_types.hpp"
 #include "entity.hpp"
 #include "spatial_hashing.hpp"
+#include "physics.hpp"
 
 class SceneChunk
 {
@@ -60,6 +61,7 @@ public:
 
     // load entities from json
     bool init(const char* scenePath);
+    void initPhysicsBodies(JoltInstance* jolt);
 
     void updateEntities(float deltaTime);
 
@@ -71,7 +73,8 @@ public:
     // free all entities
     void free();
 
-    void addEntity(const char* modelPath, const Bounds::Transform& transform, bool animated = false);
+    void addEntity(const char* modelPath, const Bounds::Transform& transform, const BodyType& bodyType,
+                   bool animated = false);
     void addEntity(Entity* entity);
 
 private:

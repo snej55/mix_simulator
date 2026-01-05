@@ -29,11 +29,39 @@
 #include <iostream>
 #include <cstdarg>
 #include <cassert>
+#include <string_view>
 
 #include "engine_types.hpp"
 
 #define PHYSICS_TIME_STEP 0.0166667
 #define PHYSICS_DEBUG_LOG
+
+enum class BodyType
+{
+    STATIC = 0x0,
+    DYNAMIC = 0x1,
+    KINEMATIC = 0x2,
+};
+
+inline void getBodyType(const std::string_view bodyTypeStr, BodyType* bodyType)
+{
+    if (bodyTypeStr == "static")
+    {
+        *bodyType = BodyType::STATIC;
+    }
+    else if (bodyTypeStr == "dynamic")
+    {
+        *bodyType = BodyType::DYNAMIC;
+    }
+    else if (bodyTypeStr == "kinematic")
+    {
+        *bodyType = BodyType::KINEMATIC;
+    }
+    else
+    {
+        *bodyType = BodyType::STATIC;
+    }
+}
 
 JPH_SUPPRESS_WARNINGS
 
