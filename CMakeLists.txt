@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.30)
 project(main)
 
+if (MSVC)
+    message(STATUS "Using MSVC runtime DLLs")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set(USE_STATIC_MSVC_RUNTIME OFF CACHE BOOL "" FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clangd
 
@@ -17,13 +23,21 @@ set(Vulkan_DXC_EXECUTABLE "/usr/bin/true" CACHE FILEPATH "" FORCE)
 set(JPH_DEBUG_RENDERER OFF CACHE BOOL "" FORCE)
 set(JPH_PROFILE_ENABLED OFF CACHE BOOL "" FORCE)
 
+
 include(FetchContent)
+
+# Force Jolt to use dynamic runtime on Windows BEFORE fetching
+if (CMAKE_SYSTEM MATCHES Windows)
+    set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF CACHE BOOL "" FORCE)
+    set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
+endif()
+
 FetchContent_Declare(
-  Jolt
-  GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
-  GIT_TAG        master  # Or a specific version tag like v5.0.0
-  SOURCE_SUBDIR Build
-)
+    Jolt
+    GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
+    GIT_TAG        master  # Or a specific version tag like v5.0.0
+    SOURCE_SUBDIR Build
+    )
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 FetchContent_MakeAvailable(Jolt)
 # target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR})
@@ -83,6 +97,10 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} Jolt)
+
+# Ensure Jolt headers are available
+target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/..)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     JPH_USE_SSE4_2
 )
@@ -96,7 +114,6 @@ add_custom_target(copy_assets
         ${CMAKE_CURRENT_LIST_DIR}/data
         ${CMAKE_CURRENT_BINARY_DIR}/data
 )
-add_dependencies(${PROJECT_NAME} copy_assets)
 
 add_custom_target(copy_shaders
         COMMAND ${CMAKE_COMMAND} -E copy_directory
