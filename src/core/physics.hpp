@@ -31,9 +31,15 @@
 #include <cassert>
 #include <string_view>
 
+#include "Jolt/Physics/Body/Body.h"
+#include "Jolt/Physics/Body/MotionType.h"
+#include "Jolt/Physics/EActivation.h"
 #include "engine_types.hpp"
+#include "bounds.hpp"
+#include "util.hpp"
 
 #define PHYSICS_TIME_STEP 0.0166667
+#define PHYSICS_CONVEX_RADIUS 0.05f
 #define PHYSICS_DEBUG_LOG
 
 enum class BodyType
@@ -226,6 +232,63 @@ public:
 };
 
 #endif
+
+// only simple boxes for now
+class PhysicsBody final
+{
+public:
+    PhysicsBody() = default;
+    PhysicsBody(JPH::BodyInterface& bodyInterface, const Bounds::AABB& boundingBox, const BodyType bodyType)
+    {
+        const JPH::Vec3 extents{Util::convertVectorJolt(boundingBox.extents)};
+        JPH::BoxShapeSettings shapeSettings{extents, PHYSICS_CONVEX_RADIUS};
+        JPH::Shape::ShapeResult result{shapeSettings.Create()};
+
+        if (result.HasError())
+        {
+            Util::beginError();
+            std::cout << "PHYSICS_BODY::ERROR: Failed to create box from " << boundingBox
+                      << " Bodytype: " << static_cast<int>(bodyType);
+            Util::endError();
+            return;
+        }
+
+        JPH::Vec3 center{Util::convertVectorJolt(boundingBox.center)};
+
+        JPH::EMotionType motionType;
+        JPH::ObjectLayer layer;
+
+        switch (bodyType)
+        {
+        case BodyType::STATIC:
+            motionType = JPH::EMotionType::Static;
+            layer = ObjectLayers::NON_MOVING;
+            break;
+        case BodyType::DYNAMIC:
+            motionType = JPH::EMotionType::Dynamic;
+            layer = ObjectLayers::MOVING;
+            break;
+        case BodyType::KINEMATIC:
+            motionType = JPH::EMotionType::Kinematic;
+            layer = ObjectLayers::MOVING;
+            break;
+        }
+
+        JPH::BodyCreationSettings settings{result.Get(), center, JPH::Quat::sIdentity(), motionType, layer};
+
+        JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
+                                                                             : JPH::EActivation::Activate};
+
+        m_bodyID = bodyInterface.CreateAndAddBody(settings, activation);
+    }
+
+    ~PhysicsBody() {}
+
+    [[nodiscard]] const JPH::BodyID& getBodyID() const { return m_bodyID; }
+
+private:
+    JPH::BodyID m_bodyID;
+};
 
 class JoltInstance final : public EngineObject
 {

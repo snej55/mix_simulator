@@ -57,6 +57,8 @@ namespace Util
     inline glm::vec3 convertVectorGLM(const aiVector3D& vec) { return glm::vec3{vec.x, vec.y, vec.z}; }
     inline glm::vec3 convertVectorGLM(const JPH::Vec3Arg& vec) { return glm::vec3{vec.GetX(), vec.GetY(), vec.GetZ()}; }
 
+    inline JPH::Vec3 convertVectorJolt(const glm::vec3& vec) { return JPH::Vec3{vec.x, vec.y, vec.z}; }
+
     // convert aiQuaternion to glm::quat
     inline glm::quat convertQuaternionGLM(const aiQuaternion& quat)
     {
