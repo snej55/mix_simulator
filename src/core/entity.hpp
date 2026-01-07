@@ -45,7 +45,8 @@ public:
     void setDirty(const bool val) { m_dirty = val; }
     [[nodiscard]] bool getDirty() const { return m_dirty; }
 
-    [[nodiscard]] BodyType getBodyType() const { return m_bodyType; }
+    [[nodiscard]] PhysicsBody* getPhysicsBody() const { return m_physicsBody.get(); }
+    void initPhysicsBody(JPH::BodyInterface* bodyInterface);
 
 private:
     std::string m_path{};
@@ -57,7 +58,8 @@ private:
 
     bool m_inFrustum{false};
     bool m_static{false};
-    BodyType m_bodyType{};
+    BodyType m_bodyType;
+    std::unique_ptr<PhysicsBody> m_physicsBody{nullptr};
 
     bool m_dirty{false};
     bool m_discarded{false};

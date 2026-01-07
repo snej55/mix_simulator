@@ -26,7 +26,6 @@ set(JPH_PROFILE_ENABLED OFF CACHE BOOL "" FORCE)
 
 include(FetchContent)
 
-# Force Jolt to use dynamic runtime on Windows BEFORE fetching
 if (CMAKE_SYSTEM MATCHES Windows)
     set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF CACHE BOOL "" FORCE)
     set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
@@ -40,7 +39,6 @@ FetchContent_Declare(
     )
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 FetchContent_MakeAvailable(Jolt)
-# target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR})
 
 set(GL_LIBS glfw3 assimp freetype)
 
@@ -98,7 +96,6 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} Jolt)
 
-# Ensure Jolt headers are available
 target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/..)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

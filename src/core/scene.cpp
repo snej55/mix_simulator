@@ -168,7 +168,18 @@ bool Scene::init(const char* scenePath)
     return true;
 }
 
-void Scene::initPhysicsBodies(JoltInstance* jolt) {}
+void Scene::initPhysicsBodies(JoltInstance* jolt)
+{
+    for (auto& [key, chunkPtr] : m_chunks)
+    {
+        const std::vector<Entity*>& entities{chunkPtr->getEntities()};
+        for (Entity* entity : entities)
+        {
+            if (entity->getPhysicsBody() == nullptr)
+                entity->initPhysicsBody(jolt->getBodyInterface());
+        }
+    }
+}
 
 void Scene::free()
 {

@@ -238,7 +238,8 @@ class PhysicsBody final
 {
 public:
     PhysicsBody() = default;
-    PhysicsBody(JPH::BodyInterface& bodyInterface, const Bounds::AABB& boundingBox, const BodyType bodyType)
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const BodyType bodyType) :
+        m_bodyType{bodyType}
     {
         const JPH::Vec3 extents{Util::convertVectorJolt(boundingBox.extents)};
         JPH::BoxShapeSettings shapeSettings{extents, PHYSICS_CONVEX_RADIUS};
@@ -279,14 +280,16 @@ public:
         JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
                                                                              : JPH::EActivation::Activate};
 
-        m_bodyID = bodyInterface.CreateAndAddBody(settings, activation);
+        m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
     }
 
     ~PhysicsBody() {}
 
     [[nodiscard]] const JPH::BodyID& getBodyID() const { return m_bodyID; }
+    [[nodiscard]] BodyType getBodyType() const { return m_bodyType; }
 
 private:
+    BodyType m_bodyType;
     JPH::BodyID m_bodyID;
 };
 
