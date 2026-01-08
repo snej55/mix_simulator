@@ -81,7 +81,6 @@ void SceneChunk::addEntity(Entity* entity)
     m_entities.emplace_back(entity);
 }
 
-
 void SceneChunk::init()
 {
     m_aabb = std::make_unique<Bounds::AABB>(
@@ -300,7 +299,9 @@ void Scene::addEntity(Entity* entity)
         if (m_chunks[neighbourKey]->getAABB()->collideAABB(entity->getGlobalAABB()))
         {
             // std::cout << "Adding entity to chunk at key " << neighbourKey << "\n";
-            m_chunks[neighbourKey]->addEntity(entity);
+            SceneChunk* chunkPtr{m_chunks[neighbourKey].get()};
+            entity->addChunk(chunkPtr, chunkPtr->getNumEntities()); // gets implicitly cast from SceneChunk* to void*
+            chunkPtr->addEntity(entity);
         }
     }
 }

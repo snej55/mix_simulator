@@ -30,6 +30,8 @@ public:
     [[nodiscard]] const glm::vec3& getPos() const { return m_pos; }
     [[nodiscard]] const std::vector<Entity*>& getEntities() const { return m_entities; }
     [[nodiscard]] const Bounds::AABB* getAABB() const { return m_aabb.get(); }
+    [[nodiscard]] std::size_t getNumEntities() const { return m_entities.size(); }
+    [[nodiscard]] bool isEmpty() const { return m_entities.empty(); }
 
 private:
     glm::vec3 m_pos;

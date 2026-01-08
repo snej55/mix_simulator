@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "entity.hpp"
-#include "Jolt/Physics/Body/BodyInterface.h"
 #include "bounds.hpp"
 #include "physics.hpp"
 

@@ -3,6 +3,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -45,8 +46,14 @@ public:
     void setDirty(const bool val) { m_dirty = val; }
     [[nodiscard]] bool getDirty() const { return m_dirty; }
 
+    [[nodiscard]] const BodyType& getBodyType() const { return m_bodyType; }
     [[nodiscard]] PhysicsBody* getPhysicsBody() const { return m_physicsBody.get(); }
     void initPhysicsBody(JPH::BodyInterface* bodyInterface);
+
+    // keep track of which chunks this entity belongs to
+    void addChunk(void* chunkPtr, std::size_t index) { m_chunks.emplace_back(std::pair{index, chunkPtr}); }
+    void eraseChunks() { m_chunks.clear(); }
+    [[nodiscard]] const std::vector<std::pair<std::size_t, void*>>& getChunks() const { return m_chunks; }
 
 private:
     std::string m_path{};
@@ -63,6 +70,8 @@ private:
 
     bool m_dirty{false};
     bool m_discarded{false};
+
+    std::vector<std::pair<std::size_t, void*>> m_chunks{};
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Entity& entity)
