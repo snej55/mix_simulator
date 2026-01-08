@@ -19,8 +19,12 @@ Entity::Entity(const Model* model, const Bounds::Transform& transform, const Bod
 
 Entity::~Entity() = default;
 
-void Entity::update(const float deltaTime)
+void Entity::update(const float deltaTime, const JPH::BodyInterface* bodyInterface)
 {
+    if (bodyInterface != nullptr && m_physicsBody.get() != nullptr)
+    {
+        m_physicsBody->syncTransform(m_transform, bodyInterface);
+    }
     if (m_transform.getDirty())
     {
         // TODO: Integrate with scene graph?

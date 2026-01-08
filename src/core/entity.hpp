@@ -17,7 +17,7 @@ public:
     Entity(const Model* model, const Bounds::Transform& transform, const BodyType& bodyType, bool animated = false);
     ~Entity();
 
-    void update(float deltaTime);
+    void update(float deltaTime, const JPH::BodyInterface* bodyInterface = nullptr);
 
     [[nodiscard]] Bounds::AABB getGlobalAABB() const;
 

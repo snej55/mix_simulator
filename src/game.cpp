@@ -42,7 +42,7 @@ void Game::run()
     while (!m_engine.getQuit())
     {
         // update entities
-        m_scene->updateEntities(m_engine.getDeltaTime());
+        m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
 
         std::vector<SceneChunk*> visibleChunks{};
         const Bounds::Frustum camFrustum{m_engine.getCameraFrustum()};

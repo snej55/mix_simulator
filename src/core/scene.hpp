@@ -18,7 +18,7 @@ public:
     ~SceneChunk() = default;
 
     // update entities in chunk and return entities that have exited chunk (non-static)
-    void updateEntities(float deltaTime, std::vector<Entity*>& discardEntities);
+    void updateEntities(float deltaTime, std::vector<Entity*>& discardEntities, JoltInstance* jolt = nullptr);
 
     void removeEntity(std::size_t index);
 
@@ -63,7 +63,7 @@ public:
     bool init(const char* scenePath);
     void initPhysicsBodies(JoltInstance* jolt);
 
-    void updateEntities(float deltaTime);
+    void updateEntities(float deltaTime, JoltInstance* jolt = nullptr);
 
     void getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
                           std::vector<SceneChunk*>& chunks);

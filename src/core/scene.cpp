@@ -22,7 +22,7 @@ SceneChunk::SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entitie
     init();
 }
 
-void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& discardEntities)
+void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& discardEntities, JoltInstance* jolt)
 {
     for (std::size_t i{0}; i < m_entities.size(); ++i)
     {
@@ -39,7 +39,7 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         if (entity->getDirty())
             continue;
 
-        entity->update(deltaTime);
+        entity->update(deltaTime, jolt != nullptr ? jolt->getBodyInterface() : nullptr);
         entity->setDirty(true);
 
         // check if entity is still in chunk
@@ -198,13 +198,13 @@ void Scene::free()
     m_chunks.clear();
 }
 
-void Scene::updateEntities(const float deltaTime)
+void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
 {
     std::vector<Entity*> discardEntities;
 
     for (const auto& [key, chunkPtr] : m_chunks)
     {
-        chunkPtr->updateEntities(deltaTime, discardEntities);
+        chunkPtr->updateEntities(deltaTime, discardEntities, jolt);
     }
 
     for (Entity* entity : discardEntities)

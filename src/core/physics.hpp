@@ -25,15 +25,18 @@
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
+#include <Jolt/Physics/EActivation.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/MotionType.h>
+
+#include <glm/gtc/quaternion.hpp>
+#define GLM_FORCE_QUAT_DATA_WXYZ
 
 #include <iostream>
 #include <cstdarg>
 #include <cassert>
 #include <string_view>
 
-#include "Jolt/Physics/Body/Body.h"
-#include "Jolt/Physics/Body/MotionType.h"
-#include "Jolt/Physics/EActivation.h"
 #include "engine_types.hpp"
 #include "bounds.hpp"
 #include "util.hpp"
@@ -284,6 +287,24 @@ public:
     }
 
     ~PhysicsBody() {}
+
+    void syncTransform(Bounds::Transform& transform, const JPH::BodyInterface* bodyInterface) const
+    {
+        assert(!m_bodyID.IsInvalid());
+        if (!bodyInterface->IsActive(m_bodyID))
+            return;
+
+        JPH::RVec3 jPos;
+        JPH::Quat jRot;
+        bodyInterface->GetPositionAndRotation(m_bodyID, jPos, jRot);
+
+        transform.setLocalPosition(
+            {static_cast<float>(jPos.GetX()), static_cast<float>(jPos.GetY()), static_cast<float>(jPos.GetZ())});
+
+        glm::quat glmQuat{jRot.GetW(), jRot.GetX(), jRot.GetY(), jRot.GetZ()};
+        glm::vec3 angles{glm::eulerAngles(glmQuat)};
+        transform.setLocalRotation(angles);
+    }
 
     [[nodiscard]] const JPH::BodyID& getBodyID() const { return m_bodyID; }
     [[nodiscard]] BodyType getBodyType() const { return m_bodyType; }
