@@ -167,7 +167,7 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
     {
         // render opaque components using deferred renderer
-        dfShader->setMat3("normalMat", Util::stripScale(model.second));
+        // dfShader->setMat3("normalMat", Util::stripScale(model.second));
         model.first->renderDeferred(dfShader, model.second);
 
         // extract transparent meshes from model

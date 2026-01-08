@@ -241,8 +241,8 @@ class PhysicsBody final
 {
 public:
     PhysicsBody() = default;
-    PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const BodyType bodyType) :
-        m_bodyType{bodyType}
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const glm::vec3& rotation,
+                const BodyType bodyType) : m_bodyType{bodyType}
     {
         const JPH::Vec3 extents{Util::convertVectorJolt(boundingBox.extents)};
         JPH::BoxShapeSettings shapeSettings{extents, PHYSICS_CONVEX_RADIUS};
@@ -278,7 +278,8 @@ public:
             break;
         }
 
-        JPH::BodyCreationSettings settings{result.Get(), center, JPH::Quat::sIdentity(), motionType, layer};
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
+        JPH::BodyCreationSettings settings{result.Get(), center, joltRotation, motionType, layer};
 
         JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
                                                                              : JPH::EActivation::Activate};
@@ -303,7 +304,7 @@ public:
 
         glm::quat glmQuat{jRot.GetW(), jRot.GetX(), jRot.GetY(), jRot.GetZ()};
         glm::vec3 angles{glm::eulerAngles(glmQuat)};
-        transform.setLocalRotation(angles);
+        transform.setLocalRotation(glm::degrees(angles));
     }
 
     [[nodiscard]] const JPH::BodyID& getBodyID() const { return m_bodyID; }

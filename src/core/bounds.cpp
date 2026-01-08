@@ -48,7 +48,7 @@ glm::mat4 Bounds::Transform::getLocalModelMat() const
     const glm::mat4 transformY{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.y), glm::vec3{0.0f, 1.0f, 0.0f})};
     const glm::mat4 transformZ{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.z), glm::vec3{0.0f, 0.0f, 1.0f})};
 
-    const glm::mat4 rotationMatrix = transformY * transformX * transformZ;
+    const glm::mat4 rotationMatrix = transformZ * transformY * transformX;
     return glm::translate(glm::mat4{1.0f}, m_pos) * rotationMatrix * glm::scale(glm::mat4{1.0f}, m_scale);
 }
 

@@ -20,7 +20,6 @@ vs_out;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat3 normalMat; // NOTE: Try 3*3 part of model matrix in case of issues with normal mapping
 
 const int MAX_BONES = 100;
 const int MAX_BONE_INFLUENCE = 4;
@@ -75,6 +74,7 @@ void main()
     vs_out.TexCoords = aTexCoords;
 
     // create TBN matrix
+    mat3 normalMat = transpose(inverse(mat3(model)));
     vec3 T = normalize(normalMat * localTangent);
     vec3 N = normalize(normalMat * localNormal);
     // re-orthogonalize T with respect to N
