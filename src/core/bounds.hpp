@@ -168,7 +168,7 @@ namespace Bounds
         return os;
     }
 
-    AABB generateAABB_BV(const Model* model);
+    AABB generateAABB_BV(const Model* model, const glm::vec3& scale = {1.0f, 1.0f, 1.0f});
     AABB getFrustumBV(const Frustum& frustum, const Camera* cam, float zFar, float fovY, float aspectR);
 } // namespace Bounds
 

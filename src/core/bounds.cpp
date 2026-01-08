@@ -235,7 +235,7 @@ bool Bounds::AABB::collideAABB(const AABB& other) const
             maxA.z >= minB.z);
 }
 
-Bounds::AABB Bounds::generateAABB_BV(const Model* model)
+Bounds::AABB Bounds::generateAABB_BV(const Model* model, const glm::vec3& scale)
 {
     glm::vec3 minAABB{glm::vec3{std::numeric_limits<float>::max()}};
     glm::vec3 maxAABB{glm::vec3{std::numeric_limits<float>::min()}};
@@ -244,13 +244,13 @@ Bounds::AABB Bounds::generateAABB_BV(const Model* model)
     {
         for (const MeshN::Vertex& vertex : mesh->getVertices())
         {
-            minAABB.x = std::min(minAABB.x, vertex.position.x);
-            minAABB.y = std::min(minAABB.y, vertex.position.y);
-            minAABB.z = std::min(minAABB.z, vertex.position.z);
+            minAABB.x = std::min(minAABB.x, vertex.position.x * scale.x);
+            minAABB.y = std::min(minAABB.y, vertex.position.y * scale.y);
+            minAABB.z = std::min(minAABB.z, vertex.position.z * scale.z);
 
-            maxAABB.x = std::max(maxAABB.x, vertex.position.x);
-            maxAABB.y = std::max(maxAABB.y, vertex.position.y);
-            maxAABB.z = std::max(maxAABB.z, vertex.position.z);
+            maxAABB.x = std::max(maxAABB.x, vertex.position.x * scale.x);
+            maxAABB.y = std::max(maxAABB.y, vertex.position.y * scale.y);
+            maxAABB.z = std::max(maxAABB.z, vertex.position.z * scale.z);
         }
     }
 
@@ -259,13 +259,13 @@ Bounds::AABB Bounds::generateAABB_BV(const Model* model)
     {
         for (const MeshN::Vertex& vertex : mesh->getVertices())
         {
-            minAABB.x = std::min(minAABB.x, vertex.position.x);
-            minAABB.y = std::min(minAABB.y, vertex.position.y);
-            minAABB.z = std::min(minAABB.z, vertex.position.z);
+            minAABB.x = std::min(minAABB.x, vertex.position.x * scale.x);
+            minAABB.y = std::min(minAABB.y, vertex.position.y * scale.y);
+            minAABB.z = std::min(minAABB.z, vertex.position.z * scale.z);
 
-            maxAABB.x = std::max(maxAABB.x, vertex.position.x);
-            maxAABB.y = std::max(maxAABB.y, vertex.position.y);
-            maxAABB.z = std::max(maxAABB.z, vertex.position.z);
+            maxAABB.x = std::max(maxAABB.x, vertex.position.x * scale.x);
+            maxAABB.y = std::max(maxAABB.y, vertex.position.y * scale.y);
+            maxAABB.z = std::max(maxAABB.z, vertex.position.z * scale.z);
         }
     }
 

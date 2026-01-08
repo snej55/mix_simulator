@@ -135,6 +135,7 @@ bool Scene::init(const char* scenePath)
                                      entityEntry["rotation"][2].get<float>()};
             const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
             const bool animated{entityEntry.value("animated", false)};
+
             const std::string_view bodyTypeStr{entityEntry.value("bodyType", "static")};
             BodyType bodyType;
             getBodyType(bodyTypeStr, &bodyType);
