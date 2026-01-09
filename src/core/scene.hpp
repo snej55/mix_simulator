@@ -21,6 +21,8 @@ public:
     void updateEntities(float deltaTime, std::vector<Entity*>& discardEntities, JoltInstance* jolt = nullptr);
 
     void removeEntity(std::size_t index);
+    void eraseEntity(std::size_t index);
+    void clearErasedEntities();
 
     void addEntity(Entity* entity);
 

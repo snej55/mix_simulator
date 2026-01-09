@@ -43,7 +43,7 @@
 
 #define PHYSICS_TIME_STEP 0.0166667
 #define PHYSICS_CONVEX_RADIUS 0.05f
-#define PHYSICS_DEBUG_LOG
+// #define PHYSICS_DEBUG_LOG
 
 enum class BodyType
 {

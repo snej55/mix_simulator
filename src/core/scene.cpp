@@ -2,7 +2,6 @@
 
 // for scene parsing
 #include <JSON/json.hpp>
-#include "physics.hpp"
 using json = nlohmann::json;
 
 #include <array>
@@ -14,6 +13,7 @@ using json = nlohmann::json;
 #include "engine.hpp"
 #include "spatial_hashing.hpp"
 #include "util.hpp"
+#include "physics.hpp"
 
 SceneChunk::SceneChunk(const glm::vec3& pos) : m_pos{pos} { init(); }
 
@@ -31,8 +31,6 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
 
         if (entity->getDiscarded())
         {
-            removeEntity(i);
-            --i;
             continue;
         }
 
@@ -42,16 +40,12 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         entity->update(deltaTime, jolt != nullptr ? jolt->getBodyInterface() : nullptr);
         entity->setDirty(true);
 
-        // check if entity is still in chunk
-        if (!entity->getTransform().getDirty())
-            continue;
-
+        Util::printVec3(entity->getGlobalMidpoint());
         if (!m_aabb->collideAABB(entity->getGlobalAABB()))
         {
+            std::cout << "Aye yo i discarded an entity you mother clucker" << std::endl;
             entity->setDiscarded(true);
             discardEntities.emplace_back(entity);
-            removeEntity(i); // swap entity with back and pop
-            --i; // make sure swapped entity is not skipped
         }
     }
 }
@@ -72,6 +66,24 @@ void SceneChunk::removeEntity(const std::size_t index)
 
     std::swap(m_entities[index], m_entities.back());
     m_entities.pop_back();
+}
+
+void SceneChunk::eraseEntity(const std::size_t index)
+{
+    assert(index < m_entities.size());
+    m_entities[index] = nullptr;
+}
+
+void SceneChunk::clearErasedEntities()
+{
+    for (std::size_t i{0}; i < std::size(m_entities); ++i)
+    {
+        if (m_entities[i] == nullptr)
+        {
+            removeEntity(i);
+            --i;
+        }
+    }
 }
 
 void SceneChunk::addEntity(Entity* entity)
@@ -206,9 +218,23 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
         chunkPtr->updateEntities(deltaTime, discardEntities, jolt);
     }
 
+    std::vector<SceneChunk*> discardChunks{};
     for (Entity* entity : discardEntities)
     {
+        std::cout << "thing" << std::endl;
+        for (const std::pair<std::size_t, void*>& chunkPair : entity->getChunks())
+        {
+            std::cout << "Removing entity from chunk" << std::endl;
+            SceneChunk* chunkPtr{static_cast<SceneChunk*>(chunkPair.second)};
+            chunkPtr->eraseEntity(chunkPair.first);
+            discardChunks.emplace_back(chunkPtr);
+        }
+        entity->eraseChunks();
         addEntity(entity);
+    }
+    for (std::size_t i{0}; i < std::size(discardChunks); ++i)
+    {
+        discardChunks[i]->clearErasedEntities();
     }
 
     cleanupEmptyChunks();
