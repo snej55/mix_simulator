@@ -29,7 +29,7 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         Entity* entity{m_entities[i]};
         assert(entity != nullptr);
 
-        if (entity->getDiscarded())
+        if (entity->getDiscarded() || entity->getStatic())
         {
             continue;
         }

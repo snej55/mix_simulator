@@ -47,7 +47,7 @@ cd build
 - [ ] Duplicate material checks? Batch render meshes using material index vertex data?
 - [ ] Animate transparent meshes
 - [X] Fog
-- [ ] Implement static entities
+- [X] Implement static entities
 - [X] Fix transparent mesh culling
 - [X] SSAO
 - [X] Add FXAA anti-aliasing
@@ -58,7 +58,9 @@ cd build
 - [X] Bounding volume generation
 - [X] Main game class
 - [ ] Level editor
-- [ ] Rag dolls
+- [ ] Rag dolls?
 - [X] Add Jolt Physics
 - [ ] Optimize static shader uniforms
 - [ ] Create player models
+- [ ] Implement freetype2 font rendering
+- [ ] Add UI
