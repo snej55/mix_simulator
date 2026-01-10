@@ -11,6 +11,7 @@ namespace SpatialHashing
 {
     inline constexpr float CELL_SIZE{60.f};
     inline constexpr float CELL_PADDING{50.f};
+    inline constexpr float WORLD_CHUNK_LIMIT{30.f}; // discard entities too far away from origin
 
     // pcg3d hash function for 3D coordinates
     // https://jcgt.org/published/0009/03/02/paper.pdf

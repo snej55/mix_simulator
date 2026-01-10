@@ -5,6 +5,7 @@
 #include "constants.hpp"
 #include "core/bounds.hpp"
 #include "core/ibl.hpp"
+#include "core/physics.hpp"
 #include "core/renderer.hpp"
 
 #include "game.hpp"
@@ -25,6 +26,13 @@ bool Game::init()
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
     m_scene->init("data/maps/0.json");
+    for (int i{0}; i < 50; ++i)
+    {
+        Bounds::Transform bodyTransform;
+        bodyTransform.setLocalPosition({10.0, 250.f + static_cast<float>(i) * 20.f, 10.f});
+        bodyTransform.setLocalRotation({Util::random() * 360.f, Util::random() * 360.f, Util::random() * 360.0f});
+        m_scene->addEntity("data/models/table.glb", bodyTransform, BodyType::DYNAMIC, false);
+    }
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox

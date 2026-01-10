@@ -245,10 +245,8 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
     std::vector<SceneChunk*> discardChunks{};
     for (Entity* entity : discardEntities)
     {
-        std::cout << "thing" << std::endl;
         for (const std::pair<std::size_t, void*>& chunkPair : entity->getChunks())
         {
-            std::cout << "Removing entity from chunk" << std::endl;
             SceneChunk* chunkPtr{static_cast<SceneChunk*>(chunkPair.second)};
             chunkPtr->eraseEntity(chunkPair.first);
             discardChunks.emplace_back(chunkPtr);
@@ -322,6 +320,13 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
 void Scene::addEntity(Entity* entity)
 {
     assert(entity != nullptr);
+    if (glm::length(entity->getTransform().getGlobalPosition()) >
+        SpatialHashing::WORLD_CHUNK_LIMIT * SpatialHashing::CELL_SIZE)
+    {
+        std::cout << "SCENE::ADD_ENTITY::ERROR: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
+                  << " chunks away from origin)" << std::endl;
+        return;
+    }
 
     // get iterator
     const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};
