@@ -40,10 +40,8 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
             entity->setDirty(true);
         }
 
-        Util::printVec3(entity->getGlobalMidpoint());
         if (!m_aabb->collideAABB(entity->getGlobalAABB()))
         {
-            std::cout << "Aye yo i discarded an entity you mother clucker" << std::endl;
             entity->setDiscarded(true);
             discardEntities.emplace_back(entity);
         }

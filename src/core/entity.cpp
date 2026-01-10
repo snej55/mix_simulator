@@ -13,6 +13,8 @@ Entity::Entity(const Model* model, const Bounds::Transform& transform, const Bod
     m_model = std::make_unique<Model>(*model);
     m_path = m_model->getPath();
     m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get(), m_transform.getLocalScale()));
+    m_transform.setPivotOffset(-m_BV->center);
+    m_transform.computeModelMatrix();
     m_static = (bodyType == BodyType::STATIC);
 }
 
@@ -70,6 +72,7 @@ glm::vec3 Entity::getGlobalMidpoint() const
 void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface)
 {
     assert(m_physicsBody.get() == nullptr);
-    m_physicsBody =
-        std::make_unique<PhysicsBody>(bodyInterface, getGlobalAABB(), m_transform.getLocalRotation(), m_bodyType);
+    Bounds::AABB localAABB{*m_BV};
+    m_physicsBody = std::make_unique<PhysicsBody>(bodyInterface, localAABB, m_transform.getLocalRotation(), m_bodyType,
+                                                  m_transform.getGlobalPosition() + m_transform.getPivotOffset());
 }

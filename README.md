@@ -46,7 +46,8 @@ cd build
 - [X] Mesh sorting (render opaque meshes deferred and transparent/translucent using forward)
 - [ ] Duplicate material checks? Batch render meshes using material index vertex data?
 - [ ] Animate transparent meshes
-- [ ] Fog
+- [X] Fog
+- [ ] Implement static entities
 - [X] Fix transparent mesh culling
 - [X] SSAO
 - [X] Add FXAA anti-aliasing

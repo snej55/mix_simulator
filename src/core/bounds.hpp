@@ -24,6 +24,7 @@ namespace Bounds
         void setLocalPosition(const glm::vec3& localPosition);
         void setLocalRotation(const glm::vec3& localRotation);
         void setLocalScale(const glm::vec3& localScale);
+        void setPivotOffset(const glm::vec3& pivotOffset);
 
         [[nodiscard]] glm::vec3 getGlobalPosition() const { return m_modelMat[3]; }
         [[nodiscard]] glm::vec3 getRight() const { return m_modelMat[0]; }
@@ -34,17 +35,20 @@ namespace Bounds
         {
             return {glm::length(getRight()), glm::length(getUp()), glm::length(getBackward())};
         }
+        [[nodiscard]] glm::vec3 getGlobalPivotOffset() const;
 
         [[nodiscard]] const glm::vec3& localPosition() const { return m_pos; };
         [[nodiscard]] const glm::mat4& getModelMat() const { return m_modelMat; }
         [[nodiscard]] const glm::vec3& getLocalRotation() const { return m_eulerRot; }
         [[nodiscard]] const glm::vec3& getLocalScale() const { return m_scale; }
+        [[nodiscard]] const glm::vec3& getPivotOffset() const { return m_pivotOffset; }
         [[nodiscard]] bool getDirty() const { return m_dirty; }
 
     protected:
         glm::vec3 m_pos{0.0f, 0.0f, 0.0f};
         glm::vec3 m_eulerRot{0.0f, 0.0f, 0.0f};
         glm::vec3 m_scale{1.0f, 1.0f, 1.0f};
+        glm::vec3 m_pivotOffset{0.0f, 0.0f, 0.0f};
 
         glm::mat4 m_modelMat{1.0f};
 

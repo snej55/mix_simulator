@@ -42,6 +42,19 @@ void Bounds::Transform::setLocalScale(const glm::vec3& localScale)
     m_dirty = true;
 }
 
+void Bounds::Transform::setPivotOffset(const glm::vec3& pivotOffset)
+{
+    m_pivotOffset = pivotOffset;
+    m_dirty = true;
+}
+
+glm::vec3 Bounds::Transform::getGlobalPivotOffset() const
+{
+    const glm::vec3 scaled{m_pivotOffset * m_scale};
+    return getRight() * scaled.x + getUp() * scaled.y + getForward() * scaled.z;
+}
+
+
 glm::mat4 Bounds::Transform::getLocalModelMat() const
 {
     const glm::mat4 transformX{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.x), glm::vec3{1.0f, 0.0f, 0.0f})};
@@ -49,7 +62,9 @@ glm::mat4 Bounds::Transform::getLocalModelMat() const
     const glm::mat4 transformZ{glm::rotate(glm::mat4{1.0f}, glm::radians(m_eulerRot.z), glm::vec3{0.0f, 0.0f, 1.0f})};
 
     const glm::mat4 rotationMatrix = transformZ * transformY * transformX;
-    return glm::translate(glm::mat4{1.0f}, m_pos) * rotationMatrix * glm::scale(glm::mat4{1.0f}, m_scale);
+
+    return glm::translate(glm::mat4{1.0f}, m_pos) * rotationMatrix * glm::scale(glm::mat4{1.0f}, m_scale) *
+        glm::translate(glm::mat4{1.0f}, m_pivotOffset);
 }
 
 Bounds::Plane::Plane(const glm::vec3& aP1, const glm::vec3& norm) :

@@ -242,7 +242,7 @@ class PhysicsBody final
 public:
     PhysicsBody() = default;
     PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const glm::vec3& rotation,
-                const BodyType bodyType) : m_bodyType{bodyType}
+                const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f}) : m_bodyType{bodyType}
     {
         const JPH::Vec3 extents{Util::convertVectorJolt(boundingBox.extents)};
         JPH::BoxShapeSettings shapeSettings{extents, PHYSICS_CONVEX_RADIUS};
@@ -258,6 +258,7 @@ public:
         }
 
         JPH::Vec3 center{Util::convertVectorJolt(boundingBox.center)};
+        JPH::Vec3 bodyPos{Util::convertVectorJolt(position) + center};
 
         JPH::EMotionType motionType;
         JPH::ObjectLayer layer;
@@ -279,7 +280,7 @@ public:
         }
 
         JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
-        JPH::BodyCreationSettings settings{result.Get(), center, joltRotation, motionType, layer};
+        JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
 
         JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
                                                                              : JPH::EActivation::Activate};
