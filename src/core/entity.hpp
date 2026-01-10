@@ -45,6 +45,8 @@ public:
 
     void setDirty(const bool val) { m_dirty = val; }
     [[nodiscard]] bool getDirty() const { return m_dirty; }
+    void setRendered(const bool val) { m_rendered = val; }
+    [[nodiscard]] bool getRendered() const { return m_rendered; }
 
     [[nodiscard]] const BodyType& getBodyType() const { return m_bodyType; }
     [[nodiscard]] PhysicsBody* getPhysicsBody() const { return m_physicsBody.get(); }
@@ -53,7 +55,7 @@ public:
     // keep track of which chunks this entity belongs to
     void addChunk(void* chunkPtr, std::size_t index) { m_chunks.emplace_back(std::pair{index, chunkPtr}); }
     void eraseChunks() { m_chunks.clear(); }
-    [[nodiscard]] const std::vector<std::pair<std::size_t, void*>>& getChunks() const { return m_chunks; }
+    [[nodiscard]] std::vector<std::pair<std::size_t, void*>>& getChunks() { return m_chunks; }
 
 private:
     std::string m_path{};
@@ -69,6 +71,7 @@ private:
     std::unique_ptr<PhysicsBody> m_physicsBody{nullptr};
 
     bool m_dirty{false};
+    bool m_rendered{false};
     bool m_discarded{false};
 
     std::vector<std::pair<std::size_t, void*>> m_chunks{};

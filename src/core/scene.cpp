@@ -34,11 +34,11 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
             continue;
         }
 
-        if (entity->getDirty())
-            continue;
-
-        entity->update(deltaTime, jolt != nullptr ? jolt->getBodyInterface() : nullptr);
-        entity->setDirty(true);
+        if (!entity->getDirty())
+        {
+            entity->update(deltaTime, jolt != nullptr ? jolt->getBodyInterface() : nullptr);
+            entity->setDirty(true);
+        }
 
         Util::printVec3(entity->getGlobalMidpoint());
         if (!m_aabb->collideAABB(entity->getGlobalAABB()))
@@ -64,8 +64,21 @@ void SceneChunk::removeEntity(const std::size_t index)
         return;
     }
 
+    Entity* swappedEntity{m_entities.back()};
     std::swap(m_entities[index], m_entities.back());
     m_entities.pop_back();
+
+    if (swappedEntity != nullptr)
+    {
+        for (auto& chunkPair : swappedEntity->getChunks())
+        {
+            if (chunkPair.second == static_cast<void*>(this))
+            {
+                chunkPair.first = index;
+                break;
+            }
+        }
+    }
 }
 
 void SceneChunk::eraseEntity(const std::size_t index)
@@ -201,9 +214,9 @@ void Scene::free()
         const std::vector<Entity*>& entities{chunkPtr->getEntities()};
         for (Entity* entity : entities)
         {
-            freedEntities.emplace_back(entity);
             if (std::find(freedEntities.begin(), freedEntities.end(), entity) == freedEntities.end())
                 delete entity;
+            freedEntities.emplace_back(entity);
         }
     }
     m_chunks.clear();
@@ -232,6 +245,7 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
         entity->eraseChunks();
         addEntity(entity);
     }
+
     for (std::size_t i{0}; i < std::size(discardChunks); ++i)
     {
         discardChunks[i]->clearErasedEntities();

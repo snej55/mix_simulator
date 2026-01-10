@@ -34,6 +34,7 @@ void Entity::update(const float deltaTime, const JPH::BodyInterface* bodyInterfa
     {
         m_model->updateAnimation(deltaTime);
     }
+    m_rendered = false;
 }
 
 Bounds::AABB Entity::getGlobalAABB() const
