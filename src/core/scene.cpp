@@ -222,10 +222,23 @@ void Scene::free()
     m_chunks.clear();
 }
 
+void Scene::resetEntityFlags()
+{
+    for (const auto& [key, chunkPtr] : m_chunks)
+    {
+        for (Entity* entity : chunkPtr->getEntities())
+        {
+            entity->setDirty(false);
+            entity->setRendered(false);
+        }
+    }
+}
+
 void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
 {
     std::vector<Entity*> discardEntities;
 
+    resetEntityFlags();
     for (const auto& [key, chunkPtr] : m_chunks)
     {
         chunkPtr->updateEntities(deltaTime, discardEntities, jolt);

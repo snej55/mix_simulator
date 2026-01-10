@@ -282,7 +282,6 @@ void RenderQueue::addChunk(const SceneChunk* chunk, const Bounds::Frustum& camFr
             if (entity->getRendered())
                 continue;
             entity->setRendered(true);
-            entity->setDirty(false);
 
             if (entity->getGlobalAABB().onFrustum(camFrustum, {}))
             {

@@ -67,6 +67,7 @@ public:
     bool init(const char* scenePath);
     void initPhysicsBodies(JoltInstance* jolt);
 
+    void resetEntityFlags(); // call this before updating entities
     void updateEntities(float deltaTime, JoltInstance* jolt = nullptr);
 
     void getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
@@ -80,6 +81,8 @@ public:
     void addEntity(const char* modelPath, const Bounds::Transform& transform, const BodyType& bodyType,
                    bool animated = false);
     void addEntity(Entity* entity);
+
+    [[nodiscard]] const auto& getChunks() const { return m_chunks; }
 
 private:
     void* m_engine{nullptr};
