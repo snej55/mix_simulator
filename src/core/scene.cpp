@@ -202,6 +202,7 @@ void Scene::initPhysicsBodies(JoltInstance* jolt)
                 entity->initPhysicsBody(jolt->getBodyInterface());
         }
     }
+    jolt->getPhysicsSystem()->OptimizeBroadPhase();
 }
 
 void Scene::free()
@@ -323,7 +324,7 @@ void Scene::addEntity(Entity* entity)
     if (glm::length(entity->getTransform().getGlobalPosition()) >
         SpatialHashing::WORLD_CHUNK_LIMIT * SpatialHashing::CELL_SIZE)
     {
-        std::cout << "SCENE::ADD_ENTITY::ERROR: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
+        std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
                   << " chunks away from origin)" << std::endl;
         return;
     }

@@ -34,6 +34,7 @@ cd build
 - Anti-aliasing (FXAA)
 - Frustum Culling (AABB bounding volumes)
 - Freetype2 font rendering
+- Physics engine ([Jolt](https://github.com/jrouwe/JoltPhysics))
 
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20251213_093758.png)
 
@@ -60,6 +61,7 @@ cd build
 - [ ] Level editor
 - [ ] Rag dolls?
 - [X] Add Jolt Physics
+- [ ] Point and area lights
 - [ ] Optimize static shader uniforms
 - [ ] Create player models
 - [ ] Implement freetype2 font rendering

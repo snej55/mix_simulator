@@ -1,8 +1,8 @@
-import json
+import json, time
 
 import pyray as ray
 
-WIDTH, HEIGHT = 1800, 1200
+WIDTH, HEIGHT = 2000, 1900
 
 class Editor:
     def __init__(self):
@@ -28,6 +28,13 @@ class Editor:
         )
         ray.disable_cursor()
         ray.set_target_fps(60)
+
+        self.current_model_index = 0
+        self.shift: bool = False
+        self.dt = 1
+        self.last_time = time.time() - 1/60
+
+        self.controls = {"up": False, "down": False, "right": False, "left": False, "e": False, "q": False}
 
     # load level data
     def load_level(self, path):
@@ -70,6 +77,44 @@ class Editor:
     def handle_input(self):
         if ray.is_key_pressed(ray.KeyboardKey.KEY_O):
             self.save_level(self.level_path)
+        if ray.is_key_down(ray.KeyboardKey.KEY_LEFT_SHIFT) or ray.is_key_down(ray.KeyboardKey.KEY_RIGHT_SHIFT):
+            self.shift = True
+        if ray.is_key_pressed(ray.KeyboardKey.KEY_TAB):
+            if self.shift:
+                self.current_model_index = (self.current_model_index - 1) % len(self.objects)
+            else:
+                self.current_model_index = (self.current_model_index + 1) % len(self.objects)
+        
+        self.controls["up"] = ray.is_key_down(ray.KeyboardKey.KEY_K)
+        self.controls["down"] = ray.is_key_down(ray.KeyboardKey.KEY_J)
+        self.controls["right"] = ray.is_key_down(ray.KeyboardKey.KEY_L)
+        self.controls["left"] = ray.is_key_down(ray.KeyboardKey.KEY_H)
+        self.controls["e"] = ray.is_key_down(ray.KeyboardKey.KEY_U)
+        self.controls["q"] = ray.is_key_down(ray.KeyboardKey.KEY_I)
+
+        speed = 0.1
+        self.objects[self.current_model_index]["position"][0] += (int(self.controls["right"]) - int(self.controls["left"])) * speed * self.dt
+        self.objects[self.current_model_index]["position"][1] += (int(self.controls["up"]) - int(self.controls["down"])) * speed * self.dt
+        self.objects[self.current_model_index]["position"][2] += (int(self.controls["e"]) - int(self.controls["q"])) * speed * self.dt
+        
+        # speed = 3 
+        # movement = ray.Vector3(0, 0, 0)
+        
+        # if ray.is_key_down(ray.KeyboardKey.KEY_W): movement.x += speed
+        # if ray.is_key_down(ray.KeyboardKey.KEY_S): movement.x -= speed
+        # if ray.is_key_down(ray.KeyboardKey.KEY_D): movement.y += speed
+        # if ray.is_key_down(ray.KeyboardKey.KEY_A): movement.y -= speed
+        # if ray.is_key_down(ray.KeyboardKey.KEY_E): movement.z += speed
+        # if ray.is_key_down(ray.KeyboardKey.KEY_Q): movement.z -= speed
+
+        # mouse_delta = ray.get_mouse_delta()
+        # rotation = ray.Vector3(
+        #     mouse_delta.x * 0.05, 
+        #     mouse_delta.y * 0.05, 
+        #     0.0                   
+        # )
+
+        # ray.update_camera_pro(self.camera, movement, rotation, 0.0)
 
     def update(self):
         self.handle_input()
@@ -77,6 +122,8 @@ class Editor:
 
     def run(self):
         while not ray.window_should_close():
+            self.dt = (time.time() - self.last_time) * 60
+            self.last_time = time.time()
             self.update()
 
             ray.begin_drawing()
@@ -84,17 +131,22 @@ class Editor:
 
             ray.begin_mode_3d(self.camera)
 
-            for obj in self.objects:
+            for i, obj in enumerate(self.objects):
+                current_model: bool = i == self.current_model_index
+                color = ray.WHITE
+                if (current_model):
+                    color = ray.BLUE
+                
                 ray.draw_model_ex(
                     self.assets["models"][str(obj["modelID"])]["model"],
                     obj["position"],
                     obj["rotation"],
                     0.0,
                     obj["scale"],
-                    ray.WHITE,
+                    color
                 )
 
-            ray.draw_grid(100, 1.0)
+            # ray.draw_grid(200, 1.0)
 
             ray.end_mode_3d()
 

@@ -98,7 +98,6 @@ public:
     [[nodiscard]] bool getShadersChecked() const { return m_checkedShaders; }
     [[nodiscard]] bool getShadersLoaded() const { return m_loadedShaders; }
 
-    // shader uniform setters
     // shader uniforms
     void setBool(const std::string& name, bool value, const std::string& shaderName) const;
     void setInt(const std::string& name, int value, const std::string& shaderName) const;
@@ -258,7 +257,7 @@ private:
     PostProcessor* m_postProcessor{nullptr};
     DeferredRenderer* m_deferredRenderer{nullptr};
     SSAOGenerator* m_ssaoGenerator{nullptr};
-    bool m_ssaoEnabled{false};
+    bool m_ssaoEnabled{true};
 
     // Physics
     JoltInstance* m_joltInstance{nullptr};
