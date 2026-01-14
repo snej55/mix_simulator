@@ -85,6 +85,9 @@ class Editor:
             else:
                 self.current_model_index = (self.current_model_index + 1) % len(self.objects)
         
+        if ray.is_key_pressed(ray.KeyboardKey.KEY_N):
+            self.objects.append({"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [0, 0, 0]})
+        
         self.controls["up"] = ray.is_key_down(ray.KeyboardKey.KEY_K)
         self.controls["down"] = ray.is_key_down(ray.KeyboardKey.KEY_J)
         self.controls["right"] = ray.is_key_down(ray.KeyboardKey.KEY_L)
@@ -140,8 +143,8 @@ class Editor:
                 ray.draw_model_ex(
                     self.assets["models"][str(obj["modelID"])]["model"],
                     obj["position"],
-                    obj["rotation"],
-                    0.0,
+                    [obj["rotation"][0] / 360, obj["rotation"][1] / 360, obj["rotation"][2] / 360],
+                    360,
                     obj["scale"],
                     color
                 )
@@ -151,9 +154,14 @@ class Editor:
             ray.end_mode_3d()
 
             ray.draw_fps(10, 10)
+            ray.draw_text(f"CURRENT_MODEL_INDEX: {self.current_model_index}", 10, 28, 16, ray.WHITE)
+            ray.draw_text(f"PHYSICS_BODY_TYPE: {self.objects[self.current_model_index]["bodyType"]}", 10, 46, 16, ray.WHITE)
+            ray.draw_text(f"OBJECT_POSITION: {self.objects[self.current_model_index]["position"][0] :.1f}, {self.objects[self.current_model_index]["position"][1] : .1f}, {self.objects[self.current_model_index]["position"][2] :.1f}", 10, 64, 16, ray.WHITE)
+            ray.draw_text(f"OBJECT_ROTATION: {self.objects[self.current_model_index]["rotation"][0] :.1f}, {self.objects[self.current_model_index]["rotation"][1] : .1f}, {self.objects[self.current_model_index]["rotation"][2] :.1f}", 10, 82, 16, ray.WHITE)
+            ray.draw_text(f"OBJECT_SCALE: {self.objects[self.current_model_index]["scale"][0] :.1f}, {self.objects[self.current_model_index]["scale"][1] : .1f}, {self.objects[self.current_model_index]["scale"][2] :.1f}", 10, 100, 16, ray.WHITE)
+            ray.draw_text(f"ANIMATED: {self.objects[self.current_model_index]["animated"]}", 10, 118, 16, ray.WHITE)
 
             ray.end_drawing()
-
 
 if __name__ == "__main__":
     Editor().run()
