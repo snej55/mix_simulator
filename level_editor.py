@@ -16,6 +16,7 @@ class Editor:
         self.camera.projection = ray.CameraProjection.CAMERA_PERSPECTIVE
 
         self.assets = {"models": {}}
+        self.body_types = set({"static", "dynamic", "kinematic"})
         self.objects = []
 
         self.level_path = "data/maps/0.json"
@@ -35,6 +36,11 @@ class Editor:
         self.last_time = time.time() - 1/60
 
         self.controls = {"up": False, "down": False, "right": False, "left": False, "e": False, "q": False}
+    
+    def progress_body_type(self):
+        for i, body_type in enumerate(self.body_types):
+            if self.objects[self.current_model_index]["bodyType"] == body_type:
+                self.objects[self.current_model_index]["bodyType"] = self.body_types[(i + 1) % len(self.body_types)]
 
     # load level data
     def load_level(self, path):
@@ -86,7 +92,11 @@ class Editor:
                 self.current_model_index = (self.current_model_index + 1) % len(self.objects)
         
         if ray.is_key_pressed(ray.KeyboardKey.KEY_N):
-            self.objects.append({"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [0, 0, 0]})
+            self.objects.append({"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [0, 0, 0], "modelID": 0, "animated": False, "bodyType": "static"})
+        if ray.is_key_pressed(ray.KeyboardKey.KEY_B):
+            self.progress_body_type()
+        if ray.is_key_pressed(ray.KeyboardKey.KEY_C):
+            self.objects[self.current_model_index]["modelID"] = (self.objects[self.current_model_index]["modelID"] + 1) % len(self.assets["models"])
         
         self.controls["up"] = ray.is_key_down(ray.KeyboardKey.KEY_K)
         self.controls["down"] = ray.is_key_down(ray.KeyboardKey.KEY_J)
@@ -148,6 +158,7 @@ class Editor:
                     obj["scale"],
                     color
                 )
+                print(i, obj)
 
             # ray.draw_grid(200, 1.0)
 
@@ -160,6 +171,7 @@ class Editor:
             ray.draw_text(f"OBJECT_ROTATION: {self.objects[self.current_model_index]["rotation"][0] :.1f}, {self.objects[self.current_model_index]["rotation"][1] : .1f}, {self.objects[self.current_model_index]["rotation"][2] :.1f}", 10, 82, 16, ray.WHITE)
             ray.draw_text(f"OBJECT_SCALE: {self.objects[self.current_model_index]["scale"][0] :.1f}, {self.objects[self.current_model_index]["scale"][1] : .1f}, {self.objects[self.current_model_index]["scale"][2] :.1f}", 10, 100, 16, ray.WHITE)
             ray.draw_text(f"ANIMATED: {self.objects[self.current_model_index]["animated"]}", 10, 118, 16, ray.WHITE)
+            ray.draw_text(f"MODEL_ID: {self.objects[self.current_model_index]["modelID"]}", 10, 136, 16, ray.WHITE)
 
             ray.end_drawing()
 
