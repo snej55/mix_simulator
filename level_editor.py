@@ -39,8 +39,12 @@ class Editor:
     
     def progress_body_type(self):
         for i, body_type in enumerate(self.body_types):
-            if self.objects[self.current_model_index]["bodyType"] == body_type:
+            if self.objects[self.current_model_index]["bodyType"].lower() == body_type.lower():
+                print(self.objects[self.current_model_index]["bodyType"])
                 self.objects[self.current_model_index]["bodyType"] = self.body_types[(i + 1) % len(self.body_types)]
+                print("yo i switched")
+                print(self.objects[self.current_model_index]["bodyType"])
+                return
 
     # load level data
     def load_level(self, path):
