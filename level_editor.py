@@ -16,7 +16,7 @@ class Editor:
         self.camera.projection = ray.CameraProjection.CAMERA_PERSPECTIVE
 
         self.assets = {"models": {}}
-        self.body_types = set({"static", "dynamic", "kinematic"})
+        self.body_types = ["static", "dynamic", "kinematic"]
         self.objects = []
 
         self.level_path = "data/maps/0.json"
@@ -92,7 +92,8 @@ class Editor:
                 self.current_model_index = (self.current_model_index + 1) % len(self.objects)
         
         if ray.is_key_pressed(ray.KeyboardKey.KEY_N):
-            self.objects.append({"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [0, 0, 0], "modelID": 0, "animated": False, "bodyType": "static"})
+            self.objects.append({"position": [0, 0, 0], "rotation": [0, 0, 0], "scale": [1, 1, 1], "modelID": 0, "animated": False, "bodyType": "static"})
+            self.current_model_index = len(self.objects) - 1
         if ray.is_key_pressed(ray.KeyboardKey.KEY_B):
             self.progress_body_type()
         if ray.is_key_pressed(ray.KeyboardKey.KEY_C):
@@ -158,7 +159,6 @@ class Editor:
                     obj["scale"],
                     color
                 )
-                print(i, obj)
 
             # ray.draw_grid(200, 1.0)
 
