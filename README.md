@@ -58,7 +58,8 @@ cd build
 - [X] Space partitioning
 - [X] Bounding volume generation
 - [X] Main game class
-- [ ] Level editor
+- [X] Level editor
+- [ ] Add lights to level editor
 - [ ] Rag dolls?
 - [X] Add Jolt Physics
 - [ ] Point and area lights
