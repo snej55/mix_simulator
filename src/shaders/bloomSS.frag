@@ -9,7 +9,11 @@ in vec2 TexCoords;
 // sample from screen framebuffer
 uniform sampler2D screenTexture;
 uniform sampler2D bloomBlur;
+uniform sampler2D dirtMask;
+uniform int useDirtMask = 0;
+
 uniform float bloomStrength = 0.04f;
+uniform float dirtMaskStrength = 20.0f;
 
 const float gamma = 2.2;
 
@@ -39,7 +43,12 @@ vec3 bloom()
 {
     vec3 hdrColor = texture(screenTexture, TexCoords).rgb;
     vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;
-    return mix(hdrColor, bloomColor, bloomStrength);
+    vec3 dirt = vec3(0.0);
+    if (useDirtMask > 0)
+    {
+	vec3 dirt = texture(dirtMask, vec2(TexCoords.x, 1.0 - TexCoords.y)).rgb * dirtMaskStrength; // I feel like inverting the y
+    }
+    return mix(hdrColor, bloomColor + bloomColor * dirt, bloomStrength);
 }
 
 void main()
@@ -49,7 +58,6 @@ void main()
     // Khronos PBR neutral note mapping
     vec3 mapped = PBRNeutralToneMapping(hdrColor);
 
-    // gamma correction
-
+    // NOTE: We do gamma correction in the FXAA shader
     FragColor = vec4(mapped, 1.0);
 }

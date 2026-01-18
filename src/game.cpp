@@ -41,7 +41,6 @@ void Game::run()
     m_engine.setupViewport();
     while (!m_engine.getQuit())
     {
-
         // update entities
         m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
 

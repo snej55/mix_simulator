@@ -62,7 +62,9 @@ cd build
 - [ ] Add lights to level editor
 - [ ] Rag dolls?
 - [X] Add Jolt Physics
-- [ ] Point and area lights
+- [X] Point lights
+- [ ] Add lens dirt
+- [ ] Area lights
 - [ ] Optimize static shader uniforms
 - [ ] Create player models
 - [ ] Implement freetype2 font rendering
