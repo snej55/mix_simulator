@@ -27,8 +27,8 @@ uniform sampler2D brdfLUT;
 uniform vec3 viewPos;
 uniform mat4 view;
 
-// please don't add more than like 10 lights lol
 const int NUM_LIGHTS = 32;
+uniform int activeLights = 32;
 uniform Light lights[NUM_LIGHTS];
 
 const float PI = 3.14159265359;
@@ -135,7 +135,7 @@ void main()
 
     // ---- calculate light radiance ---- //
 
-    for (int i = 0; i < NUM_LIGHTS; ++i)
+    for (int i = 0; i < activeLights; ++i)
     {
         vec3 L = normalize(lights[i].position - FragPos);
         // half-vector
