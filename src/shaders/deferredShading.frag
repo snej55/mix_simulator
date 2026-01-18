@@ -17,7 +17,7 @@ uniform sampler2D gNormalE;
 uniform sampler2D gARME;
 uniform int ssaoEnabled = 0;
 uniform sampler2D ssao;
-
+uniform float fogStrength = 1.0;
 
 // IBL
 uniform samplerCube irradianceMap;
@@ -86,8 +86,8 @@ float geomSmith(vec3 norm, vec3 view, vec3 light, float roughness)
 // https://github.com/vicrucann/shader-3dcurve/blob/master/src/Shaders/bezier.frag
 float getFogFactor(float d)
 {
-    const float FogMax = 50.0;
-    const float FogMin = 10.0;
+    const float FogMax = 500.0;
+    const float FogMin = 50.0;
 
     if (d >= FogMax)
         return 1.0;
@@ -137,13 +137,16 @@ void main()
 
     for (int i = 0; i < activeLights; ++i)
     {
-        vec3 L = normalize(lights[i].position - FragPos);
+        vec3 diff = lights[i].position - FragPos;
+        vec3 L = normalize(diff);
         // half-vector
         vec3 H = normalize(V + L);
 
         // standard realistic attenuation
-        float dist = length(lights[i].position - FragPos);
-        float attenuation = 1.0 / (dist * dist);
+        float dist2 = dot(diff, diff);
+        float radius2 = lights[i].radius * lights[i].radius;
+        float factor = clamp(1.0 - (dist2 * dist2) / (radius2 * radius2), 0.0, 1.0);
+        float attenuation = factor * factor / max(dist2, 0.0001);
         vec3 radiance = lights[i].color * attenuation;
 
         // Cook-Torrance BDRF
@@ -199,9 +202,12 @@ void main()
     vec3 color = emissive + ambient + Lo;
 
     // apply fog effect
-    float fogAlpha = getFogFactor(-FragPosVS.z * 0.1);
-    vec3 fogColor = vec3(color.r * 0.2126 + color.g * 0.7152 + color.b + 0.0722) * 0.7; // weighted grayscale
+    float fogAlpha = getFogFactor(abs(FragPosVS.z) * fogStrength);
+    vec3 fogColor = textureLod(prefilterMap, normalize(FragPos - viewPos), MAX_REFLECTION_LOD).rgb;
     color = mix(color, fogColor, fogAlpha);
+    // float fogAlpha = getFogFactor(-FragPosVS.z * 0.1);
+    // vec3 fogColor = vec3(color.r * 0.2126 + color.g * 0.7152 + color.b + 0.0722) * 0.7; // weighted grayscale
+    // color = mix(color, fogColor, fogAlpha);
 
     FragColor = vec4(color, alpha);
 }
