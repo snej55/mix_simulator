@@ -2,6 +2,8 @@
 
 // for scene parsing
 #include <JSON/json.hpp>
+#include <memory>
+#include "lights.hpp"
 using json = nlohmann::json;
 
 #include <array>
@@ -355,7 +357,6 @@ void Scene::addEntity(Entity* entity)
         }
         if (m_chunks[neighbourKey]->getAABB()->collideAABB(entity->getGlobalAABB()))
         {
-            // std::cout << "Adding entity to chunk at key " << neighbourKey << "\n";
             SceneChunk* chunkPtr{m_chunks[neighbourKey].get()};
             entity->addChunk(chunkPtr, chunkPtr->getNumEntities()); // gets implicitly cast from SceneChunk* to void*
             chunkPtr->addEntity(entity);
@@ -370,4 +371,22 @@ SpatialHashing::ChunkKey Scene::getChunkKey(const glm::vec3& pos)
     key.y = static_cast<long long>(std::floor(pos.y / SpatialHashing::CELL_SIZE));
     key.z = static_cast<long long>(std::floor(pos.z / SpatialHashing::CELL_SIZE));
     return key;
+}
+
+void Scene::getVisiblePointLights(const Bounds::AABB& frustumBV, std::vector<Lights::PointLight*>& pointLights)
+{
+    for (std::size_t i{0}; i < std::size(m_pointLights); ++i)
+    {
+        Lights::PointLight* light{m_pointLights[i].get()};
+        // check if light radius intersects with frustum AABB BV
+        if (light->intersectsAABB(frustumBV))
+        {
+            pointLights.push_back(light);
+        }
+    }
+}
+
+void Scene::addPointLight(const glm::vec3& position, const glm::vec3& color, const float radius)
+{
+    m_pointLights.push_back(std::make_unique<Lights::PointLight>(position, color, radius));
 }

@@ -14,6 +14,7 @@
 #include "postprocessing.hpp"
 #include "ibl.hpp"
 #include "scene.hpp"
+#include "lights.hpp"
 
 class DeferredRenderer final : public EngineObject
 {
@@ -92,8 +93,8 @@ public:
 
     // hybrid renderer
     void renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
-                     const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl,
-                     const glm::vec3& cameraPos) const;
+                     const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl, const glm::vec3& cameraPos,
+                     const std::vector<Lights::PointLight*>& pointLights = {}) const;
 
     // add static model
     void addStaticModel(const Model* model, const glm::mat4& modelTransform);

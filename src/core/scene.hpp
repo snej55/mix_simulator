@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <memory>
 #include <ostream>
 #include <unordered_map>
 #include "bounds.hpp"
@@ -8,6 +9,7 @@
 #include "entity.hpp"
 #include "spatial_hashing.hpp"
 #include "physics.hpp"
+#include "lights.hpp"
 
 class SceneChunk
 {
@@ -84,11 +86,19 @@ public:
 
     [[nodiscard]] const auto& getChunks() const { return m_chunks; }
 
+    void addPointLight(const glm::vec3& position, const glm::vec3& color, float radius);
+    void getVisiblePointLights(const Bounds::AABB& frustumBV, std::vector<Lights::PointLight*>& pointLights);
+    [[nodiscard]] const std::vector<std::unique_ptr<Lights::PointLight>>& getPointLights() const
+    {
+        return m_pointLights;
+    }
+
 private:
     void* m_engine{nullptr};
 
     std::unordered_map<SpatialHashing::ChunkKey, std::unique_ptr<SceneChunk>, SpatialHashing::ChunkKeyHasher>
         m_chunks{};
+    std::vector<std::unique_ptr<Lights::PointLight>> m_pointLights{};
 
     static SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos);
 };

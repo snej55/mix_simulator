@@ -8,6 +8,7 @@
 #include "clock.hpp"
 #include "engine_types.hpp"
 #include "iohandler.hpp"
+#include "lights.hpp"
 #include "model.hpp"
 #include "postprocessing.hpp"
 #include "shader.hpp"
@@ -204,7 +205,7 @@ public:
     // ------ Deferred Renderer ------ //
     bool createDeferredRenderer();
     void updateDeferredRenderer(int width, int height);
-    void renderGBuffer(const IBLGenerator* ibl);
+    void renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::PointLight*>& pointLights = {});
 
     [[nodiscard]] DeferredRenderer* getDeferredRenderer() const { return m_deferredRenderer; }
 

@@ -89,6 +89,8 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/bounds.hpp
         src/core/bounds.cpp
         src/core/physics.hpp
+	src/core/lights.hpp
+	src/core/lights.cpp
         src/game.hpp
         src/game.cpp)
 

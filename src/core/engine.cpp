@@ -10,6 +10,7 @@
 #include "camera.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "ibl.hpp"
+#include "lights.hpp"
 #include "physics.hpp"
 #include "postprocessing.hpp"
 #include "renderer.hpp"
@@ -956,9 +957,20 @@ bool Engine::createDeferredRenderer()
 
 void Engine::updateDeferredRenderer(const int width, const int height) { m_deferredRenderer->init(width, height); }
 
-void Engine::renderGBuffer(const IBLGenerator* ibl)
+void Engine::renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::PointLight*>& pointLights)
 {
     useShader("deferredShading");
+
+    // ----- lights ----- //
+    setInt("activeLights", pointLights.size(), "deferredShading");
+    for (std::size_t i{0}; i < pointLights.size(); ++i)
+    {
+        const Lights::PointLight* light{pointLights[i]};
+        setVec3("lights[" + std::to_string(i) + "].position", light->m_position, "deferredShading");
+        setVec3("lights[" + std::to_string(i) + "].color", light->m_color, "deferredShading");
+        setFloat("lights[" + std::to_string(i) + "].radius", light->m_radius, "deferredShading");
+    }
+
     setVec3("viewPos", getCameraPosition(), "deferredShading");
     setMat4("view", getViewMatrix(), "deferredShading");
     setInt("gPositionE", 0, "deferredShading");
