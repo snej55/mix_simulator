@@ -180,6 +180,20 @@ bool Scene::init(const char* scenePath)
             addEntity(modelMap[modelID].second.c_str(), transform, bodyType, animated);
         }
         std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["objects"].size() << " entities for scene.\n";
+
+        std::cout << "SCENE::INIT Adding point lights to scene..." << std::endl;
+        for (const auto& pointLightEntry : data[0]["level"]["pointLights"])
+        {
+            const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
+                                     pointLightEntry["position"][1].get<float>(),
+                                     pointLightEntry["position"][2].get<float>()};
+            const glm::vec3 color{pointLightEntry["color"][0].get<float>(), pointLightEntry["color"][1].get<float>(),
+                                  pointLightEntry["color"][2].get<float>()};
+            const float radius{pointLightEntry["radius"].get<float>()};
+            addPointLight(position, color, radius);
+        }
+        std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["pointLights"].size() << " pointLights for scene."
+                  << std::endl;
     }
     catch ([[maybe_unused]] const std::ifstream::failure& e)
     {
