@@ -92,6 +92,7 @@ public:
     {
         return m_pointLights;
     }
+    void getPointLights(std::vector<Lights::PointLight*>& pointLights) const;
 
 private:
     void* m_engine{nullptr};

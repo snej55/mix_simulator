@@ -404,3 +404,11 @@ void Scene::addPointLight(const glm::vec3& position, const glm::vec3& color, con
 {
     m_pointLights.push_back(std::make_unique<Lights::PointLight>(position, color, radius));
 }
+
+void Scene::getPointLights(std::vector<Lights::PointLight*>& pointLights) const
+{
+    for (std::size_t i{0}; i < std::size(m_pointLights); ++i)
+    {
+        pointLights.push_back(m_pointLights[i].get());
+    }
+}

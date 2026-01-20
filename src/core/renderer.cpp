@@ -203,7 +203,7 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     glClear(GL_COLOR_BUFFER_BIT);
 
     // render gbuffer
-    enginePtr->renderGBuffer(ibl);
+    enginePtr->renderGBuffer(ibl, pointLights);
 
     // render skybox
     glDepthFunc(GL_LEQUAL);
@@ -238,6 +238,8 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
         fdShader->setMat3("normalMat", enginePtr->getNormalMatrix(it->second.second));
         it->second.first->renderPBR(fdShader);
     }
+
+    // TODO: Render point lights here
 
     // render static meshes
     renderBlendMeshes(fdShader);
