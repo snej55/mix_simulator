@@ -94,7 +94,7 @@ public:
     // hybrid renderer
     void renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
                      const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl, const glm::vec3& cameraPos,
-                     const std::vector<Lights::PointLight*>& pointLights = {}) const;
+                     const std::vector<Lights::PointLight*>& pointLights = {});
 
     // add static model
     void addStaticModel(const Model* model, const glm::mat4& modelTransform);

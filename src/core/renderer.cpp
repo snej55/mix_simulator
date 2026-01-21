@@ -152,7 +152,7 @@ void RenderQueue::update() { m_dynamicModels.clear(); }
 
 void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
                               const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl,
-                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights) const
+                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights)
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
 
@@ -240,6 +240,12 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     }
 
     // TODO: Render point lights here
+    const Shader* pointLightShader{enginePtr->getShader("pointLight")};
+    enginePtr->setCameraUniforms(pointLightShader);
+    for (std::size_t i{0}; i < pointLights.size(); ++i)
+    {
+        renderPointLight(pointLightShader, pointLights[i]);
+    }
 
     // render static meshes
     renderBlendMeshes(fdShader);
