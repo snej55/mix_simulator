@@ -95,8 +95,6 @@ public:
 
     void getPointLights(std::vector<Lights::PointLight*>& pointLights) const;
 
-    void renderPointLight(const Shader* pointLightShader, const Lights::PointLight* pointLight);
-
 private:
     void* m_engine{nullptr};
 
@@ -105,12 +103,6 @@ private:
     std::vector<std::unique_ptr<Lights::PointLight>> m_pointLights{};
 
     static SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos);
-
-    // to render point lights
-    unsigned int m_cubeVAO{0};
-    unsigned int m_cubeVBO{0};
-
-    void initCube();
 };
 
 #endif // SCENE_H
