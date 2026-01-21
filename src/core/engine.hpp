@@ -101,6 +101,8 @@ public:
     [[nodiscard]] bool getShadersLoaded() const { return m_loadedShaders; }
 
     // shader uniforms
+    void setCameraUniforms(const Shader* shader) const;
+
     void setBool(const std::string& name, bool value, const std::string& shaderName) const;
     void setInt(const std::string& name, int value, const std::string& shaderName) const;
     void setFloat(const std::string& name, float value, const std::string& shaderName) const;

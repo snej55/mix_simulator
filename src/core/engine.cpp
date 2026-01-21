@@ -524,6 +524,12 @@ void Engine::loadShaders()
     m_loadedShaders = true;
 }
 
+void Engine::setCameraUniforms(const Shader* shader) const
+{
+    shader->setMat4("view", getViewMatrix());
+    shader->setMat4("projection", getProjectionMatrix());
+}
+
 void Engine::setBool(const std::string& name, const bool value, const std::string& shaderName) const
 {
     const Shader* shader{getShader(shaderName)};
