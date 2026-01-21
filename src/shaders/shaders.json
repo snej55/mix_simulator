@@ -134,6 +134,13 @@
         "frag": "FXAA.frag",
         "vert": "FXAA.vert"
       }
+    },
+    {
+      "name": "pointLight",
+      "shader": {
+        "frag": "pointLight.frag",
+        "vert": "pointLight.vert"
+      }
     }
   ]
 }

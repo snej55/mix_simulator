@@ -63,6 +63,7 @@ cd build
 - [ ] Rag dolls?
 - [X] Add Jolt Physics
 - [X] Point lights
+- [ ] Add shader compilation test
 - [ ] Add lens dirt
 - [ ] Area lights
 - [ ] Optimize static shader uniforms
