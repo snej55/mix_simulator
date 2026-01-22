@@ -3,6 +3,7 @@ import json, time
 import pyray as ray
 
 WIDTH, HEIGHT = 2000, 1900
+POINT_LIGHT_SIZE = 1
 
 class Editor:
     def __init__(self):
@@ -18,6 +19,7 @@ class Editor:
         self.assets = {"models": {}}
         self.body_types = ["static", "dynamic", "kinematic"]
         self.objects = []
+        self.point_lights = []
 
         self.level_path = "data/maps/0.json"
         self.load_level(self.level_path)
@@ -59,6 +61,8 @@ class Editor:
                 }
             for object in data["level"]["objects"]:
                 self.objects.append(object)
+            for light in data["level"]["pointLights"]:
+                self.point_lights.append(light)
             print(f"Loaded level data from `{path}`")
 
     def save_level(self, path):
@@ -163,6 +167,9 @@ class Editor:
                     obj["scale"],
                     color
                 )
+            
+            for i, light in enumerate(self.point_lights):
+                ray.draw_cube(light["position"], POINT_LIGHT_SIZE, POINT_LIGHT_SIZE, POINT_LIGHT_SIZE, (int(light["color"][0] * 255), int(light["color"][1] * 255), int(light["color"][2] * 255))) 
 
             # ray.draw_grid(200, 1.0)
 
