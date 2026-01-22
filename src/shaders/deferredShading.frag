@@ -4,6 +4,7 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+#define POINT_LIGHT_INTENSITY 1.0
 struct Light
 {
     vec3 position;
@@ -143,10 +144,8 @@ void main()
         vec3 H = normalize(V + L);
 
         // standard realistic attenuation
-        float dist2 = dot(diff, diff);
-        float radius2 = lights[i].radius * lights[i].radius;
-        float factor = clamp(1.0 - (dist2 * dist2) / (radius2 * radius2), 0.0, 1.0);
-        float attenuation = factor * factor / max(dist2, 0.0001);
+        float dist2 = dot(diff, diff) / lights[i].radius / POINT_LIGHT_INTENSITY;
+        float attenuation = 1.0 / dist2;
         vec3 radiance = lights[i].color * attenuation;
 
         // Cook-Torrance BDRF
@@ -198,16 +197,14 @@ void main()
     }
 
     vec3 ambient = (diffuse * kDA + spec) * ao * ssaoFactor;
-    // final color
-    vec3 color = emissive + ambient + Lo;
 
-    // apply fog effect
+    // get fog effect
     float fogAlpha = getFogFactor(abs(FragPosVS.z) * fogStrength);
     vec3 fogColor = textureLod(prefilterMap, normalize(FragPos - viewPos), MAX_REFLECTION_LOD).rgb;
+
+    // final color
+    vec3 color = ambient + emissive * fogAlpha + Lo;
     color = mix(color, fogColor, fogAlpha);
-    // float fogAlpha = getFogFactor(-FragPosVS.z * 0.1);
-    // vec3 fogColor = vec3(color.r * 0.2126 + color.g * 0.7152 + color.b + 0.0722) * 0.7; // weighted grayscale
-    // color = mix(color, fogColor, fogAlpha);
 
     FragColor = vec4(color, alpha);
 }
