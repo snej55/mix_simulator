@@ -53,9 +53,9 @@ void Game::run()
         }
 
         // render frame
-        std::vector<Lights::PointLight*> pointLights{};
-        m_scene->getPointLights(pointLights);
-        m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
+        // std::vector<Lights::PointLight*> pointLights{};
+        // m_scene->getPointLights(pointLights);
+        m_engine.update(m_renderQueue.get(), m_iblGenerator.get());
         m_engine.displayFrameTime();
     }
 }

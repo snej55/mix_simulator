@@ -118,8 +118,6 @@ public:
     // dynamic models (updated every frame)
     [[nodiscard]] const std::vector<std::pair<Model*, glm::mat4>>& getDynamicModels() const { return m_dynamicModels; }
 
-    void renderPointLight(const Shader* pointLightShader, const Lights::PointLight* pointLight);
-
 private:
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticOpaqueMeshes{};
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticBlendMeshes{};
@@ -130,12 +128,6 @@ private:
     // for static meshes
     void renderOpaqueMeshes(const Shader* dfShader) const;
     void renderBlendMeshes(const Shader* fdShader) const;
-
-    // to render point lights
-    unsigned int m_cubeVAO{0};
-    unsigned int m_cubeVBO{0};
-
-    void initCube();
 };
 
 #endif // MAIN_RENDERER_H
