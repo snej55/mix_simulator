@@ -10,7 +10,7 @@
 
 namespace Lights
 {
-    inline constexpr float POINT_LIGHT_RENDER_SCALE{0.2f};
+    inline constexpr float POINT_LIGHT_RENDER_SCALE{0.1f};
 
     struct PointLight
     {

@@ -87,8 +87,8 @@ float geomSmith(vec3 norm, vec3 view, vec3 light, float roughness)
 // https://github.com/vicrucann/shader-3dcurve/blob/master/src/Shaders/bezier.frag
 float getFogFactor(float d)
 {
-    const float FogMax = 500.0;
-    const float FogMin = 50.0;
+    const float FogMax = 800.0;
+    const float FogMin = 70.0;
 
     if (d >= FogMax)
         return 1.0;
