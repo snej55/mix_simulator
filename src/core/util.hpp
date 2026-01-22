@@ -126,6 +126,14 @@ namespace Util
 
         return result;
     }
+
+    template <typename T>
+    inline std::string getPointerStr(T* ptr)
+    {
+        std::stringstream ss{};
+        ss << ptr;
+        return ss.str();
+    }
 } // namespace Util
 
 #endif // UTIL_H

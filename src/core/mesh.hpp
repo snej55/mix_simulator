@@ -113,7 +113,7 @@ public:
     [[nodiscard]] glm::vec3 getMidpoint() const { return m_midPoint; }
     [[nodiscard]] const glm::mat4& getModelTransform() const { return m_modelMat; }
 
-    MeshN::Material& getMaterial() { return m_material; }
+    MeshN::Material* getMaterial() { return &m_material; }
 
 private:
     std::vector<MeshN::Vertex> m_vertices;

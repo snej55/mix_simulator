@@ -3,6 +3,7 @@
 //
 
 #include <glad/glad.h>
+#include <memory>
 
 #include "renderer.hpp"
 
@@ -216,7 +217,6 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
 
     glDepthMask(GL_FALSE);
 
-    // TODO: Render point lights here
 
     // ---- render leftovers using forward rendering ---
     // render dynamic meshes
@@ -244,6 +244,35 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
 
     // render static meshes
     renderBlendMeshes(fdShader);
+
+    // TODO: Render point lights here
+    if (m_pointLightModel.get() != nullptr)
+    {
+        const std::vector<Mesh*>& opaqueMeshes{m_pointLightModel->getOpaqueMeshes()};
+        const std::vector<Mesh*>& transparentMeshes{m_pointLightModel->getTransparentMeshes()};
+        for (std::size_t i{0}; i < pointLights.size(); ++i)
+        {
+            Lights::PointLight* pointLightPtr{pointLights[i]};
+            glm::mat4 model{1.0f};
+
+            model = glm::translate(model, pointLightPtr->m_position);
+            model = glm::scale(model,
+                               glm::vec3{Lights::POINT_LIGHT_RENDER_SCALE, Lights::POINT_LIGHT_RENDER_SCALE,
+                                         Lights::POINT_LIGHT_RENDER_SCALE});
+            fdShader->setMat4("model", model);
+            fdShader->setMat3("normalMat", enginePtr->getNormalMatrix(model));
+            // modify emissive factor and stuff for meshes
+            for (std::size_t i{0}; i < opaqueMeshes.size(); ++i)
+            {
+                pointLightPtr->modifyModelMesh(opaqueMeshes[i]);
+                opaqueMeshes[i]->renderPBR(fdShader);
+            }
+            for (std::size_t i{0}; i < transparentMeshes.size(); ++i)
+            {
+                pointLightPtr->modifyModelMesh(transparentMeshes[i]);
+            }
+        }
+    }
 
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
@@ -321,4 +350,13 @@ void RenderQueue::renderBlendMeshes(const Shader* fdShader) const
         fdShader->setMat3("normalMat", normalMat);
         meshPair.first->renderPBR(fdShader);
     }
+}
+
+void RenderQueue::initPointLightModel(const char* path)
+{
+    assert(m_pointLightModel.get() == nullptr);
+    m_pointLightModel = std::make_unique<Model>("pointLightModel", this);
+    m_pointLightModel->loadModel(path);
+
+    std::cout << "RENDER_QUEUE::INIT: Loaded model for point light rendering from `" << path << "`" << std::endl;
 }

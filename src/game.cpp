@@ -1,7 +1,5 @@
 // Created by Jens Kromdijk 05-01-2025
 
-#include <memory>
-
 #include "constants.hpp"
 #include "core/bounds.hpp"
 #include "core/ibl.hpp"
@@ -33,6 +31,7 @@ bool Game::init()
                          &m_engine);
 
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
+    m_renderQueue->initPointLightModel("data/models/point_light.glb");
     return true;
 }
 
@@ -53,9 +52,9 @@ void Game::run()
         }
 
         // render frame
-        // std::vector<Lights::PointLight*> pointLights{};
-        // m_scene->getPointLights(pointLights);
-        m_engine.update(m_renderQueue.get(), m_iblGenerator.get());
+        std::vector<Lights::PointLight*> pointLights{};
+        m_scene->getPointLights(pointLights);
+        m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
         m_engine.displayFrameTime();
     }
 }

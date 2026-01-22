@@ -7,6 +7,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <memory>
 
 #include "engine_types.hpp"
 #include "shader.hpp"
@@ -118,6 +119,8 @@ public:
     // dynamic models (updated every frame)
     [[nodiscard]] const std::vector<std::pair<Model*, glm::mat4>>& getDynamicModels() const { return m_dynamicModels; }
 
+    void initPointLightModel(const char* path);
+
 private:
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticOpaqueMeshes{};
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticBlendMeshes{};
@@ -128,6 +131,8 @@ private:
     // for static meshes
     void renderOpaqueMeshes(const Shader* dfShader) const;
     void renderBlendMeshes(const Shader* fdShader) const;
+
+    std::unique_ptr<Model> m_pointLightModel{nullptr};
 };
 
 #endif // MAIN_RENDERER_H

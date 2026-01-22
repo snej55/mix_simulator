@@ -10,6 +10,8 @@
 
 namespace Lights
 {
+    inline constexpr float POINT_LIGHT_RENDER_SCALE{0.2f};
+
     struct PointLight
     {
         glm::vec3 m_position{0.0f, 0.0f, 0.0f};
@@ -21,6 +23,8 @@ namespace Lights
         // prob shoudn't be member functions but we need a light to check with right?
         bool intersectsLight(const PointLight& light) const;
         bool intersectsAABB(const Bounds::AABB& aabb) const;
+
+        void modifyModelMesh(Mesh* mesh);
     };
 
     inline std::ostream& operator<<(std::ostream& os, const PointLight& pLight)
