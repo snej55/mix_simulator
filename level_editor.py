@@ -90,7 +90,7 @@ class Editor:
                         for key in self.assets["models"]
                     },
                     "objects": self.objects,
-                    "pointLights": self.point_lights
+                    "pointLights": self.point_lights,
                 }
             }
             json.dump(data, f, separators=(",", ":"))
@@ -147,14 +147,11 @@ class Editor:
 
         if ray.is_key_pressed(ray.KeyboardKey.KEY_N):
             if self.light_mode:
-                self.point_lights.append(
-                {
-                    "position": [0, 10, 0],
-                    "color": [1, 1, 1],
-                    "radius": 100
-                }
-            )
-                self.current_light_index = len(self.point_lights) - 1
+                if len(self.point_lights) < 32:
+                    self.point_lights.append(
+                        {"position": [0, 10, 0], "color": [1, 1, 1], "radius": 100}
+                    )
+                    self.current_light_index = len(self.point_lights) - 1
             else:
                 self.objects.append(
                     {
@@ -186,10 +183,14 @@ class Editor:
         speed = 0.1
         if self.light_mode:
             self.point_lights[self.current_light_index]["position"][0] += (
-                (int(self.controls["right"]) - int(self.controls["left"])) * speed * self.dt
+                (int(self.controls["right"]) - int(self.controls["left"]))
+                * speed
+                * self.dt
             )
             self.point_lights[self.current_light_index]["position"][1] += (
-                (int(self.controls["up"]) - int(self.controls["down"])) * speed * self.dt
+                (int(self.controls["up"]) - int(self.controls["down"]))
+                * speed
+                * self.dt
             )
             self.point_lights[self.current_light_index]["position"][2] += (
                 (int(self.controls["e"]) - int(self.controls["q"])) * speed * self.dt
@@ -197,10 +198,14 @@ class Editor:
         else:
 
             self.objects[self.current_model_index]["position"][0] += (
-                (int(self.controls["right"]) - int(self.controls["left"])) * speed * self.dt
+                (int(self.controls["right"]) - int(self.controls["left"]))
+                * speed
+                * self.dt
             )
             self.objects[self.current_model_index]["position"][1] += (
-                (int(self.controls["up"]) - int(self.controls["down"])) * speed * self.dt
+                (int(self.controls["up"]) - int(self.controls["down"]))
+                * speed
+                * self.dt
             )
             self.objects[self.current_model_index]["position"][2] += (
                 (int(self.controls["e"]) - int(self.controls["q"])) * speed * self.dt
@@ -261,10 +266,10 @@ class Editor:
 
             for i, light in enumerate(self.point_lights):
                 color = (
-                        int(light["color"][0] * 255),
-                        int(light["color"][1] * 255),
-                        int(light["color"][2] * 255),
-                    )
+                    int(light["color"][0] * 255),
+                    int(light["color"][1] * 255),
+                    int(light["color"][2] * 255),
+                )
                 if i == self.current_light_index and self.light_mode:
                     color = (0, 0, 0)
                 ray.draw_cube(

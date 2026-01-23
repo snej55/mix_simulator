@@ -11,6 +11,7 @@
 namespace Lights
 {
     inline constexpr float POINT_LIGHT_RENDER_SCALE{0.1f};
+    inline constexpr std::size_t MAX_POINT_LIGHTS{32};
 
     struct PointLight
     {

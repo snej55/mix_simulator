@@ -969,7 +969,7 @@ void Engine::renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::Po
 
     // ----- lights ----- //
     setInt("activeLights", pointLights.size(), "deferredShading");
-    for (std::size_t i{0}; i < pointLights.size(); ++i)
+    for (std::size_t i{0}; i < std::min(pointLights.size(), Lights::MAX_POINT_LIGHTS); ++i)
     {
         const Lights::PointLight* light{pointLights[i]};
         setVec3("lights[" + std::to_string(i) + "].position", light->m_position, "deferredShading");
