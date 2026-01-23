@@ -90,6 +90,7 @@ class Editor:
                         for key in self.assets["models"]
                     },
                     "objects": self.objects,
+                    "pointLights": self.point_lights
                 }
             }
             json.dump(data, f, separators=(",", ":"))
@@ -105,12 +106,23 @@ class Editor:
         ray.close_window()
 
     def handle_input(self):
+        if ray.is_key_pressed(ray.KeyboardKey.KEY_X):
+            if self.light_mode:
+                if len(self.point_lights) > 0:
+                    self.point_lights.pop(self.current_light_index)
+                    self.current_light_index = self.current_light_index - 1
+            else:
+                if len(self.objects) > 0:
+                    self.objects.pop(self.current_model_index)
+                    self.current_model_index = self.current_model_index - 1
         if ray.is_key_pressed(ray.KeyboardKey.KEY_O):
             self.save_level(self.level_path)
         if ray.is_key_down(ray.KeyboardKey.KEY_LEFT_SHIFT) or ray.is_key_down(
             ray.KeyboardKey.KEY_RIGHT_SHIFT
         ):
             self.shift = True
+        else:
+            self.shift = False
         if ray.is_key_pressed(ray.KeyboardKey.KEY_TAB):
             if self.light_mode:
                 if self.shift:
