@@ -28,9 +28,9 @@ uniform sampler2D brdfLUT;
 uniform vec3 viewPos;
 uniform mat4 view;
 
-const int NUM_LIGHTS = 32;
+const int MAX_POINT_LIGHTS = 32;
 uniform int activeLights = 32;
-uniform Light lights[NUM_LIGHTS];
+uniform Light lights[MAX_POINT_LIGHTS];
 
 const float PI = 3.14159265359;
 

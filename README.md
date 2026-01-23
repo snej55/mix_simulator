@@ -59,7 +59,7 @@ cd build
 - [X] Bounding volume generation
 - [X] Main game class
 - [X] Level editor
-- [ ] Add lights to level editor
+- [X] Add lights to level editor
 - [ ] Rag dolls?
 - [X] Add Jolt Physics
 - [X] Point lights
