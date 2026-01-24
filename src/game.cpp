@@ -2,6 +2,7 @@
 
 #include "constants.hpp"
 #include "core/bounds.hpp"
+#include "core/fonts.hpp"
 #include "core/ibl.hpp"
 #include "core/lights.hpp"
 #include "core/renderer.hpp"
@@ -33,6 +34,10 @@ bool Game::init()
 
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
+
+    m_fontRenderer = std::make_unique<FontRenderer>(&m_engine);
+    m_fontRenderer->init("data/fonts/pixel_operator/PixelOperator-Bold.ttf", 16);
+
     return true;
 }
 
