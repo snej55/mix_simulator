@@ -48,6 +48,11 @@ public:
     [[nodiscard]] int getWidth() const { return m_window->getWidth(); }
     [[nodiscard]] int getHeight() const { return m_window->getHeight(); }
 
+    using cFBOCallback = void (*)(void*, int, int);
+    void setFBOCallback(cFBOCallback callback, void* args);
+    [[nodiscard]] cFBOCallback getFBOCallback() const { return m_customFramebufferCallback; }
+    [[nodiscard]] void* getFBOCallbackArgs() const { return m_cFBO_Handler; }
+
     // clear screen
     void clear() const;
 
@@ -255,6 +260,9 @@ private:
 
     // core components
     Window* m_window{nullptr};
+    void (*m_customFramebufferCallback)(void* handler, int width, int height){nullptr};
+    void* m_cFBO_Handler{nullptr};
+
     IOHandler* m_iohandler{nullptr};
     Clock* m_clock{nullptr};
 

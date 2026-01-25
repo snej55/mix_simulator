@@ -146,10 +146,11 @@ void PostProcessor::renderFinal(const Shader* fxaaShader) const
 
 void PostProcessor::generate(const int width, const int height, void* engine)
 {
-    bool tempBloomEnabled{m_bloomEnabled};
+    const bool bloomEnabled{m_bloomEnabled};
     free();
     init(width, height);
-    if (tempBloomEnabled)
+
+    if (bloomEnabled)
         enableBloom(engine);
 }
 

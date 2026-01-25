@@ -38,7 +38,7 @@ class BloomRenderer final : public EngineObject
 {
 public:
     explicit BloomRenderer(EngineObject* parent);
-    ~BloomRenderer();
+    ~BloomRenderer() override;
 
     bool init(unsigned int width, unsigned int height, void* engine);
     void free();

@@ -301,13 +301,25 @@ bool Engine::createWindow(const int width, const int height, const char* title)
     return m_window->init(width, height, title);
 }
 
+void Engine::setFBOCallback(const cFBOCallback callback, void* args)
+{
+    m_customFramebufferCallback = callback;
+    m_cFBO_Handler = args;
+}
+
 // clear gl buffers
 void Engine::clear() const { m_window->clear(); }
 
 // enable wireframe rendering
-void Engine::enableWireframe() const { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
+void Engine::enableWireframe() const
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
 
-void Engine::disableWireframe() const { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+void Engine::disableWireframe() const
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
 
 void Engine::displayFrameTime()
 {
@@ -326,7 +338,10 @@ void Engine::displayFrameTime()
     m_window->setTitle(ss.str().c_str());
 }
 
-void Engine::setupViewport() const { glViewport(0, 0, getWidth(), getHeight()); }
+void Engine::setupViewport() const
+{
+    glViewport(0, 0, getWidth(), getHeight());
+}
 
 // ------ IOHandler ------ //
 
@@ -391,7 +406,7 @@ bool Engine::createShaderManager()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_SHADER_MANAGER::ERROR: Shader manager already exists at `" << m_shaderManager
-                  << "`";
+            << "`";
         Util::endError();
         return false;
     }
@@ -441,7 +456,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find vertex shader for *" << name << "* at: `"
-                      << vertPath << "`!";
+                << vertPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -452,7 +467,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find fragment shader for *" << name << "* at: `"
-                      << fragPath << "`!";
+                << fragPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -473,7 +488,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find vertex shader for *" << name << "* at: `"
-                      << vertPath << "`!";
+                << vertPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -484,7 +499,7 @@ bool Engine::checkShaders()
         {
             Util::beginError();
             std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find fragment shader for *" << name << "* at: `"
-                      << fragPath << "`!";
+                << fragPath << "`!";
             Util::endError();
             file.close();
             return false;
@@ -659,7 +674,7 @@ bool Engine::createTextureManager()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_TEXTURE_MANAGER::ERROR: Texture manager already exists at `" << m_textureManager
-                  << "`";
+            << "`";
         Util::endError();
         return false;
     }
@@ -771,9 +786,11 @@ void Engine::drawRect(const FRect& rect, const Color& color) const
 // lerp color rgb
 Color Engine::lerpColor(const Color& a, const Color& b, const float amount) const
 {
-    return Color{static_cast<int>(Util::lerp(static_cast<float>(a.r), static_cast<float>(b.r), amount)),
-                 static_cast<int>(Util::lerp(static_cast<float>(a.g), static_cast<float>(b.g), amount)),
-                 static_cast<int>(Util::lerp(static_cast<float>(a.b), static_cast<float>(b.b), amount)), 255};
+    return Color{
+        static_cast<int>(Util::lerp(static_cast<float>(a.r), static_cast<float>(b.r), amount)),
+        static_cast<int>(Util::lerp(static_cast<float>(a.g), static_cast<float>(b.g), amount)),
+        static_cast<int>(Util::lerp(static_cast<float>(a.b), static_cast<float>(b.b), amount)), 255
+    };
 }
 
 // lerp color rgba
@@ -918,7 +935,6 @@ void Engine::renderModelForward(Model* model, const Shader* shader, const glm::m
 }
 
 
-
 bool Engine::modelExists(const std::string& name) const { return m_modelManager->modelExists(name); }
 
 // ------ Post Processor ------ //
@@ -929,7 +945,7 @@ bool Engine::createPostProcessor()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_POST_PROCESSOR::ERROR: Post processor already exists at `" << m_postProcessor
-                  << "`";
+            << "`";
         Util::endError();
         return false;
     }
@@ -962,7 +978,7 @@ bool Engine::createDeferredRenderer()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_DEFERRED_RENDERER::ERROR: Deferred renderer already exists at `"
-                  << m_deferredRenderer << "`";
+            << m_deferredRenderer << "`";
         Util::endError();
         return false;
     }
@@ -1033,7 +1049,7 @@ bool Engine::createSSAOGenerator()
     {
         Util::beginError();
         std::cout << "ENGINE::CREATE_SSAO_GENERATOR::ERROR: SSAOGenerator already exists at `" << m_ssaoGenerator
-                  << "`";
+            << "`";
         Util::endError();
         return false;
     }

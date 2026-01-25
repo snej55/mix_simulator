@@ -118,10 +118,17 @@ void Window::framebuffer_size_callback(const int width, const int height)
     setHeight(height);
     glViewport(0, 0, width, height);
 
+    Engine* enginePtr{dynamic_cast<Engine*>(m_parent)};
+
     // update framebuffers
-    dynamic_cast<Engine*>(m_parent)->updatePostProcessor(width, height);
-    dynamic_cast<Engine*>(m_parent)->updateDeferredRenderer(width, height);
-    dynamic_cast<Engine*>(m_parent)->updateSSAOGenerator(width, height);
+    enginePtr->updatePostProcessor(width, height);
+    enginePtr->updateDeferredRenderer(width, height);
+    enginePtr->updateSSAOGenerator(width, height);
+
+    if (enginePtr->getFBOCallback() != nullptr)
+    {
+        enginePtr->getFBOCallback()(enginePtr->getFBOCallbackArgs(), width, height);
+    }
 }
 
 // gets called from glfw cursor pos callback
@@ -143,7 +150,7 @@ void Window::win_framebuffer_size_callback(GLFWwindow* window, const int width, 
 
 void Window::win_mouse_callback(GLFWwindow* window, const double xpos, const double ypos)
 {
-    if (Window * handler{static_cast<Window*>(glfwGetWindowUserPointer(window))})
+    if (const Window* handler{static_cast<Window*>(glfwGetWindowUserPointer(window))})
     {
         handler->mouse_callback(xpos, ypos);
     }
@@ -151,7 +158,7 @@ void Window::win_mouse_callback(GLFWwindow* window, const double xpos, const dou
 
 void Window::win_scroll_callback(GLFWwindow* window, const double xoffset, const double yoffset)
 {
-    if (Window * handler{static_cast<Window*>(glfwGetWindowUserPointer(window))})
+    if (const Window* handler{static_cast<Window*>(glfwGetWindowUserPointer(window))})
     {
         handler->scroll_callback(yoffset);
     }

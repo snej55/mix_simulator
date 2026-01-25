@@ -92,7 +92,9 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
 	src/core/lights.hpp
 	src/core/lights.cpp
         src/game.hpp
-        src/game.cpp)
+        src/game.cpp
+        src/core/ui.hpp
+        src/core/ui.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
