@@ -135,7 +135,7 @@ public:
 
     // render framebuffer to screen
     void renderHDR(const Shader* screenShader) const;
-    void renderFinal(const Shader* fxaaShader) const;
+    void renderFinal(const Shader* fxaaShader, unsigned int* uiTEX = nullptr) const;
 
     // bind framebuffer
     void enable() const;

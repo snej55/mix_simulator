@@ -124,7 +124,7 @@ void PostProcessor::renderHDR(const Shader* screenShader) const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void PostProcessor::renderFinal(const Shader* fxaaShader) const
+void PostProcessor::renderFinal(const Shader* fxaaShader, unsigned int* uiTEX) const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_DEPTH_TEST);
@@ -136,6 +136,13 @@ void PostProcessor::renderFinal(const Shader* fxaaShader) const
     fxaaShader->setInt("screenTexture", 0);
     fxaaShader->setInt("scrWidth", m_width);
     fxaaShader->setInt("scrHeight", m_height);
+
+    if (uiTEX != nullptr)
+    {
+        fxaaShader->setInt("uiTexture", *uiTEX);
+        fxaaShader->setInt("uiEnabled", 1);
+    }
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_fxaaTex);
     glBindVertexArray(m_VAO);

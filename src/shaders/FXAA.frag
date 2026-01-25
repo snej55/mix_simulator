@@ -13,6 +13,10 @@ uniform sampler2D screenTexture;
 uniform int scrWidth;
 uniform int scrHeight;
 
+// assume uiTexture.wh = screenTexture.wh
+uniform sampler2D uiTexture;
+uniform int uiEnabled = 0;
+
 #define GAMMA 2.2
 #define EDGE_THRESHOLD_MIN 0.0312
 #define EDGE_THRESHOLD_MAX 0.125
@@ -217,6 +221,16 @@ void main()
 
     vec3 mapped = texture(screenTexture, finalUV).rgb;
     mapped = pow(mapped, vec3(1.0 / GAMMA));
+
+    if (uiEnabled > 0)
+    {
+        vec3 uiSample = texture(uiTexture, finalUV).rgb;
+        const float UI_THRESHOLD = 0.01;
+        if ((uiSample.r + uiSample.g + uiSample.b) < UI_THRESHOLD)
+        {
+            mapped = uiSample;
+        }
+    }
 
     FragColor = vec4(mapped, 1.0);
 }
