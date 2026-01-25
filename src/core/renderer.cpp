@@ -245,7 +245,6 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     // render static meshes
     renderBlendMeshes(fdShader);
 
-    // TODO: Render point lights here
     if (m_pointLightModel.get() != nullptr)
     {
         const std::vector<Mesh*>& opaqueMeshes{m_pointLightModel->getOpaqueMeshes()};

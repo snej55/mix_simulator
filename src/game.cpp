@@ -20,7 +20,6 @@ bool Game::init()
     std::cout << "Initialized engine!" << std::endl;
 
     m_engine.setCameraEnabled(true);
-    m_engine.setFBOCallback(framebufferCallback, this);
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
@@ -34,9 +33,6 @@ bool Game::init()
 
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
-
-    m_uiRenderer = std::make_unique<UIRenderer>(&m_engine);
-    m_uiRenderer->init(m_engine.getWidth(), m_engine.getHeight());
 
     m_engine.initFontRenderer("data/fonts/pixel_operator/PixelOperator-Bold.ttf", 16);
 
@@ -66,12 +62,4 @@ void Game::run()
         m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
         m_engine.displayFrameTime();
     }
-}
-
-void Game::resizeCallback(int width, int height) { m_uiRenderer->generate(width, height); }
-
-void Game::framebufferCallback(void* handler, const int width, const int height)
-{
-    Game* gamePtr{static_cast<Game*>(handler)};
-    gamePtr->resizeCallback(width, height);
 }

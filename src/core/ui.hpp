@@ -5,7 +5,7 @@
 
 #include "engine_types.hpp"
 
-class UIRenderer : EngineObject
+class UIRenderer : public EngineObject
 {
 public:
     explicit UIRenderer(EngineObject* parent);

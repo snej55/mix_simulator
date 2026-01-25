@@ -20,6 +20,7 @@
 #include "bounds.hpp"
 #include "physics.hpp"
 #include "fonts.hpp"
+#include "ui.hpp"
 
 class Engine final : public EngineObject
 {
@@ -238,6 +239,10 @@ public:
     void initFontRenderer(const char* fontPath, int height);
     [[nodiscard]] FontRenderer* getFontRenderer() const { return m_fontRenderer; }
 
+    // ------ UI Render ------ //
+    bool createUIRenderer();
+    [[nodiscard]] const UIRenderer* getUIRenderer() const { return m_uiRenderer; }
+
     // ------ Arena ------ //
 
     // Arena operations
@@ -279,6 +284,7 @@ private:
     bool m_ssaoEnabled{true};
 
     FontRenderer* m_fontRenderer{nullptr};
+    UIRenderer* m_uiRenderer{nullptr};
 
     // Physics
     JoltInstance* m_joltInstance{nullptr};

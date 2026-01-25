@@ -9,7 +9,6 @@
 #include "core/ibl.hpp"
 #include "core/renderer.hpp"
 #include "core/scene.hpp"
-#include "core/ui.hpp"
 
 class Game final
 {
@@ -21,8 +20,6 @@ public:
 
     void run();
 
-    void resizeCallback(int width, int height);
-
 private:
     // core components
     Engine m_engine{};
@@ -30,9 +27,6 @@ private:
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};
-    std::unique_ptr<UIRenderer> m_uiRenderer{nullptr};
-
-    static void framebufferCallback(void* handler, int width, int height);
 };
 
 #endif
