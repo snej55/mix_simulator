@@ -9,7 +9,6 @@
 #include "core/ibl.hpp"
 #include "core/renderer.hpp"
 #include "core/scene.hpp"
-#include "core/fonts.hpp"
 
 class Game final
 {
@@ -28,7 +27,6 @@ private:
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};
-    std::unique_ptr<FontRenderer> m_fontRenderer{nullptr};
 };
 
 #endif

@@ -8,6 +8,7 @@
 
 #include "bounds.hpp"
 #include "camera.hpp"
+#include "fonts.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "ibl.hpp"
 #include "lights.hpp"
@@ -206,6 +207,14 @@ bool Engine::init(const int width, const int height, const char* title)
     }
     m_joltInstance->init();
     std::cout << "ENGINE:INIT: Initialized JoltPhysics!" << std::endl;
+
+    if (!createFontRenderer())
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT::ERROR: Failed to create font renderer!" << std::endl;
+        Util::endError();
+        return false;
+    }
 
     std::cout << "ENGINE::INIT: Successfully created components!\n";
 
@@ -908,6 +917,8 @@ void Engine::renderModelForward(Model* model, const Shader* shader, const glm::m
     model->renderForward(shader, getCameraPosition(), modelTransform);
 }
 
+
+
 bool Engine::modelExists(const std::string& name) const { return m_modelManager->modelExists(name); }
 
 // ------ Post Processor ------ //
@@ -1064,6 +1075,46 @@ bool Engine::createJoltInstance()
     m_joltInstance = new JoltInstance{this};
     m_arena->addObject(m_joltInstance);
     return true;
+}
+
+// ----- Font Renderer ----- //
+
+bool Engine::createFontRenderer()
+{
+    if (m_fontRenderer != nullptr)
+    {
+        Util::beginError();
+        std::cout << "ENGINE::CREATE_FONT_RENDERER::ERROR: FontRenderer already exists at `" << m_fontRenderer << "`";
+        Util::endError();
+        return false;
+    }
+
+    m_fontRenderer = new FontRenderer{this};
+    m_arena->addObject(m_fontRenderer);
+    return true;
+}
+
+void Engine::initFontRenderer(const char* fontPath, int height)
+{
+    if (m_fontRenderer == nullptr)
+    {
+        createFontRenderer();
+    }
+
+    if (m_fontRenderer->getLoaded())
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT_FONT_RENDERER::ERROR: Font renderer has already been initialized!";
+        Util::endError();
+        return;
+    }
+
+    if (!m_fontRenderer->init(fontPath, height))
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT_FONT_RENDERER::ERROR: Font renderer init failed!";
+        Util::endError();
+    }
 }
 
 // ------ Arena ------ //

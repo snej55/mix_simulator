@@ -19,6 +19,7 @@
 #include "ibl.hpp"
 #include "bounds.hpp"
 #include "physics.hpp"
+#include "fonts.hpp"
 
 class Engine final : public EngineObject
 {
@@ -187,8 +188,8 @@ public:
     void renderModelForward(Model* model, const Shader* shader, const glm::mat4& modelTransform,
                             const IBLGenerator* ibl = nullptr);
 
-    void renderModelDeferred(const std::string& modelName, const glm::mat4& modelTransform) const;
-    void renderModelDeferred(const Model* model, const glm::mat4& modelTransform) const;
+    // void renderModelDeferred(const std::string& modelName, const glm::mat4& modelTransform) const;
+    // void renderModelDeferred(const Model* model, const glm::mat4& modelTransform) const;
 
     // ------ Post Processor ------ //
 
@@ -225,6 +226,12 @@ public:
     bool createJoltInstance();
 
     [[nodiscard]] JoltInstance* getJoltInstance() const { return m_joltInstance; }
+
+    // ------ Font Renderer ------ //
+    bool createFontRenderer();
+
+    void initFontRenderer(const char* fontPath, int height);
+    [[nodiscard]] FontRenderer* getFontRenderer() const { return m_fontRenderer; }
 
     // ------ Arena ------ //
 
@@ -263,6 +270,8 @@ private:
     SSAOGenerator* m_ssaoGenerator{nullptr};
     bool m_ssaoEnabled{true};
 
+    FontRenderer* m_fontRenderer{nullptr};
+
     // Physics
     JoltInstance* m_joltInstance{nullptr};
 
@@ -277,7 +286,7 @@ private:
     bool m_camFirstMouse{true}; // first mouse movement
     bool m_cameraEnabled{false}; // camera enabled
 
-    // miscallaneous stuff
+    // miscellaneous stuff
     std::vector<float> m_deltaTimes{};
 };
 

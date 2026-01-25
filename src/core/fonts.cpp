@@ -18,14 +18,15 @@ bool FontRenderer::init(const std::string& fontPath, const int height)
     if (FT_Init_FreeType(&m_FT))
     {
         std::cout << "ERROR::FONT_MANAGER: Could not init FreeType library" << std::endl;
-        return true;
+        return false;
     }
+    std::cout << "FONT_MANAGER::INIT: Initialized FreeType2!" << std::endl;
 
     // load font
     if (FT_New_Face(m_FT, fontPath.c_str(), 0, &m_face))
     {
         std::cout << "ERROR::FONT_MANAGER: Failed to load font at `" << fontPath << "`" << std::endl;
-        return true;
+        return false;
     }
 
     // set font size
@@ -80,7 +81,7 @@ bool FontRenderer::init(const std::string& fontPath, const int height)
     // all good
     m_loaded = true;
     std::cout << "Successfully loaded font from `" << fontPath << "`\n";
-    return false;
+    return true;
 }
 
 void FontRenderer::free() const

@@ -35,8 +35,7 @@ bool Game::init()
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
-    m_fontRenderer = std::make_unique<FontRenderer>(&m_engine);
-    m_fontRenderer->init("data/fonts/pixel_operator/PixelOperator-Bold.ttf", 16);
+    m_engine.initFontRenderer("data/fonts/pixel_operator/PixelOperator-Bold.ttf", 16);
 
     return true;
 }
@@ -60,25 +59,6 @@ void Game::run()
         // render frame
         std::vector<Lights::PointLight*> pointLights{};
         m_scene->getPointLights(pointLights);
-
-        // Lights::PointLight pointLight1{{std::sin(m_engine.getTime() * 2.1f) * 10.f,
-        //                                 std::sin(m_engine.getTime()) * 2.f + 7.f,
-        //                                 std::cos(m_engine.getTime() * 2.1f) * 10.f},
-        //                                {1.0f, 1.0f, 0.0f},
-        //                                100.f};
-        // pointLights.push_back(&pointLight1);
-        // Lights::PointLight pointLight2{{std::cos(m_engine.getTime() * 1.1f) * 10.f,
-        //                                 std::cos(m_engine.getTime() * 2.f) * 2.f + 7.f,
-        //                                 std::sin(m_engine.getTime() * 1.1f) * 10.f},
-        //                                {0.0f, 0.0f, 1.0f},
-        //                                100.f};
-        // pointLights.push_back(&pointLight2);
-        // Lights::PointLight pointLight3{{-std::sin(m_engine.getTime() * 1.1f) * 10.f,
-        //                                 std::cos(m_engine.getTime() * 2.f) * 2.f + 7.f,
-        //                                 std::sin(m_engine.getTime() * 0.5f) * 10.f},
-        //                                {1.0f, 0.0f, 0.0f},
-        //                                100.f};
-        // pointLights.push_back(&pointLight3);
 
         m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
         m_engine.displayFrameTime();
