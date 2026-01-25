@@ -2,9 +2,11 @@
 
 #include "constants.hpp"
 #include "core/bounds.hpp"
+#include "core/camera.hpp"
 #include "core/ibl.hpp"
 #include "core/lights.hpp"
 #include "core/renderer.hpp"
+#include "core/ui.hpp"
 
 #include "game.hpp"
 
@@ -56,10 +58,23 @@ void Game::run()
         }
 
         // render frame
+        renderUI();
+
         std::vector<Lights::PointLight*> pointLights{};
         m_scene->getPointLights(pointLights);
 
         m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
         m_engine.displayFrameTime();
     }
+}
+
+void Game::renderUI()
+{
+    const UIRenderer* uiRenderer{m_engine.getUIRenderer()};
+    glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

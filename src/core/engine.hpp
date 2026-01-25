@@ -241,7 +241,7 @@ public:
 
     // ------ UI Render ------ //
     bool createUIRenderer();
-    [[nodiscard]] const UIRenderer* getUIRenderer() const { return m_uiRenderer; }
+    [[nodiscard]] UIRenderer* getUIRenderer() const { return m_uiRenderer; }
 
     // ------ Arena ------ //
 

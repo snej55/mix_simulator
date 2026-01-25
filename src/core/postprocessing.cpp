@@ -139,7 +139,9 @@ void PostProcessor::renderFinal(const Shader* fxaaShader, unsigned int* uiTEX) c
 
     if (uiTEX != nullptr)
     {
-        fxaaShader->setInt("uiTexture", *uiTEX);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, *uiTEX);
+        fxaaShader->setInt("uiTexture", 1);
         fxaaShader->setInt("uiEnabled", 1);
     }
 

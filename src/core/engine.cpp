@@ -960,7 +960,9 @@ void Engine::disablePostProcessing() const { m_postProcessor->disable(); }
 void Engine::renderPostProcessing() const
 {
     m_postProcessor->renderHDR(getShader("bloomSS"));
-    m_postProcessor->renderFinal(getShader("FXAA"));
+
+    unsigned int uiTEX{m_uiRenderer->getTEX()};
+    m_postProcessor->renderFinal(getShader("FXAA"), &uiTEX);
 }
 
 void Engine::updatePostProcessor(const int width, const int height)

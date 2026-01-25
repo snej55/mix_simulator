@@ -6,15 +6,9 @@
 
 #include "util.hpp"
 
-UIRenderer::UIRenderer(EngineObject* parent)
-    : EngineObject{"UIRenderer", parent}
-{
-}
+UIRenderer::UIRenderer(EngineObject* parent) : EngineObject{"UIRenderer", parent} {}
 
-UIRenderer::~UIRenderer()
-{
-    free();
-}
+UIRenderer::~UIRenderer() { free(); }
 
 void UIRenderer::free() const
 {
@@ -32,7 +26,7 @@ void UIRenderer::init(const int width, const int height)
     glGenTextures(1, &m_TEX);
     glBindTexture(GL_TEXTURE_2D, m_TEX);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -52,4 +46,5 @@ void UIRenderer::generate(const int width, const int height)
 {
     free();
     init(width, height);
+    std::cout << "UI_RENDERER::GENERATE: Regenerated framebuffer: " << width << " * " << height << '\n';
 }

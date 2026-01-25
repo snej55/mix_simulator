@@ -124,6 +124,7 @@ void Window::framebuffer_size_callback(const int width, const int height)
     enginePtr->updatePostProcessor(width, height);
     enginePtr->updateDeferredRenderer(width, height);
     enginePtr->updateSSAOGenerator(width, height);
+    enginePtr->getUIRenderer()->generate(width, height);
 
     if (enginePtr->getFBOCallback() != nullptr)
     {

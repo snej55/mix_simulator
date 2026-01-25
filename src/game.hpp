@@ -20,6 +20,8 @@ public:
 
     void run();
 
+    void renderUI();
+
 private:
     // core components
     Engine m_engine{};
