@@ -237,7 +237,7 @@ public:
     bool createFontRenderer();
 
     void initFontRenderer(const char* fontPath, int height);
-    [[nodiscard]] FontRenderer* getFontRenderer() const { return m_fontRenderer; }
+    [[nodiscard]] FontManager* getFontRenderer() const { return m_fontRenderer; }
 
     // ------ UI Render ------ //
     bool createUIRenderer();
@@ -283,7 +283,7 @@ private:
     SSAOGenerator* m_ssaoGenerator{nullptr};
     bool m_ssaoEnabled{true};
 
-    FontRenderer* m_fontRenderer{nullptr};
+    FontManager* m_fontRenderer{nullptr};
     UIRenderer* m_uiRenderer{nullptr};
 
     // Physics

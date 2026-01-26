@@ -3,6 +3,7 @@
 #include "constants.hpp"
 #include "core/bounds.hpp"
 #include "core/camera.hpp"
+#include "core/engine.hpp"
 #include "core/fonts.hpp"
 #include "core/ibl.hpp"
 #include "core/lights.hpp"
@@ -72,16 +73,21 @@ void Game::run()
 void Game::renderUI()
 {
     const UIRenderer* uiRenderer{m_engine.getUIRenderer()};
-    FontRenderer* fontRenderer{m_engine.getFontRenderer()};
+    FontManager* fontRenderer{m_engine.getFontRenderer()};
 
     glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
+    glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
+    glDisable(GL_DEPTH_TEST);
 
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    fontRenderer->renderText(m_engine.getShader("fonts"), "Hello World!", 10.f, 10.f, 1.0, glm::vec3{1.0f});
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    fontRenderer->renderText(m_engine.getShader("fonts"), "Hello+World!", 10.f, 10.f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
 
-    // m_engine.drawRect({0.0f, 0.0f, 1.0f, 1.0f}, {255, 255, 255});
+    glDisable(GL_BLEND);
 
+    glEnable(GL_DEPTH_TEST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

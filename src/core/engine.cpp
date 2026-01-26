@@ -1105,7 +1105,8 @@ bool Engine::createFontRenderer()
         return false;
     }
 
-    m_fontRenderer = new FontRenderer{this};
+    m_fontRenderer = new FontManager{this};
+    m_fontRenderer->updateProjection(static_cast<float>(getWidth()), static_cast<float>(getHeight()));
     m_arena->addObject(m_fontRenderer);
     return true;
 }

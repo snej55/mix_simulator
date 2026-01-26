@@ -31,18 +31,18 @@ float rgb2luma(vec3 rgb) { return sqrt(dot(rgb, vec3(0.299, 0.587, 0.114))); }
 
 void main()
 {
+    // add ui framebuffer texture
     if (uiEnabled > 0)
     {
         vec3 uiSample = texture(uiTexture, TexCoords).rgb;
-        // const float UI_THRESHOLD = 0.01;
-        // if ((uiSample.r + uiSample.g + uiSample.b) > UI_THRESHOLD)
-        // {
-        //     FragColor = vec4(uiSample, 1.0);
-        //     return;
-        // }
-        FragColor = vec4(uiSample, 1.0);
-        return;
+        const float UI_THRESHOLD = 0.01;
+        if ((uiSample.r + uiSample.g + uiSample.b) > UI_THRESHOLD)
+        {
+            FragColor = vec4(uiSample, 1.0);
+            return;
+        }
     }
+
     vec2 invScreenSize = vec2(1.0 / float(scrWidth), 1.0 / float(scrHeight));
     vec3 colorCenter = texture(screenTexture, TexCoords).rgb;
 

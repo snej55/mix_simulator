@@ -126,6 +126,11 @@ void Window::framebuffer_size_callback(const int width, const int height)
     enginePtr->updateSSAOGenerator(width, height);
     enginePtr->getUIRenderer()->generate(width, height);
 
+    if (enginePtr->getFontRenderer()->getLoaded())
+    {
+        enginePtr->getFontRenderer()->updateProjection(static_cast<float>(width), static_cast<float>(height));
+    }
+
     if (enginePtr->getFBOCallback() != nullptr)
     {
         enginePtr->getFBOCallback()(enginePtr->getFBOCallbackArgs(), width, height);

@@ -1,17 +1,13 @@
-//
-// Created by jenskromdijk on 06/10/2025.
-//
 
-#include <glad/glad.h>
 #include <iostream>
-
+#include "engine_types.hpp"
 #include "fonts.hpp"
 
-FontRenderer::FontRenderer(EngineObject* parent) : EngineObject{"FontRenderer", parent} {}
+FontManager::FontManager(EngineObject* parent) : EngineObject("fontManager", parent) {}
 
-FontRenderer::~FontRenderer() { free(); }
+FontManager::~FontManager() { free(); }
 
-bool FontRenderer::init(const std::string& fontPath, const int height)
+bool FontManager::init(const std::string& path, const int height)
 {
     m_loaded = false;
     // initialize freetype2 library
@@ -20,12 +16,11 @@ bool FontRenderer::init(const std::string& fontPath, const int height)
         std::cout << "ERROR::FONT_MANAGER: Could not init FreeType library" << std::endl;
         return false;
     }
-    std::cout << "FONT_MANAGER::INIT: Initialized FreeType2!" << std::endl;
 
     // load font
-    if (FT_New_Face(m_FT, fontPath.c_str(), 0, &m_face))
+    if (FT_New_Face(m_FT, path.c_str(), 0, &m_face))
     {
-        std::cout << "ERROR::FONT_MANAGER: Failed to load font at `" << fontPath << "`" << std::endl;
+        std::cout << "ERROR::FONT_MANAGER: Failed to load font at `" << path << "`" << std::endl;
         return false;
     }
 
@@ -49,9 +44,8 @@ bool FontRenderer::init(const std::string& fontPath, const int height)
         unsigned int tex;
         glGenTextures(1, &tex);
         glBindTexture(GL_TEXTURE_2D, tex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, static_cast<GLsizei>(m_face->glyph->bitmap.width),
-                     static_cast<GLsizei>(m_face->glyph->bitmap.rows), 0, GL_RED, GL_UNSIGNED_BYTE,
-                     m_face->glyph->bitmap.buffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_face->glyph->bitmap.width, m_face->glyph->bitmap.rows, 0, GL_RED,
+                     GL_UNSIGNED_BYTE, m_face->glyph->bitmap.buffer);
         // texture options
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -80,11 +74,11 @@ bool FontRenderer::init(const std::string& fontPath, const int height)
 
     // all good
     m_loaded = true;
-    std::cout << "Successfully loaded font from `" << fontPath << "`\n";
+    std::cout << "Successfully loaded font from `" << path << "`\n";
     return true;
 }
 
-void FontRenderer::free() const
+void FontManager::free()
 {
     if (m_loaded)
     {
@@ -95,16 +89,14 @@ void FontRenderer::free() const
     }
 }
 
-void FontRenderer::renderText(const Shader* shader, const std::string& text, float x, const float y, const float scale,
-                              const glm::vec3&& color)
+void FontManager::renderText(const Shader* shader, const std::string text, float x, float y, const float scale,
+                             const glm::vec3&& color)
 {
-    // correct blending function
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // use shader
     shader->use();
     shader->setVec3("textColor", color);
     shader->setMat4("projection", m_projection);
+    shader->setInt("text", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(m_VAO);
 
@@ -114,20 +106,20 @@ void FontRenderer::renderText(const Shader* shader, const std::string& text, flo
     {
         Character c{m_characters[*chr]};
 
-        const float xpos{x + static_cast<float>(c.bearing.x) * scale};
-        const float ypos{y - static_cast<float>(c.size.y - c.bearing.y) * scale};
+        const float xpos{x + c.bearing.x * scale};
+        const float ypos{y - (c.size.y - c.bearing.y) * scale};
 
-        const float w{static_cast<float>(c.size.x) * scale};
-        const float h{static_cast<float>(c.size.y) * scale};
+        const float w{c.size.x * scale};
+        const float h{c.size.y * scale};
         // update vbo for each character
-        const float vertices[6][4] = {// first triangle
-                                      {xpos, ypos + h, 0.0f, 0.0f},
-                                      {xpos, ypos, 0.0f, 1.0f},
-                                      {xpos + w, ypos, 1.0f, 1.0f},
-                                      // second triangle
-                                      {xpos, ypos + h, 0.0f, 0.0f},
-                                      {xpos + w, ypos, 1.0f, 1.0f},
-                                      {xpos + w, ypos + h, 1.0f, 0.0f}};
+        float vertices[6][4] = {// first triangle
+                                {xpos, ypos + h, 0.0f, 0.0f},
+                                {xpos, ypos, 0.0f, 1.0f},
+                                {xpos + w, ypos, 1.0f, 1.0f},
+                                // second triangle
+                                {xpos, ypos + h, 0.0f, 0.0f},
+                                {xpos + w, ypos, 1.0f, 1.0f},
+                                {xpos + w, ypos + h, 1.0f, 0.0f}};
         // render glyph texture on quad
         glBindTexture(GL_TEXTURE_2D, c.textureID);
         // update VBO memory
@@ -137,14 +129,13 @@ void FontRenderer::renderText(const Shader* shader, const std::string& text, flo
         // render quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // advance cursor for next glyph
-        x += static_cast<float>(c.advance >> 6) * scale; // black magic (bitshift by 6 gives value in pixels (2^6 = 64))
+        x += (c.advance >> 6) * scale; // black magic (bitshift by 6 gives value in pixels (2^6 = 64))
     }
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_BLEND);
 }
 
-void FontRenderer::updateProjection(const float width, const float height)
+void FontManager::updateProjection(const float width, const float height)
 {
     // update projection matrix with new framebuffer dimensions
     m_projection = glm::ortho(0.0f, width, 0.0f, height);

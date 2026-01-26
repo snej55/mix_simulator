@@ -9,7 +9,7 @@ uniform vec3 textColor;
 void main()
 {
     // get alpha
-    vec4 col = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
+    float alpha = texture(text, TexCoords).r;
     // apply alpha brightness to color
-    FragColor = vec4(textColor, 1.0) * col;
+    FragColor = vec4(textColor, alpha);
 }
