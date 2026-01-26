@@ -3,6 +3,7 @@
 #include "constants.hpp"
 #include "core/bounds.hpp"
 #include "core/camera.hpp"
+#include "core/fonts.hpp"
 #include "core/ibl.hpp"
 #include "core/lights.hpp"
 #include "core/renderer.hpp"
@@ -36,7 +37,7 @@ bool Game::init()
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
-    m_engine.initFontRenderer("data/fonts/pixel_operator/PixelOperator-Bold.ttf", 16);
+    m_engine.initFontRenderer("data/fonts/Acme 9 Regular Bold Xtnd.ttf", 8);
 
     return true;
 }
@@ -71,10 +72,16 @@ void Game::run()
 void Game::renderUI()
 {
     const UIRenderer* uiRenderer{m_engine.getUIRenderer()};
+    FontRenderer* fontRenderer{m_engine.getFontRenderer()};
+
     glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    fontRenderer->renderText(m_engine.getShader("fonts"), "Hello World!", 10.f, 10.f, 1.0, glm::vec3{1.0f});
+
+    // m_engine.drawRect({0.0f, 0.0f, 1.0f, 1.0f}, {255, 255, 255});
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

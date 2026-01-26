@@ -95,15 +95,16 @@ void FontRenderer::free() const
     }
 }
 
-void FontRenderer::renderText(const Shader& shader, const std::string& text, float x, const float y, const float scale,
+void FontRenderer::renderText(const Shader* shader, const std::string& text, float x, const float y, const float scale,
                               const glm::vec3&& color)
 {
     // correct blending function
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // use shader
-    shader.use();
-    shader.setVec3("textColor", color);
-    shader.setMat4("projection", m_projection);
+    shader->use();
+    shader->setVec3("textColor", color);
+    shader->setMat4("projection", m_projection);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(m_VAO);
 
@@ -140,6 +141,7 @@ void FontRenderer::renderText(const Shader& shader, const std::string& text, flo
     }
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_BLEND);
 }
 
 void FontRenderer::updateProjection(const float width, const float height)

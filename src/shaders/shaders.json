@@ -13,6 +13,13 @@
         "frag": "texture.frag",
         "vert": "texture.vert"
       }
+    },
+    {
+      "name": "fonts",
+      "shader": {
+        "frag": "fonts.frag",
+        "vert": "fonts.vert"
+      }
     }
   ],
   "custom": [
