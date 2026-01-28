@@ -67,6 +67,7 @@ void ShapeManager::drawRect(const Rect<T>& rect, const Color& color, ShaderManag
     // activate shader
     rectShader->use();
     rectShader->setMat4("model", model);
+    // TODO: Add alpha
     rectShader->setVec3("shapeColor", color2vec3(color));
     // render rect
     glBindVertexArray(m_rectVAO);
