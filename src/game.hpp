@@ -18,6 +18,8 @@ public:
 
     bool init();
 
+    bool menu();
+
     void run();
 
     void renderUI();

@@ -61,6 +61,7 @@ cd build
 - [X] Level editor
 - [X] Add lights to level editor
 - [ ] Rag dolls?
+- [ ] Fix arena deletion order (child -> parent -> root)
 - [X] Add Jolt Physics
 - [X] Point lights
 - [ ] Add shader compilation test

@@ -11,6 +11,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    game.run();
+    // game.run();
+    game.menu();
     return EXIT_SUCCESS;
 }

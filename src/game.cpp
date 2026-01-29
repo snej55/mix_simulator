@@ -1,8 +1,10 @@
 // Created by Jens Kromdijk 05-01-2025
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "constants.hpp"
 #include "core/bounds.hpp"
-#include "core/camera.hpp"
 #include "core/engine.hpp"
 #include "core/fonts.hpp"
 #include "core/ibl.hpp"
@@ -40,6 +42,24 @@ bool Game::init()
 
     m_engine.initFontRenderer("data/fonts/Acme 9 Regular Bold Xtnd.ttf", 8);
 
+    return true;
+}
+
+bool Game::menu()
+{
+    m_engine.setupViewport();
+
+    GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
+    FontManager* fontManager{m_engine.getFontRenderer()};
+
+    glDisable(GL_DEPTH_TEST);
+    while (!m_engine.getQuit())
+    {
+        renderUI();
+
+        m_engine.update(m_renderQueue.get(), m_iblGenerator.get());
+        m_engine.displayFrameTime();
+    }
     return true;
 }
 

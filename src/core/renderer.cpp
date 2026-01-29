@@ -248,7 +248,6 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     if (m_pointLightModel.get() != nullptr)
     {
         const std::vector<Mesh*>& opaqueMeshes{m_pointLightModel->getOpaqueMeshes()};
-        const std::vector<Mesh*>& transparentMeshes{m_pointLightModel->getTransparentMeshes()};
         for (std::size_t i{0}; i < pointLights.size(); ++i)
         {
             Lights::PointLight* pointLightPtr{pointLights[i]};
@@ -260,18 +259,16 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
                                          Lights::POINT_LIGHT_RENDER_SCALE});
             fdShader->setMat4("model", model);
             fdShader->setMat3("normalMat", enginePtr->getNormalMatrix(model));
+
             // modify emissive factor and stuff for meshes
             for (std::size_t i{0}; i < opaqueMeshes.size(); ++i)
             {
                 pointLightPtr->modifyModelMesh(opaqueMeshes[i]);
                 opaqueMeshes[i]->renderPBR(fdShader);
             }
-            for (std::size_t i{0}; i < transparentMeshes.size(); ++i)
-            {
-                pointLightPtr->modifyModelMesh(transparentMeshes[i]);
-            }
         }
     }
+    glDisable(GL_CULL_FACE);
 
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
