@@ -6,6 +6,7 @@
 #include "texture.hpp"
 #include "util.hpp"
 #include "mesh.hpp"
+#include "engine.hpp"
 
 unsigned int TextureN::loadFromFile(const char* path, int* width, int* height, int* numChannels, bool* success,
                                     MeshN::TextureType materialType)
@@ -161,6 +162,34 @@ unsigned int TextureN::loadHDRMap(const char* path, bool* success)
 
     stbi_image_free(data);
     return hdrTexture;
+}
+
+void TextureN::renderTexture(const Shader* shader, const unsigned int id, const FRect& destination, void* engine,
+                             const int texWidth, const int texHeight)
+{
+    assert(shader != nullptr);
+    shader->use();
+
+    const Engine* enginePtr{static_cast<Engine*>(engine)};
+    const int scrWidth{enginePtr->getWidth()};
+    const int scrHeight{enginePtr->getHeight()};
+
+    glm::mat4 model{1.0f};
+    float glX{destination.x / static_cast<float>(scrWidth) * 2.0f - 1.0f};
+    float glY{destination.y / static_cast<float>(scrHeight) * 2.0f - 1.0f};
+    model = glm::translate(model, glm::vec3{glX, glY, 0.0f});
+    model = glm::scale(model,
+                       glm::vec3{static_cast<float>(texWidth) / static_cast<float>(scrWidth) * destination.w,
+                                 static_cast<float>(texHeight) / static_cast<float>(scrHeight) * destination.h, 1.0f});
+    shader->setMat4("model", model);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, id);
+    shader->setInt("tex", 0);
+
+    glBindVertexArray(enginePtr->getTextureManager()->getVAO());
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
 }
 
 Texture::Texture(const std::string& name, EngineObject* manager) : EngineObject{("TEXTURE " + name).c_str(), manager} {}

@@ -7,6 +7,7 @@
 #include "arena.hpp"
 #include "engine_types.hpp"
 #include "mesh.hpp"
+#include "shapes.hpp"
 
 namespace TextureN
 {
@@ -19,6 +20,11 @@ namespace TextureN
 
     // load dds texture with mipmaps (for IBL)
     unsigned int loadDDS(const char* path, bool* success);
+
+    // stand alone render texture function
+    // destination.wh = scale
+    void renderTexture(const Shader* shader, unsigned int id, const FRect& destination, void* engine, int texWidth,
+                       int texHeight);
 } // namespace TextureN
 
 // Basic texture wrapper class.

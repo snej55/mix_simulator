@@ -10,6 +10,7 @@
 #include "core/ibl.hpp"
 #include "core/lights.hpp"
 #include "core/renderer.hpp"
+#include "core/texture.hpp"
 #include "core/ui.hpp"
 
 #include "game.hpp"
@@ -53,6 +54,15 @@ bool Game::menu()
     FontManager* fontRenderer{m_engine.getFontRenderer()};
     UIRenderer* uiRenderer{m_engine.getUIRenderer()};
 
+    int width;
+    int height;
+    int numChannels;
+    bool success;
+    unsigned int playButtonTex{
+        TextureN::loadFromFile("data/images/ui/playbutton.png", &width, &height, &numChannels, &success)};
+    if (!success)
+        return false;
+
     glDisable(GL_DEPTH_TEST);
     while (!m_engine.getQuit())
     {
@@ -70,6 +80,11 @@ bool Game::menu()
                                  static_cast<float>(m_engine.getHeight()) * 0.75f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
 
         glDisable(GL_BLEND);
+
+        TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex,
+                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.5f, 0.5f, 0.5f},
+                                &m_engine, width, height);
 
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
