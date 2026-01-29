@@ -179,7 +179,7 @@ unsigned int TextureN::loadHDRMap(const char* path, bool* success)
 }
 
 void TextureN::renderTexture(const Shader* shader, const unsigned int id, const FRect& destination, void* engine,
-                             const int texWidth, const int texHeight)
+                             const int texWidth, const int texHeight, const bool center)
 {
     assert(shader != nullptr);
     shader->use();
@@ -191,6 +191,11 @@ void TextureN::renderTexture(const Shader* shader, const unsigned int id, const 
     glm::mat4 model{1.0f};
     float glX{destination.x / static_cast<float>(scrWidth) * 2.0f - 1.0f};
     float glY{destination.y / static_cast<float>(scrHeight) * 2.0f - 1.0f};
+    if (center)
+    {
+        glX -= static_cast<float>(texWidth) * 0.5f / static_cast<float>(scrWidth) * destination.w;
+        glY += static_cast<float>(texHeight) * 0.5f / static_cast<float>(scrHeight) * destination.h;
+    }
     model = glm::translate(model, glm::vec3{glX, glY, 0.0f});
     model = glm::scale(model,
                        glm::vec3{static_cast<float>(texWidth) / static_cast<float>(scrWidth) * destination.w,

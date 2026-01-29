@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 
 #include "arena.hpp"
 #include "engine_types.hpp"
@@ -20,6 +21,14 @@ namespace TextureN
         std::string path;
     };
 
+    inline std::ostream& operator<<(std::ostream& os, TextureData textureData)
+    {
+        std::cout << "TextureData{ID: " << textureData.id << ", width: " << textureData.width
+                  << ", height: " << textureData.height << ", numChannels: " << textureData.numChannels
+                  << ", path: " << textureData.path << "}";
+        return os;
+    }
+
     // returns texture id without having to create new Texture*
     unsigned int loadFromFile(const char* path, int* width = nullptr, int* height = nullptr, int* numChannels = nullptr,
                               bool* success = nullptr, MeshN::TextureType materialType = MeshN::TEXTURE_NONE);
@@ -34,7 +43,7 @@ namespace TextureN
     // stand alone render texture function
     // destination.wh = scale
     void renderTexture(const Shader* shader, unsigned int id, const FRect& destination, void* engine, int texWidth,
-                       int texHeight);
+                       int texHeight, bool center = false);
 } // namespace TextureN
 
 // Basic texture wrapper class.

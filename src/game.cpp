@@ -26,7 +26,8 @@ bool Game::init()
     }
     std::cout << "Initialized engine!" << std::endl;
 
-    m_engine.setCameraEnabled(true);
+    glfwSetWindowSizeLimits(m_engine.getWindow()->getWindow(), CST::WINDOW_START_WIDTH, CST::WINDOW_START_HEIGHT,
+                            GLFW_DONT_CARE, GLFW_DONT_CARE);
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
@@ -58,6 +59,7 @@ bool Game::menu()
     TextureN::loadFromFile("data/images/ui/playbutton.png", &playButtonTex);
 
     glDisable(GL_DEPTH_TEST);
+    m_engine.setCameraEnabled(false);
     while (!m_engine.getQuit())
     {
         glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
@@ -67,24 +69,33 @@ bool Game::menu()
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // ---- RENDER FONTS ---- //
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        const Shader* fontShader{m_engine.getShader("fonts")};
         fontRenderer->renderText(m_engine.getShader("fonts"), "Mix Simulator",
                                  static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
-                                 static_cast<float>(m_engine.getHeight()) * 0.75f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+                                 static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+
+        // fontRenderer->renderText(m_engine.getShader("fonts"), )
 
         glDisable(GL_BLEND);
+        // ---------------------- //
 
+        // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
                                 {static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                 static_cast<float>(m_engine.getHeight()) * 0.5f, 0.5f, 0.5f},
-                                &m_engine, playButtonTex.width, playButtonTex.height);
+                                 static_cast<float>(m_engine.getHeight()) * 0.40f, 0.5f, 0.5f},
+                                &m_engine, playButtonTex.width, playButtonTex.height, true);
 
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+        // ------------------------ //
+
         m_engine.update();
-        m_engine.displayFrameTime();
+        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
     return true;
 }
@@ -92,6 +103,7 @@ bool Game::menu()
 void Game::run()
 {
     m_engine.setupViewport();
+    m_engine.setCameraEnabled(true);
     while (!m_engine.getQuit())
     {
         // update entities
