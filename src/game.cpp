@@ -94,7 +94,8 @@ bool Game::menu()
         fontRenderer->renderText(fontShader, titleTextStr, static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
                                  static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
 
-        fontRenderer->renderText(fontShader, "A game by @snej55", 10.f, 10.f, 0.5f, glm::vec3{1.0f});
+        fontRenderer->renderText(fontShader, "A game by @snej55", -300.f + (m_engine.getTime() - startTime) * 30.f,
+                                 10.f, 0.5f, glm::vec3{1.0f});
 
         glDisable(GL_BLEND);
         // ---------------------- //
