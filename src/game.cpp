@@ -31,8 +31,8 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
-    m_scene->init("data/maps/0.json");
-    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
+    // m_scene->init("data/maps/0.json");
+    // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
@@ -60,6 +60,14 @@ bool Game::menu()
 
     glDisable(GL_DEPTH_TEST);
     m_engine.setCameraEnabled(false);
+
+    const std::vector<const char*> titleText{"M", "i", "x", " ", "S", "i", "m", "u", "l", "a", "t", "o", "r"};
+    const float startTime{m_engine.getTime() + 0.5f};
+    constexpr float typeRate{10.f};
+
+    float playButtonScale{0.f};
+    float playButtonVel{0.0f};
+    float targetPBScale{0.0f};
     while (!m_engine.getQuit())
     {
         glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
@@ -74,19 +82,32 @@ bool Game::menu()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         const Shader* fontShader{m_engine.getShader("fonts")};
-        fontRenderer->renderText(m_engine.getShader("fonts"), "Mix Simulator",
-                                 static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
+
+        std::string titleTextStr{};
+        std::size_t limit{std::min(
+            std::size(titleText),
+            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
+        for (std::size_t i{0}; i < limit; ++i)
+        {
+            titleTextStr += titleText[i];
+        }
+        fontRenderer->renderText(fontShader, titleTextStr, static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
                                  static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
 
-        // fontRenderer->renderText(m_engine.getShader("fonts"), )
+        fontRenderer->renderText(fontShader, "A game by @snej55", 10.f, 10.f, 0.5f, glm::vec3{1.0f});
 
         glDisable(GL_BLEND);
         // ---------------------- //
 
+        targetPBScale = (limit == std::size(titleText)) ? 0.5f : 0.0f;
+        playButtonVel += (targetPBScale - playButtonScale) * 0.4f * m_engine.getDeltaTime();
+        playButtonScale += playButtonVel * 0.5f * m_engine.getDeltaTime();
+        playButtonVel += (playButtonVel * 0.9f - playButtonVel) * m_engine.getDeltaTime();
+
         // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
                                 {static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                 static_cast<float>(m_engine.getHeight()) * 0.40f, 0.5f, 0.5f},
+                                 static_cast<float>(m_engine.getHeight()) * 0.40f, playButtonScale, playButtonScale},
                                 &m_engine, playButtonTex.width, playButtonTex.height, true);
 
         glEnable(GL_DEPTH_TEST);

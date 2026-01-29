@@ -12,7 +12,7 @@ void Clock::update()
 {
     // recalculate delta time
     const float time{static_cast<float>(glfwGetTime())};
-    m_deltaTime = time - m_lastTime;
+    m_deltaTime = (time - m_lastTime) * 60.f;
     m_lastTime = time;
 
     // update time

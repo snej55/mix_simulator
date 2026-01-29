@@ -84,7 +84,7 @@ public:
 
     // get delta time from clock
     [[nodiscard]] float getDeltaTime() const;
-    // get time since start from clock in milliseconds
+    // get time since start from clock in seconds
     [[nodiscard]] float getTime() const;
 
     // ------ Shaders ------ //

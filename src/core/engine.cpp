@@ -407,7 +407,7 @@ bool Engine::createClock()
 // get delta time from clock
 float Engine::getDeltaTime() const { return m_clock->getDeltaTime(); }
 
-// get time from clock
+// get time from clock in seconds
 float Engine::getTime() const { return m_clock->getTime(); }
 
 // ------ Shader Manager ------ //
