@@ -65,9 +65,12 @@ cd build
 - [X] Add Jolt Physics
 - [X] Point lights
 - [ ] Add shader compilation test
-- [ ] Add lens dirt
+- [X] Add lens dirt
+- [ ] Find lens dirt texture
 - [ ] Area lights
 - [ ] Optimize static shader uniforms
 - [ ] Create player models
-- [ ] Implement freetype2 font rendering
-- [ ] Add UI
+- [X] Implement freetype2 font rendering
+- [ ] Add UI framebuffer
+- [ ] Add credits
+- [ ] Add alpha to shape rendering
