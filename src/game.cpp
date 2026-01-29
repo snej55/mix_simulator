@@ -40,7 +40,7 @@ bool Game::init()
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
-    m_engine.initFontRenderer("data/fonts/Acme 9 Regular Bold Xtnd.ttf", 8);
+    m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
 
     return true;
 }
@@ -50,14 +50,31 @@ bool Game::menu()
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
-    FontManager* fontManager{m_engine.getFontRenderer()};
+    FontManager* fontRenderer{m_engine.getFontRenderer()};
+    UIRenderer* uiRenderer{m_engine.getUIRenderer()};
 
     glDisable(GL_DEPTH_TEST);
     while (!m_engine.getQuit())
     {
-        renderUI();
+        glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
+        glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
+        glDisable(GL_DEPTH_TEST);
 
-        m_engine.update(m_renderQueue.get(), m_iblGenerator.get());
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        fontRenderer->renderText(m_engine.getShader("fonts"), "Mix Simulator",
+                                 static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.75f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+
+        glDisable(GL_BLEND);
+
+        glEnable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        m_engine.update();
         m_engine.displayFrameTime();
     }
     return true;

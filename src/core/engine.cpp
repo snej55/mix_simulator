@@ -282,6 +282,17 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
                                  this, ibl, getCameraPosition(), pointLights);
         renderQueue->update();
     }
+    else
+    {
+        enablePostProcessing();
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glDisable(GL_CULL_FACE);
+
+        disablePostProcessing();
+        renderPostProcessing();
+    }
 
     // ----- Finish up ----- //
     // update delta time
