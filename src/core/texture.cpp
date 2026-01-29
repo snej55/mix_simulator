@@ -122,6 +122,20 @@ unsigned int TextureN::loadFromFile(const char* path, int* width, int* height, i
     return tex;
 }
 
+void TextureN::loadFromFile(const char* path, TextureData* textureData)
+{
+    bool success;
+    textureData->id =
+        loadFromFile(path, &textureData->width, &textureData->height, &textureData->numChannels, &success);
+    textureData->path = path;
+    if (!success)
+    {
+        Util::beginError();
+        std::cout << "TEXTURE_N::LOAD_FROM_FILE::ERROR: Failed to load texture from `" << path << "`" << std::endl;
+        Util::endError();
+    }
+}
+
 // load hdr irradiance map
 unsigned int TextureN::loadHDRMap(const char* path, bool* success)
 {

@@ -11,9 +11,19 @@
 
 namespace TextureN
 {
+    struct TextureData
+    {
+        unsigned int id;
+        int width;
+        int height;
+        int numChannels;
+        std::string path;
+    };
+
     // returns texture id without having to create new Texture*
     unsigned int loadFromFile(const char* path, int* width = nullptr, int* height = nullptr, int* numChannels = nullptr,
                               bool* success = nullptr, MeshN::TextureType materialType = MeshN::TEXTURE_NONE);
+    void loadFromFile(const char* path, TextureData* textureData);
 
     // load hdr irradiance map (for IBL)
     unsigned int loadHDRMap(const char* path, bool* success);

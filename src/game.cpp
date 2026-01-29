@@ -54,14 +54,8 @@ bool Game::menu()
     FontManager* fontRenderer{m_engine.getFontRenderer()};
     UIRenderer* uiRenderer{m_engine.getUIRenderer()};
 
-    int width;
-    int height;
-    int numChannels;
-    bool success;
-    unsigned int playButtonTex{
-        TextureN::loadFromFile("data/images/ui/playbutton.png", &width, &height, &numChannels, &success)};
-    if (!success)
-        return false;
+    TextureN::TextureData playButtonTex;
+    TextureN::loadFromFile("data/images/ui/playbutton.png", &playButtonTex);
 
     glDisable(GL_DEPTH_TEST);
     while (!m_engine.getQuit())
@@ -81,10 +75,10 @@ bool Game::menu()
 
         glDisable(GL_BLEND);
 
-        TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex,
+        TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
                                 {static_cast<float>(m_engine.getWidth()) * 0.5f,
                                  static_cast<float>(m_engine.getHeight()) * 0.5f, 0.5f, 0.5f},
-                                &m_engine, width, height);
+                                &m_engine, playButtonTex.width, playButtonTex.height);
 
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
