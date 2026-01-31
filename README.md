@@ -71,6 +71,7 @@ cd build
 - [ ] Optimize static shader uniforms
 - [ ] Create player models
 - [X] Implement freetype2 font rendering
+- [ ] Screen coordinates shape rendering
 - [ ] Add UI framebuffer
 - [ ] Add credits
 - [ ] Add alpha to shape rendering

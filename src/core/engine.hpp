@@ -149,6 +149,7 @@ public:
     [[nodiscard]] ShapeManager* getShapeManager() const { return m_shapeManager; }
 
     void drawRect(const FRect& rect, const Color& color) const;
+    void drawScreenRect(const FRect& rect, const Color& color) const;
 
     // color functions
     //

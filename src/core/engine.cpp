@@ -794,6 +794,14 @@ void Engine::drawRect(const FRect& rect, const Color& color) const
     m_shapeManager->drawRect<float>(rect, color, m_shaderManager);
 }
 
+void Engine::drawScreenRect(const FRect& rect, const Color& color) const
+{
+    drawRect({rect.x / static_cast<float>(getWidth()) * 2.0f - 1.0f,
+              rect.y / static_cast<float>(getHeight()) * 2.0f - 1.0f, rect.w / static_cast<float>(getWidth()),
+              rect.h / static_cast<float>(getHeight())},
+             color);
+}
+
 // lerp color rgb
 Color Engine::lerpColor(const Color& a, const Color& b, const float amount) const
 {

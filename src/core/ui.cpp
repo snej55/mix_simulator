@@ -4,7 +4,20 @@
 
 #include "ui.hpp"
 
+#include "shapes.hpp"
 #include "util.hpp"
+
+UI::Button::Button(const FRect rect) : m_rect{rect} {}
+UI::Button::Button(const float x, const float y, const float width, const float height) : m_rect{x, y, width, height} {}
+
+void UI::Button::update(const double cposX, const double cposY)
+{
+    float cposXf{static_cast<float>(cposX)};
+    float cposYf{static_cast<float>(cposY)};
+
+    m_highlighted = (m_rect.x <= cposXf) && (cposXf <= m_rect.x + m_rect.w) && (m_rect.y <= cposYf) &&
+        (cposYf <= m_rect.y + m_rect.h);
+}
 
 UIRenderer::UIRenderer(EngineObject* parent) : EngineObject{"UIRenderer", parent} {}
 

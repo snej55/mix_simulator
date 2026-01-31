@@ -43,7 +43,7 @@ namespace TextureN
     // stand alone render texture function
     // destination.wh = scale
     void renderTexture(const Shader* shader, unsigned int id, const FRect& destination, void* engine, int texWidth,
-                       int texHeight, bool center = false);
+                       int texHeight, bool center = false, const glm::vec3& tint = glm::vec3{1.0f});
 } // namespace TextureN
 
 // Basic texture wrapper class.

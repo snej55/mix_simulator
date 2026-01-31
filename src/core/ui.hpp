@@ -4,6 +4,20 @@
 #define UI_H
 
 #include "engine_types.hpp"
+#include "shapes.hpp"
+
+namespace UI
+{
+    struct Button
+    {
+        FRect m_rect;
+        bool m_highlighted{false};
+
+        Button(FRect rect);
+        Button(float x, float y, float width, float height);
+        void update(double cposX, double cposY);
+    };
+} // namespace UI
 
 class UIRenderer : public EngineObject
 {
