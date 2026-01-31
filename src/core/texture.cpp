@@ -189,11 +189,11 @@ void TextureN::renderTexture(const Shader* shader, const unsigned int id, const 
     const int scrHeight{enginePtr->getHeight()};
 
     float glX{destination.x / static_cast<float>(scrWidth) * 2.0f - 1.0f};
-    float glY{destination.y / static_cast<float>(scrHeight) * 2.0f - 1.0f};
+    float glY{1.0f - destination.y / static_cast<float>(scrHeight) * 2.0f};
     if (center)
     {
-        glX -= static_cast<float>(texWidth) * 0.5f / static_cast<float>(scrWidth) * destination.w;
-        glY += static_cast<float>(texHeight) * 0.5f / static_cast<float>(scrHeight) * destination.h;
+        glX -= static_cast<float>(texWidth) / static_cast<float>(scrWidth) * destination.w * 0.5f;
+        glY += static_cast<float>(texHeight) / static_cast<float>(scrHeight) * destination.h * 0.5f;
     }
 
     glm::mat4 model{1.0f};

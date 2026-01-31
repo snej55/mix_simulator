@@ -27,6 +27,9 @@ bool Window::init(const int width, const int height, const char* title)
 
     // use this window
     glfwMakeContextCurrent(m_window);
+    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 
     // setup rest of window
     setWidth(width);

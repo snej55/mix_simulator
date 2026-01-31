@@ -71,7 +71,7 @@ bool Game::menu()
 
     UI::Button playButton{
         {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
-         static_cast<float>(m_engine.getHeight()) * 0.4f - static_cast<float>(playButtonTex.height) * 0.25f,
+         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
          static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
 
     while (!m_engine.getQuit())
@@ -108,24 +108,32 @@ bool Game::menu()
         // ---------------------- //
 
         double cposX, cposY;
-        glfwGetCursorPos(m_engine.getWindow()->getWindow(), &cposX, &cposY);
-        // std::cout << "Cursor Pos: " << cposX << ", " << cposY << std::endl;
+        float windowScaleX, windowScaleY;
+        glfwGetCursorPos(windowPtr, &cposX, &cposY);
+        glfwGetWindowContentScale(windowPtr, &windowScaleX, &windowScaleY);
+        cposX *= windowScaleX;
+        cposY *= windowScaleY;
 
+        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+                             static_cast<float>(m_engine.getHeight()) * 0.6f -
+                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
         playButton.update(cposX, cposY);
 
         targetPBScale = (limit == std::size(titleText)) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
-        // std::cout << playButton.m_highlighted << " " << targetPBScale << std::endl;
-        playButtonVel += (targetPBScale - playButtonScale) * 0.4f * m_engine.getDeltaTime();
+        playButtonVel += (targetPBScale - playButtonScale) * 0.6f * m_engine.getDeltaTime();
         playButtonScale += playButtonVel * 0.5f * m_engine.getDeltaTime();
-        playButtonVel += (playButtonVel * 0.9f - playButtonVel) * m_engine.getDeltaTime();
+        playButtonVel += (playButtonVel * 0.8f - playButtonVel) * m_engine.getDeltaTime();
 
         // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
                                 {static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                 static_cast<float>(m_engine.getHeight()) * 0.4f, playButtonScale, playButtonScale},
-                                &m_engine, playButtonTex.width, playButtonTex.height, true);
+                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
+                                &m_engine, playButtonTex.width, playButtonTex.height, true,
+                                playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 
-        m_engine.drawScreenRect(playButton.m_rect, {255, 0, 0});
 
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
