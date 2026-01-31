@@ -69,9 +69,10 @@ cd build
 - [ ] Find lens dirt texture
 - [ ] Area lights
 - [ ] Optimize static shader uniforms
+- [ ] Add player character + controls/kinematic body
 - [ ] Create player models
 - [X] Implement freetype2 font rendering
-- [ ] Screen coordinates shape rendering
-- [ ] Add UI framebuffer
+- [X] Screen coordinates shape rendering
+- [X] Add UI framebuffer
 - [ ] Add credits
 - [ ] Add alpha to shape rendering
