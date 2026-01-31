@@ -374,7 +374,7 @@ public:
     {
         static float accumulator{0.0f};
 
-        accumulator += deltaTime;
+        accumulator += deltaTime / 60.f;
         accumulator = std::min(accumulator, 0.25f);
 
         while (accumulator >= PHYSICS_TIME_STEP)

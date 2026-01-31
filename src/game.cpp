@@ -31,8 +31,8 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
-    // m_scene->init("data/maps/0.json");
-    // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
+    m_scene->init("data/maps/0.json");
+    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
@@ -134,16 +134,21 @@ bool Game::menu()
                                 &m_engine, playButtonTex.width, playButtonTex.height, true,
                                 playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 
-
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // ------------------------ //
 
-        m_engine.update();
+        if (glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+            if (playButton.m_highlighted)
+                return true;
+        }
+
+        m_engine.update(nullptr, nullptr, {}, true);
         glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
-    return true;
+    return false;
 }
 
 void Game::run()
@@ -188,7 +193,6 @@ void Game::renderUI()
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    fontRenderer->renderText(m_engine.getShader("fonts"), "Hello+World!", 10.f, 10.f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
 
     glDisable(GL_BLEND);
 

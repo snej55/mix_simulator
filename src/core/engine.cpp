@@ -231,7 +231,8 @@ bool Engine::init(const int width, const int height, const char* title)
 }
 
 // update components
-void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vector<Lights::PointLight*>& pointLights)
+void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vector<Lights::PointLight*>& pointLights,
+                    const bool menu)
 {
     assert((renderQueue != nullptr) == (ibl != nullptr));
 
@@ -272,8 +273,11 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
     }
 
     // ----- Update game state ----- //
-    // update player movement and other stuff here
-    m_joltInstance->update(m_clock->getDeltaTime());
+    if (!menu)
+    {
+        // update player movement and other stuff here
+        m_joltInstance->update(m_clock->getDeltaTime());
+    }
 
     // ----- Render Frame ----- //
     if (renderQueue != nullptr)
@@ -348,7 +352,7 @@ void Engine::displayFrameTime()
     const float avgFrameTime{sum / static_cast<float>(m_deltaTimes.size())};
 
     std::stringstream ss{};
-    ss << "Frame time: " << static_cast<int>(avgFrameTime * 1000.f) << "ms";
+    ss << "Frame time: " << static_cast<int>(avgFrameTime * 1000.f / 60.f) << "ms";
     m_window->setTitle(ss.str().c_str());
 }
 

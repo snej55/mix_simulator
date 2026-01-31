@@ -12,6 +12,9 @@ int main()
     }
 
     // game.run();
-    game.menu();
+    while (game.menu())
+    {
+        game.run();
+    }
     return EXIT_SUCCESS;
 }
