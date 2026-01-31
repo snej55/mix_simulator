@@ -12,12 +12,14 @@
 class EngineObject
 {
 public:
-    explicit EngineObject(const char* name, EngineObject* parent = nullptr) : m_name{name}, m_parent{parent} {}
+    explicit EngineObject(const char* name, EngineObject* parent = nullptr) :
+        m_name{name}, m_parent{parent}, m_parentName{parent == nullptr ? "NONE" : parent->getName()}
+    {
+    }
 
     virtual ~EngineObject()
     {
-        std::cout << "Freed { " << m_name << " }, child of {" << (m_parent == nullptr ? "NONE" : m_parent->getName())
-                  << "}" << std::endl;
+        std::cout << "Freed { " << m_name << " }, child of {" << m_parentName << "}" << std::endl;
     }
 
     [[nodiscard]] const char* getName() const { return m_name.c_str(); }
@@ -30,6 +32,7 @@ public:
 protected:
     std::string m_name;
     EngineObject* m_parent;
+    std::string m_parentName;
     unsigned int m_ID{};
 };
 
