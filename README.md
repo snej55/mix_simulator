@@ -76,3 +76,8 @@ cd build
 - [X] Add UI framebuffer
 - [ ] Add credits
 - [ ] Add alpha to shape rendering
+- [ ] Add settings
+- [ ] Add in game font
+- [ ] Find new HDRI
+- [ ] Add physics sfx using jolt contact listeners
+- [ ] Add flow field pathfinding algorithm
