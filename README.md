@@ -70,7 +70,7 @@ cd build
 - [ ] Area lights
 - [ ] Optimize static shader uniforms
 - [ ] Add player character + controls/kinematic body
-- [ ] Create player models
+- [X] Create player models
 - [X] Implement freetype2 font rendering
 - [X] Screen coordinates shape rendering
 - [X] Add UI framebuffer
@@ -81,3 +81,4 @@ cd build
 - [ ] Find new HDRI
 - [ ] Add physics sfx using jolt contact listeners
 - [ ] Add flow field pathfinding algorithm
+- [ ] Clean up data folder
