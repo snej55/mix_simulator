@@ -28,6 +28,7 @@
 #include <Jolt/Physics/EActivation.h>
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
 
 #include <glm/gtc/quaternion.hpp>
 #define GLM_FORCE_QUAT_DATA_WXYZ
@@ -36,6 +37,10 @@
 #include <cstdarg>
 #include <cassert>
 #include <string_view>
+#include <chrono>
+
+using t_timepoint = std::chrono::time_point<std::chrono::system_clock>;
+using t_duration = std::chrono::duration<double>;
 
 #include "engine_types.hpp"
 #include "bounds.hpp"
@@ -236,6 +241,45 @@ public:
 
 #endif
 
+class SoundContactListener : public JPH::ContactListener
+{
+    virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                                  JPH::RVec3Arg inBaseOffset,
+                                                  const JPH::CollideShapeResult& inCollisionResult) override
+    {
+        constexpr float soundThreshold{0.01f};
+        if (inCollisionResult.mPenetrationDepth > soundThreshold)
+        {
+            if (!m_started)
+            {
+                m_started = true;
+                m_startTime = std::chrono::system_clock::now();
+            }
+
+            std::cout << "There was a sound here! Loudness: " << inCollisionResult.mPenetrationDepth << " Time: "
+                      << static_cast<double>((std::chrono::system_clock::now() - m_startTime).count()) / 100000000.0
+                      << std::endl;
+        }
+        return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
+    }
+
+    virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+    {
+    }
+
+    virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                    const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+    {
+    }
+
+    virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override {}
+
+private:
+    bool m_started{false};
+    t_timepoint m_startTime{};
+};
+
 // only simple boxes for now
 class PhysicsBody final
 {
@@ -358,10 +402,13 @@ public:
         physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactContraints,
                            m_BroadPhaseLayerInterface, m_ObjectVsBroadphaseLayerFilter, m_ObjectVsObjectLayerFilter);
 
+        physicsSystem.SetContactListener(&m_SoundListener);
+
 #ifdef PHYSICS_DEBUG_LOG
         physicsSystem.SetContactListener(&m_ContactListener);
         physicsSystem.SetBodyActivationListener(&m_BodyActivationListener);
 #endif
+
 
         static JPH::BodyInterface& bodyInterface{physicsSystem.GetBodyInterface()};
         m_BodyInterface = &bodyInterface; // don't worry this works trust me
@@ -401,6 +448,8 @@ public:
     [[nodiscard]] DebugBodyActivationListener& getBodyActivationListener() { return m_BodyActivationListener; }
 #endif
 
+    [[nodiscard]] SoundContactListener& getSoundListener() { return m_SoundListener; }
+
     [[nodiscard]] bool getInit() const { return m_init; }
 
 private:
@@ -418,6 +467,8 @@ private:
     DebugContactListener m_ContactListener;
     DebugBodyActivationListener m_BodyActivationListener;
 #endif
+
+    SoundContactListener m_SoundListener;
 
     bool m_init{false};
 };
