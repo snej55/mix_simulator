@@ -1,5 +1,9 @@
+# On fedora: sudo dnf install mesa-libGLU-devel alsa-lib-devel
 cmake_minimum_required(VERSION 3.30)
 project(main)
+
+file(DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.0/CPM.cmake ${CMAKE_BINARY_DIR}/cmake/CPM.cmake)
+include(${CMAKE_BINARY_DIR}/cmake/CPM.cmake)
 
 if (MSVC)
     message(STATUS "Using MSVC runtime DLLs")
@@ -16,13 +20,16 @@ set(TARGET_SAMPLES OFF CACHE BOOL "" FORCE)
 set(TARGET_HELLO_WORLD OFF CACHE BOOL "" FORCE)
 set(TARGET_VIEWER OFF CACHE BOOL "" FORCE)
 set(TARGET_SHADER_COMPILER OFF CACHE BOOL "" FORCE)
+set(JPH_USE_VK OFF CACHE BOOL "" FORCE)
+set(JPH_USE_DX12 OFF CACHE BOOL "" FORCE)
+set(JPH_USE_MTL OFF CACHE BOOL "" FORCE)
+set(JPH_USE_CPU_COMPUTE OFF CACHE BOOL "" FORCE)
+set(GENERATE_SHADERS OFF CACHE BOOL "" FORCE)
 
-set(Vulkan_GLSLC_EXECUTABLE "/usr/bin/true" CACHE FILEPATH "" FORCE)
-set(Vulkan_DXC_EXECUTABLE "/usr/bin/true" CACHE FILEPATH "" FORCE)
+set(JPH_USE_SSE4_2 ON CACHE BOOL "" FORCE)
 
 set(JPH_DEBUG_RENDERER OFF CACHE BOOL "" FORCE)
 set(JPH_PROFILE_ENABLED OFF CACHE BOOL "" FORCE)
-
 
 include(FetchContent)
 
@@ -36,9 +43,29 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
     GIT_TAG        master  # Or a specific version tag like v5.0.0
     SOURCE_SUBDIR Build
-    )
+)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 FetchContent_MakeAvailable(Jolt)
+
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/soloud/include/soloud.h")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+endif()
+
+set(SOLOUD_BACKEND_SDL2 OFF CACHE BOOL "" FORCE)
+if(WIN32)
+    set(SOLOUD_BACKEND_WINMM ON CACHE BOOL "" FORCE)
+elseif(APPLE)
+    set(SOLOUD_BACKEND_COREAUDIO ON CACHE BOOL "" FORCE)
+else()
+    set(SOLOUD_BACKEND_ALSA ON CACHE BOOL "" FORCE)
+    find_package(ALSA REQUIRED)
+endif()
+
+add_subdirectory(external/soloud/contrib)
 
 set(GL_LIBS glfw3 assimp freetype)
 
@@ -76,9 +103,9 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/timer.cpp
         src/core/fonts.hpp
         src/core/fonts.cpp
-	src/core/ibl.hpp
-	src/core/ibl.cpp
-	src/core/bones.hpp
+        src/core/ibl.hpp
+        src/core/ibl.cpp
+        src/core/bones.hpp
         src/core/bones.cpp
         src/core/renderer.cpp
         src/core/renderer.hpp
@@ -98,9 +125,9 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} Jolt)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} Jolt soloud $<$<PLATFORM_ID:Linux>:${ALSA_LIBRARIES}>)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/..)
+target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/external/soloud/include)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     JPH_USE_SSE4_2
