@@ -9,7 +9,7 @@ if (MSVC)
     message(STATUS "Using MSVC runtime DLLs")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
     set(USE_STATIC_MSVC_RUNTIME OFF CACHE BOOL "" FORCE)
-endif()
+endif ()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clangd
@@ -36,34 +36,34 @@ include(FetchContent)
 if (CMAKE_SYSTEM MATCHES Windows)
     set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF CACHE BOOL "" FORCE)
     set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
-endif()
+endif ()
 
 FetchContent_Declare(
-    Jolt
-    GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
-    GIT_TAG        master
-    SOURCE_SUBDIR Build
+        Jolt
+        GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
+        GIT_TAG master
+        SOURCE_SUBDIR Build
 )
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 FetchContent_MakeAvailable(Jolt)
 
 find_package(Git QUIET)
-if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/soloud/include/soloud.h")
+if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    if (NOT EXISTS "${PROJECT_SOURCE_DIR}/external/soloud/include/soloud.h")
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    endif()
-endif()
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif ()
+endif ()
 
 set(SOLOUD_BACKEND_SDL2 OFF CACHE BOOL "" FORCE)
-if(WIN32)
+if (WIN32)
     set(SOLOUD_BACKEND_WINMM ON CACHE BOOL "" FORCE)
-elseif(APPLE)
+elseif (APPLE)
     set(SOLOUD_BACKEND_COREAUDIO ON CACHE BOOL "" FORCE)
-else()
+else ()
     set(SOLOUD_BACKEND_ALSA ON CACHE BOOL "" FORCE)
     find_package(ALSA REQUIRED)
-endif()
+endif ()
 
 add_subdirectory(external/soloud/contrib)
 
@@ -123,7 +123,8 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/ui.hpp
         src/core/ui.cpp
         src/core/audio.hpp
-        src/core/audio.cpp)
+        src/core/audio.cpp
+        src/core/engine.hpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -132,12 +133,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} Jolt soloud $<$<PLATFOR
 target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/external/soloud/include)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    JPH_USE_SSE4_2
+        JPH_USE_SSE4_2
 )
 
 if (CMAKE_SYSTEM MATCHES Linux)
     target_compile_options(${PROJECT_NAME} PRIVATE -mpopcnt -msse4.2)
-endif()
+endif ()
 
 add_custom_target(copy_assets
         COMMAND ${CMAKE_COMMAND} -E copy_directory

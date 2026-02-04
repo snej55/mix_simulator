@@ -15,6 +15,8 @@
 
 #include "game.hpp"
 
+#include <soloud_wavstream.h>
+
 Game::~Game() = default;
 
 bool Game::init()
@@ -49,6 +51,9 @@ bool Game::init()
 
 bool Game::menu()
 {
+    m_music.load("data/audio/bergamasca.wav");
+    m_engine.getAudioHandler()->getSoLoud()->play(m_music);
+
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
@@ -63,19 +68,22 @@ bool Game::menu()
 
     const std::vector<const char*> titleText{"M", "i", "x", " ", "S", "i", "m", "u", "l", "a", "t", "o", "r"};
     const float startTime{m_engine.getTime() + 0.5f};
-    constexpr float typeRate{10.f};
 
     float playButtonScale{0.f};
     float playButtonVel{0.0f};
     float targetPBScale{0.0f};
 
     UI::Button playButton{
-        {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
-         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
-         static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
+        {
+            static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
+            static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
+            static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f
+        }
+    };
 
     while (!m_engine.getQuit())
     {
+        constexpr float typeRate{10.f};
         glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
         glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
         glDisable(GL_DEPTH_TEST);
@@ -90,9 +98,11 @@ bool Game::menu()
         const Shader* fontShader{m_engine.getShader("fonts")};
 
         std::string titleTextStr{};
-        std::size_t limit{std::min(
-            std::size(titleText),
-            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
+        const std::size_t limit{
+            std::min(
+                std::size(titleText),
+                static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))
+        };
         for (std::size_t i{0}; i < limit; ++i)
         {
             titleTextStr += titleText[i];
@@ -114,12 +124,14 @@ bool Game::menu()
         cposX *= windowScaleX;
         cposY *= windowScaleY;
 
-        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
-                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
-                             static_cast<float>(m_engine.getHeight()) * 0.6f -
-                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
-                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
-                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
+        playButton.m_rect = {
+            static_cast<float>(m_engine.getWidth()) * 0.5f -
+            static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+            static_cast<float>(m_engine.getHeight()) * 0.6f -
+            static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+            static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+            static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f
+        };
         playButton.update(cposX, cposY);
 
         targetPBScale = (limit == std::size(titleText)) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
@@ -129,8 +141,10 @@ bool Game::menu()
 
         // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
-                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
+                                {
+                                    static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                    static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale
+                                },
                                 &m_engine, playButtonTex.width, playButtonTex.height, true,
                                 playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 

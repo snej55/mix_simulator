@@ -14,6 +14,6 @@ AudioHandler::AudioHandler(EngineObject* parent) : EngineObject{"AudioHandler", 
 
 AudioHandler::~AudioHandler()
 {
-    delete m_SoLoud;
     m_SoLoud->deinit();
+    delete m_SoLoud;
 }

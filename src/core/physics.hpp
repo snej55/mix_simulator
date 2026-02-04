@@ -100,7 +100,7 @@ static void TraceImpl(const char* inFMT, ...)
 static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine)
 {
     std::cout << inFile << ":" << inLine << ": (" << inExpression << ") " << (inMessage != nullptr ? inMessage : "")
-              << std::endl;
+        << std::endl;
 
     return true;
 }
@@ -247,7 +247,7 @@ class SoundContactListener : public JPH::ContactListener
                                                   JPH::RVec3Arg inBaseOffset,
                                                   const JPH::CollideShapeResult& inCollisionResult) override
     {
-        constexpr float soundThreshold{0.01f};
+        constexpr float soundThreshold{0.1f};
         if (inCollisionResult.mPenetrationDepth > soundThreshold)
         {
             if (!m_started)
@@ -257,8 +257,8 @@ class SoundContactListener : public JPH::ContactListener
             }
 
             std::cout << "There was a sound here! Loudness: " << inCollisionResult.mPenetrationDepth << " Time: "
-                      << static_cast<double>((std::chrono::system_clock::now() - m_startTime).count()) / 100000000.0
-                      << std::endl;
+                << static_cast<double>((std::chrono::system_clock::now() - m_startTime).count()) / 100000000.0
+                << std::endl;
         }
         return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
     }
@@ -273,7 +273,9 @@ class SoundContactListener : public JPH::ContactListener
     {
     }
 
-    virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override {}
+    virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
+    {
+    }
 
 private:
     bool m_started{false};
@@ -285,6 +287,7 @@ class PhysicsBody final
 {
 public:
     PhysicsBody() = default;
+
     PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const glm::vec3& rotation,
                 const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f}) : m_bodyType{bodyType}
     {
@@ -296,7 +299,7 @@ public:
         {
             Util::beginError();
             std::cout << "PHYSICS_BODY::ERROR: Failed to create box from " << boundingBox
-                      << " Bodytype: " << static_cast<int>(bodyType);
+                << " BodyType: " << static_cast<int>(bodyType);
             Util::endError();
             return;
         }
@@ -326,13 +329,16 @@ public:
         JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
         JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
 
-        JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
-                                                                             : JPH::EActivation::Activate};
+        JPH::EActivation activation{
+            (motionType == JPH::EMotionType::Static)
+                ? JPH::EActivation::DontActivate
+                : JPH::EActivation::Activate
+        };
 
         m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
     }
 
-    ~PhysicsBody() {}
+    ~PhysicsBody() = default;
 
     void syncTransform(Bounds::Transform& transform, const JPH::BodyInterface* bodyInterface) const
     {
@@ -363,9 +369,11 @@ private:
 class JoltInstance final : public EngineObject
 {
 public:
-    explicit JoltInstance(EngineObject* parent) : EngineObject{"JoltInstance", parent} {}
+    explicit JoltInstance(EngineObject* parent) : EngineObject{"JoltInstance", parent}
+    {
+    }
 
-    ~JoltInstance()
+    ~JoltInstance() override
     {
         JPH::UnregisterTypes();
 
@@ -388,8 +396,10 @@ public:
         static JPH::TempAllocatorImpl tempAllocator{10 * 1024 * 1024};
         m_TempAllocator = &tempAllocator;
 
-        static JPH::JobSystemThreadPool jobSystem{JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers,
-                                                  static_cast<int>(std::thread::hardware_concurrency() - 1)};
+        static JPH::JobSystemThreadPool jobSystem{
+            JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers,
+            static_cast<int>(std::thread::hardware_concurrency() - 1)
+        };
         m_JobSystem = &jobSystem;
 
         constexpr JPH::uint cMaxBodies{65536};
@@ -434,10 +444,12 @@ public:
     [[nodiscard]] JPH::TempAllocatorImpl* getTempAllocator() const { return m_TempAllocator; }
     [[nodiscard]] JPH::JobSystemThreadPool* getJobSystem() const { return m_JobSystem; }
     [[nodiscard]] BPLayerInterfaceImpl& getBroadPhaseLayerInstance() { return m_BroadPhaseLayerInterface; }
+
     [[nodiscard]] ObjectVsBroadPhaseLayerFilterImpl& getObjectVsBroadphaseLayerFilter()
     {
         return m_ObjectVsBroadphaseLayerFilter;
     }
+
     [[nodiscard]] ObjectLayerPairFilterImpl& getObjectVsObjectLayerFilter() { return m_ObjectVsObjectLayerFilter; }
 
     [[nodiscard]] JPH::PhysicsSystem* getPhysicsSystem() const { return m_PhysicsSystem; }

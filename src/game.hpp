@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include "soloud_wavstream.h"
 #include "core/engine.hpp"
 #include "core/ibl.hpp"
 #include "core/renderer.hpp"
@@ -31,6 +32,8 @@ private:
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};
+
+    SoLoud::WavStream m_music{};
 };
 
 #endif
