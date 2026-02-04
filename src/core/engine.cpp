@@ -6,6 +6,7 @@
 #include <JSON/json.hpp>
 #include <numeric>
 
+#include "audio.hpp"
 #include "bounds.hpp"
 #include "camera.hpp"
 #include "fonts.hpp"
@@ -224,6 +225,14 @@ bool Engine::init(const int width, const int height, const char* title)
         return false;
     }
     m_uiRenderer->init(getWidth(), getHeight());
+
+    if (!createAudioHandler())
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT::ERROR: Failed to create audio handler!" << std::endl;
+        Util::endError();
+        return false;
+    }
 
     std::cout << "ENGINE::INIT: Successfully created components!\n";
 
@@ -1171,6 +1180,23 @@ bool Engine::createUIRenderer()
 
     m_uiRenderer = new UIRenderer{this};
     m_arena->addObject(m_uiRenderer);
+    return true;
+}
+
+// ------ Audio Handler ------ //
+
+bool Engine::createAudioHandler()
+{
+    if (m_audioHandler != nullptr)
+    {
+        Util::beginError();
+        std::cout << "ENGINE::CREATE_AUDIO_HANDLER::ERROR: AudioHandler already exists at `" << m_audioHandler << "`";
+        Util::endError();
+        return false;
+    }
+
+    m_audioHandler = new AudioHandler{this};
+    m_arena->addObject(m_audioHandler);
     return true;
 }
 

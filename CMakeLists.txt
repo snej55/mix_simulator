@@ -41,7 +41,7 @@ endif()
 FetchContent_Declare(
     Jolt
     GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
-    GIT_TAG        master  # Or a specific version tag like v5.0.0
+    GIT_TAG        master
     SOURCE_SUBDIR Build
 )
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -116,12 +116,14 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/bounds.hpp
         src/core/bounds.cpp
         src/core/physics.hpp
-	src/core/lights.hpp
-	src/core/lights.cpp
+        src/core/lights.hpp
+        src/core/lights.cpp
         src/game.hpp
         src/game.cpp
         src/core/ui.hpp
-        src/core/ui.cpp)
+        src/core/ui.cpp
+        src/core/audio.hpp
+        src/core/audio.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -134,7 +136,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 if (CMAKE_SYSTEM MATCHES Linux)
-   target_compile_options(${PROJECT_NAME} PRIVATE -mpopcnt -msse4.2)
+    target_compile_options(${PROJECT_NAME} PRIVATE -mpopcnt -msse4.2)
 endif()
 
 add_custom_target(copy_assets

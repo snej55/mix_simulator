@@ -21,6 +21,7 @@
 #include "physics.hpp"
 #include "fonts.hpp"
 #include "ui.hpp"
+#include "audio.hpp"
 
 class Engine final : public EngineObject
 {
@@ -244,6 +245,10 @@ public:
     bool createUIRenderer();
     [[nodiscard]] UIRenderer* getUIRenderer() const { return m_uiRenderer; }
 
+    // ------ Audio Handler ------ //
+    bool createAudioHandler();
+    [[nodiscard]] AudioHandler* getAudioHandler() const { return m_audioHandler; }
+
     // ------ Arena ------ //
 
     // Arena operations
@@ -286,6 +291,7 @@ private:
 
     FontManager* m_fontRenderer{nullptr};
     UIRenderer* m_uiRenderer{nullptr};
+    AudioHandler* m_audioHandler{nullptr};
 
     // Physics
     JoltInstance* m_joltInstance{nullptr};
