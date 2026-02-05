@@ -183,6 +183,14 @@ void Game::run()
 
         m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
         m_engine.displayFrameTime();
+
+        std::vector<std::pair<JPH::RVec3, float>> sounds{
+            m_engine.getJoltInstance()->getSoundListener()->getSoundsQueue()};
+        for (std::size_t i{0}; i < sounds.size(); ++i)
+        {
+            audioHandler->getSoLoud().play(*audioHandler->getSound(metalImpact), sounds[i].second * 0.1f);
+        }
+        m_engine.getJoltInstance()->getSoundListener()->clearSounds();
     }
 }
 

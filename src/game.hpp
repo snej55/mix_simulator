@@ -5,7 +5,6 @@
 
 #include <memory>
 
-#include "soloud_wavstream.h"
 #include "core/engine.hpp"
 #include "core/ibl.hpp"
 #include "core/renderer.hpp"

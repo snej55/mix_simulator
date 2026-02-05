@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <functional>
 
 #include <assimp/matrix4x4.h>
 #include <assimp/quaternion.h>
@@ -133,6 +134,13 @@ namespace Util
         std::stringstream ss{};
         ss << ptr;
         return ss.str();
+    }
+
+    template <class T>
+    inline void hashCombine(std::size_t& seed, const T& v)
+    {
+        std::hash<T> hasher;
+        seed ^= 0x9e3779b9 + (seed << 6) + (seed >> 2); // golden ratio hash
     }
 } // namespace Util
 

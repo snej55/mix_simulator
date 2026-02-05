@@ -243,6 +243,17 @@ public:
 
 #endif
 
+struct BodyPairHash
+{
+    std::size_t operator()(const std::pair<JPH::BodyID, JPH::BodyID>& pair) const
+    {
+        std::size_t seed{0};
+        Util::hashCombine(seed, pair.first.GetIndex());
+        Util::hashCombine(seed, pair.second.GetIndex());
+        return seed;
+    }
+};
+
 class SoundContactListener : public JPH::ContactListener
 {
     virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2,
@@ -262,23 +273,84 @@ class SoundContactListener : public JPH::ContactListener
         JPH::Vec3 relVel{vel1 - vel2};
         const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
 
-        constexpr float threshold{0.5f};
+        constexpr float threshold{0.3f};
         if (impactSpeed > threshold)
         {
-            std::lock_guard<std::mutex> lock{m_queueMutex};
-            m_soundsQueue.push_back({pos, impactSpeed});
+            if (!m_started)
+            {
+                m_started = true;
+                m_startTime = std::chrono::system_clock::now();
+            }
+            addSound(inBody1, inBody2, pos, impactSpeed);
             // play sound here
-            std::cout << std::size(m_soundsQueue) << ". Contact added! Impact speed: " << impactSpeed << std::endl;
+            std::cout << "Contact added! Impact speed: " << impactSpeed << " Time: "
+                      << static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                                                 std::chrono::system_clock::now() - m_startTime)
+                                                 .count())
+                      << " ms" << std::endl;
         }
     }
 
     virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2,
                                     const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
     {
+        const JPH::RVec3 pos{inManifold.GetWorldSpaceContactPointOn1(0)};
+        const JPH::Vec3 vel1{inBody1.IsStatic() ? JPH::Vec3::sZero() : inBody1.GetPointVelocity(pos)};
+        const JPH::Vec3 vel2{inBody2.IsStatic() ? JPH::Vec3::sZero() : inBody2.GetPointVelocity(pos)};
+
+        const JPH::Vec3 relVel{vel1 - vel2};
+        const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
+
+        const float scrapeSpeed{(relVel - impactSpeed * inManifold.mWorldSpaceNormal).Length()};
+
+        constexpr float threshold{0.3f};
+        if (impactSpeed > threshold)
+        {
+            if (!m_started)
+            {
+                m_started = true;
+                m_startTime = std::chrono::system_clock::now();
+            }
+            addSound(inBody1, inBody2, pos, impactSpeed);
+            // play sound here
+            std::cout << "Contact persisted! Impact speed: " << impactSpeed << " Time: "
+                      << static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                                                 std::chrono::system_clock::now() - m_startTime)
+                                                 .count())
+                      << " ms" << std::endl;
+        }
     }
 
     virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override {}
 
+    void addSound(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::RVec3 pos, const float velocity)
+    {
+        std::pair<JPH::BodyID, JPH::BodyID> bodyPair{std::max(inBody1.GetID(), inBody2.GetID()),
+                                                     std::min(inBody1.GetID(), inBody2.GetID())};
+
+        const double time{static_cast<double>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - m_startTime)
+                .count())};
+
+        constexpr double rate{100.0};
+        auto it{m_collisions.find(bodyPair)};
+        if (it == m_collisions.end() || (time - it->second.first) > rate || velocity > it->second.second * 1.5f)
+        {
+            std::lock_guard<std::mutex> lock{m_queueMutex};
+            m_soundsQueue.push_back({pos, calcVolume(inBody1, inBody2, velocity)});
+            m_collisions[bodyPair] = {time, velocity};
+        }
+    }
+
+    [[nodiscard]] float calcVolume(const JPH::Body& inBody1, const JPH::Body& inBody2, const float velocity) const
+    {
+        const float mass1{inBody1.IsDynamic() ? (1.0f / inBody1.GetMotionProperties()->GetInverseMass()) : 0.0f};
+        const float mass2{inBody2.IsDynamic() ? (1.0f / inBody2.GetMotionProperties()->GetInverseMass()) : 0.0f};
+
+        return std::min(velocity * std::log10(std::max(mass1, mass2) + 1.0f), 10.0f);
+    }
+
+public:
     [[nodiscard]] const std::vector<std::pair<JPH::RVec3, float>>& getSoundsQueue() const { return m_soundsQueue; }
     void clearSounds() { m_soundsQueue.clear(); }
 
@@ -288,6 +360,8 @@ private:
 
     std::mutex m_queueMutex;
     std::vector<std::pair<JPH::RVec3, float>> m_soundsQueue{};
+    // <<Body1ID, Body2ID>, <time, velocity>>
+    std::unordered_map<std::pair<JPH::BodyID, JPH::BodyID>, std::pair<double, float>, BodyPairHash> m_collisions{};
 };
 
 // only simple boxes for now
