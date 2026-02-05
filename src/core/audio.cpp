@@ -5,6 +5,7 @@
 #include "util.hpp"
 
 #include <iostream>
+#include <memory>
 
 AudioHandler::AudioHandler(EngineObject* parent) : EngineObject{"AudioHandler", parent}
 {
@@ -17,7 +18,7 @@ AudioHandler::~AudioHandler() { m_SoLoud.deinit(); }
 unsigned int AudioHandler::loadSound(const char* path)
 {
     const unsigned int index{static_cast<unsigned int>(m_sounds.size())};
-    m_sounds.push_back(std::unique_ptr<SoLoud::Wav>{});
+    m_sounds.push_back(std::unique_ptr<SoLoud::Wav>{std::make_unique<SoLoud::Wav>()});
 
     const unsigned int status{m_sounds[index]->load(path)};
     if (status != 0)
@@ -34,7 +35,7 @@ unsigned int AudioHandler::loadSound(const char* path)
 unsigned int AudioHandler::loadStream(const char* path)
 {
     const unsigned int index{static_cast<unsigned int>(m_streams.size())};
-    m_streams.push_back(std::unique_ptr<SoLoud::WavStream>{});
+    m_streams.push_back(std::unique_ptr<SoLoud::WavStream>{std::make_unique<SoLoud::WavStream>()});
 
     const unsigned int status{m_streams[index]->load(path)};
     if (status != 0)
@@ -47,3 +48,5 @@ unsigned int AudioHandler::loadStream(const char* path)
     }
     return index;
 }
+
+void AudioHandler::playSound(const unsigned int index) { m_SoLoud.play(*m_sounds[index].get()); }

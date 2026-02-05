@@ -29,8 +29,10 @@
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Math/Vec3.h>
 
 #include <glm/gtc/quaternion.hpp>
+#include <mutex>
 #define GLM_FORCE_QUAT_DATA_WXYZ
 
 #include <iostream>
@@ -100,7 +102,7 @@ static void TraceImpl(const char* inFMT, ...)
 static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine)
 {
     std::cout << inFile << ":" << inLine << ": (" << inExpression << ") " << (inMessage != nullptr ? inMessage : "")
-        << std::endl;
+              << std::endl;
 
     return true;
 }
@@ -247,25 +249,27 @@ class SoundContactListener : public JPH::ContactListener
                                                   JPH::RVec3Arg inBaseOffset,
                                                   const JPH::CollideShapeResult& inCollisionResult) override
     {
-        constexpr float soundThreshold{0.1f};
-        if (inCollisionResult.mPenetrationDepth > soundThreshold)
-        {
-            if (!m_started)
-            {
-                m_started = true;
-                m_startTime = std::chrono::system_clock::now();
-            }
-
-            std::cout << "There was a sound here! Loudness: " << inCollisionResult.mPenetrationDepth << " Time: "
-                << static_cast<double>((std::chrono::system_clock::now() - m_startTime).count()) / 100000000.0
-                << std::endl;
-        }
         return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
     }
 
     virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2,
                                 const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
     {
+        JPH::RVec3 pos{inManifold.GetWorldSpaceContactPointOn1(0)};
+        JPH::Vec3 vel1{inBody1.IsStatic() ? JPH::Vec3::sZero() : inBody1.GetPointVelocity(pos)};
+        JPH::Vec3 vel2{inBody2.IsStatic() ? JPH::Vec3::sZero() : inBody2.GetPointVelocity(pos)};
+
+        JPH::Vec3 relVel{vel1 - vel2};
+        const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
+
+        constexpr float threshold{0.5f};
+        if (impactSpeed > threshold)
+        {
+            std::lock_guard<std::mutex> lock{m_queueMutex};
+            m_soundsQueue.push_back({pos, impactSpeed});
+            // play sound here
+            std::cout << std::size(m_soundsQueue) << ". Contact added! Impact speed: " << impactSpeed << std::endl;
+        }
     }
 
     virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2,
@@ -273,13 +277,17 @@ class SoundContactListener : public JPH::ContactListener
     {
     }
 
-    virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
-    {
-    }
+    virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override {}
+
+    [[nodiscard]] const std::vector<std::pair<JPH::RVec3, float>>& getSoundsQueue() const { return m_soundsQueue; }
+    void clearSounds() { m_soundsQueue.clear(); }
 
 private:
     bool m_started{false};
     t_timepoint m_startTime{};
+
+    std::mutex m_queueMutex;
+    std::vector<std::pair<JPH::RVec3, float>> m_soundsQueue{};
 };
 
 // only simple boxes for now
@@ -299,7 +307,7 @@ public:
         {
             Util::beginError();
             std::cout << "PHYSICS_BODY::ERROR: Failed to create box from " << boundingBox
-                << " BodyType: " << static_cast<int>(bodyType);
+                      << " BodyType: " << static_cast<int>(bodyType);
             Util::endError();
             return;
         }
@@ -329,11 +337,8 @@ public:
         JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
         JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
 
-        JPH::EActivation activation{
-            (motionType == JPH::EMotionType::Static)
-                ? JPH::EActivation::DontActivate
-                : JPH::EActivation::Activate
-        };
+        JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
+                                                                             : JPH::EActivation::Activate};
 
         m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
     }
@@ -369,9 +374,7 @@ private:
 class JoltInstance final : public EngineObject
 {
 public:
-    explicit JoltInstance(EngineObject* parent) : EngineObject{"JoltInstance", parent}
-    {
-    }
+    explicit JoltInstance(EngineObject* parent) : EngineObject{"JoltInstance", parent} {}
 
     ~JoltInstance() override
     {
@@ -396,10 +399,8 @@ public:
         static JPH::TempAllocatorImpl tempAllocator{10 * 1024 * 1024};
         m_TempAllocator = &tempAllocator;
 
-        static JPH::JobSystemThreadPool jobSystem{
-            JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers,
-            static_cast<int>(std::thread::hardware_concurrency() - 1)
-        };
+        static JPH::JobSystemThreadPool jobSystem{JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers,
+                                                  static_cast<int>(std::thread::hardware_concurrency() - 1)};
         m_JobSystem = &jobSystem;
 
         constexpr JPH::uint cMaxBodies{65536};
@@ -460,7 +461,7 @@ public:
     [[nodiscard]] DebugBodyActivationListener& getBodyActivationListener() { return m_BodyActivationListener; }
 #endif
 
-    [[nodiscard]] SoundContactListener& getSoundListener() { return m_SoundListener; }
+    [[nodiscard]] SoundContactListener* getSoundListener() { return &m_SoundListener; }
 
     [[nodiscard]] bool getInit() const { return m_init; }
 

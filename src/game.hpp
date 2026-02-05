@@ -32,8 +32,6 @@ private:
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};
-
-    SoLoud::WavStream m_music{};
 };
 
 #endif

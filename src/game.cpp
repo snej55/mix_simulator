@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "constants.hpp"
+#include "core/audio.hpp"
 #include "core/bounds.hpp"
 #include "core/engine.hpp"
 #include "core/fonts.hpp"
@@ -51,9 +52,6 @@ bool Game::init()
 
 bool Game::menu()
 {
-    m_music.load("data/audio/bergamasca.wav");
-    m_engine.getAudioHandler()->getSoLoud().play(m_music);
-
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
@@ -158,6 +156,10 @@ bool Game::menu()
 
 void Game::run()
 {
+    AudioHandler* audioHandler{m_engine.getAudioHandler()};
+    const unsigned int metalImpact{audioHandler->loadSound("data/audio/sfx/metal_impact.ogg")};
+    audioHandler->playSound(metalImpact);
+
     m_engine.setupViewport();
     m_engine.setCameraEnabled(true);
     while (!m_engine.getQuit())
