@@ -273,7 +273,7 @@ class SoundContactListener : public JPH::ContactListener
         JPH::Vec3 relVel{vel1 - vel2};
         const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
 
-        constexpr float threshold{0.3f};
+        constexpr float threshold{0.5f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -303,7 +303,7 @@ class SoundContactListener : public JPH::ContactListener
 
         const float scrapeSpeed{(relVel - impactSpeed * inManifold.mWorldSpaceNormal).Length()};
 
-        constexpr float threshold{0.3f};
+        constexpr float threshold{0.75f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -347,7 +347,7 @@ class SoundContactListener : public JPH::ContactListener
         const float mass1{inBody1.IsDynamic() ? (1.0f / inBody1.GetMotionProperties()->GetInverseMass()) : 0.0f};
         const float mass2{inBody2.IsDynamic() ? (1.0f / inBody2.GetMotionProperties()->GetInverseMass()) : 0.0f};
 
-        return std::min(velocity * std::log10(std::max(mass1, mass2) + 1.0f), 10.0f);
+        return std::min(velocity * std::sqrt(std::max(mass1, mass2)), 10.0f);
     }
 
 public:
