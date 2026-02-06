@@ -10,6 +10,8 @@
 #include "core/renderer.hpp"
 #include "core/scene.hpp"
 
+#include "player.hpp"
+
 class Game final
 {
 public:
@@ -31,6 +33,8 @@ private:
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};
+
+    std::unique_ptr<Player> m_player{nullptr};
 };
 
 #endif

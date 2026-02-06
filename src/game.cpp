@@ -16,8 +16,6 @@
 
 #include "game.hpp"
 
-#include <soloud_wavstream.h>
-
 Game::~Game() = default;
 
 bool Game::init()
@@ -35,7 +33,6 @@ bool Game::init()
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
     m_scene->init("data/maps/0.json");
-    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
@@ -46,6 +43,11 @@ bool Game::init()
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
     m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
+
+    m_player = std::make_unique<Player>(glm::vec3{10.0f, 100.f, 10.0f}, m_engine.getModel("table"));
+    m_scene->addEntity(m_player->getEntity());
+
+    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     return true;
 }
@@ -188,7 +190,11 @@ void Game::run()
             m_engine.getJoltInstance()->getSoundListener()->getSoundsQueue()};
         for (std::size_t i{0}; i < sounds.size(); ++i)
         {
-            audioHandler->getSoLoud().play(*audioHandler->getSound(metalImpact), sounds[i].second * 0.1f);
+            const glm::vec3 worldPosition{sounds[i].first.GetX(), sounds[i].first.GetY(), sounds[i].first.GetZ()};
+            const glm::vec3 viewPosition{m_engine.getViewMatrix() * glm::vec4{worldPosition, 1.0}};
+            audioHandler->getSoLoud().play3dClocked(
+                static_cast<int>(glfwGetTime()), *audioHandler->getSound(metalImpact), viewPosition.x, viewPosition.y,
+                viewPosition.z, 0.0f, 0.0f, 0.0f, sounds[i].second * 0.1f);
         }
         m_engine.getJoltInstance()->getSoundListener()->clearSounds();
     }
