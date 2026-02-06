@@ -124,7 +124,9 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/ui.cpp
         src/core/audio.hpp
         src/core/audio.cpp
-        src/core/engine.hpp)
+        src/core/engine.hpp
+        src/player.hpp
+        src/player.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
