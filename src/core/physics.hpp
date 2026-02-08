@@ -273,7 +273,7 @@ class SoundContactListener : public JPH::ContactListener
         JPH::Vec3 relVel{vel1 - vel2};
         const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
 
-        constexpr float threshold{0.5f};
+        constexpr float threshold{0.1f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -282,12 +282,6 @@ class SoundContactListener : public JPH::ContactListener
                 m_startTime = std::chrono::system_clock::now();
             }
             addSound(inBody1, inBody2, pos, impactSpeed);
-            // play sound here
-            std::cout << "Contact added! Impact speed: " << impactSpeed << " Time: "
-                      << static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(
-                                                 std::chrono::system_clock::now() - m_startTime)
-                                                 .count())
-                      << " ms" << std::endl;
         }
     }
 
@@ -303,7 +297,7 @@ class SoundContactListener : public JPH::ContactListener
 
         const float scrapeSpeed{(relVel - impactSpeed * inManifold.mWorldSpaceNormal).Length()};
 
-        constexpr float threshold{0.75f};
+        constexpr float threshold{0.1f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -312,12 +306,6 @@ class SoundContactListener : public JPH::ContactListener
                 m_startTime = std::chrono::system_clock::now();
             }
             addSound(inBody1, inBody2, pos, impactSpeed);
-            // play sound here
-            std::cout << "Contact persisted! Impact speed: " << impactSpeed << " Time: "
-                      << static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(
-                                                 std::chrono::system_clock::now() - m_startTime)
-                                                 .count())
-                      << " ms" << std::endl;
         }
     }
 
@@ -332,7 +320,7 @@ class SoundContactListener : public JPH::ContactListener
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - m_startTime)
                 .count())};
 
-        constexpr double rate{100.0};
+        constexpr double rate{10.0};
         auto it{m_collisions.find(bodyPair)};
         if (it == m_collisions.end() || (time - it->second.first) > rate || velocity > it->second.second * 1.5f)
         {
