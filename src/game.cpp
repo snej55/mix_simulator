@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <soloud_biquadresonantfilter.h>
 
 #include "constants.hpp"
 #include "core/audio.hpp"
@@ -159,8 +160,13 @@ bool Game::menu()
 void Game::run()
 {
     AudioHandler* audioHandler{m_engine.getAudioHandler()};
+
+    SoLoud::BiquadResonantFilter bqrFilter{};
+    bqrFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 22000.f, 2.f);
+
     const unsigned int metalImpact{audioHandler->loadSound("data/audio/sfx/metal_impact.ogg")};
     audioHandler->playSound(metalImpact);
+    audioHandler->getSound(metalImpact)->setFilter(0, &bqrFilter);
 
     m_engine.setupViewport();
     m_engine.setCameraEnabled(true);
@@ -188,13 +194,33 @@ void Game::run()
 
         std::vector<std::pair<JPH::RVec3, float>> sounds{
             m_engine.getJoltInstance()->getSoundListener()->getSoundsQueue()};
+
         for (std::size_t i{0}; i < sounds.size(); ++i)
         {
+            const float velocity{sounds[i].second};
+            constexpr float minVel{0.5f};
+            constexpr float maxVel{20.f};
+
+            if (velocity < minVel)
+                continue;
+            const float intensity{glm::clamp((velocity - minVel) / (maxVel - minVel), 0.0f, 1.0f)};
+
+            constexpr float a{1.4142}; // sqrt 10
+            const float volume{a * glm::sqrt(intensity)};
+
             const glm::vec3 worldPosition{sounds[i].first.GetX(), sounds[i].first.GetY(), sounds[i].first.GetZ()};
             const glm::vec3 viewPosition{m_engine.getViewMatrix() * glm::vec4{worldPosition, 1.0}};
-            audioHandler->getSoLoud().play3dClocked(
+
+            constexpr float maxDistance{60.f};
+            const float distance{glm::length(viewPosition)};
+            const float distFrequency{glm::mix(20000.f, 1000.f, glm::clamp(distance / maxDistance, 0.0f, 1.0f))};
+            const float frequency{distFrequency * glm::mix(0.2f, 1.0f, intensity)};
+
+            unsigned int handle{audioHandler->getSoLoud().play3dClocked(
                 static_cast<int>(glfwGetTime()), *audioHandler->getSound(metalImpact), viewPosition.x, viewPosition.y,
-                viewPosition.z, 0.0f, 0.0f, 0.0f, sounds[i].second * 0.1f);
+                viewPosition.z, 0.0f, 0.0f, 0.0f, volume)};
+
+            audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
         }
         m_engine.getJoltInstance()->getSoundListener()->clearSounds();
     }

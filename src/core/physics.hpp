@@ -337,7 +337,7 @@ class SoundContactListener : public JPH::ContactListener
         if (it == m_collisions.end() || (time - it->second.first) > rate || velocity > it->second.second * 1.5f)
         {
             std::lock_guard<std::mutex> lock{m_queueMutex};
-            m_soundsQueue.push_back({pos, calcVolume(inBody1, inBody2, velocity)});
+            m_soundsQueue.push_back({pos, velocity});
             m_collisions[bodyPair] = {time, velocity};
         }
     }
