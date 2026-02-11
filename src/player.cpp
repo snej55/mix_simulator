@@ -13,6 +13,8 @@ Player::Player(const glm::vec3& pos, const Model* model)
     m_controller = std::make_unique<PlayerController>(PlayerController{});
 }
 
+void Player::update() {}
+
 void Player::setupPhysicsBody(JPH::BodyInterface* bodyInterface)
 {
     void (*settingsModifier)(JPH::BodyCreationSettings*){[](JPH::BodyCreationSettings* settings)

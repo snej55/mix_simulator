@@ -16,7 +16,6 @@
 
 namespace IO
 {
-
     struct ControlHash
     {
         template <typename Control>

@@ -31,6 +31,12 @@ bool Game::init()
     glfwSetWindowSizeLimits(m_engine.getWindow()->getWindow(), CST::WINDOW_START_WIDTH, CST::WINDOW_START_HEIGHT,
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
 
+    m_assets = std::make_unique<Assets>();
+    m_assets->loadAssets(m_engine.getAudioHandler());
+
+    m_bqrFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 22000.f, 2.f);
+    m_engine.getAudioHandler()->getSound(m_assets->m_SFX_metalImpact)->setFilter(0, &m_bqrFilter);
+
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
     m_scene->init("data/maps/0.json");
@@ -158,72 +164,123 @@ bool Game::menu()
     return false;
 }
 
+void Game::handleIO()
+{
+    if (m_engine.getPressed(GLFW_KEY_W) || m_engine.getPressed(GLFW_KEY_UP))
+    {
+        m_player->getController()->setControl(Controls::UP, true);
+    }
+    else
+    {
+        m_player->getController()->setControl(Controls::UP, false);
+    }
+
+    if (m_engine.getPressed(GLFW_KEY_S) || m_engine.getPressed(GLFW_KEY_DOWN))
+    {
+        m_player->getController()->setControl(Controls::DOWN, true);
+    }
+    else
+    {
+        m_player->getController()->setControl(Controls::DOWN, false);
+    }
+
+    if (m_engine.getPressed(GLFW_KEY_D) || m_engine.getPressed(GLFW_KEY_RIGHT))
+    {
+        m_player->getController()->setControl(Controls::RIGHT, true);
+    }
+    else
+    {
+        m_player->getController()->setControl(Controls::RIGHT, false);
+    }
+
+    if (m_engine.getPressed(GLFW_KEY_A) || m_engine.getPressed(GLFW_KEY_LEFT))
+    {
+        m_player->getController()->setControl(Controls::LEFT, true);
+    }
+    else
+    {
+        m_player->getController()->setControl(Controls::LEFT, false);
+    }
+
+    if (m_engine.getPressed(GLFW_KEY_SPACE))
+    {
+        m_player->getController()->setControl(Controls::SPACE, true);
+    }
+    else
+    {
+        m_player->getController()->setControl(Controls::SPACE, false);
+    }
+}
+
+void Game::update()
+{
+    // update entities
+    m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
+
+    std::vector<SceneChunk*> visibleChunks{};
+    const Bounds::Frustum camFrustum{m_engine.getCameraFrustum()};
+    m_scene->getVisibleChunks(camFrustum, m_engine.getCameraFrustumBV(), visibleChunks);
+    for (std::size_t i{0}; i < std::size(visibleChunks); ++i)
+    {
+        m_renderQueue->addChunk(visibleChunks[i], camFrustum);
+    }
+
+    // update sounds
+    AudioHandler* audioHandler{m_engine.getAudioHandler()};
+    std::vector<std::pair<JPH::RVec3, float>> sounds{m_engine.getJoltInstance()->getSoundListener()->getSoundsQueue()};
+
+    for (std::size_t i{0}; i < sounds.size(); ++i)
+    {
+        const float velocity{sounds[i].second};
+        constexpr float minVel{0.5f};
+        constexpr float maxVel{20.f};
+
+        if (velocity < minVel)
+            continue;
+        const float intensity{glm::clamp((velocity - minVel) / (maxVel - minVel), 0.0f, 1.0f)};
+
+        constexpr float a{1.4142}; // sqrt 10
+        const float volume{a * glm::sqrt(intensity)};
+
+        const glm::vec3 worldPosition{sounds[i].first.GetX(), sounds[i].first.GetY(), sounds[i].first.GetZ()};
+        const glm::vec3 viewPosition{m_engine.getViewMatrix() * glm::vec4{worldPosition, 1.0}};
+
+        constexpr float maxDist{60.f};
+        const float dist{glm::length(viewPosition)};
+        const float distFreq{glm::mix(20000.f, 1000.f, glm::clamp(dist / maxDist, 0.0f, 1.0f))};
+        const float frequency{distFreq * glm::mix(0.2f, 1.0f, intensity)};
+
+        const unsigned int handle{audioHandler->getSoLoud().play3dClocked(
+            static_cast<int>(glfwGetTime()), *audioHandler->getSound(m_assets->m_SFX_metalImpact), viewPosition.x,
+            viewPosition.y, viewPosition.z, 0.0f, 0.0f, 0.0f, volume)};
+
+        audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
+    }
+    m_engine.getJoltInstance()->getSoundListener()->clearSounds();
+}
+
+void Game::render()
+{
+    // render ui framebuffer
+    renderUI();
+
+    // render scene
+    std::vector<Lights::PointLight*> pointLights{};
+    m_scene->getPointLights(pointLights);
+    m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
+}
+
 void Game::run()
 {
-    AudioHandler* audioHandler{m_engine.getAudioHandler()};
-
-    SoLoud::BiquadResonantFilter bqrFilter{};
-    bqrFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 22000.f, 2.f);
-
-    const unsigned int metalImpact{audioHandler->loadSound("data/audio/sfx/metal_impact.ogg")};
-    audioHandler->playSound(metalImpact);
-    audioHandler->getSound(metalImpact)->setFilter(0, &bqrFilter);
-
     m_engine.setupViewport();
     m_engine.setCameraEnabled(true);
     while (!m_engine.getQuit())
     {
-        // update entities
-        m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
+        handleIO();
+        update();
+        render();
 
-        std::vector<SceneChunk*> visibleChunks{};
-        const Bounds::Frustum camFrustum{m_engine.getCameraFrustum()};
-        m_scene->getVisibleChunks(camFrustum, m_engine.getCameraFrustumBV(), visibleChunks);
-        for (std::size_t i{0}; i < std::size(visibleChunks); ++i)
-        {
-            m_renderQueue->addChunk(visibleChunks[i], camFrustum);
-        }
-
-        // render frame
-        renderUI();
-
-        std::vector<Lights::PointLight*> pointLights{};
-        m_scene->getPointLights(pointLights);
-
-        m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
         m_engine.displayFrameTime();
-
-        std::vector<std::pair<JPH::RVec3, float>> sounds{
-            m_engine.getJoltInstance()->getSoundListener()->getSoundsQueue()};
-
-        for (std::size_t i{0}; i < sounds.size(); ++i)
-        {
-            const float velocity{sounds[i].second};
-            constexpr float minVel{0.5f};
-            constexpr float maxVel{20.f};
-
-            if (velocity < minVel)
-                continue;
-            const float intensity{glm::clamp((velocity - minVel) / (maxVel - minVel), 0.0f, 1.0f)};
-
-            constexpr float a{1.4142}; // sqrt 10
-            const float volume{a * glm::sqrt(intensity)};
-
-            const glm::vec3 worldPosition{sounds[i].first.GetX(), sounds[i].first.GetY(), sounds[i].first.GetZ()};
-            const glm::vec3 viewPosition{m_engine.getViewMatrix() * glm::vec4{worldPosition, 1.0}};
-
-            constexpr float maxDistance{60.f};
-            const float distance{glm::length(viewPosition)};
-            const float distFrequency{glm::mix(20000.f, 1000.f, glm::clamp(distance / maxDistance, 0.0f, 1.0f))};
-            const float frequency{distFrequency * glm::mix(0.2f, 1.0f, intensity)};
-
-            const unsigned int handle{audioHandler->getSoLoud().play3dClocked(
-                static_cast<int>(glfwGetTime()), *audioHandler->getSound(metalImpact), viewPosition.x, viewPosition.y,
-                viewPosition.z, 0.0f, 0.0f, 0.0f, volume)};
-
-            audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
-        }
-        m_engine.getJoltInstance()->getSoundListener()->clearSounds();
     }
 }
 

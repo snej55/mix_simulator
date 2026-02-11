@@ -3,6 +3,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <soloud_biquadresonantfilter.h>
 #include <memory>
 
 #include "core/engine.hpp"
@@ -11,6 +12,7 @@
 #include "core/scene.hpp"
 
 #include "player.hpp"
+#include "assets.hpp"
 
 class Game final
 {
@@ -21,6 +23,10 @@ public:
     bool init();
 
     bool menu();
+
+    void handleIO();
+    void update();
+    void render();
 
     void run();
 
@@ -35,6 +41,8 @@ private:
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};
 
     std::unique_ptr<Player> m_player{nullptr};
+    std::unique_ptr<Assets> m_assets{nullptr};
+    SoLoud::BiquadResonantFilter m_bqrFilter;
 };
 
 #endif
