@@ -214,6 +214,8 @@ void Game::handleIO()
 
 void Game::update()
 {
+    m_player->update(m_engine.getJoltInstance()->getBodyInterface());
+
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
 

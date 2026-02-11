@@ -10,10 +10,17 @@ Player::Player(const glm::vec3& pos, const Model* model)
     Bounds::Transform transform{pos, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}};
     m_entity = new Entity{model, transform, BodyType::DYNAMIC, false};
 
-    m_controller = std::make_unique<PlayerController>(PlayerController{});
+    m_input = std::make_unique<PlayerController>(PlayerController{});
 }
 
-void Player::update() {}
+void Player::update(JPH::BodyInterface* bodyInterface)
+{
+    constexpr float speed{10.f};
+    if (m_input->getControl(Controls::UP))
+    {
+        bodyInterface->AddAngularImpulse(m_entity->getPhysicsBody()->getBodyID(), {speed, 0.f, 0.f});
+    }
+}
 
 void Player::setupPhysicsBody(JPH::BodyInterface* bodyInterface)
 {

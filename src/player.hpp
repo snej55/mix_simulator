@@ -33,18 +33,18 @@ public:
 
     ~Player() = default;
 
-    void update();
+    void update(JPH::BodyInterface* bodyInterface);
 
     void setupPhysicsBody(JPH::BodyInterface* bodyInterface);
 
     [[nodiscard]] Entity* getEntity() const { return m_entity; }
     void setEntity(Entity* entity) { m_entity = entity; }
-    [[nodiscard]] PlayerController* getController() { return m_controller.get(); }
+    [[nodiscard]] PlayerController* getController() { return m_input.get(); }
 
 private:
     Entity* m_entity{nullptr};
 
-    std::unique_ptr<PlayerController> m_controller{nullptr};
+    std::unique_ptr<PlayerController> m_input{nullptr};
 };
 
 #endif
