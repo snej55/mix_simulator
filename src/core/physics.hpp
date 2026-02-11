@@ -273,7 +273,7 @@ class SoundContactListener : public JPH::ContactListener
         JPH::Vec3 relVel{vel1 - vel2};
         const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
 
-        constexpr float threshold{0.1f};
+        constexpr float threshold{0.3f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -295,9 +295,9 @@ class SoundContactListener : public JPH::ContactListener
         const JPH::Vec3 relVel{vel1 - vel2};
         const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
 
-        const float scrapeSpeed{(relVel - impactSpeed * inManifold.mWorldSpaceNormal).Length()};
+        // const float scrapeSpeed{(relVel - impactSpeed * inManifold.mWorldSpaceNormal).Length()};
 
-        constexpr float threshold{0.1f};
+        constexpr float threshold{0.3f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -320,17 +320,17 @@ class SoundContactListener : public JPH::ContactListener
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - m_startTime)
                 .count())};
 
-        constexpr double rate{10.0};
+        constexpr double rate{PHYSICS_TIME_STEP * 1000.0}; // only one sound per frame please
         auto it{m_collisions.find(bodyPair)};
         if (it == m_collisions.end() || (time - it->second.first) > rate || velocity > it->second.second * 1.5f)
         {
             std::lock_guard<std::mutex> lock{m_queueMutex};
-            m_soundsQueue.push_back({pos, velocity});
+            m_soundsQueue.emplace_back(pos, velocity);
             m_collisions[bodyPair] = {time, velocity};
         }
     }
 
-    [[nodiscard]] float calcVolume(const JPH::Body& inBody1, const JPH::Body& inBody2, const float velocity) const
+    static float calcVolume(const JPH::Body& inBody1, const JPH::Body& inBody2, const float velocity)
     {
         const float mass1{inBody1.IsDynamic() ? (1.0f / inBody1.GetMotionProperties()->GetInverseMass()) : 0.0f};
         const float mass2{inBody2.IsDynamic() ? (1.0f / inBody2.GetMotionProperties()->GetInverseMass()) : 0.0f};
@@ -352,6 +352,8 @@ private:
     std::unordered_map<std::pair<JPH::BodyID, JPH::BodyID>, std::pair<double, float>, BodyPairHash> m_collisions{};
 };
 
+using PBSettingsModifier = void (*)(JPH::BodyCreationSettings*);
+
 // only simple boxes for now
 class PhysicsBody final
 {
@@ -359,7 +361,8 @@ public:
     PhysicsBody() = default;
 
     PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const glm::vec3& rotation,
-                const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f}) : m_bodyType{bodyType}
+                const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
+                PBSettingsModifier settingsModifier = nullptr) : m_bodyType{bodyType}
     {
         const JPH::Vec3 extents{Util::convertVectorJolt(boundingBox.extents)};
         JPH::BoxShapeSettings shapeSettings{extents, PHYSICS_CONVEX_RADIUS};
@@ -398,11 +401,16 @@ public:
 
         JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
         JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
+        if (settingsModifier != nullptr)
+        {
+            settingsModifier(&settings);
+        }
 
         JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
                                                                              : JPH::EActivation::Activate};
 
         m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
+        m_settings = settings;
     }
 
     ~PhysicsBody() = default;
@@ -426,11 +434,14 @@ public:
     }
 
     [[nodiscard]] const JPH::BodyID& getBodyID() const { return m_bodyID; }
+    void setBodyID(const JPH::BodyID id) { m_bodyID = id; }
     [[nodiscard]] BodyType getBodyType() const { return m_bodyType; }
+    void setBodyType(const BodyType bodyType) { m_bodyType = bodyType; }
 
 private:
     BodyType m_bodyType;
     JPH::BodyID m_bodyID;
+    JPH::BodyCreationSettings m_settings;
 };
 
 class JoltInstance final : public EngineObject
@@ -490,7 +501,7 @@ public:
     }
 
     // deltatime is seconds
-    void update(float deltaTime)
+    void update(const float deltaTime) const
     {
         static float accumulator{0.0f};
 

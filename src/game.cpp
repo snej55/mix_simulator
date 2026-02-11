@@ -46,6 +46,7 @@ bool Game::init()
     m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
 
     m_player = std::make_unique<Player>(glm::vec3{10.0f, 100.f, 10.0f}, m_engine.getModel("table"));
+    m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
     m_scene->addEntity(m_player->getEntity());
 
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
@@ -216,7 +217,7 @@ void Game::run()
             const float distFrequency{glm::mix(20000.f, 1000.f, glm::clamp(distance / maxDistance, 0.0f, 1.0f))};
             const float frequency{distFrequency * glm::mix(0.2f, 1.0f, intensity)};
 
-            unsigned int handle{audioHandler->getSoLoud().play3dClocked(
+            const unsigned int handle{audioHandler->getSoLoud().play3dClocked(
                 static_cast<int>(glfwGetTime()), *audioHandler->getSound(metalImpact), viewPosition.x, viewPosition.y,
                 viewPosition.z, 0.0f, 0.0f, 0.0f, volume)};
 
@@ -226,7 +227,7 @@ void Game::run()
     }
 }
 
-void Game::renderUI()
+void Game::renderUI() const
 {
     const UIRenderer* uiRenderer{m_engine.getUIRenderer()};
     FontManager* fontRenderer{m_engine.getFontRenderer()};

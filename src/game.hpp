@@ -24,7 +24,7 @@ public:
 
     void run();
 
-    void renderUI();
+    void renderUI() const;
 
 private:
     // core components

@@ -71,8 +71,15 @@ glm::vec3 Entity::getGlobalMidpoint() const
 
 void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface)
 {
-    assert(m_physicsBody.get() == nullptr);
+    if (m_physicsBody.get() != nullptr)
+    {
+        std::cout << "ENTITY::INIT_PHYSICS_BODY::ERROR: Physics body is already initialized!" << std::endl;
+        return;
+    }
+
     Bounds::AABB localAABB{*m_BV};
     m_physicsBody = std::make_unique<PhysicsBody>(bodyInterface, localAABB, m_transform.getLocalRotation(), m_bodyType,
                                                   m_transform.getGlobalPosition() + m_transform.getPivotOffset());
 }
+
+void Entity::setPhysicsBody(PhysicsBody& physicsBody) { m_physicsBody = std::make_unique<PhysicsBody>(physicsBody); }
