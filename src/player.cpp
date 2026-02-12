@@ -16,27 +16,31 @@ Player::Player(const glm::vec3& pos, const Model* model)
 void Player::update(JPH::BodyInterface* bodyInterface)
 {
     constexpr float speed{200000.f};
+    constexpr float torque{100000.f};
     if (m_input->getControl(Controls::UP))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {speed, 0.f, 0.f}, {speed, 0.f, 0.f});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {speed, 0.f, 0.f},
+                                         {torque, 0.f, 0.f});
     }
     if (m_input->getControl(Controls::DOWN))
     {
         bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {-speed, 0.f, 0.f},
-                                         {speed, 0.f, 0.f});
+                                         {torque, 0.f, 0.f});
     }
     if (m_input->getControl(Controls::RIGHT))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, 0.f, speed}, {0.f, 0.f, speed});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, 0.f, speed},
+                                         {0.f, 0.f, torque});
     }
     if (m_input->getControl(Controls::LEFT))
     {
         bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, 0.f, -speed},
-                                         {0.f, 0.f, -speed});
+                                         {0.f, 0.f, -torque});
     }
     if (m_input->getControl(Controls::SPACE))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, speed, 0.f}, {0.f, speed, 0.f});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, speed, 0.f},
+                                         {0.f, torque, 0.f});
     }
 }
 

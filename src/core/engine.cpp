@@ -1,6 +1,7 @@
 // gl libraries
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/ext/matrix_clip_space.hpp>
 
 // json library
 #include <JSON/json.hpp>
@@ -10,7 +11,6 @@
 #include "bounds.hpp"
 #include "camera.hpp"
 #include "fonts.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
 #include "ibl.hpp"
 #include "lights.hpp"
 #include "physics.hpp"

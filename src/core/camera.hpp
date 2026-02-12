@@ -12,7 +12,9 @@
 #include "engine_types.hpp"
 
 #define CAMERA_Z_NEAR 0.1f
-#define CAMERA_Z_FAR 10000.0f
+#define CAMERA_Z_FAR 1000.0f
+
+#define ZOOM_ENABLED
 
 namespace CameraN
 {
@@ -98,6 +100,7 @@ public:
 
     void processMouseScroll(const float yOffset)
     {
+#ifdef ZOOM_ENABLED
         m_zoom -= yOffset;
         if (m_zoom < 1.0f)
         {
@@ -107,6 +110,7 @@ public:
         {
             m_zoom = 45.0f;
         }
+#endif
     }
 
     [[nodiscard]] float getZoom() const { return m_zoom; }

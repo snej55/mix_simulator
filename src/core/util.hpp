@@ -142,6 +142,27 @@ namespace Util
         std::hash<T> hasher;
         seed ^= 0x9e3779b9 + (seed << 6) + (seed >> 2); // golden ratio hash
     }
+
+    inline void getWorldSpaceFrustumCorners(const glm::mat4& projection, const glm::mat4& view,
+                                            std::vector<glm::vec4>& corners)
+    {
+        const glm::mat4 inverse{glm::inverse(projection * view)};
+
+        for (unsigned int x{0}; x < 2; ++x)
+        {
+            for (unsigned int y{0}; y < 2; ++y)
+            {
+                for (unsigned int z{0}; z < 2; ++z)
+                {
+                    const glm::vec4 pt{inverse *
+                                       glm::vec4{2.0f * static_cast<float>(x) - 1.0f,
+                                                 2.0f * static_cast<float>(y) - 1.0f,
+                                                 2.0f * static_cast<float>(z) - 1.0f, 1.0f}};
+                    corners.emplace_back(pt / pt.w);
+                }
+            }
+        }
+    }
 } // namespace Util
 
 #endif // UTIL_H
