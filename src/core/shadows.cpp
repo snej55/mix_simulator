@@ -17,6 +17,48 @@ Shadows::CSMGenerator::CSMGenerator() { generateSplits(); }
 
 Shadows::CSMGenerator::~CSMGenerator() = default;
 
+void Shadows::CSMGenerator::generateMaps()
+{
+    glGenFramebuffers(1, &m_FBO);
+
+    glGenTextures(1, &m_textures);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_textures);
+
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, CSM_MAP_SIZE, CSM_MAP_SIZE,
+                 static_cast<GLsizei>(CASCADE_COUNT), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    constexpr float borderColor[]{1.0f, 1.0f, 1.0f, 1.0f};
+    glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        Util::beginError();
+        std::cout << "CSM_GENERATOR::GENERATE_MAPS::ERROR: Framebuffer is incomplete! Failed to generate shadow maps!";
+        Util::endError();
+        return;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+}
+
+void Shadows::CSMGenerator::free()
+{
+    glDeleteFramebuffers(1, &m_FBO);
+    glDeleteTextures(1, &m_textures);
+    m_textures = 0;
+    m_FBO = 0;
+}
+
 void Shadows::CSMGenerator::generateSplits()
 {
     for (unsigned int i{1}; i < CASCADE_COUNT; ++i)
@@ -51,10 +93,11 @@ void Shadows::CSMGenerator::updateLSMatrices(const glm::mat4& view, const glm::v
         }
         center /= static_cast<float>(corners.size());
 
-        const glm::mat4 lightView{glm::lookAt(center - glm::normalize(lightDir), center, glm::vec3(0.0f, 1.0f, 0.0f))};
+        const glm::mat4 lightView{
+            glm::lookAt(center - glm::normalize(lightDir) * 100.0f, center, glm::vec3(0.0f, 1.0f, 0.0f))};
 
         glm::vec3 min{std::numeric_limits<float>::max()};
-        glm::vec3 max{std::numeric_limits<float>::min()};
+        glm::vec3 max{-std::numeric_limits<float>::max()};
         for (const glm::vec4& v : corners)
         {
             const glm::vec3 trf{glm::vec3(lightView * v)};
