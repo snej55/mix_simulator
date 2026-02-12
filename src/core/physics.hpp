@@ -32,7 +32,6 @@
 #include <Jolt/Math/Vec3.h>
 
 #include <glm/gtc/quaternion.hpp>
-#include <mutex>
 #define GLM_FORCE_QUAT_DATA_WXYZ
 
 #include <iostream>
@@ -40,6 +39,7 @@
 #include <cassert>
 #include <string_view>
 #include <chrono>
+#include <mutex>
 
 using t_timepoint = std::chrono::time_point<std::chrono::system_clock>;
 using t_duration = std::chrono::duration<double>;

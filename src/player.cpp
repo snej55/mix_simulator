@@ -15,10 +15,28 @@ Player::Player(const glm::vec3& pos, const Model* model)
 
 void Player::update(JPH::BodyInterface* bodyInterface)
 {
-    constexpr float speed{10.f};
+    constexpr float speed{200000.f};
     if (m_input->getControl(Controls::UP))
     {
-        bodyInterface->AddAngularImpulse(m_entity->getPhysicsBody()->getBodyID(), {speed, 0.f, 0.f});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {speed, 0.f, 0.f}, {speed, 0.f, 0.f});
+    }
+    if (m_input->getControl(Controls::DOWN))
+    {
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {-speed, 0.f, 0.f},
+                                         {speed, 0.f, 0.f});
+    }
+    if (m_input->getControl(Controls::RIGHT))
+    {
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, 0.f, speed}, {0.f, 0.f, speed});
+    }
+    if (m_input->getControl(Controls::LEFT))
+    {
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, 0.f, -speed},
+                                         {0.f, 0.f, -speed});
+    }
+    if (m_input->getControl(Controls::SPACE))
+    {
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, speed, 0.f}, {0.f, speed, 0.f});
     }
 }
 

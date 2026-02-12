@@ -40,6 +40,7 @@ bool Game::init()
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine);
     m_scene->init("data/maps/0.json");
+    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
@@ -54,8 +55,6 @@ bool Game::init()
     m_player = std::make_unique<Player>(glm::vec3{10.0f, 100.f, 10.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
     m_scene->addEntity(m_player->getEntity());
-
-    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     return true;
 }
