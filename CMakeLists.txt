@@ -90,6 +90,7 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/arena.cpp src/core/iohandler.hpp src/core/iohandler.cpp
         src/core/clock.hpp src/core/clock.cpp src/core/shader.cpp src/core/shader.hpp
         src/core/texture.hpp src/core/texture.cpp
+        src/core/engine.hpp
         src/core/util.hpp
         src/core/shapes.hpp
         src/core/shapes.cpp
@@ -118,13 +119,14 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/physics.hpp
         src/core/lights.hpp
         src/core/lights.cpp
-        src/game.hpp
-        src/game.cpp
         src/core/ui.hpp
         src/core/ui.cpp
         src/core/audio.hpp
         src/core/audio.cpp
-        src/core/engine.hpp
+        src/core/shadows.hpp
+        src/core/shadows.cpp
+        src/game.hpp
+        src/game.cpp
         src/player.hpp
         src/player.cpp)
 

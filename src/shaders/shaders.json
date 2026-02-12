@@ -148,6 +148,13 @@
         "frag": "pointLight.frag",
         "vert": "pointLight.vert"
       }
+    },
+    {
+      "name": "depthOnly",
+      "shader": {
+        "frag": "depthOnly.frag",
+        "vert": "depthOnly.vert"
+      }
     }
   ]
 }
