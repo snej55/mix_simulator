@@ -16,7 +16,6 @@
 #include "ibl.hpp"
 #include "scene.hpp"
 #include "lights.hpp"
-#include "shadows.hpp"
 
 class DeferredRenderer final : public EngineObject
 {
@@ -96,8 +95,7 @@ public:
     // hybrid renderer
     void renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
                      const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl, const glm::vec3& cameraPos,
-                     const std::vector<Lights::PointLight*>& pointLights = {},
-                     const Shadows::CSMGenerator* csmGenerator = nullptr, const Shader* depthOnly = nullptr);
+                     const std::vector<Lights::PointLight*>& pointLights = {});
 
     // add static model
     void addStaticModel(const Model* model, const glm::mat4& modelTransform);
@@ -122,10 +120,6 @@ public:
     [[nodiscard]] const std::vector<std::pair<Model*, glm::mat4>>& getDynamicModels() const { return m_dynamicModels; }
 
     void initPointLightModel(const char* path);
-
-    // CSM
-    void renderShadows(const Shadows::CSMGenerator* csmGenerator, const Shader* depthShader, int scrWidth,
-                       int scrHeight);
 
 private:
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticOpaqueMeshes{};

@@ -200,14 +200,14 @@ bool Engine::init(const int width, const int height, const char* title)
     }
     m_ssaoGenerator->init(getWidth(), getHeight());
 
-    if (!createCSMGenerator())
-    {
-        Util::beginError();
-        std::cout << "ENGINE::INIT::ERROR: Failed to create CSMGenerator" << std::endl;
-        Util::endError();
-        return false;
-    }
-    m_csmGenerator->generateMaps();
+    // if (!createCSMGenerator())
+    // {
+    //     Util::beginError();
+    //     std::cout << "ENGINE::INIT::ERROR: Failed to create CSMGenerator" << std::endl;
+    //     Util::endError();
+    //     return false;
+    // }
+    // m_csmGenerator->generateMaps();
 
     if (!createJoltInstance())
     {
@@ -301,11 +301,10 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
     // ----- Render Frame ----- //
     if (renderQueue != nullptr)
     {
-        constexpr glm::vec3 lightDir{20.f, 50.f, 20.f};
-        m_csmGenerator->updateLSMatrices(getViewMatrix(), m_lightDirection, m_camera->getZoom(),
-                                         static_cast<float>(getWidth()) / static_cast<float>(getHeight()));
+        // m_csmGenerator->updateLSMatrices(getViewMatrix(), m_lightDirection, m_camera->getZoom(),
+        //                                  static_cast<float>(getWidth()) / static_cast<float>(getHeight()));
         renderQueue->renderFrame(getShader("gBuffer"), m_deferredRenderer, getShader("texturePBR"), m_postProcessor,
-                                 this, ibl, getCameraPosition(), pointLights, m_csmGenerator, getShader("depthOnly"));
+                                 this, ibl, getCameraPosition(), pointLights);
         renderQueue->update();
     }
     else
@@ -1080,25 +1079,6 @@ void Engine::renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::Po
     glActiveTexture(GL_TEXTURE12);
     glBindTexture(GL_TEXTURE_2D, ibl->getBRDFLutMap());
 
-    setInt("csmEnabled", 1, "deferredShading");
-    setInt("cascadeCount", Shadows::CASCADE_COUNT, "deferredShading");
-    setInt("shadowMap", 23, "deferredShading");
-    glActiveTexture(GL_TEXTURE23);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, m_csmGenerator->getTextures());
-
-    const std::array<glm::mat4, Shadows::CASCADE_COUNT>& lightSpaceMatrices{m_csmGenerator->getLightSpaceMatrices()};
-    for (std::size_t i{0}; i < lightSpaceMatrices.size(); ++i)
-    {
-        setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", lightSpaceMatrices[i], "deferredShading");
-    }
-    const std::array<float, Shadows::CASCADE_COUNT>& cascadeSplits{m_csmGenerator->getSplits()};
-    for (std::size_t i{0}; i < cascadeSplits.size(); ++i)
-    {
-        setFloat("cascadeSplits[" + std::to_string(i) + "]", cascadeSplits[i], "deferredShading");
-    }
-    setFloat("farPlane", CAMERA_Z_FAR, "deferredShading");
-    setVec3("lightDir", glm::normalize(m_lightDirection), "deferredShading");
-
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
     m_deferredRenderer->renderQuad();
@@ -1141,20 +1121,19 @@ void Engine::renderSSAO()
 }
 
 // ------ CSM Generator ------ //
-bool Engine::createCSMGenerator()
-{
-    if (m_csmGenerator != nullptr)
-    {
-        Util::beginError();
-        std::cout << "ENGINE::CREATE_CSM_GENERATOR::ERROR: CSMGenerator already exists at `" << m_csmGenerator << "`";
-        Util::endError();
-        return false;
-    }
+// bool Engine::createCSMGenerator()
+// {
+//     if (m_csmGenerator != nullptr)
+//     {
+//         Util::beginError();
+//         std::cout << "ENGINE::CREATE_CSM_GENERATOR::ERROR: CSMGenerator already exists at `" << m_csmGenerator <<
+//         "`"; Util::endError(); return false;
+//     }
 
-    m_csmGenerator = new Shadows::CSMGenerator{this};
-    m_arena->addObject(m_csmGenerator);
-    return true;
-}
+//     m_csmGenerator = new Shadows::CSMGenerator{this};
+//     m_arena->addObject(m_csmGenerator);
+//     return true;
+// }
 
 // ------ Jolt Instance ------ //
 

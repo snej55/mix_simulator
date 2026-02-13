@@ -25,17 +25,8 @@ uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
-// CSM
-uniform int csmEnabled = 0;
-uniform int cascadeCount = 4;
-uniform sampler2DArray shadowMap;
-uniform mat4 lightSpaceMatrices[16];
-uniform float cascadeSplits[16];
-uniform float farPlane;
-
 uniform vec3 viewPos;
 uniform mat4 view;
-uniform vec3 lightDir;
 
 const int MAX_POINT_LIGHTS = 32;
 uniform int activeLights = 32;
@@ -105,60 +96,6 @@ float getFogFactor(float d)
         return 0.0;
 
     return 1 - (FogMax - d) / (FogMax - FogMin);
-}
-
-float getShadow(vec3 fragPosWS, vec3 normal)
-{
-    vec4 fragPosVS = view * vec4(fragPosWS, 1.0);
-    float depth = abs(fragPosVS.z);
-
-    int layer = -1;
-    for (int i = 0; i < cascadeCount; ++i)
-    {
-        if (depth < cascadeSplits[i])
-        {
-            layer = i;
-            break;
-        }
-    }
-    if (layer == -1)
-    {
-        layer = cascadeCount;
-    }
-
-    vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(fragPosWS, 1.0);
-    vec3 projCoords = fragPosLS.xyz / fragPosLS.w; // perspective divide
-    projCoords = projCoords * 0.5 + 0.5; // 0.0 - 1.0
-
-    float currentDepth = projCoords.z;
-    if (currentDepth > 1.0)
-    {
-        return 0.0;
-    }
-
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    const float biasMod = 0.5f;
-    if (layer == cascadeCount)
-    {
-        bias *= 1.0 / (farPlane * biasMod);
-    }
-    else
-    {
-        bias *= 1.0 / (cascadeSplits[layer] * biasMod);
-    }
-
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
-    for (int x = -1; x <= 1; ++x)
-    {
-        for (int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
-            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
-        }
-    }
-    shadow /= 9.0;
-    return shadow;
 }
 
 void main()
@@ -259,21 +196,15 @@ void main()
         ssaoFactor = texture(ssao, TexCoords).r;
     }
 
+
     vec3 ambient = (diffuse * kDA + spec) * ao * ssaoFactor;
 
     // get fog effect
     float fogAlpha = getFogFactor(abs(FragPosVS.z) * fogStrength);
     vec3 fogColor = textureLod(prefilterMap, normalize(FragPos - viewPos), MAX_REFLECTION_LOD).rgb;
 
-    // get shadow
-    float shadow = 0.0;
-    if (csmEnabled > 0)
-    {
-        shadow = 1.0 - getShadow(FragPos, norm);
-    }
-
     // final color
-    vec3 color = (ambient + shadow) + emissive * fogAlpha + Lo;
+    vec3 color = ambient + emissive * fogAlpha + Lo;
     color = mix(color, fogColor, fogAlpha);
 
     FragColor = vec4(color, alpha);
