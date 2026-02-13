@@ -200,14 +200,13 @@ bool Engine::init(const int width, const int height, const char* title)
     }
     m_ssaoGenerator->init(getWidth(), getHeight());
 
-    // if (!createCSMGenerator())
-    // {
-    //     Util::beginError();
-    //     std::cout << "ENGINE::INIT::ERROR: Failed to create CSMGenerator" << std::endl;
-    //     Util::endError();
-    //     return false;
-    // }
-    // m_csmGenerator->generateMaps();
+    if (!createCSMGenerator())
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT::ERROR: Failed to create CSMGenerator" << std::endl;
+        Util::endError();
+        return false;
+    }
 
     if (!createJoltInstance())
     {
@@ -1121,19 +1120,20 @@ void Engine::renderSSAO()
 }
 
 // ------ CSM Generator ------ //
-// bool Engine::createCSMGenerator()
-// {
-//     if (m_csmGenerator != nullptr)
-//     {
-//         Util::beginError();
-//         std::cout << "ENGINE::CREATE_CSM_GENERATOR::ERROR: CSMGenerator already exists at `" << m_csmGenerator <<
-//         "`"; Util::endError(); return false;
-//     }
+bool Engine::createCSMGenerator()
+{
+    if (m_csmGenerator != nullptr)
+    {
+        Util::beginError();
+        std::cout << "ENGINE::CREATE_CSM_GENERATOR::ERROR: CSMGenerator already exists at `" << m_csmGenerator << "`";
+        Util::endError();
+        return false;
+    }
 
-//     m_csmGenerator = new Shadows::CSMGenerator{this};
-//     m_arena->addObject(m_csmGenerator);
-//     return true;
-// }
+    m_csmGenerator = new CSMGenerator{this};
+    m_arena->addObject(m_csmGenerator);
+    return true;
+}
 
 // ------ Jolt Instance ------ //
 

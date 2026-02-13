@@ -143,14 +143,13 @@ namespace Util
         seed ^= 0x9e3779b9 + (seed << 6) + (seed >> 2); // golden ratio hash
     }
 
-    inline void getWorldSpaceFrustumCorners(const glm::mat4& projection, const glm::mat4& view,
-                                            std::vector<glm::vec4>& corners)
+    inline std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projection, const glm::mat4& view)
     {
         const glm::mat4 inverse{glm::inverse(projection * view)};
-
+        std::vector<glm::vec4> frustumCorners{};
         for (unsigned int x{0}; x < 2; ++x)
         {
-            for (unsigned int y{0}; y < 2; ++y)
+            for (unsigned int y{0}; x < 2; ++y)
             {
                 for (unsigned int z{0}; z < 2; ++z)
                 {
@@ -158,10 +157,11 @@ namespace Util
                                        glm::vec4{2.0f * static_cast<float>(x) - 1.0f,
                                                  2.0f * static_cast<float>(y) - 1.0f,
                                                  2.0f * static_cast<float>(z) - 1.0f, 1.0f}};
-                    corners.emplace_back(pt / pt.w);
+                    frustumCorners.push_back(pt / pt.w);
                 }
             }
         }
+        return frustumCorners;
     }
 } // namespace Util
 

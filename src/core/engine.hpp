@@ -232,8 +232,8 @@ public:
     void setSSAOEnabled(const bool val) { m_ssaoEnabled = val; }
 
     // ------ Shadows ------ //
-    // bool createCSMGenerator();
-    // [[nodiscard]] Shadows::CSMGenerator* getCSMGenerator() const { return m_csmGenerator; }
+    bool createCSMGenerator();
+    [[nodiscard]] CSMGenerator* getCSMGenerator() const { return m_csmGenerator; }
 
     // ------ Jolt Physics ------ //
     bool createJoltInstance();
@@ -296,7 +296,7 @@ private:
     DeferredRenderer* m_deferredRenderer{nullptr};
     SSAOGenerator* m_ssaoGenerator{nullptr};
     bool m_ssaoEnabled{true};
-    // Shadows::CSMGenerator* m_csmGenerator{nullptr};
+    CSMGenerator* m_csmGenerator{nullptr};
     glm::vec3 m_lightDirection{0.0f};
 
     FontManager* m_fontRenderer{nullptr};
