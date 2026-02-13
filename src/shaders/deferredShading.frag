@@ -25,8 +25,17 @@ uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
+// CSM
+uniform int csmEnabled = 0;
+uniform int cascadeCount = 4;
+uniform sampler2DArray shadowMap;
+uniform mat4 lightSpaceMatrices[16];
+uniform float cascadeSplits[16];
+uniform float farPlane;
+
 uniform vec3 viewPos;
 uniform mat4 view;
+uniform vec3 lightDir;
 
 const int MAX_POINT_LIGHTS = 32;
 uniform int activeLights = 32;
@@ -96,6 +105,52 @@ float getFogFactor(float d)
         return 0.0;
 
     return 1 - (FogMax - d) / (FogMax - FogMin);
+}
+
+float getShadow(vec3 fragPosWS, vec3 normal)
+{
+    vec4 fragPosVS = view * vec4(fragPosWS, 1.0);
+    float depth = abs(fragPosVS.z);
+
+    int layer = -1;
+    for (int i = 0; i < cascadeCount; ++i)
+    {
+        if (depth < cascadeSplits[i])
+        {
+            layer = i;
+            break;
+        }
+    }
+    if (layer == -1)
+    {
+        layer = cascadeCount;
+    }
+
+    vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(fragPosWS, 1.0);
+    vec3 projCoords = fragPosLS.xyz / fragPosLS.w; // perspective divide
+    projCoords = projCoords * 0.5 + 0.5; // 0.0 - 1.0
+
+    float currentDepth = projCoords.z;
+    if (currentDepth > 1.0)
+    {
+        return 0.0;
+    }
+
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    const float biasMod = 0.5f;
+    if (layer == cascadeCount)
+    {
+        bias *= 1.0 / (farPlane * biasMod);
+    }
+    else
+    {
+        bias *= 1.0 / (cascadeSplits[layer] * biasMod);
+    }
+
+    // TODO: Add PCF
+
+    float shadow = 0.0;
+    return shadow;
 }
 
 void main()
