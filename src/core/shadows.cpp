@@ -11,11 +11,12 @@
 
 #include "shadows.hpp"
 #include "camera.hpp"
+#include "engine_types.hpp"
 #include "util.hpp"
 
-Shadows::CSMGenerator::CSMGenerator() { generateSplits(); }
+Shadows::CSMGenerator::CSMGenerator(EngineObject* parent) : EngineObject{"CSMGenerator", parent} { generateSplits(); }
 
-Shadows::CSMGenerator::~CSMGenerator() = default;
+Shadows::CSMGenerator::~CSMGenerator() { free(); }
 
 void Shadows::CSMGenerator::generateMaps()
 {
@@ -36,6 +37,7 @@ void Shadows::CSMGenerator::generateMaps()
     glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_textures, 0, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 

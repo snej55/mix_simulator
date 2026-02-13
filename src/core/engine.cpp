@@ -16,6 +16,7 @@
 #include "physics.hpp"
 #include "postprocessing.hpp"
 #include "renderer.hpp"
+#include "shadows.hpp"
 #include "shapes.hpp"
 using json = nlohmann::json;
 
@@ -199,6 +200,15 @@ bool Engine::init(const int width, const int height, const char* title)
     }
     m_ssaoGenerator->init(getWidth(), getHeight());
 
+    if (!createCSMGenerator())
+    {
+        Util::beginError();
+        std::cout << "ENGINE::INIT::ERROR: Failed to create CSMGenerator" << std::endl;
+        Util::endError();
+        return false;
+    }
+    m_csmGenerator->generateMaps();
+
     if (!createJoltInstance())
     {
         Util::beginError();
@@ -291,8 +301,11 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
     // ----- Render Frame ----- //
     if (renderQueue != nullptr)
     {
+        constexpr glm::vec3 lightDir{20.f, 50.f, 20.f};
+        m_csmGenerator->updateLSMatrices(getViewMatrix(), lightDir, m_camera->getZoom(),
+                                         static_cast<float>(getWidth()) / static_cast<float>(getHeight()));
         renderQueue->renderFrame(getShader("gBuffer"), m_deferredRenderer, getShader("texturePBR"), m_postProcessor,
-                                 this, ibl, getCameraPosition(), pointLights);
+                                 this, ibl, getCameraPosition(), pointLights, m_csmGenerator, getShader("depthOnly"));
         renderQueue->update();
     }
     else
@@ -1106,6 +1119,22 @@ void Engine::renderSSAO()
         m_ssaoGenerator->render(m_deferredRenderer, getShader("ssao"), getProjectionMatrix(), getShader("ssaoBlur"),
                                 getViewMatrix());
     }
+}
+
+// ------ CSM Generator ------ //
+bool Engine::createCSMGenerator()
+{
+    if (m_csmGenerator != nullptr)
+    {
+        Util::beginError();
+        std::cout << "ENGINE::CREATE_CSM_GENERATOR::ERROR: CSMGenerator already exists at `" << m_csmGenerator << "`";
+        Util::endError();
+        return false;
+    }
+
+    m_csmGenerator = new Shadows::CSMGenerator{this};
+    m_arena->addObject(m_csmGenerator);
+    return true;
 }
 
 // ------ Jolt Instance ------ //

@@ -12,6 +12,7 @@
 #include "model.hpp"
 #include "postprocessing.hpp"
 #include "shader.hpp"
+#include "shadows.hpp"
 #include "shapes.hpp"
 #include "texture.hpp"
 #include "window.hpp"
@@ -230,6 +231,10 @@ public:
     [[nodiscard]] bool getSSAOEnabled() const { return m_ssaoEnabled; }
     void setSSAOEnabled(const bool val) { m_ssaoEnabled = val; }
 
+    // ------ Shadows ------ //
+    bool createCSMGenerator();
+    [[nodiscard]] Shadows::CSMGenerator* getCSMGenerator() const { return m_csmGenerator; }
+
     // ------ Jolt Physics ------ //
     bool createJoltInstance();
 
@@ -288,6 +293,7 @@ private:
     DeferredRenderer* m_deferredRenderer{nullptr};
     SSAOGenerator* m_ssaoGenerator{nullptr};
     bool m_ssaoEnabled{true};
+    Shadows::CSMGenerator* m_csmGenerator{nullptr};
 
     FontManager* m_fontRenderer{nullptr};
     UIRenderer* m_uiRenderer{nullptr};

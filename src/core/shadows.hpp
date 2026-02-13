@@ -7,6 +7,8 @@
 
 #include <array>
 
+#include "engine_types.hpp"
+
 namespace Shadows
 {
     inline constexpr std::size_t CASCADE_COUNT{4};
@@ -14,10 +16,10 @@ namespace Shadows
     inline constexpr float CASCADE_RADIUS{100.f};
     inline constexpr int CSM_MAP_SIZE{2048};
 
-    class CSMGenerator
+    class CSMGenerator final : public EngineObject
     {
     public:
-        CSMGenerator();
+        explicit CSMGenerator(EngineObject* parent);
         ~CSMGenerator();
 
         void generateMaps();

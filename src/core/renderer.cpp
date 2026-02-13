@@ -9,6 +9,7 @@
 
 #include "lights.hpp"
 #include "scene.hpp"
+#include "shadows.hpp"
 #include "util.hpp"
 #include "engine.hpp"
 
@@ -153,9 +154,15 @@ void RenderQueue::update() { m_dynamicModels.clear(); }
 
 void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
                               const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl,
-                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights)
+                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights,
+                              const Shadows::CSMGenerator* csmGenerator, const Shader* depthOnly)
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
+
+    if (csmGenerator != nullptr && depthOnly != nullptr)
+    {
+        renderShadows(csmGenerator, depthOnly, enginePtr->getWidth(), enginePtr->getHeight());
+    }
 
     // ------ DEFERRED RENDERING PASS ------ //
     dfRenderer->setupGeometryPass(dfShader, enginePtr->getProjectionMatrix(), enginePtr->getViewMatrix());
@@ -355,4 +362,37 @@ void RenderQueue::initPointLightModel(const char* path)
     m_pointLightModel->loadModel(path);
 
     std::cout << "RENDER_QUEUE::INIT: Loaded model for point light rendering from `" << path << "`" << std::endl;
+}
+
+void RenderQueue::renderShadows(const Shadows::CSMGenerator* csmGenerator, const Shader* depthShader,
+                                const int scrWidth, const int scrHeight)
+{
+    const auto& lightSpaceMatrices{csmGenerator->getLightSpaceMatrices()};
+
+    for (std::size_t i{0}; i < Shadows::CASCADE_COUNT; ++i)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, csmGenerator->getFBO());
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, csmGenerator->getTextures(), 0,
+                                  static_cast<GLint>(i));
+        glViewport(0, 0, Shadows::CSM_MAP_SIZE, Shadows::CSM_MAP_SIZE);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+
+        depthShader->use();
+        depthShader->setMat4("lightSpace", lightSpaceMatrices[i]);
+
+        for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
+        {
+            model.first->renderDeferred(depthShader, model.second);
+        }
+
+        for (const std::pair<Mesh*, glm::mat4>& model : m_staticOpaqueMeshes)
+        {
+            depthShader->setMat4("model", model.second);
+            model.first->render(depthShader);
+        }
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, scrWidth, scrHeight);
 }
