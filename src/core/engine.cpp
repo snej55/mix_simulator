@@ -302,7 +302,7 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
     if (renderQueue != nullptr)
     {
         constexpr glm::vec3 lightDir{20.f, 50.f, 20.f};
-        m_csmGenerator->updateLSMatrices(getViewMatrix(), lightDir, m_camera->getZoom(),
+        m_csmGenerator->updateLSMatrices(getViewMatrix(), m_lightDirection, m_camera->getZoom(),
                                          static_cast<float>(getWidth()) / static_cast<float>(getHeight()));
         renderQueue->renderFrame(getShader("gBuffer"), m_deferredRenderer, getShader("texturePBR"), m_postProcessor,
                                  this, ibl, getCameraPosition(), pointLights, m_csmGenerator, getShader("depthOnly"));
@@ -1079,6 +1079,25 @@ void Engine::renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::Po
     setInt("brdfLUT", 12, "deferredShading");
     glActiveTexture(GL_TEXTURE12);
     glBindTexture(GL_TEXTURE_2D, ibl->getBRDFLutMap());
+
+    setInt("csmEnabled", 1, "deferredShading");
+    setInt("cascadeCount", Shadows::CASCADE_COUNT, "deferredShading");
+    setInt("shadowMap", 23, "deferredShading");
+    glActiveTexture(GL_TEXTURE23);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_csmGenerator->getTextures());
+
+    const std::array<glm::mat4, Shadows::CASCADE_COUNT>& lightSpaceMatrices{m_csmGenerator->getLightSpaceMatrices()};
+    for (std::size_t i{0}; i < lightSpaceMatrices.size(); ++i)
+    {
+        setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", lightSpaceMatrices[i], "deferredShading");
+    }
+    const std::array<float, Shadows::CASCADE_COUNT>& cascadeSplits{m_csmGenerator->getSplits()};
+    for (std::size_t i{0}; i < cascadeSplits.size(); ++i)
+    {
+        setFloat("cascadeSplits[" + std::to_string(i) + "]", cascadeSplits[i], "deferredShading");
+    }
+    setFloat("farPlane", CAMERA_Z_FAR, "deferredShading");
+    setVec3("lightDir", glm::normalize(m_lightDirection), "deferredShading");
 
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);

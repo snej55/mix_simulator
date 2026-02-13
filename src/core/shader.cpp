@@ -182,6 +182,7 @@ void Shader::initializeSamplers(const unsigned int id) const
         case (GL_SAMPLER_2D):
         case (GL_SAMPLER_3D):
         case (GL_SAMPLER_CUBE):
+        case (GL_SAMPLER_2D_ARRAY):
             {
                 // get uniform location
                 GLint texLoc{glGetUniformLocation(id, name)};

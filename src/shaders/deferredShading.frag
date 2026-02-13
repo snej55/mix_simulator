@@ -265,8 +265,15 @@ void main()
     float fogAlpha = getFogFactor(abs(FragPosVS.z) * fogStrength);
     vec3 fogColor = textureLod(prefilterMap, normalize(FragPos - viewPos), MAX_REFLECTION_LOD).rgb;
 
+    // get shadow
+    float shadow = 0.0;
+    if (csmEnabled > 0)
+    {
+        shadow = 1.0 - getShadow(FragPos, norm);
+    }
+
     // final color
-    vec3 color = ambient + emissive * fogAlpha + Lo;
+    vec3 color = (ambient + shadow) + emissive * fogAlpha + Lo;
     color = mix(color, fogColor, fogAlpha);
 
     FragColor = vec4(color, alpha);

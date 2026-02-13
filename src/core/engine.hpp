@@ -268,6 +268,9 @@ public:
     void mouse_callback(double xPosIn, double yPosIn);
     void scroll_callback(double yOffset) const;
 
+    [[nodiscard]] const glm::vec3& getLightDirection() const { return m_lightDirection; }
+    void setLightDirection(const glm::vec3& lightDir) { m_lightDirection = lightDir; }
+
 private:
     // memory manager
     Arena* m_arena{nullptr};
@@ -294,6 +297,7 @@ private:
     SSAOGenerator* m_ssaoGenerator{nullptr};
     bool m_ssaoEnabled{true};
     Shadows::CSMGenerator* m_csmGenerator{nullptr};
+    glm::vec3 m_lightDirection{0.0f};
 
     FontManager* m_fontRenderer{nullptr};
     UIRenderer* m_uiRenderer{nullptr};

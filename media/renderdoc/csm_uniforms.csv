@@ -1,0 +1,241 @@
+Name,Value,Byte Offset,Type
+activeLights,"3",,int
+cascadeCount,"4",,int
+cascadeSplits,,,float[16]
+cascadeSplits[0],"125.53751",,float
+cascadeSplits[1],"255.02501",,float
+cascadeSplits[2],"425.01251",,float
+cascadeSplits[3],"0.00",,float
+cascadeSplits[4],"0.00",,float
+cascadeSplits[5],"0.00",,float
+cascadeSplits[6],"0.00",,float
+cascadeSplits[7],"0.00",,float
+cascadeSplits[8],"0.00",,float
+cascadeSplits[9],"0.00",,float
+cascadeSplits[10],"0.00",,float
+cascadeSplits[11],"0.00",,float
+cascadeSplits[12],"0.00",,float
+cascadeSplits[13],"0.00",,float
+cascadeSplits[14],"0.00",,float
+cascadeSplits[15],"0.00",,float
+csmEnabled,"1",,int
+farPlane,"1000.00",,float
+fogStrength,"1.00",,float
+lightDir,"0.00, 0.00, 0.00",,float3
+lightSpaceMatrices,,,float4x4 (column_major)[16]
+lightSpaceMatrices[0],,,float4x4 (column_major)
+lightSpaceMatrices[0].row0,"-0.01027, 0.00, 0.01027, 0.8978",,float4
+lightSpaceMatrices[0].row1,"-0.00846, 0.00677, -0.00846, -0.94935",,float4
+lightSpaceMatrices[0].row2,"0.00047, 0.00118, 0.00047, 1.15584",,float4
+lightSpaceMatrices[0].row3,"0.00, 0.00, 0.00, 1.00",,float4
+lightSpaceMatrices[1],,,float4x4 (column_major)
+lightSpaceMatrices[1].row0,"-0.00589, 0.00, 0.00589, 1.27206",,float4
+lightSpaceMatrices[1].row1,"-0.00429, 0.00344, -0.00429, -1.03695",,float4
+lightSpaceMatrices[1].row2,"0.00025, 0.00062, 0.00025, 0.6618",,float4
+lightSpaceMatrices[1].row3,"0.00, 0.00, 0.00, 1.00",,float4
+lightSpaceMatrices[2],,,float4x4 (column_major)
+lightSpaceMatrices[2].row0,"-0.00367, 0.00, 0.00367, 1.38191",,float4
+lightSpaceMatrices[2].row1,"-0.00259, 0.00208, -0.00259, -1.06141",,float4
+lightSpaceMatrices[2].row2,"0.00015, 0.00037, 0.00015, 0.38929",,float4
+lightSpaceMatrices[2].row3,"0.00, 0.00, 0.00, 1.00",,float4
+lightSpaceMatrices[3],,,float4x4 (column_major)
+lightSpaceMatrices[3].row0,"-0.00147, 0.00, 0.00147, 1.26473",,float4
+lightSpaceMatrices[3].row1,"-0.00109, 0.00087, -0.00109, -1.04738",,float4
+lightSpaceMatrices[3].row2,"0.00006, 0.00016, 0.00006, 0.06138",,float4
+lightSpaceMatrices[3].row3,"0.00, 0.00, 0.00, 1.00",,float4
+lightSpaceMatrices[4],,,float4x4 (column_major)
+lightSpaceMatrices[4].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[4].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[4].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[4].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[5],,,float4x4 (column_major)
+lightSpaceMatrices[5].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[5].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[5].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[5].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[6],,,float4x4 (column_major)
+lightSpaceMatrices[6].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[6].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[6].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[6].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[7],,,float4x4 (column_major)
+lightSpaceMatrices[7].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[7].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[7].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[7].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[8],,,float4x4 (column_major)
+lightSpaceMatrices[8].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[8].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[8].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[8].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[9],,,float4x4 (column_major)
+lightSpaceMatrices[9].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[9].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[9].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[9].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[10],,,float4x4 (column_major)
+lightSpaceMatrices[10].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[10].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[10].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[10].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[11],,,float4x4 (column_major)
+lightSpaceMatrices[11].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[11].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[11].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[11].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[12],,,float4x4 (column_major)
+lightSpaceMatrices[12].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[12].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[12].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[12].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[13],,,float4x4 (column_major)
+lightSpaceMatrices[13].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[13].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[13].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[13].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[14],,,float4x4 (column_major)
+lightSpaceMatrices[14].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[14].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[14].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[14].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[15],,,float4x4 (column_major)
+lightSpaceMatrices[15].row0,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[15].row1,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[15].row2,"0.00, 0.00, 0.00, 0.00",,float4
+lightSpaceMatrices[15].row3,"0.00, 0.00, 0.00, 0.00",,float4
+lights,,,struct[32]
+lights[0],,,struct
+color,"0.00, 1.00, 0.00",,float3
+position,"10.00, 10.00, 10.00",,float3
+radius,"100.00",,float
+lights[1],,,struct
+color,"1.00, 1.00, 1.00",,float3
+position,"14.09839, 10.00, 0.00",,float3
+radius,"100.00",,float
+lights[2],,,struct
+color,"1.00, 1.00, 1.00",,float3
+position,"18.10121, 12.40158, 3.20045",,float3
+radius,"100.00",,float
+lights[3],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[4],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[5],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[6],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[7],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[8],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[9],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[10],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[11],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[12],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[13],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[14],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[15],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[16],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[17],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[18],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[19],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[20],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[21],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[22],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[23],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[24],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[25],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[26],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[27],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[28],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[29],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[30],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+lights[31],,,struct
+color,"0.00, 0.00, 0.00",,float3
+position,"0.00, 0.00, 0.00",,float3
+radius,"0.00",,float
+ssaoEnabled,"1",,int
+view,,,float4x4 (column_major)
+view.row0,"1.00, 0.00, -4.37114E-08, 4.37114E-07",,float4
+view.row1,"0.00, 1.00, 0.00, -5.00",,float4
+view.row2,"4.37114E-08, 0.00, 1.00, -10.00",,float4
+view.row3,"0.00, 0.00, 0.00, 1.00",,float4
+viewPos,"0.00, 5.00, 10.00",,float3

@@ -38,6 +38,7 @@ bool Game::init()
     m_engine.getAudioHandler()->getSound(m_assets->m_SFX_metalImpact)->setFilter(0, &m_bqrFilter);
 
     // load level data
+    m_engine.setLightDirection({20.f, 50.f, 20.f});
     m_scene = std::make_unique<Scene>(&m_engine);
     m_scene->init("data/maps/0.json");
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
