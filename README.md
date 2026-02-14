@@ -35,6 +35,7 @@ cd build
 - Frustum Culling (AABB bounding volumes)
 - Freetype2 font rendering
 - Physics engine ([Jolt](https://github.com/jrouwe/JoltPhysics))
+- Cascading Shadow Maps
 
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20251213_093758.png)
 
@@ -69,16 +70,19 @@ cd build
 - [ ] Find lens dirt texture
 - [ ] Area lights
 - [ ] Optimize static shader uniforms
-- [ ] Add player character + controls/kinematic body
+- [X] Add player character + controls/kinematic body
 - [X] Create player models
 - [X] Implement freetype2 font rendering
 - [X] Screen coordinates shape rendering
 - [X] Add UI framebuffer
+- [X] Add cascading shadow maps
+- [ ] Smooth cascade transition
 - [ ] Add credits
 - [ ] Add alpha to shape rendering
 - [ ] Add settings
-- [ ] Add in game font
+- [X] Add in game font
 - [ ] Find new HDRI
+- [ ] Make some music
 - [X] Add physics sfx using jolt contact listeners
 - [ ] Add sliding sfx
 - [ ] Add flow field pathfinding algorithm
