@@ -70,6 +70,14 @@ void Model::render(const Shader* shader) const
     }
 }
 
+void Model::renderDepth() const
+{
+    for (std::size_t i{0}; i < m_meshes.size(); ++i)
+    {
+        m_meshes[i].renderDepth();
+    }
+}
+
 void Model::renderPBR(const Shader* pbrShader) const
 {
     for (std::size_t i{0}; i < m_meshes.size(); ++i)

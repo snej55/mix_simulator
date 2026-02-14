@@ -23,6 +23,7 @@ public:
     bool loadModel(const std::string& path);
 
     void render(const Shader* shader) const;
+    void renderDepth() const;
     void renderPBR(const Shader* pbrShader) const;
     // forward render the model
     void renderForward(const Shader* pbrShader, const glm::vec3& cameraPos, const glm::mat4& model) const;

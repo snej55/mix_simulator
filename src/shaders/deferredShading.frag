@@ -126,6 +126,8 @@ float getShadow(vec3 fragPosWS, vec3 normal)
         layer = cascadeCount;
     }
 
+    // const float offsetScale = 0.01;
+    // vec3 offsetPosWS = fragPosWS + normal * offsetScale;
     vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(fragPosWS, 1.0);
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -138,16 +140,7 @@ float getShadow(vec3 fragPosWS, vec3 normal)
     }
 
     // bias
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.05);
-    const float biasMod = 0.5f;
-    if (layer == cascadeCount)
-    {
-        bias *= 1 / (farPlane * biasMod);
-    }
-    else
-    {
-        bias *= 1 / (cascadePlaneDistances[layer] * biasMod);
-    }
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005) * 0.001;
 
     // PCF
     float shadow = 0.0;
@@ -157,12 +150,12 @@ float getShadow(vec3 fragPosWS, vec3 normal)
         for (int y = -1; y <= 1; ++y)
         {
             float pcfDepth = textureLod(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer), 0.0).r;
-            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
+            shadow += (currentDepth - 0.00001) > pcfDepth ? 1.0 : 0.0;
         }
     }
     shadow /= 9.0;
 
-    return shadow;
+    return shadow * 0.8;
 }
 
 void main()
@@ -269,7 +262,7 @@ void main()
         shadow = getShadow(FragPos, norm);
     }
 
-    vec3 ambient = (1.0 - shadow) * (diffuse * kDA + spec) * ao * ssaoFactor;
+    vec3 ambient = (1.0 - shadow) * (diffuse * kDA + spec) * ssaoFactor;
 
     // get fog effect
     float fogAlpha = getFogFactor(abs(FragPosVS.z) * fogStrength);

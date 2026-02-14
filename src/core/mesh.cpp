@@ -35,6 +35,12 @@ void Mesh::render(const Shader* shader) const
     glDisable(GL_CULL_FACE);
 }
 
+void Mesh::renderDepth() const
+{
+    glBindVertexArray(m_VAO);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
+}
+
 void Mesh::renderPBR(const Shader* pbrShader) const
 {
     pbrShader->use();

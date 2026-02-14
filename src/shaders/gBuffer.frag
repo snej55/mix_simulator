@@ -78,5 +78,6 @@ void main()
     gPositionE = vec4(FragPosVS, emissive.r);
     gAlbedo = albedoSample;
     gNormalE = vec4(normal, emissive.g);
+    // we don't really need ao btw :)
     gARME = vec4(ao, roughness, metallic, emissive.b);
 }

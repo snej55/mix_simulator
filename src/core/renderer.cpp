@@ -374,22 +374,27 @@ void RenderQueue::renderShadows(void* engine)
     glBindFramebuffer(GL_FRAMEBUFFER, csmGenerator->getFBO());
     glViewport(0, 0, Shadows::shadowMapSize, Shadows::shadowMapSize);
     glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_CLAMP);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.5f, 2.0f);
     glCullFace(GL_FRONT);
 
     // render scene
     for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
     {
         depthOnly->setMat4("model", model.second);
-        model.first->render(depthOnly);
+        model.first->renderDepth();
     }
 
     for (const std::pair<Mesh*, glm::mat4>& meshPair : m_staticOpaqueMeshes)
     {
         depthOnly->setMat4("model", meshPair.second);
-        meshPair.first->render(depthOnly);
+        meshPair.first->renderDepth();
     }
 
     glCullFace(GL_BACK);
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_DEPTH_CLAMP);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glViewport(0, 0, enginePtr->getWidth(), enginePtr->getHeight());

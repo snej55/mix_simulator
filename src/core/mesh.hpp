@@ -94,6 +94,7 @@ public:
          const std::vector<MeshN::Texture>& textures, const MeshN::Material& material);
 
     void render(const Shader* shader) const;
+    void renderDepth() const;
     void renderPBR(const Shader* pbrShader) const;
 
     void free() const;
