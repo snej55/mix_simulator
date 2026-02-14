@@ -17,7 +17,7 @@ public:
     explicit Shader(const std::string& name, EngineObject* parent = nullptr);
     ~Shader() override;
 
-    bool loadFromFile(const char* fragPath, const char* vertPath);
+    bool loadFromFile(const char* fragPath, const char* vertPath, const char* geomPath = nullptr);
 
     void use() const;
 
@@ -58,7 +58,8 @@ public:
     explicit ShaderManager(EngineObject* parent);
 
     // load new shader
-    void addShader(const std::string& name, const char* fragPath, const char* vertPath, Arena* arena);
+    void addShader(const std::string& name, const char* fragPath, const char* vertPath, Arena* arena,
+                   const char* geomPath = nullptr);
 
     [[nodiscard]] Shader* getShader(const std::string& name) const;
 

@@ -127,7 +127,7 @@ float getShadow(vec3 fragPosWS, vec3 normal)
     }
 
     vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(fragPosWS, 1.0);
-    vec3 projCoords = fragPosLS.wyz / fragPosLS.w;
+    vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
 
     float currentDepth = projCoords.z;

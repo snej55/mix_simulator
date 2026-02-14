@@ -96,7 +96,8 @@ public:
     [[nodiscard]] ShaderManager* getShaderManager() const { return m_shaderManager; }
 
     // shader manager methods
-    void addShader(const std::string& name, const char* fragPath, const char* vertPath) const;
+    void addShader(const std::string& name, const char* fragPath, const char* vertPath,
+                   const char* geomPath = nullptr) const;
     [[nodiscard]] Shader* getShader(const std::string& name) const;
     void useShader(const std::string& name) const;
     [[nodiscard]] bool shaderExists(const std::string& name) const;

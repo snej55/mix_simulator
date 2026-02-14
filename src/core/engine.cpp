@@ -452,9 +452,9 @@ bool Engine::createShaderManager()
     return true;
 }
 
-void Engine::addShader(const std::string& name, const char* fragPath, const char* vertPath) const
+void Engine::addShader(const std::string& name, const char* fragPath, const char* vertPath, const char* geomPath) const
 {
-    m_shaderManager->addShader(name, fragPath, vertPath, m_arena);
+    m_shaderManager->addShader(name, fragPath, vertPath, m_arena, geomPath);
 }
 
 Shader* Engine::getShader(const std::string& name) const { return m_shaderManager->getShader(name); }
@@ -485,6 +485,13 @@ bool Engine::checkShaders()
         std::string name{shader["name"]};
         std::string vertPath{"shaders/builtin/" + std::string(shader["shader"]["vert"])};
         std::string fragPath{"shaders/builtin/" + std::string(shader["shader"]["frag"])};
+        bool geomExists{false};
+        std::string geomPath;
+        if (shader["shader"].contains("geom"))
+        {
+            geomExists = true;
+            geomPath = "shaders/builtin/" + std::string(shader["shader"]["geom"]);
+        }
 
         // check if vertex shader exists
         if (!Util::fileExists(vertPath))
@@ -508,7 +515,20 @@ bool Engine::checkShaders()
             return false;
         }
 
-        std::cout << "Found builtin shader *" << name << "* at {vert: " << vertPath << ", frag: " << fragPath << "}\n";
+        if (geomExists)
+        {
+            if (!Util::fileExists(geomPath))
+            {
+                Util::beginError();
+                std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find geometry shader for *" << name << "* at: `"
+                          << geomPath << "`!";
+                Util::endError();
+                file.close();
+                return false;
+            }
+        }
+        std::cout << "Found builtin shader *" << name << "* at {vert: " << vertPath << ", frag: " << fragPath
+                  << ", geom: " << (geomExists ? geomPath : "none") << "}\n";
     }
 
     // repeat for custom
@@ -517,6 +537,13 @@ bool Engine::checkShaders()
         std::string name{shader["name"]};
         std::string vertPath{"shaders/" + std::string(shader["shader"]["vert"])};
         std::string fragPath{"shaders/" + std::string(shader["shader"]["frag"])};
+        bool geomExists{false};
+        std::string geomPath;
+        if (shader["shader"].contains("geom"))
+        {
+            geomExists = true;
+            geomPath = "shaders/" + std::string(shader["shader"]["geom"]);
+        }
 
         // check if vertex shader exists
         if (!Util::fileExists(vertPath))
@@ -539,8 +566,21 @@ bool Engine::checkShaders()
             file.close();
             return false;
         }
+        if (geomExists)
+        {
+            if (!Util::fileExists(geomPath))
+            {
+                Util::beginError();
+                std::cout << "ENGINE::CHECK_SHADERS::ERROR: Could not find geometry shader for *" << name << "* at: `"
+                          << geomPath << "`!";
+                Util::endError();
+                file.close();
+                return false;
+            }
+        }
 
-        std::cout << "Found custom shader *" << name << "* at {vert: " << vertPath << ", frag: " << fragPath << "}\n";
+        std::cout << "Found custom shader *" << name << "* at {vert: " << vertPath << ", frag: " << fragPath
+                  << ", geom: " << (geomExists ? geomPath : "none") << "}\n";
     }
 
     // close fstream
@@ -569,7 +609,14 @@ void Engine::loadShaders()
         std::string name{shader["name"]};
         std::string vertPath{"shaders/builtin/" + std::string(shader["shader"]["vert"])};
         std::string fragPath{"shaders/builtin/" + std::string(shader["shader"]["frag"])};
-        addShader(name, fragPath.c_str(), vertPath.c_str());
+        bool geomExists{false};
+        std::string geomPath;
+        if (shader["shader"].contains("geom"))
+        {
+            geomExists = true;
+            geomPath = "shaders/builtin/" + std::string(shader["shader"]["geom"]);
+        }
+        addShader(name, fragPath.c_str(), vertPath.c_str(), geomExists ? geomPath.c_str() : nullptr);
     }
     // repeat for custom shaders
     for (const auto& shader : data["custom"])
@@ -577,7 +624,14 @@ void Engine::loadShaders()
         std::string name{shader["name"]};
         std::string vertPath{"shaders/" + std::string(shader["shader"]["vert"])};
         std::string fragPath{"shaders/" + std::string(shader["shader"]["frag"])};
-        addShader(name, fragPath.c_str(), vertPath.c_str());
+        bool geomExists{false};
+        std::string geomPath;
+        if (shader["shader"].contains("geom"))
+        {
+            geomExists = true;
+            geomPath = "shaders/" + std::string(shader["shader"]["geom"]);
+        }
+        addShader(name, fragPath.c_str(), vertPath.c_str(), geomExists ? geomPath.c_str() : nullptr);
     }
 
     m_loadedShaders = true;

@@ -17,7 +17,7 @@ Shader::Shader(const std::string& name, EngineObject* parent) :
 
 Shader::~Shader() { glDeleteProgram(m_ID); }
 
-bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
+bool Shader::loadFromFile(const char* fragPath, const char* vertPath, const char* geomPath)
 {
     bool shaderSuccess{true};
 
@@ -38,14 +38,28 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
         Util::endError();
         return false;
     }
+    else if (geomPath != nullptr)
+    {
+        if (!Util::fileExists(geomPath))
+        {
+            Util::beginError();
+            std::cout << "SHADER::LOAD_FROM_FILE::ERROR: Failed to read geometry shader from `" << geomPath
+                      << "` - file does not exist!";
+            Util::endError();
+            return false;
+        }
+    }
 
     std::string vertCode;
     std::string fragCode;
+    std::string geomCode;
     std::ifstream vertFile;
     std::ifstream fragFile;
+    std::ifstream geomFile;
 
     vertFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fragFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    geomFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     // load shader source from file
     try
@@ -62,6 +76,15 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
 
         vertCode = vertStream.str();
         fragCode = fragStream.str();
+
+        if (geomPath != nullptr)
+        {
+            geomFile.open(geomPath);
+            std::stringstream geomStream;
+            geomStream << geomFile.rdbuf();
+            geomFile.close();
+            geomCode = geomStream.str();
+        }
     }
     catch ([[maybe_unused]] std::ifstream::failure& e)
     {
@@ -106,10 +129,32 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
         shaderSuccess = false;
     }
 
+    unsigned int geometry;
+    if (geomPath != nullptr)
+    {
+        const char* gShaderCode{geomCode.c_str()};
+        geometry = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(geometry, 1, &gShaderCode, nullptr);
+        glCompileShader(geometry);
+        glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            Util::beginError();
+            glGetShaderInfoLog(geometry, 512, nullptr, infoLog);
+            std::cout << "SHADER::LOAD_FROM_FILE::ERROR: Geometry shader compilation failed." << std::endl << infoLog;
+            Util::endError();
+            shaderSuccess = false;
+        }
+    }
+
     // actually create the program
     unsigned int id{glCreateProgram()};
     glAttachShader(id, vertex);
     glAttachShader(id, fragment);
+    if (geomPath != nullptr)
+    {
+        glAttachShader(id, geometry);
+    }
     glLinkProgram(id);
     // get linking errors
     glGetProgramiv(id, GL_LINK_STATUS, &success);
@@ -142,9 +187,18 @@ bool Shader::loadFromFile(const char* fragPath, const char* vertPath)
     // no longer needed
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+    if (geomPath != nullptr)
+    {
+        glDeleteShader(geometry);
+    }
 
-
-    std::cout << "Loaded *" << m_shaderName << "* shader from files: `" << vertPath << "` `" << fragPath << "`\n";
+    std::stringstream geomInfo;
+    if (geomPath != nullptr)
+    {
+        geomInfo << "`" << geomPath << "`";
+    }
+    std::cout << "Loaded *" << m_shaderName << "* shader from files: `" << vertPath << "` `" << fragPath << "`"
+              << (geomPath == nullptr ? "" : geomInfo.str()) << "\n";
 
     return shaderSuccess;
 }
@@ -277,12 +331,13 @@ void Shader::setMat4(const std::string& name, const glm::mat4& value) const
 ShaderManager::ShaderManager(EngineObject* parent) : EngineObject{"ShaderManager", parent} {}
 
 // load new shader
-void ShaderManager::addShader(const std::string& name, const char* fragPath, const char* vertPath, Arena* arena)
+void ShaderManager::addShader(const std::string& name, const char* fragPath, const char* vertPath, Arena* arena,
+                              const char* geomPath)
 {
     // create new shader and add it to arena
     Shader* shader{new Shader{name, this}};
     arena->addObject(shader);
-    if (!shader->loadFromFile(fragPath, vertPath))
+    if (!shader->loadFromFile(fragPath, vertPath, geomPath))
     {
         Util::beginError();
         std::cout << "SHADER_MANAGER::ADD_SHADER::ERROR: Failed to add shader `" << name << "`";
@@ -292,9 +347,6 @@ void ShaderManager::addShader(const std::string& name, const char* fragPath, con
     {
         m_shaders.insert(std::pair{name, shader});
     }
-
-    // load shader file
-    getShader(name)->loadFromFile(fragPath, vertPath);
 }
 
 Shader* ShaderManager::getShader(const std::string& name) const
