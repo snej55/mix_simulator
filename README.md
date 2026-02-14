@@ -3,7 +3,7 @@
 
 A physics based game made using C++ and OpenGL. Currently a renderer based off of my opengl framework.
 
-![screenshot](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20251213_093650.png)
+![screenshot](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260214_202103.png)
 
 Sketchfab GLTF model used: [https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66](https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66)
 
