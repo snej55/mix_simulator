@@ -272,7 +272,7 @@ public:
     void scroll_callback(double yOffset) const;
 
     [[nodiscard]] const glm::vec3& getLightDirection() const { return m_lightDirection; }
-    void setLightDirection(const glm::vec3& lightDir) { m_lightDirection = lightDir; }
+    void setLightDirection(const glm::vec3& lightDir) { m_lightDirection = glm::normalize(lightDir); }
 
 private:
     // memory manager

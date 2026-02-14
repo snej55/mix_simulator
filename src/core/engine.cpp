@@ -1078,6 +1078,28 @@ void Engine::renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::Po
     glActiveTexture(GL_TEXTURE12);
     glBindTexture(GL_TEXTURE_2D, ibl->getBRDFLutMap());
 
+    std::vector<glm::mat4> lightSpaceMatrices{m_csmGenerator->getLightSpaceMatrices(
+        m_camera->getZoom(), static_cast<float>(getWidth()) / static_cast<float>(getHeight()), getViewMatrix(),
+        m_lightDirection)};
+    for (std::size_t i{0}; i < lightSpaceMatrices.size(); ++i)
+    {
+        setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", lightSpaceMatrices[i], "deferredShading");
+    }
+    setVec3("lightDir", m_lightDirection, "deferredShading");
+    setInt("shadowMap", 13, "deferredShading");
+    glActiveTexture(GL_TEXTURE13);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, m_csmGenerator->getDepthMaps());
+
+    for (std::size_t i{0}; i < Shadows::shadowCascadeLevels.size(); ++i)
+    {
+        setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", Shadows::shadowCascadeLevels[i],
+                 "deferredShading");
+    }
+
+    setInt("cascadeCount", Shadows::shadowCascadeLevels.size(), "deferredShading");
+    setFloat("farPlane", CAMERA_Z_FAR, "deferredShading");
+    setInt("csmEnabled", 1, "deferredShading");
+
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
     m_deferredRenderer->renderQuad();
