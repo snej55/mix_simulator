@@ -1208,7 +1208,28 @@ bool Engine::createCSMGenerator()
 
     m_csmGenerator = new CSMGenerator{this};
     m_arena->addObject(m_csmGenerator);
+
+    // setup light matrices UBO
+    glGenBuffers(1, &m_lsMatricesUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_lsMatricesUBO);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) * 16, nullptr, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_lsMatricesUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     return true;
+}
+
+void Engine::updateLS_UBO()
+{
+    std::vector<glm::mat4> lightMatrices{m_csmGenerator->getLightSpaceMatrices(
+        m_camera->getZoom(), static_cast<float>(getWidth()) / static_cast<float>(getHeight()), getViewMatrix(),
+        m_lightDirection)};
+    glBindBuffer(GL_UNIFORM_BUFFER, m_lsMatricesUBO);
+    for (std::size_t i{0}; i < lightMatrices.size(); ++i)
+    {
+        glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4x4), sizeof(glm::mat4x4), &lightMatrices[i]);
+    }
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 // ------ Jolt Instance ------ //

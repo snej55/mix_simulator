@@ -239,6 +239,8 @@ public:
     [[nodiscard]] bool getShadowsEnabled() const { return m_shadowsEnabled; }
     void setShadowsEnabled(const bool val) { m_shadowsEnabled = val; }
 
+    void updateLS_UBO();
+
     // ------ Jolt Physics ------ //
     bool createJoltInstance();
 
@@ -304,6 +306,7 @@ private:
     CSMGenerator* m_csmGenerator{nullptr};
     glm::vec3 m_lightDirection{0.0f};
     bool m_shadowsEnabled{true};
+    unsigned int m_lsMatricesUBO{0};
 
     FontManager* m_fontRenderer{nullptr};
     UIRenderer* m_uiRenderer{nullptr};

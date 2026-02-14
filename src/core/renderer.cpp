@@ -369,6 +369,7 @@ void RenderQueue::renderShadows(void* engine)
     CSMGenerator* csmGenerator{enginePtr->getCSMGenerator()};
     const Shader* depthOnly{enginePtr->getShader("depthOnly")};
 
+    enginePtr->updateLS_UBO();
     depthOnly->use();
     glBindFramebuffer(GL_FRAMEBUFFER, csmGenerator->getFBO());
     glViewport(0, 0, Shadows::shadowMapSize, Shadows::shadowMapSize);
