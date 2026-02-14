@@ -235,6 +235,9 @@ public:
     bool createCSMGenerator();
     [[nodiscard]] CSMGenerator* getCSMGenerator() const { return m_csmGenerator; }
 
+    [[nodiscard]] bool getShadowsEnabled() const { return m_shadowsEnabled; }
+    void setShadowsEnabled(const bool val) { m_shadowsEnabled = val; }
+
     // ------ Jolt Physics ------ //
     bool createJoltInstance();
 
@@ -296,8 +299,10 @@ private:
     DeferredRenderer* m_deferredRenderer{nullptr};
     SSAOGenerator* m_ssaoGenerator{nullptr};
     bool m_ssaoEnabled{true};
+
     CSMGenerator* m_csmGenerator{nullptr};
     glm::vec3 m_lightDirection{0.0f};
+    bool m_shadowsEnabled{true};
 
     FontManager* m_fontRenderer{nullptr};
     UIRenderer* m_uiRenderer{nullptr};

@@ -121,6 +121,8 @@ public:
 
     void initPointLightModel(const char* path);
 
+    void renderShadows(void* engine);
+
 private:
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticOpaqueMeshes{};
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticBlendMeshes{};

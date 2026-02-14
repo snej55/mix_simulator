@@ -28,6 +28,9 @@ public:
     [[nodiscard]] std::vector<glm::mat4> getLightSpaceMatrices(const float zoom, const float aspectR,
                                                                const glm::mat4& view, const glm::vec3& lightDir) const;
 
+    [[nodiscard]] unsigned int getFBO() const { return m_FBO; }
+    [[nodiscard]] unsigned int getDepthMaps() const { return m_depthMaps; }
+
 private:
     unsigned int m_FBO{0};
     unsigned int m_depthMaps{0};

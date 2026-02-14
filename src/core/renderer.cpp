@@ -9,6 +9,7 @@
 
 #include "lights.hpp"
 #include "scene.hpp"
+#include "shadows.hpp"
 #include "util.hpp"
 #include "engine.hpp"
 
@@ -156,6 +157,11 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
                               const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights)
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
+
+    if (enginePtr->getShadowsEnabled())
+    {
+        renderShadows(engine);
+    }
 
     // ------ DEFERRED RENDERING PASS ------ //
     dfRenderer->setupGeometryPass(dfShader, enginePtr->getProjectionMatrix(), enginePtr->getViewMatrix());
@@ -355,4 +361,35 @@ void RenderQueue::initPointLightModel(const char* path)
     m_pointLightModel->loadModel(path);
 
     std::cout << "RENDER_QUEUE::INIT: Loaded model for point light rendering from `" << path << "`" << std::endl;
+}
+
+void RenderQueue::renderShadows(void* engine)
+{
+    Engine* enginePtr{static_cast<Engine*>(engine)};
+    CSMGenerator* csmGenerator{enginePtr->getCSMGenerator()};
+    const Shader* depthOnly{enginePtr->getShader("depthOnly")};
+
+    depthOnly->use();
+    glBindFramebuffer(GL_FRAMEBUFFER, csmGenerator->getFBO());
+    glViewport(0, 0, Shadows::shadowMapSize, Shadows::shadowMapSize);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glCullFace(GL_FRONT);
+
+    // render scene
+    for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
+    {
+        depthOnly->setMat4("model", model.second);
+        model.first->render(depthOnly);
+    }
+
+    for (const std::pair<Mesh*, glm::mat4>& meshPair : m_staticOpaqueMeshes)
+    {
+        depthOnly->setMat4("model", meshPair.second);
+        meshPair.first->render(depthOnly);
+    }
+
+    glCullFace(GL_BACK);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glViewport(0, 0, enginePtr->getWidth(), enginePtr->getHeight());
 }
