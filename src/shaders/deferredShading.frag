@@ -115,6 +115,8 @@ float getFogFactor(float d)
     return 1 - (FogMax - d) / (FogMax - FogMin);
 }
 
+float angleHash(vec3 seed) { return fract(sin(dot(seed, vec3(12.9898, 78.233, 45.164))) * 43758.5453) * 2.0 * PI; }
+
 float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
 {
     // const float offsetScale = 0.01;
@@ -133,18 +135,38 @@ float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
         return 0.0;
     }
 
-    // bias
-    float bias = 0.0001;
+    float dzDx = dFdx(projCoords.z);
+    float dzDy = dFdy(projCoords.z);
+    vec2 duvDx = dFdx(projCoords.xy);
+    vec2 duvDy = dFdy(projCoords.xy);
 
-    const float spread = 0.0005;
+    float determinant = (duvDx.x * duvDy.y) - (duvDx.y * duvDy.x);
+    float bias = 0.0001;
+    if (abs(determinant) > 1e-6)
+    {
+        float inv = 1.0 / determinant;
+        float dzDu = inv * (duvDy.y * dzDx - duvDx.y * dzDy);
+        float dzDv = inv * (duvDx.x * dzDy - duvDy.x * dzDx);
+
+        bias += abs(dzDu * texelSize.x) + abs(dzDv * texelSize.y);
+    }
+    bias = min(bias, 0.005);
+
+    float angle = angleHash(fragPosWS);
+    float s = sin(angle);
+    float c = cos(angle);
+    mat2 rotation = mat2(c, -s, s, c);
+
+    const float spread = 0.0008;
     float shadow = 0.0;
     for (int i = 0; i < 16; ++i)
     {
-        vec4 shadowCoords = vec4(projCoords.xy + poissonDisk[i] * spread, float(layer), projCoords.z - bias);
+        vec2 offset = rotation * poissonDisk[i];
+        vec4 shadowCoords = vec4(projCoords.xy + offset * spread, float(layer), projCoords.z - bias);
         shadow += 1.0 - texture(shadowMap, shadowCoords);
     }
 
-    // // PCF
+    // PCF
     // float shadow = 0.0;
     // vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
     // for (int x = -1; x <= 1; ++x)
