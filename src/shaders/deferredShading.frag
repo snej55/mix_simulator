@@ -155,7 +155,7 @@ float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
 float getShadow(vec3 fragPosWS, vec3 normal)
 {
     vec4 fragPosVS = view * vec4(fragPosWS, 1.0);
-    float depth = abs(fragPosVS.z);
+    float depth = -fragPosVS.z;
 
     int layer = -1;
     for (int i = 0; i < cascadeCount; ++i)
@@ -171,7 +171,7 @@ float getShadow(vec3 fragPosWS, vec3 normal)
         layer = cascadeCount;
     }
 
-    if (layer >= cascadeCount - 1 || cascadeBlend <= 0)
+    if (layer >= cascadeCount - 1 || cascadeBlend <= 0.0)
     {
         return getCascadeShadow(layer, fragPosWS, normal);
     }
@@ -179,13 +179,15 @@ float getShadow(vec3 fragPosWS, vec3 normal)
     float split = cascadePlaneDistances[layer];
     float prevSplit = (layer == 0) ? 0.0 : cascadePlaneDistances[layer - 1];
     float range = max(split - prevSplit, 0.0001);
-    float blendRange = range * cascadeBlend;
 
-    float dist = split - depth;
-    float t = clamp(dist / blendRange, 0.0, 1.0);
+    float blendRange = min(5.0, range * 0.1);
+    float blendStart = split - blendRange;
+
+    float t = smoothstep(blendStart, split, depth);
+
     float s0 = getCascadeShadow(layer, fragPosWS, normal);
     float s1 = getCascadeShadow(layer + 1, fragPosWS, normal);
-    return mix(s1, s0, t);
+    return mix(s0, s1, t);
 }
 
 vec3 octDecode(vec2 f)
