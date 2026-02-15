@@ -1158,7 +1158,6 @@ void Engine::renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::Po
     }
 
     setInt("cascadeCount", Shadows::shadowCascadeLevels.size(), "deferredShading");
-    setFloat("farPlane", CAMERA_Z_FAR, "deferredShading");
     setInt("csmEnabled", 1, "deferredShading");
 
     glDepthMask(GL_FALSE);
