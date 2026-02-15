@@ -213,6 +213,68 @@ void TextureN::renderTexture(const Shader* shader, const unsigned int id, const 
     glBindVertexArray(0);
 }
 
+void TextureN::getLightDir(float* hdriData, int width, int height, int numChannels, glm::vec3& lightDirection,
+                           float& luminance, int maxSteps)
+{
+    float maxBrightness{-1.0f};
+    glm::ivec2 best{0, 0};
+
+    constexpr int step{8};
+    for (int y{0}; y < height; y += step)
+    {
+        for (int x{0}; x < width; x += step)
+        {
+            const int index{(y * width + x) * numChannels};
+
+            const float luma{0.2126f * hdriData[index] + 0.7152f * hdriData[index + 1] + 0.0722f * hdriData[index + 2]};
+            if (luma > maxBrightness)
+            {
+                maxBrightness = luma;
+                best.x = x;
+                best.y = y;
+            }
+        }
+    }
+
+    int steps{0};
+    while (true)
+    {
+        bool improved{false};
+        glm::ivec2 localBest{best.x, best.y};
+        for (int y{-1}; y <= 1; ++y)
+        {
+            for (int x{-1}; x <= 1; ++x)
+            {
+                glm::ivec2 current{std::clamp(best.x + x, 0, width - 1), std::clamp(best.y + y, 0, height - 1)};
+                const int index{(current.y * width + current.x) * numChannels};
+
+                const float luma{0.2126f * hdriData[index] + 0.7152f * hdriData[index + 1] +
+                                 0.0722f * hdriData[index + 2]};
+                if (luma > maxBrightness)
+                {
+                    improved = true;
+                    maxBrightness = luma;
+                    localBest = current;
+                }
+            }
+        }
+
+        best = localBest;
+        ++steps;
+        if (!improved || (maxSteps > 0 && steps > maxSteps))
+            break;
+    }
+
+    const float u{static_cast<float>(best.x) / static_cast<float>(width)};
+    const float v{static_cast<float>(best.y) / static_cast<float>(height)};
+
+    const float phi{(u - 0.5f) * 2.0f * static_cast<float>(M_PI)};
+    const float theta{(0.5f - v) * static_cast<float>(M_PI)};
+
+    lightDirection = glm::vec3{std::cos(theta) * std::sin(phi), std::sin(theta), std::cos(theta) * std::cos(phi)};
+    luminance = maxBrightness;
+}
+
 Texture::Texture(const std::string& name, EngineObject* manager) : EngineObject{("TEXTURE " + name).c_str(), manager} {}
 
 bool Texture::loadFromFile(const char* path)

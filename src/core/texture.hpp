@@ -44,6 +44,9 @@ namespace TextureN
     // destination.wh = scale
     void renderTexture(const Shader* shader, unsigned int id, const FRect& destination, void* engine, int texWidth,
                        int texHeight, bool center = false, const glm::vec3& tint = glm::vec3{1.0f});
+
+    void getLightDir(float* hdriData, int width, int height, int numChannels, glm::vec3& lightDirection,
+                     float& luminance, int maxSteps = -1);
 } // namespace TextureN
 
 // Basic texture wrapper class.
