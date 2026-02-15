@@ -1,3 +1,7 @@
 #version 410 core
 
-void main() {}
+void main()
+{
+    // if (gl_FrontFacing)
+    //     discard;
+}

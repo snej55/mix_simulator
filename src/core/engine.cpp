@@ -1122,6 +1122,9 @@ void Engine::renderGBuffer(const IBLGenerator* ibl, const std::vector<Lights::Po
         glActiveTexture(GL_TEXTURE4);
         glBindTexture(GL_TEXTURE_2D, m_ssaoGenerator->getSSAO_ColorBufferBlur());
     }
+    setInt("gGeomNormal", 5, "deferredShading");
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, m_deferredRenderer->getGeomNormal());
     setInt("irradianceMap", 10, "deferredShading");
     glActiveTexture(GL_TEXTURE10);
     glBindTexture(GL_TEXTURE_CUBE_MAP, ibl->getIrradianceMap());

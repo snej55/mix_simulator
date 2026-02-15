@@ -42,6 +42,7 @@ public:
     [[nodiscard]] unsigned int getColorBuffer() const { return m_colorBuffer; }
     [[nodiscard]] unsigned int getNormalEBuffer() const { return m_normalEBuffer; }
     [[nodiscard]] unsigned int getARMEBuffer() const { return m_ARMEBuffer; }
+    [[nodiscard]] unsigned int getGeomNormal() const { return m_geomNormal; }
 
     [[nodiscard]] unsigned int getRenderbuffer() const { return m_RBO; }
     [[nodiscard]] int getWidth() const { return m_scrWidth; }
@@ -65,6 +66,8 @@ private:
     // z = Metallic
     // a = Emissive.b
     unsigned int m_ARMEBuffer{};
+    // oct encode vec3->vec2
+    unsigned int m_geomNormal{};
     // render buffer
     unsigned int m_RBO{};
 

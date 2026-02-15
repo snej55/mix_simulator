@@ -16,6 +16,7 @@ uniform sampler2D gPositionE;
 uniform sampler2D gAlbedo;
 uniform sampler2D gNormalE;
 uniform sampler2D gARME;
+uniform sampler2D gGeomNormal;
 uniform int ssaoEnabled = 0;
 uniform sampler2D ssao;
 uniform float fogStrength = 1.0;
@@ -126,9 +127,9 @@ float getShadow(vec3 fragPosWS, vec3 normal)
         layer = cascadeCount;
     }
 
-    // const float offsetScale = 0.01;
-    // vec3 offsetPosWS = fragPosWS + normal * offsetScale;
-    vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(fragPosWS, 1.0);
+    const float offsetScale = 0.003;
+    vec3 offsetPosWS = fragPosWS + normal * offsetScale;
+    vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(offsetPosWS, 1.0);
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
 
@@ -140,7 +141,16 @@ float getShadow(vec3 fragPosWS, vec3 normal)
     }
 
     // bias
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005) * 0.001;
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    const float biasModifier = 100.5f;
+    if (layer == cascadeCount)
+    {
+        bias *= 1 / (farPlane * biasModifier);
+    }
+    else
+    {
+        bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
+    }
 
     // PCF
     float shadow = 0.0;
@@ -150,12 +160,22 @@ float getShadow(vec3 fragPosWS, vec3 normal)
         for (int y = -1; y <= 1; ++y)
         {
             float pcfDepth = textureLod(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer), 0.0).r;
-            shadow += (currentDepth - 0.00001) > pcfDepth ? 1.0 : 0.0;
+            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
         }
     }
     shadow /= 9.0;
 
     return shadow * 0.8;
+}
+
+vec3 octDecode(vec2 f)
+{
+    f = f * 2.0 - 1.0;
+    vec3 n = vec3(f.x, f.y, 1.0 - abs(f.x) - abs(f.y));
+    float t = clamp(-n.z, 0.0, 1.0);
+    n.x += (n.x >= 0.0) ? -t : t;
+    n.y += (n.y >= 0.0) ? -t : t;
+    return normalize(n);
 }
 
 void main()
@@ -259,7 +279,8 @@ void main()
     float shadow = 0.0;
     if (csmEnabled > 0)
     {
-        shadow = getShadow(FragPos, norm);
+        vec2 enc = texture(gGeomNormal, TexCoords).rg;
+        shadow = getShadow(FragPos, octDecode(enc));
     }
 
     vec3 ambient = (1.0 - shadow) * (diffuse * kDA + spec) * ssaoFactor;

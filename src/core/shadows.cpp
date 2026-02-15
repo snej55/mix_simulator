@@ -104,7 +104,7 @@ glm::mat4 CSMGenerator::getLSMatrix(const float zoom, const float aspectR, const
         max.z = std::max(max.z, trf.z);
     }
 
-    constexpr float zMult{50.0f};
+    constexpr float zMult{5.0f};
     if (min.z < 0.0)
     {
         min.z *= zMult;
@@ -122,15 +122,15 @@ glm::mat4 CSMGenerator::getLSMatrix(const float zoom, const float aspectR, const
         max.z *= zMult;
     }
 
-    // float texelSize{(max.x - min.x) / static_cast<float>(Shadows::shadowMapSize)};
-    // min.x = std::floor(min.x / texelSize) * texelSize;
-    // max.x = std::floor(max.x / texelSize) * texelSize;
-    // texelSize = (max.y - min.y) / static_cast<float>(Shadows::shadowMapSize);
-    // min.y = std::floor(min.y / texelSize) * texelSize;
-    // max.y = std::floor(max.y / texelSize) * texelSize;
-    // texelSize = (max.z - min.z) / static_cast<float>(Shadows::shadowMapSize);
-    // min.z = std::floor(min.z / texelSize) * texelSize;
-    // max.z = std::floor(max.z / texelSize) * texelSize;
+    float texelSize{(max.x - min.x) / static_cast<float>(Shadows::shadowMapSize)};
+    min.x = std::floor(min.x / texelSize) * texelSize;
+    max.x = std::floor(max.x / texelSize) * texelSize;
+    texelSize = (max.y - min.y) / static_cast<float>(Shadows::shadowMapSize);
+    min.y = std::floor(min.y / texelSize) * texelSize;
+    max.y = std::floor(max.y / texelSize) * texelSize;
+    texelSize = (max.z - min.z) / static_cast<float>(Shadows::shadowMapSize);
+    min.z = std::floor(min.z / texelSize) * texelSize;
+    max.z = std::floor(max.z / texelSize) * texelSize;
 
     const glm::mat4 lightProjection{glm::ortho(min.x, max.x, min.y, max.y, min.z, max.z)};
     return lightProjection * lightView;

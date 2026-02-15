@@ -67,9 +67,19 @@ void DeferredRenderer::init(const int scrWidth, const int scrHeight)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_ARMEBuffer, 0);
 
+    glGenTextures(1, &m_geomNormal);
+    glBindTexture(GL_TEXTURE_2D, m_geomNormal);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, scrWidth, scrHeight, 0, GL_RG, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, m_geomNormal, 0);
+
     // add color attachments to framebuffer (let OpenGL know which ones to use for rendering)
-    unsigned int attachments[4]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
-    glDrawBuffers(4, attachments);
+    unsigned int attachments[5]{GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
+                                GL_COLOR_ATTACHMENT4};
+    glDrawBuffers(5, attachments);
 
     glGenRenderbuffers(1, &m_RBO);
     glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
@@ -98,6 +108,7 @@ void DeferredRenderer::free()
         glDeleteTextures(1, &m_colorBuffer);
         glDeleteTextures(1, &m_normalEBuffer);
         glDeleteTextures(1, &m_positionEBuffer);
+        glDeleteTextures(1, &m_geomNormal);
         glDeleteRenderbuffers(1, &m_RBO);
         glDeleteFramebuffers(1, &m_gBuffer);
         m_scrWidth = 0;
@@ -376,8 +387,7 @@ void RenderQueue::renderShadows(void* engine)
     glClear(GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_CLAMP);
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.5f, 2.0f);
-    glCullFace(GL_FRONT);
+    glPolygonOffset(2.5f, 2.0f);
 
     // render scene
     for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
@@ -392,7 +402,6 @@ void RenderQueue::renderShadows(void* engine)
         meshPair.first->renderDepth();
     }
 
-    glCullFace(GL_BACK);
     glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_DEPTH_CLAMP);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -3,6 +3,7 @@ layout(location = 0) out vec4 gPositionE; // xyz = Position, w = Emissive.r
 layout(location = 1) out vec4 gAlbedo; // xyzw = Albedo.rgba
 layout(location = 2) out vec4 gNormalE; // xyz = Normal (world space), w = Emissive.g
 layout(location = 3) out vec4 gARME; // x = AO, y = Roughness, z = Metallic, w = Emissive.b
+layout(location = 4) out vec2 gGeomNormal;
 
 in VS_OUT
 {
@@ -37,6 +38,17 @@ struct Material
     vec3 emissiveFactor;
     float emissiveIntensity;
 };
+
+vec2 octEncode(vec3 n)
+{
+    n /= (abs(n.x) + abs(n.y) + abs(n.z));
+    vec2 enc = n.xy;
+    if (n.z < 0.0)
+    {
+        enc = (1.0 - abs(enc.yx)) * sign(enc.xy);
+    }
+    return enc * 0.5 + 0.5;
+}
 
 uniform Material material;
 
@@ -80,4 +92,6 @@ void main()
     gNormalE = vec4(normal, emissive.g);
     // we don't really need ao btw :)
     gARME = vec4(ao, roughness, metallic, emissive.b);
+    vec3 geomNormal = normalize(fs_in.Normal);
+    gGeomNormal = octEncode(geomNormal);
 }
