@@ -202,21 +202,21 @@ float getShadow(vec3 fragPosWS, vec3 normal)
         layer = cascadeCount;
     }
 
-    if (layer >= cascadeCount - 1 || cascadeBlend <= 0.0)
+    if (layer == cascadeCount - 1 || cascadeBlend <= 0.0)
+    {
         return getCascadeShadow(layer, fragPosWS, normal);
+    }
 
     float split = cascadePlaneDistances[layer];
-    float prevSplit = (layer == 0) ? 0.0 : cascadePlaneDistances[layer - 1];
-    float range = split - prevSplit;
-
-    float fadeRange = range * 0.5;
-    float t = clamp((depth - (split - fadeRange)) / fadeRange, 0.0, 1.0);
+    float dist = max(0.0001, abs(depth - split));
+    const float fadeRange = 1.0;
+    float t = 1.0 - clamp(dist / fadeRange, 0.0, 1.0);
 
     if (t > 0.0)
     {
         float s0 = getCascadeShadow(layer, fragPosWS, normal);
         float s1 = getCascadeShadow(layer + 1, fragPosWS, normal);
-        return mix(s0, max(s0, s1), t);
+        return mix(s0, s1, t);
     }
     return getCascadeShadow(layer, fragPosWS, normal);
 }
