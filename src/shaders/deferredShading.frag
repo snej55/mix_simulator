@@ -111,8 +111,9 @@ float getFogFactor(float d)
 
 float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
 {
-    const float offsetScale = 0.003;
-    vec3 offsetPosWS = fragPosWS + normal * offsetScale;
+    const float offsetScale = 0.01;
+    vec3 viewDir = normalize(viewPos - fragPosWS);
+    vec3 offsetPosWS = fragPosWS + (viewDir + normal) * offsetScale;
     vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(offsetPosWS, 1.0);
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -144,7 +145,7 @@ float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
         for (int y = -1; y <= 1; ++y)
         {
             float pcfDepth = textureLod(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer), 0.0).r;
-            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
+            shadow += (currentDepth - bias - 0.0001) > pcfDepth ? 1.0 : 0.0;
         }
     }
     shadow /= 9.0;

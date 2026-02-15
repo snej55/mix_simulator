@@ -427,7 +427,7 @@ void RenderQueue::startShadows(void* engine)
     glClear(GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_CLAMP);
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(2.5f, 2.0f);
+    glPolygonOffset(1.5f, 1.0f);
 }
 
 void RenderQueue::endShadows(void* engine)
