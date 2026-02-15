@@ -250,7 +250,7 @@ bool Engine::init(const int width, const int height, const char* title)
 
 // update components
 void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vector<Lights::PointLight*>& pointLights,
-                    const bool menu)
+                    const std::vector<std::pair<Model*, glm::mat4>>& shadowModels, const bool menu)
 {
     assert((renderQueue != nullptr) == (ibl != nullptr));
 
@@ -302,6 +302,10 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
     {
         // m_csmGenerator->updateLSMatrices(getViewMatrix(), m_lightDirection, m_camera->getZoom(),
         //                                  static_cast<float>(getWidth()) / static_cast<float>(getHeight()));
+        if (shadowModels.size() > 0)
+        {
+            renderQueue->renderShadows(this, shadowModels);
+        }
         renderQueue->renderFrame(getShader("gBuffer"), m_deferredRenderer, getShader("texturePBR"), m_postProcessor,
                                  this, ibl, getCameraPosition(), pointLights);
         renderQueue->update();

@@ -125,7 +125,7 @@ public:
     void initPointLightModel(const char* path);
 
     void renderShadows(void* engine);
-    void renderShadows(void* engine, std::vector<std::pair<Model*, glm::mat4>>& models);
+    void renderShadows(void* engine, const std::vector<std::pair<Model*, glm::mat4>>& models);
 
     [[nodiscard]] bool getRenderedShadows() const { return m_renderedShadows; }
     void setRenderedShadows(const bool val) { m_renderedShadows = val; }

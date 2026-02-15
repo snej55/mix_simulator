@@ -389,11 +389,18 @@ SpatialHashing::ChunkKey Scene::getChunkKey(const glm::vec3& pos)
 
 void Scene::getShadowModels(std::vector<std::pair<Model*, glm::mat4>>& models) const
 {
+    std::unordered_set<const Entity*> unique;
+    unique.reserve(1024);
     for (const auto& [key, chunkPtr] : m_chunks)
     {
         for (const Entity* entity : chunkPtr->getEntities())
         {
-            models.emplace_back(std::pair<Model*, glm::mat4>{entity->getModel(), entity->getTransform().getModelMat()});
+            if (auto it{unique.find(entity)}; it == unique.end())
+            {
+                models.emplace_back(
+                    std::pair<Model*, glm::mat4>{entity->getModel(), entity->getTransform().getModelMat()});
+                unique.insert(entity);
+            }
         }
     }
 }

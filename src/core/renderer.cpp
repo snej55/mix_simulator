@@ -398,7 +398,7 @@ void RenderQueue::renderShadows(void* engine)
     endShadows(engine);
 }
 
-void RenderQueue::renderShadows(void* engine, std::vector<std::pair<Model*, glm::mat4>>& models)
+void RenderQueue::renderShadows(void* engine, const std::vector<std::pair<Model*, glm::mat4>>& models)
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
     const Shader* depthOnly{enginePtr->getShader("depthOnly")};

@@ -40,7 +40,8 @@ public:
     bool init(int width, int height, const char* title);
     // update components
     void update(RenderQueue* renderQueue = nullptr, IBLGenerator* ibl = nullptr,
-                const std::vector<Lights::PointLight*>& pointLights = {}, bool menu = false);
+                const std::vector<Lights::PointLight*>& pointLights = {},
+                const std::vector<std::pair<Model*, glm::mat4>>& shadowModels = {}, bool menu = false);
 
     // ------ Window ------ //
 

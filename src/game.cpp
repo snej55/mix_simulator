@@ -158,7 +158,7 @@ bool Game::menu()
                 return true;
         }
 
-        m_engine.update(nullptr, nullptr, {}, true);
+        m_engine.update(nullptr, nullptr, {}, {}, true);
         glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
     return false;
@@ -270,7 +270,9 @@ void Game::render()
     std::vector<Lights::PointLight*> pointLights{};
     m_scene->getPointLights(pointLights);
 
-    m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights);
+    std::vector<std::pair<Model*, glm::mat4>> shadowModels{};
+    m_scene->getShadowModels(shadowModels);
+    m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights, shadowModels);
 }
 
 void Game::run()
