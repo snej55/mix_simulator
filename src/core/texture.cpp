@@ -137,7 +137,7 @@ void TextureN::loadFromFile(const char* path, TextureData* textureData)
 }
 
 // load hdr irradiance map
-unsigned int TextureN::loadHDRMap(const char* path, bool* success)
+unsigned int TextureN::loadHDRMap(const char* path, bool* success, glm::vec3* lightDirection, float* luminance)
 {
     if (!Util::fileExists(path))
     {
@@ -157,6 +157,10 @@ unsigned int TextureN::loadHDRMap(const char* path, bool* success)
     unsigned int hdrTexture;
     if (data)
     {
+        if (lightDirection != nullptr && luminance != nullptr)
+        {
+            getLightDir(data, width, height, numChannels, lightDirection, luminance);
+        }
         glGenTextures(1, &hdrTexture);
         glBindTexture(GL_TEXTURE_2D, hdrTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, data);
@@ -213,13 +217,13 @@ void TextureN::renderTexture(const Shader* shader, const unsigned int id, const 
     glBindVertexArray(0);
 }
 
-void TextureN::getLightDir(float* hdriData, int width, int height, int numChannels, glm::vec3& lightDirection,
-                           float& luminance, int maxSteps)
+void TextureN::getLightDir(float* hdriData, int width, int height, int numChannels, glm::vec3* lightDirection,
+                           float* luminance, int maxSteps)
 {
     float maxBrightness{-1.0f};
     glm::ivec2 best{0, 0};
 
-    constexpr int step{8};
+    constexpr int step{2};
     for (int y{0}; y < height; y += step)
     {
         for (int x{0}; x < width; x += step)
@@ -236,6 +240,7 @@ void TextureN::getLightDir(float* hdriData, int width, int height, int numChanne
         }
     }
 
+    // hill climbing :)
     int steps{0};
     while (true)
     {
@@ -265,14 +270,18 @@ void TextureN::getLightDir(float* hdriData, int width, int height, int numChanne
             break;
     }
 
-    const float u{static_cast<float>(best.x) / static_cast<float>(width)};
-    const float v{static_cast<float>(best.y) / static_cast<float>(height)};
+
+    const float u{(static_cast<float>(best.x) + 0.5f) / static_cast<float>(width)};
+    const float v{(static_cast<float>(best.y) + 0.5f) / static_cast<float>(height)};
+    std::cout << best.x << " " << best.y << std::endl;
+    std::cout << u << " " << v << std::endl;
 
     const float phi{(u - 0.5f) * 2.0f * static_cast<float>(M_PI)};
-    const float theta{(0.5f - v) * static_cast<float>(M_PI)};
+    const float theta{(v - 0.5f) * static_cast<float>(M_PI)};
 
-    lightDirection = glm::vec3{std::cos(theta) * std::sin(phi), std::sin(theta), std::cos(theta) * std::cos(phi)};
-    luminance = maxBrightness;
+    *lightDirection =
+        glm::normalize(glm::vec3{std::cos(theta) * std::sin(phi), std::sin(theta), std::cos(theta) * std::cos(phi)});
+    *luminance = maxBrightness;
 }
 
 Texture::Texture(const std::string& name, EngineObject* manager) : EngineObject{("TEXTURE " + name).c_str(), manager} {}

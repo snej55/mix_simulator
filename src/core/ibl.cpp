@@ -25,7 +25,7 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
 {
     // load textures
     bool success;
-    m_hdrTexture = TextureN::loadHDRMap(hdrPath, &success);
+    m_hdrTexture = TextureN::loadHDRMap(hdrPath, &success, &m_lightDirection, &m_luminance);
     if (!success)
     {
         Util::beginError();

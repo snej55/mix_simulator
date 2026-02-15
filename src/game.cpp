@@ -38,7 +38,6 @@ bool Game::init()
     m_engine.getAudioHandler()->getSound(m_assets->m_SFX_metalImpact)->setFilter(0, &m_bqrFilter);
 
     // load level data
-    m_engine.setLightDirection({20.f, 50.f, 20.f});
     m_scene = std::make_unique<Scene>(&m_engine);
     m_scene->init("data/maps/0.json");
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
@@ -47,6 +46,8 @@ bool Game::init()
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
     m_iblGenerator->init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png",
                          &m_engine);
+    Util::printVec3(m_iblGenerator->getLightDirection());
+    m_engine.setLightDirection(m_iblGenerator->getLightDirection());
 
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
