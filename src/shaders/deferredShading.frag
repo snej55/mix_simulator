@@ -34,6 +34,7 @@ uniform mat4 lightSpaceMatrices[16];
 uniform int cascadeCount;
 uniform float farPlane;
 uniform int csmEnabled = 0;
+uniform float cascadeBlend = 0.5;
 
 uniform vec3 viewPos;
 uniform mat4 view;
@@ -108,25 +109,8 @@ float getFogFactor(float d)
     return 1 - (FogMax - d) / (FogMax - FogMin);
 }
 
-float getShadow(vec3 fragPosWS, vec3 normal)
+float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
 {
-    vec4 fragPosVS = view * vec4(fragPosWS, 1.0);
-    float depth = abs(fragPosVS.z);
-
-    int layer = -1;
-    for (int i = 0; i < cascadeCount; ++i)
-    {
-        if (depth < cascadePlaneDistances[i])
-        {
-            layer = i;
-            break;
-        }
-    }
-    if (layer == -1)
-    {
-        layer = cascadeCount;
-    }
-
     const float offsetScale = 0.003;
     vec3 offsetPosWS = fragPosWS + normal * offsetScale;
     vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(offsetPosWS, 1.0);
@@ -166,6 +150,42 @@ float getShadow(vec3 fragPosWS, vec3 normal)
     shadow /= 9.0;
 
     return shadow * 0.8;
+}
+
+float getShadow(vec3 fragPosWS, vec3 normal)
+{
+    vec4 fragPosVS = view * vec4(fragPosWS, 1.0);
+    float depth = abs(fragPosVS.z);
+
+    int layer = -1;
+    for (int i = 0; i < cascadeCount; ++i)
+    {
+        if (depth < cascadePlaneDistances[i])
+        {
+            layer = i;
+            break;
+        }
+    }
+    if (layer == -1)
+    {
+        layer = cascadeCount;
+    }
+
+    if (layer >= cascadeCount - 1 || cascadeBlend <= 0)
+    {
+        return getCascadeShadow(layer, fragPosWS, normal);
+    }
+
+    float split = cascadePlaneDistances[layer];
+    float prevSplit = (layer == 0) ? 0.0 : cascadePlaneDistances[layer - 1];
+    float range = max(split - prevSplit, 0.0001);
+    float blendRange = range * cascadeBlend;
+
+    float dist = split - depth;
+    float t = clamp(dist / blendRange, 0.0, 1.0);
+    float s0 = getCascadeShadow(layer, fragPosWS, normal);
+    float s1 = getCascadeShadow(layer + 1, fragPosWS, normal);
+    return mix(s1, s0, t);
 }
 
 vec3 octDecode(vec2 f)
