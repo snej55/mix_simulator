@@ -12,7 +12,7 @@
 #include "engine_types.hpp"
 
 #define CAMERA_Z_NEAR 0.1f
-#define CAMERA_Z_FAR 1000.0f
+#define CAMERA_Z_FAR 500.0f
 
 #define ZOOM_ENABLED
 

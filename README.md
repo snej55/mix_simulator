@@ -76,7 +76,10 @@ cd build
 - [X] Screen coordinates shape rendering
 - [X] Add UI framebuffer
 - [X] Add cascading shadow maps
-- [ ] Smooth cascade transition
+- [X] Smooth cascade transition
+- [ ] Blur shadow map
+- [ ] Linearize depth for shadow map?
+- [ ] Midpoint shadow map?
 - [ ] Add credits
 - [ ] Add alpha to shape rendering
 - [ ] Add settings
