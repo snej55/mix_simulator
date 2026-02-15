@@ -27,7 +27,7 @@ uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
 // CSM
-uniform sampler2DArray shadowMap;
+uniform sampler2DArrayShadow shadowMap;
 uniform vec3 lightDir;
 uniform float cascadePlaneDistances[16];
 uniform mat4 lightSpaceMatrices[16];
@@ -137,18 +137,22 @@ float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
         bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
     }
 
-    // PCF
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
-    for (int x = -1; x <= 1; ++x)
-    {
-        for (int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = textureLod(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer), 0.0).r;
-            shadow += (currentDepth - bias - 0.0001) > pcfDepth ? 1.0 : 0.0;
-        }
-    }
-    shadow /= 9.0;
+    vec4 shadowCoords = vec4(projCoords.xy, float(layer), projCoords.z - bias - 0.0001);
+
+    // // PCF
+    // float shadow = 0.0;
+    // vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
+    // for (int x = -1; x <= 1; ++x)
+    // {
+    //     for (int y = -1; y <= 1; ++y)
+    //     {
+    //         float pcfDepth = textureLod(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer), 0.0).r;
+    //         shadow += (currentDepth - bias - 0.0001) > pcfDepth ? 1.0 : 0.0;
+    //     }
+    // }
+    // shadow /= 9.0;
+
+    float shadow = 1.0 - texture(shadowMap, shadowCoords);
 
     return shadow * 0.8;
 }
