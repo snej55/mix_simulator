@@ -169,7 +169,7 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
 
-    if (enginePtr->getShadowsEnabled())
+    if (enginePtr->getShadowsEnabled() && !m_renderedShadows)
     {
         renderShadows(engine);
     }
@@ -292,6 +292,7 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
 
     enginePtr->disablePostProcessing();
     enginePtr->renderPostProcessing();
+    m_renderedShadows = false;
 }
 
 void RenderQueue::addStaticModel(const Model* model, const glm::mat4& modelTransform)
@@ -377,17 +378,9 @@ void RenderQueue::initPointLightModel(const char* path)
 void RenderQueue::renderShadows(void* engine)
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
-    CSMGenerator* csmGenerator{enginePtr->getCSMGenerator()};
     const Shader* depthOnly{enginePtr->getShader("depthOnly")};
 
-    enginePtr->updateLS_UBO();
-    depthOnly->use();
-    glBindFramebuffer(GL_FRAMEBUFFER, csmGenerator->getFBO());
-    glViewport(0, 0, Shadows::shadowMapSize, Shadows::shadowMapSize);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_CLAMP);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(2.5f, 2.0f);
+    startShadows(engine);
 
     // render scene
     for (const std::pair<Model*, glm::mat4>& model : m_dynamicModels)
@@ -402,9 +395,48 @@ void RenderQueue::renderShadows(void* engine)
         meshPair.first->renderDepth();
     }
 
+    endShadows(engine);
+}
+
+void RenderQueue::renderShadows(void* engine, std::vector<std::pair<Model*, glm::mat4>>& models)
+{
+    Engine* enginePtr{static_cast<Engine*>(engine)};
+    const Shader* depthOnly{enginePtr->getShader("depthOnly")};
+
+    startShadows(engine);
+
+    for (const std::pair<Model*, glm::mat4>& model : models)
+    {
+        depthOnly->setMat4("model", model.second);
+        model.first->renderDepth();
+    }
+
+    endShadows(engine);
+}
+
+void RenderQueue::startShadows(void* engine)
+{
+    Engine* enginePtr{static_cast<Engine*>(engine)};
+    CSMGenerator* csmGenerator{enginePtr->getCSMGenerator()};
+    const Shader* depthOnly{enginePtr->getShader("depthOnly")};
+
+    enginePtr->updateLS_UBO();
+    depthOnly->use();
+    glBindFramebuffer(GL_FRAMEBUFFER, csmGenerator->getFBO());
+    glViewport(0, 0, Shadows::shadowMapSize, Shadows::shadowMapSize);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_CLAMP);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(2.5f, 2.0f);
+}
+
+void RenderQueue::endShadows(void* engine)
+{
+    Engine* enginePtr{static_cast<Engine*>(engine)};
     glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_DEPTH_CLAMP);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glViewport(0, 0, enginePtr->getWidth(), enginePtr->getHeight());
+    m_renderedShadows = true;
 }

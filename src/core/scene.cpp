@@ -387,6 +387,17 @@ SpatialHashing::ChunkKey Scene::getChunkKey(const glm::vec3& pos)
     return key;
 }
 
+void Scene::getShadowModels(std::vector<std::pair<Model*, glm::mat4>>& models) const
+{
+    for (const auto& [key, chunkPtr] : m_chunks)
+    {
+        for (const Entity* entity : chunkPtr->getEntities())
+        {
+            models.emplace_back(std::pair<Model*, glm::mat4>{entity->getModel(), entity->getTransform().getModelMat()});
+        }
+    }
+}
+
 void Scene::getVisiblePointLights(const Bounds::AABB& frustumBV, std::vector<Lights::PointLight*>& pointLights)
 {
     for (std::size_t i{0}; i < std::size(m_pointLights); ++i)

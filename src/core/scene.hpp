@@ -4,6 +4,7 @@
 #include <memory>
 #include <ostream>
 #include <unordered_map>
+
 #include "bounds.hpp"
 #include "engine_types.hpp"
 #include "entity.hpp"
@@ -85,6 +86,7 @@ public:
     void addEntity(Entity* entity);
 
     [[nodiscard]] const auto& getChunks() const { return m_chunks; }
+    void getShadowModels(std::vector<std::pair<Model*, glm::mat4>>& models) const;
 
     void addPointLight(const glm::vec3& position, const glm::vec3& color, float radius);
     void getVisiblePointLights(const Bounds::AABB& frustumBV, std::vector<Lights::PointLight*>& pointLights);

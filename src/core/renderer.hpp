@@ -125,6 +125,10 @@ public:
     void initPointLightModel(const char* path);
 
     void renderShadows(void* engine);
+    void renderShadows(void* engine, std::vector<std::pair<Model*, glm::mat4>>& models);
+
+    [[nodiscard]] bool getRenderedShadows() const { return m_renderedShadows; }
+    void setRenderedShadows(const bool val) { m_renderedShadows = val; }
 
 private:
     std::vector<std::pair<Mesh*, glm::mat4>> m_staticOpaqueMeshes{};
@@ -133,11 +137,16 @@ private:
 
     std::unique_ptr<Model> m_pointLightModel{nullptr};
 
+    bool m_renderedShadows{false};
+
     /*NOTE: Add previous capacity thing for dynamic vector*/
 
     // for static meshes
     void renderOpaqueMeshes(const Shader* dfShader) const;
     void renderBlendMeshes(const Shader* fdShader) const;
+
+    void startShadows(void* engine);
+    void endShadows(void* engine);
 };
 
 #endif // MAIN_RENDERER_H
