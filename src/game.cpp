@@ -310,3 +310,111 @@ void Game::renderUI() const
     glEnable(GL_DEPTH_TEST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+bool Game::gameover()
+{
+    m_engine.setupViewport();
+
+    GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
+    FontManager* fontRenderer{m_engine.getFontRenderer()};
+    UIRenderer* uiRenderer{m_engine.getUIRenderer()};
+
+    TextureN::TextureData playButtonTex;
+    TextureN::loadFromFile("data/images/ui/playbutton.png", &playButtonTex);
+
+    glDisable(GL_DEPTH_TEST);
+    m_engine.setCameraEnabled(false);
+
+    const std::vector<const char*> titleText{"G", "a", "m", "e", " ", "o", "v", "e", "r", "!"};
+    const float startTime{m_engine.getTime() + 0.5f};
+
+    float playButtonScale{0.f};
+    float playButtonVel{0.0f};
+    float targetPBScale{0.0f};
+
+    UI::Button playButton{
+        {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
+         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
+         static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
+
+    while (!m_engine.getQuit())
+    {
+        constexpr float typeRate{10.f};
+        glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
+        glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
+        glDisable(GL_DEPTH_TEST);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // ---- RENDER FONTS ---- //
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        const Shader* fontShader{m_engine.getShader("fonts")};
+
+        std::string titleTextStr{};
+        const std::size_t limit{std::min(
+            std::size(titleText),
+            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
+        for (std::size_t i{0}; i < limit; ++i)
+        {
+            titleTextStr += titleText[i];
+        }
+        fontRenderer->renderText(fontShader, titleTextStr, static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+
+        fontRenderer->renderText(fontShader, "Play again?",
+                                 std::min(-300.f + (m_engine.getTime() - startTime) * 30.f, 30.f), 10.f, 0.5f,
+                                 glm::vec3{1.0f});
+
+	fontRenderer->renderText(fontShader, "Credits: GLFW (windowing library), GLAD (OpenGL bindings), GLM (Matrix operations), JoltPhysics (Physics engine), SoLoud (Audio library), Assimp (Model loading), STB_Image (Image loading), Freetype2 (Font rendering), nlohmann json (JSON loading, duh), mikktspace.h (fix TBN matrix tangents). Source code: https://github.com/snej55/mix_simulator",
+                                 std::min(static_cast<float>(m_engine.getWidth()) + 10.f - (m_engine.getTime() - startTime) * 30.f, 10.f), 10.f, 0.5f,
+                                 glm::vec3{1.0f});
+
+        glDisable(GL_BLEND);
+        // ---------------------- //
+
+        double cposX, cposY;
+        float windowScaleX, windowScaleY;
+        glfwGetCursorPos(windowPtr, &cposX, &cposY);
+        glfwGetWindowContentScale(windowPtr, &windowScaleX, &windowScaleY);
+        cposX *= windowScaleX;
+        cposY *= windowScaleY;
+
+        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+                             static_cast<float>(m_engine.getHeight()) * 0.6f -
+                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
+        playButton.update(cposX, cposY);
+
+        targetPBScale = (limit == std::size(titleText)) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
+        playButtonVel += (targetPBScale - playButtonScale) * 0.6f * m_engine.getDeltaTime();
+        playButtonScale += playButtonVel * 0.5f * m_engine.getDeltaTime();
+        playButtonVel += (playButtonVel * 0.8f - playButtonVel) * m_engine.getDeltaTime();
+
+        // ---- RENDER TEXTURES ---- //
+        TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
+                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
+                                &m_engine, playButtonTex.width, playButtonTex.height, true,
+                                playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
+
+        glEnable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // ------------------------ //
+
+        if (glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+            if (playButton.m_highlighted)
+                return true;
+        }
+
+        m_engine.update(nullptr, nullptr, {}, {}, true);
+        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
+    }
+    return false;
+}

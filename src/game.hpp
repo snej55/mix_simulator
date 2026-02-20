@@ -24,6 +24,8 @@ public:
 
     bool menu();
 
+    bool gameover();
+
     void handleIO();
     void update();
     void render();

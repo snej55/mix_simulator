@@ -166,18 +166,6 @@ float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
         shadow += 1.0 - texture(shadowMap, shadowCoords);
     }
 
-    // PCF
-    // float shadow = 0.0;
-    // vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
-    // for (int x = -1; x <= 1; ++x)
-    // {
-    //     for (int y = -1; y <= 1; ++y)
-    //     {
-    //         float pcfDepth = textureLod(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer), 0.0).r;
-    //         shadow += (currentDepth - bias - 0.0001) > pcfDepth ? 1.0 : 0.0;
-    //     }
-    // }
-
     shadow /= 16.0;
 
     return shadow * 0.8;
