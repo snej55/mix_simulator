@@ -135,6 +135,21 @@ void FontManager::renderText(const Shader* shader, const std::string text, float
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+float FontManager::getTextWidth(const std::string& text, const float scale)
+{
+    float x{0.0f};
+    std::string::const_iterator chr;
+    Character c;
+    for (chr = {text.begin()}; chr != text.end(); ++chr)
+    {
+        c = m_characters[*chr]; // NOTE: [] operator is non const
+
+        x += (c.advance >> 6) * scale;
+    }
+    x += c.bearing.x * scale;
+    return x;
+}
+
 void FontManager::updateProjection(const float width, const float height)
 {
     // update projection matrix with new framebuffer dimensions

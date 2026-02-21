@@ -365,12 +365,18 @@ bool Game::gameover()
                                  static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
 
         fontRenderer->renderText(fontShader, "Play again?",
-                                 std::min(-300.f + (m_engine.getTime() - startTime) * 30.f, 30.f), 10.f, 0.5f,
-                                 glm::vec3{1.0f});
+                                 std::min(-300.f + (m_engine.getTime() - startTime) * 30.f,
+                                          static_cast<float>(m_engine.getWidth()) * 0.5f - 10.f),
+                                 40.f, 0.5f, glm::vec3{1.0f});
 
-	fontRenderer->renderText(fontShader, "Credits: GLFW (windowing library), GLAD (OpenGL bindings), GLM (Matrix operations), JoltPhysics (Physics engine), SoLoud (Audio library), Assimp (Model loading), STB_Image (Image loading), Freetype2 (Font rendering), nlohmann json (JSON loading, duh), mikktspace.h (fix TBN matrix tangents). Source code: https://github.com/snej55/mix_simulator",
-                                 std::min(static_cast<float>(m_engine.getWidth()) + 10.f - (m_engine.getTime() - startTime) * 30.f, 10.f), 10.f, 0.5f,
-                                 glm::vec3{1.0f});
+        fontRenderer->renderText(
+            fontShader,
+            "Credits: GLFW (windowing library), GLAD (OpenGL bindings), GLM (Matrix operations), JoltPhysics (Physics "
+            "engine), SoLoud (Audio library), Assimp (Model loading), STB_Image (Image loading), Freetype2 (Font "
+            "rendering), nlohmann json (JSON loading, duh), mikktspace.h (fix TBN matrix tangents). Source code: "
+            "https://github.com/snej55/mix_simulator",
+            static_cast<float>(m_engine.getWidth()) + 10.f - (m_engine.getTime() - startTime) * 60.f, 10.f, 0.4f,
+            glm::vec3{1.0f});
 
         glDisable(GL_BLEND);
         // ---------------------- //

@@ -13,9 +13,9 @@ int main()
 
     while (game.menu())
     {
-        game.run();
-	if (!game.gameover())
-	    break;
+        game.gameover();
+        if (!game.gameover())
+            break;
     }
     return EXIT_SUCCESS;
 }

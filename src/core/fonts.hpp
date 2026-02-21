@@ -36,6 +36,8 @@ public:
     // render text
     void renderText(const Shader* shader, std::string text, float x, float y, float scale, const glm::vec3&& color);
 
+    [[nodiscard]] float getTextWidth(const std::string& text, float scale);
+
     // update projection matrix with framebuffer dimensions on resize
     void updateProjection(float width, float height);
 
