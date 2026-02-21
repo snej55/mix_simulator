@@ -337,9 +337,9 @@ bool Game::gameover()
          static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
          static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
 
+    constexpr float typeRate{30.f};
     while (!m_engine.getQuit())
     {
-        constexpr float typeRate{10.f};
         glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
         glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
         glDisable(GL_DEPTH_TEST);

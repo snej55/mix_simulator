@@ -261,7 +261,7 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
     m_window->setQuit(m_iohandler->getQuit());
 
     // update camera
-    if (m_cameraEnabled)
+    if (m_cameraEnabled && m_cameraControls)
     {
         if (getPressed(GLFW_KEY_W))
         {

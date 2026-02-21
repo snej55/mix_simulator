@@ -181,6 +181,9 @@ public:
     void setCameraEnabled(bool value);
     [[nodiscard]] bool getCameraEnabled() const { return m_cameraEnabled; };
 
+    void setCameraControlsEnabled(const bool val) { m_cameraControls = val; }
+    [[nodiscard]] bool getCameraControlsEnabled() const { return m_cameraControls; }
+
     // ------ Models ------ //
 
     bool createModelManager();
@@ -320,6 +323,7 @@ private:
     Camera* m_camera{nullptr};
     float m_camLastX{};
     float m_camLastY{};
+    bool m_cameraControls{true};
 
     // flags
     bool m_checkedShaders{false}; // shaders.json checked
