@@ -13,7 +13,7 @@ int main()
 
     while (game.menu())
     {
-        game.gameover();
+        game.run();
         if (!game.gameover())
             break;
     }

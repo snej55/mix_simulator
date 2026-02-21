@@ -366,8 +366,9 @@ bool Game::gameover()
 
         fontRenderer->renderText(fontShader, "Play again?",
                                  std::min(-300.f + (m_engine.getTime() - startTime) * 30.f,
-                                          static_cast<float>(m_engine.getWidth()) * 0.5f - 10.f),
-                                 40.f, 0.5f, glm::vec3{1.0f});
+                                          static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                              fontRenderer->getTextWidth("Play again?", 0.5f) * 0.5f),
+                                 60.f, 0.5f, glm::vec3{1.0f});
 
         fontRenderer->renderText(
             fontShader,
@@ -375,7 +376,7 @@ bool Game::gameover()
             "engine), SoLoud (Audio library), Assimp (Model loading), STB_Image (Image loading), Freetype2 (Font "
             "rendering), nlohmann json (JSON loading, duh), mikktspace.h (fix TBN matrix tangents). Source code: "
             "https://github.com/snej55/mix_simulator",
-            static_cast<float>(m_engine.getWidth()) + 10.f - (m_engine.getTime() - startTime) * 60.f, 10.f, 0.4f,
+            static_cast<float>(m_engine.getWidth()) + 10.f - (m_engine.getTime() - startTime) * 60.f, 10.f, 0.5f,
             glm::vec3{1.0f});
 
         glDisable(GL_BLEND);
