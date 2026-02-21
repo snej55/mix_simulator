@@ -77,10 +77,7 @@ cd build
 - [X] Add UI framebuffer
 - [X] Add cascading shadow maps
 - [X] Smooth cascade transition
-- [ ] Blur shadow map
-- [ ] Linearize depth for shadow map?
-- [ ] Midpoint shadow map?
-- [ ] Add credits
+- [X] Add credits
 - [ ] Add alpha to shape rendering
 - [ ] Add settings
 - [X] Add in game font
