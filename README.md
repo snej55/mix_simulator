@@ -83,7 +83,7 @@ cd build
 - [ ] Add settings
 - [X] Add in game font
 - [ ] Find new HDRI
-- [ ] Make some music
+- [X] Make some music
 - [X] Add physics sfx using jolt contact listeners
 - [ ] Add sliding sfx
 - [ ] Add flow field pathfinding algorithm
