@@ -29,6 +29,7 @@ unsigned int AudioHandler::loadSound(const char* path)
         Util::endError();
         return -1;
     }
+    std::cout << "AUDIO_HANDLER::LOAD_AUDIO: Loaded audio from `" << path << "`" << std::endl;
     return index;
 }
 
@@ -46,7 +47,9 @@ unsigned int AudioHandler::loadStream(const char* path)
         Util::endError();
         return -1;
     }
+    std::cout << "AUDIO_HANDLER::LOAD_STREAM: Loaded music stream from `" << path << "`" << std::endl;
     return index;
 }
 
 void AudioHandler::playSound(const unsigned int index) { m_SoLoud.play(*m_sounds[index].get()); }
+void AudioHandler::playStream(const unsigned int index) { m_SoLoud.play(*m_streams[index].get()); }
