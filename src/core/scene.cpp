@@ -89,7 +89,7 @@ void SceneChunk::eraseEntity(const std::size_t index)
 
 void SceneChunk::clearErasedEntities()
 {
-    for (std::size_t i{0}; i < std::size(m_entities); ++i)
+    for (std::size_t i{0}; i < m_entities.size(); ++i)
     {
         if (m_entities[i] == nullptr)
         {
@@ -272,7 +272,7 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
         addEntity(entity);
     }
 
-    for (std::size_t i{0}; i < std::size(discardChunks); ++i)
+    for (std::size_t i{0}; i < discardChunks.size(); ++i)
     {
         discardChunks[i]->clearErasedEntities();
     }
@@ -407,7 +407,7 @@ void Scene::getShadowModels(std::vector<std::pair<Model*, glm::mat4>>& models) c
 
 void Scene::getVisiblePointLights(const Bounds::AABB& frustumBV, std::vector<Lights::PointLight*>& pointLights)
 {
-    for (std::size_t i{0}; i < std::size(m_pointLights); ++i)
+    for (std::size_t i{0}; i < m_pointLights.size(); ++i)
     {
         Lights::PointLight* light{m_pointLights[i].get()};
         // check if light radius intersects with frustum AABB BV
@@ -425,7 +425,7 @@ void Scene::addPointLight(const glm::vec3& position, const glm::vec3& color, con
 
 void Scene::getPointLights(std::vector<Lights::PointLight*>& pointLights) const
 {
-    for (std::size_t i{0}; i < std::size(m_pointLights); ++i)
+    for (std::size_t i{0}; i < m_pointLights.size(); ++i)
     {
         pointLights.push_back(m_pointLights[i].get());
     }

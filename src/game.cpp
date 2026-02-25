@@ -106,7 +106,7 @@ bool Game::menu()
 
         std::string titleTextStr{};
         const std::size_t limit{std::min(
-            std::size(titleText),
+            titleText.size(),
             static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
         for (std::size_t i{0}; i < limit; ++i)
         {
@@ -137,7 +137,7 @@ bool Game::menu()
                              static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
         playButton.update(cposX, cposY);
 
-        targetPBScale = (limit == std::size(titleText)) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
+        targetPBScale = (limit == titleText.size()) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
         playButtonVel += (targetPBScale - playButtonScale) * 0.6f * m_engine.getDeltaTime();
         playButtonScale += playButtonVel * 0.5f * m_engine.getDeltaTime();
         playButtonVel += (playButtonVel * 0.8f - playButtonVel) * m_engine.getDeltaTime();
@@ -356,7 +356,7 @@ bool Game::gameover()
 
         std::string titleTextStr{};
         const std::size_t limit{std::min(
-            std::size(titleText),
+            titleText.size(),
             static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
         for (std::size_t i{0}; i < limit; ++i)
         {
@@ -398,7 +398,7 @@ bool Game::gameover()
                              static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
         playButton.update(cposX, cposY);
 
-        targetPBScale = (limit == std::size(titleText)) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
+        targetPBScale = (limit == titleText.size()) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
         playButtonVel += (targetPBScale - playButtonScale) * 0.6f * m_engine.getDeltaTime();
         playButtonScale += playButtonVel * 0.5f * m_engine.getDeltaTime();
         playButtonVel += (playButtonVel * 0.8f - playButtonVel) * m_engine.getDeltaTime();
