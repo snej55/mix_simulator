@@ -224,7 +224,7 @@ void Game::update()
     std::vector<SceneChunk*> visibleChunks{};
     const Bounds::Frustum camFrustum{m_engine.getCameraFrustum()};
     m_scene->getVisibleChunks(camFrustum, m_engine.getCameraFrustumBV(), visibleChunks);
-    for (std::size_t i{0}; i < std::size(visibleChunks); ++i)
+    for (std::size_t i{0}; i < visibleChunks.size(); ++i)
     {
         m_renderQueue->addChunk(visibleChunks[i], camFrustum);
     }

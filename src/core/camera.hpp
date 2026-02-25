@@ -39,10 +39,10 @@ class Camera final : public EngineObject
 public:
     explicit Camera(EngineObject* engine) : EngineObject{"Camera", engine}
     {
-        m_position = glm::vec3(0.0f, 5.0f, 10.0f);
-        m_front = glm::vec3(0.0f, 0.0f, -1.0f);
-        m_up = glm::vec3(0.0f, 1.0f, 0.0f);
-        m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+        m_position = glm::vec3{0.0f, 5.0f, 10.0f};
+        m_front = glm::vec3{0.0f, 0.0f, -1.0f};
+        m_up = glm::vec3{0.0f, 1.0f, 0.0f};
+        m_worldUp = glm::vec3{0.0f, 1.0f, 0.0f};
         m_yaw = CameraN::YAW;
         m_pitch = CameraN::PITCH;
         m_zoom = CameraN::ZOOM;
@@ -115,22 +115,31 @@ public:
 
     [[nodiscard]] float getZoom() const { return m_zoom; }
 
+    void setPosition(const glm::vec3& position) { m_position = position; }
     [[nodiscard]] glm::vec3 getPosition() const { return m_position; }
 
+    void setFront(const glm::vec3& front) { m_front = front; }
     [[nodiscard]] glm::vec3 getFront() const { return m_front; }
 
+    void setUp(const glm::vec3& up) { m_up = up; }
     [[nodiscard]] glm::vec3 getUp() const { return m_up; }
 
+    void setRight(const glm::vec3& right) { m_right = right; }
     [[nodiscard]] glm::vec3 getRight() const { return m_right; }
 
+    void setWorldUp(const glm::vec3& worldUp) { m_worldUp = worldUp; }
     [[nodiscard]] glm::vec3 getWorldUp() const { return m_worldUp; }
 
+    void setYaw(const float val) { m_yaw = val; }
     [[nodiscard]] float getYaw() const { return m_yaw; }
 
+    void setPitch(const float val) { m_pitch = val; }
     [[nodiscard]] float getPitch() const { return m_pitch; }
 
+    void setMovementSpeed(const float val) { m_movementSpeed = val; }
     [[nodiscard]] float getMovementSpeed() const { return m_movementSpeed; }
 
+    void setMouseSensitivity(const float val) { m_mouseSensitivity = val; }
     [[nodiscard]] float getMouseSensitivity() const { return m_mouseSensitivity; }
 
 private:
