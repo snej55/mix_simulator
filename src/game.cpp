@@ -31,6 +31,8 @@ bool Game::init()
     glfwSetWindowSizeLimits(m_engine.getWindow()->getWindow(), CST::WINDOW_START_WIDTH, CST::WINDOW_START_HEIGHT,
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
 
+    m_engine.setCameraControlsEnabled(false);
+
     m_assets = std::make_unique<Assets>();
     m_assets->loadAssets(m_engine.getAudioHandler());
 
@@ -216,7 +218,10 @@ void Game::handleIO()
 
 void Game::update()
 {
-    m_player->update(m_engine.getJoltInstance()->getBodyInterface());
+    m_engine.getCamera()->followPlayer(m_player->getEntity()->getPosition(),
+                                       m_player->getEntity()->getPhysicsBody()->getBodyID(),
+                                       m_engine.getJoltInstance());
+    m_player->update(m_engine.getJoltInstance()->getBodyInterface(), m_engine.getCamera());
 
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());

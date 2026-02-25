@@ -90,6 +90,7 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/core/arena.cpp src/core/iohandler.hpp src/core/iohandler.cpp
         src/core/clock.hpp src/core/clock.cpp src/core/shader.cpp src/core/shader.hpp
         src/core/texture.hpp src/core/texture.cpp
+        src/core/camera.cpp
         src/core/engine.hpp
         src/core/util.hpp
         src/core/shapes.hpp

@@ -33,7 +33,7 @@ public:
 
     ~Player() = default;
 
-    void update(JPH::BodyInterface* bodyInterface);
+    void update(JPH::BodyInterface* bodyInterface, const Camera* camera);
 
     void setupPhysicsBody(JPH::BodyInterface* bodyInterface);
 

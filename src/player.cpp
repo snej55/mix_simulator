@@ -13,29 +13,40 @@ Player::Player(const glm::vec3& pos, const Model* model)
     m_input = std::make_unique<PlayerController>(PlayerController{});
 }
 
-void Player::update(JPH::BodyInterface* bodyInterface)
+void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
 {
     constexpr float speed{200000.f};
     constexpr float torque{100000.f};
+
+    const glm::vec3 front{camera->getFront()};
+    const glm::vec3 right{camera->getRight()};
+
+    glm::vec3 forwardDir{glm::normalize(glm::vec3(front.x, 0.0f, front.z))};
+    glm::vec3 rightDir{glm::normalize(glm::vec3{right.x, 0.0f, right.z})};
+
     if (m_input->getControl(Controls::UP))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {speed, 0.f, 0.f},
-                                         {torque, 0.f, 0.f});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
+                                         {forwardDir.x * speed, 0.f, forwardDir.z * speed},
+                                         {forwardDir.x * torque, 0.f, forwardDir.z * torque});
     }
     if (m_input->getControl(Controls::DOWN))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {-speed, 0.f, 0.f},
-                                         {torque, 0.f, 0.f});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
+                                         {-forwardDir.x * speed, 0.f, -forwardDir.z * speed},
+                                         {-forwardDir.x * torque, 0.f, -forwardDir.z * torque});
     }
     if (m_input->getControl(Controls::RIGHT))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, 0.f, speed},
-                                         {0.f, 0.f, torque});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
+                                         {rightDir.x * speed, 0.f, rightDir.z * speed},
+                                         {rightDir.x * torque, 0.f, -rightDir.z * torque});
     }
     if (m_input->getControl(Controls::LEFT))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, 0.f, -speed},
-                                         {0.f, 0.f, -torque});
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
+                                         {-rightDir.x * speed, 0.f, -rightDir.z * speed},
+                                         {-rightDir.x * torque, 0.f, rightDir.z * torque});
     }
     if (m_input->getControl(Controls::SPACE))
     {
