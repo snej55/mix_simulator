@@ -40,7 +40,7 @@ namespace CameraN
     constexpr float ZOOM{45.0f};
     // player tracking constants
     constexpr float FOLLOW_DISTANCE{20.0f};
-    constexpr float Y_OFFSET{1.5f}; // look slightly above player
+    constexpr float Y_OFFSET{3.5f}; // look slightly above player
 } // namespace CameraN
 
 class Camera final : public EngineObject
