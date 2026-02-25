@@ -11,8 +11,8 @@
 
 namespace Shadows
 {
-    inline constexpr std::array<float, 4> shadowCascadeLevels{CAMERA_Z_FAR / 50.0f, CAMERA_Z_FAR / 25.0f,
-                                                              CAMERA_Z_FAR / 10.0f, CAMERA_Z_FAR / 2.0f};
+    inline constexpr std::array<float, 4> shadowCascadeLevels{CAMERA_Z_FAR * 0.02f, CAMERA_Z_FAR * 0.04,
+                                                              CAMERA_Z_FAR * 0.1f, CAMERA_Z_FAR * 0.5f};
     inline constexpr unsigned int shadowMapSize{4096};
 }; // namespace Shadows
 
