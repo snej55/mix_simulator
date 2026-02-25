@@ -28,7 +28,6 @@ uniform sampler2D brdfLUT;
 
 // CSM
 uniform sampler2DArrayShadow shadowMap;
-uniform vec3 lightDir;
 uniform float cascadePlaneDistances[16];
 uniform mat4 lightSpaceMatrices[16];
 uniform int cascadeCount;
@@ -120,7 +119,7 @@ float angleHash(vec3 seed) { return fract(sin(dot(seed, vec3(12.9898, 78.233, 45
 float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
 {
     vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
-    vec3 offsetPosWS = fragPosWS + normal * 0.005;
+    vec3 offsetPosWS = fragPosWS + normal * 0.0005;
     vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(offsetPosWS, 1.0);
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -193,8 +192,14 @@ float getShadow(vec3 fragPosWS, vec3 normal)
     }
 
     float split = cascadePlaneDistances[layer];
-    float dist = max(0.0001, abs(depth - split));
-    const float fadeRange = 1.0;
+    float dist = max(0.000001, abs(depth - split));
+    float fadeRange = 1.0;
+    if (layer == cascadeCount - 2 &&
+        abs(cascadePlaneDistances[layer] - cascadePlaneDistances[layer + 1]) >
+            abs(cascadePlaneDistances[layer] - cascadePlaneDistances[layer - 1]))
+    {
+        fadeRange = 10.0;
+    }
     float t = 1.0 - clamp(dist / fadeRange, 0.0, 1.0);
 
     if (t > 0.0)

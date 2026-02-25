@@ -63,7 +63,7 @@ bool Game::init()
 
 bool Game::menu()
 {
-    m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu);
+    // m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu);
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
