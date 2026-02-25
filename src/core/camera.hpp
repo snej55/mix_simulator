@@ -9,6 +9,13 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+
+#include "Jolt/Physics/Collision/Shape/Shape.h"
 #include "engine_types.hpp"
 
 #define CAMERA_Z_NEAR 0.1f
@@ -32,6 +39,9 @@ namespace CameraN
     constexpr float SPEED{1.f};
     constexpr float SENSITIVITY{0.05f};
     constexpr float ZOOM{45.0f};
+    // player tracking constants
+    constexpr float FOLLOW_DISTANCE{5.0f};
+    constexpr float Y_OFFSET{1.5f}; // look slightly above player
 } // namespace CameraN
 
 class Camera final : public EngineObject
@@ -48,6 +58,8 @@ public:
         m_zoom = CameraN::ZOOM;
         m_movementSpeed = CameraN::SPEED;
         m_mouseSensitivity = CameraN::SENSITIVITY;
+
+        m_followDistance = CameraN::FOLLOW_DISTANCE;
         updateCameraVectors();
     }
 
@@ -84,14 +96,15 @@ public:
         // cap pitch
         if (constrainPitch)
         {
-            if (m_pitch > 89.0f)
-            {
-                m_pitch = 89.0f;
-            }
-            if (m_pitch < -89.0f)
-            {
-                m_pitch = -89.0f;
-            }
+            m_pitch = glm::clamp(m_pitch, -20.f, 80.f);
+            // if (m_pitch > 89.0f)
+            // {
+            //     m_pitch = 89.0f;
+            // }
+            // if (m_pitch < -89.0f)
+            // {
+            //     m_pitch = -89.0f;
+            // }
         }
 
         // update front, right & up vectors
@@ -113,6 +126,37 @@ public:
 #endif
     }
 
+    // pass player body centre
+    void followPlayer(const glm::vec3& position, JPH::PhysicsSystem* physicsSystem)
+    {
+        const glm::vec3 focalPoint{position + glm::vec3(0.0f, CameraN::Y_OFFSET, 0.0f)};
+        const glm::vec3 followPos{focalPoint + -m_front * m_followDistance}; // ideal position
+
+        // raycast to check for obstacles
+        JPH::RVec3 start{focalPoint.x, focalPoint.y, focalPoint.z};
+        JPH::Vec3 direction{followPos.x - focalPoint.x, followPos.y - focalPoint.y, followPos.z - focalPoint.z};
+
+        JPH::RayCast ray{start, direction};
+        JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector;
+
+        physicsSystem->GetNarrowPhaseQuery().CastRay(JPH::RRayCast{ray}, JPH::RayCastSettings{}, collector);
+
+        if (collector.HadHit())
+        {
+            m_position = focalPoint +
+                (glm::vec3{direction.GetX(), direction.GetY(), direction.GetZ()} * collector.mHit.mFraction * 0.9f);
+        }
+        else
+        {
+            m_position = followPos;
+        }
+
+        m_front = glm::normalize(focalPoint - m_position);
+        m_right = glm::normalize(glm::cross(m_front, m_worldUp));
+        m_up = glm::normalize(glm::cross(m_right, m_front));
+    }
+
+    void setZoom(const float val) { m_zoom = val; }
     [[nodiscard]] float getZoom() const { return m_zoom; }
 
     void setPosition(const glm::vec3& position) { m_position = position; }
@@ -142,6 +186,9 @@ public:
     void setMouseSensitivity(const float val) { m_mouseSensitivity = val; }
     [[nodiscard]] float getMouseSensitivity() const { return m_mouseSensitivity; }
 
+    void setFollowDistance(const float val) { m_followDistance = val; }
+    [[nodiscard]] float getFollowDistance() const { return m_followDistance; }
+
 private:
     glm::vec3 m_position{};
     glm::vec3 m_front{};
@@ -155,6 +202,8 @@ private:
     float m_movementSpeed;
     float m_mouseSensitivity;
     float m_zoom;
+
+    float m_followDistance;
 
     void updateCameraVectors()
     {
