@@ -88,3 +88,7 @@ cd build
 - [ ] Add sliding sfx
 - [ ] Add flow field pathfinding algorithm
 - [ ] Clean up data folder
+
+## Debugging todo:
+- [ ] Polish shadows
+- [ ] Fix camera jitter when falling
