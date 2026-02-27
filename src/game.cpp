@@ -17,6 +17,8 @@
 
 #include "game.hpp"
 
+#include <memory>
+
 Game::~Game() = default;
 
 bool Game::init()
@@ -65,7 +67,7 @@ bool Game::init()
 
 bool Game::menu()
 {
-    m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu);
+    // m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu);
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
@@ -219,8 +221,8 @@ void Game::handleIO()
 void Game::update()
 {
     m_engine.getCamera()->followPlayer(m_player->getEntity()->getPosition(),
-                                       m_player->getEntity()->getPhysicsBody()->getBodyID(),
-                                       m_engine.getJoltInstance());
+                                       m_player->getEntity()->getPhysicsBody()->getBodyID(), m_engine.getJoltInstance(),
+                                       m_engine.getDeltaTime());
     m_player->update(m_engine.getJoltInstance()->getBodyInterface(), m_engine.getCamera());
 
     // update entities

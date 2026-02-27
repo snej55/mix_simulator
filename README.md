@@ -78,7 +78,7 @@ cd build
 - [X] Add cascading shadow maps
 - [X] Smooth cascade transition
 - [X] Add credits
-- [ ] Make camera follow player
+- [X] Make camera follow player
 - [ ] Add alpha to shape rendering
 - [ ] Add settings
 - [X] Add in game font

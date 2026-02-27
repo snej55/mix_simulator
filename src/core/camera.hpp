@@ -95,7 +95,7 @@ public:
         // cap pitch
         if (constrainPitch)
         {
-            m_pitch = glm::clamp(m_pitch, -50.f, 50.f);
+            m_pitch = glm::clamp(m_pitch, -50.f, 0.f);
         }
 
         // update front, right & up vectors
@@ -118,7 +118,7 @@ public:
     }
 
     // pass player body centre
-    void followPlayer(const glm::vec3& position, JPH::BodyID playerID, void* jolt);
+    void followPlayer(const glm::vec3& position, JPH::BodyID playerID, void* jolt, float dt);
 
     void setZoom(const float val) { m_zoom = val; }
     [[nodiscard]] float getZoom() const { return m_zoom; }
@@ -153,6 +153,9 @@ public:
     void setFollowDistance(const float val) { m_followDistance = val; }
     [[nodiscard]] float getFollowDistance() const { return m_followDistance; }
 
+    void setTargetPosition(const glm::vec3& position) { m_targetPosition = position; }
+    [[nodiscard]] const glm::vec3& getTargetPosition() const { return m_targetPosition; }
+
 private:
     glm::vec3 m_position{};
     glm::vec3 m_front{};
@@ -168,6 +171,7 @@ private:
     float m_zoom;
 
     float m_followDistance;
+    glm::vec3 m_targetPosition{};
 
     void updateCameraVectors()
     {

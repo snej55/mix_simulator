@@ -1,13 +1,15 @@
 // Created by Jens Kromdijk 25/02/2026
 
 #include "camera.hpp"
-#include "Jolt/Physics/Body/BodyFilter.h"
-#include "Jolt/Physics/Collision/ObjectLayer.h"
 #include "physics.hpp"
 
-void Camera::followPlayer(const glm::vec3& position, JPH::BodyID playerID, void* jolt)
+#include <Jolt/Physics/Body/BodyFilter.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+
+void Camera::followPlayer(const glm::vec3& position, JPH::BodyID playerID, void* jolt, const float dt)
 {
-    const glm::vec3 focalPoint{position + glm::vec3(0.0f, CameraN::Y_OFFSET, 0.0f)};
+    m_targetPosition += (position - m_targetPosition) * 0.1f * dt;
+    const glm::vec3 focalPoint{m_targetPosition + glm::vec3(0.0f, CameraN::Y_OFFSET, 0.0f)};
     const glm::vec3 followPos{focalPoint + -m_front * m_followDistance}; // ideal position
 
     // raycast to check for obstacles

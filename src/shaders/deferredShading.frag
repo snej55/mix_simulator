@@ -119,7 +119,7 @@ float angleHash(vec3 seed) { return fract(sin(dot(seed, vec3(12.9898, 78.233, 45
 float getCascadeShadow(int layer, vec3 fragPosWS, vec3 normal)
 {
     vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
-    vec3 offsetPosWS = fragPosWS + normal * 0.005;
+    vec3 offsetPosWS = fragPosWS + normal * 0.015;
     vec4 fragPosLS = lightSpaceMatrices[layer] * vec4(offsetPosWS, 1.0);
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -198,7 +198,7 @@ float getShadow(vec3 fragPosWS, vec3 normal)
         abs(cascadePlaneDistances[layer] - cascadePlaneDistances[layer + 1]) >
             abs(cascadePlaneDistances[layer] - cascadePlaneDistances[layer - 1]))
     {
-        fadeRange = 10.0;
+        fadeRange = 1.0;
     }
     float t = 1.0 - clamp(dist / fadeRange, 0.0, 1.0);
 

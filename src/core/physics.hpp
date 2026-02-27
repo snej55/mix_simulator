@@ -362,7 +362,7 @@ public:
 
     PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const glm::vec3& rotation,
                 const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
-                PBSettingsModifier settingsModifier = nullptr) : m_bodyType{bodyType}
+                PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
     {
         const JPH::Vec3 extents{Util::convertVectorJolt(boundingBox.extents)};
         JPH::BoxShapeSettings shapeSettings{extents, PHYSICS_CONVEX_RADIUS};
@@ -401,6 +401,8 @@ public:
 
         JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
         JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
+        settings.mMassPropertiesOverride.SetMassAndInertiaOfSolidBox(
+            {extents.GetX() * 2.f, extents.GetY() * 2.f, extents.GetZ() * 2.f}, density);
         if (settingsModifier != nullptr)
         {
             settingsModifier(&settings);
