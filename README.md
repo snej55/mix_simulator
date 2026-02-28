@@ -86,6 +86,8 @@ cd build
 - [X] Make some music
 - [X] Add physics sfx using jolt contact listeners
 - [ ] Add sliding sfx
+- [ ] Generate flow field quadtree
+- [ ] Paralax mapping with tesselation shader?
 - [ ] Add flow field pathfinding algorithm
 - [ ] Clean up data folder
 
