@@ -88,11 +88,9 @@ bool Engine::init(const int width, const int height, const char* title)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    glEnable(GL_BLEND);
-    glEnable(GL_LINE_SMOOTH);
+    glDisable(GL_BLEND);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);

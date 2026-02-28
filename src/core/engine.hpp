@@ -309,7 +309,7 @@ private:
 
     CSMGenerator* m_csmGenerator{nullptr};
     glm::vec3 m_lightDirection{0.0f};
-    bool m_shadowsEnabled{true};
+    bool m_shadowsEnabled{false};
     unsigned int m_lsMatricesUBO{0};
 
     FontManager* m_fontRenderer{nullptr};

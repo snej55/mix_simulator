@@ -86,9 +86,14 @@ cd build
 - [X] Make some music
 - [X] Add physics sfx using jolt contact listeners
 - [ ] Add sliding sfx
-- [ ] Generate flow field quadtree
+- [X] Generate flow field quadtree
 - [ ] Paralax mapping with tesselation shader?
 - [ ] Add flow field pathfinding algorithm
+  - [ ] Add quad tree navigation functions
+  - [ ] Add wave propagation
+  - [ ] Dijkstra algorithm?
+  - [ ] Improve quadtree generation (cost/penetration depth)
+  - [ ] Optimize tile sizes
 - [ ] Make enemies fall apart
   - [ ] Precalculate fracture in blender
   - [ ] Load shards

@@ -69,7 +69,7 @@ void Player::setupPhysicsBody(JPH::BodyInterface* bodyInterface)
                             m_entity->getBodyType(),
                             m_entity->getTransform().getGlobalPosition() + m_entity->getTransform().getPivotOffset(),
                             settingsModifier,
-                            1.f};
+                            0.1f};
     m_entity->setPhysicsBody(physicsBody);
     std::cout << "PLAYER::SETUP_PHYSICS_BODY: Added custom body settings!" << std::endl;
 }
