@@ -6,5 +6,6 @@ namespace CST
     inline constexpr int WINDOW_START_HEIGHT{480};
     inline constexpr int FONT_TEX_SIZE{64};
 
-    inline constexpr int TILE_SIZE{3};
+    inline constexpr int FLOW_FIELD_DEPTH_LIMIT{8}; // max number of quadtree subdivisions
+    inline constexpr float FLOW_FIELD_TILE_SIZE{30.f}; // initial quadtree node size
 } // namespace CST

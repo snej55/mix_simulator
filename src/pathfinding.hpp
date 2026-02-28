@@ -42,6 +42,9 @@ struct TileNode
      */
     void divide()
     {
+        if (m_children[0] == nullptr)
+            return;
+
         for (std::size_t i{0}; i < 4; ++i)
         {
             TileNode* node;
@@ -61,13 +64,20 @@ struct TileNode
                                     m_dimensions * 0.5f};
                 break;
             }
+            m_children[i] = node;
         }
     }
+
+    [[nodiscard]] bool getDivided() const { return m_children[0] != nullptr; }
+    [[nodiscard]] glm::vec2 getCenter() const { return m_position + m_dimensions * 0.5f; }
 
     glm::vec2 m_position;
     glm::vec2 m_dimensions;
 
     std::array<TileNode*, 4> m_children;
+    bool m_hasChildren{false};
+    bool m_solid{false};
+    int m_direction{0};
 };
 
 class FlowFieldGenerator
@@ -94,6 +104,9 @@ public:
     [[nodiscard]] float getHeight() const { return m_height; }
 
     [[nodiscard]] bool getInit() const { return m_init; }
+    [[nodiscard]] TileNode** getTileGrid() const { return m_tileGrid; }
+
+    void initTile(TileNode* node);
 
 private:
     glm::ivec2 m_extents;
@@ -101,6 +114,8 @@ private:
     float m_height;
 
     bool m_init{false};
+    TileNode** m_tileGrid{nullptr};
+    std::size_t m_numTiles{0};
 };
 
 #endif
