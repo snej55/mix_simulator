@@ -23,8 +23,8 @@ void FlowFieldGenerator::init(JoltInstance* jolt)
     assert(m_tileGrid.size() == 0);
 
     // initialize tile grid
-    const int width{static_cast<int>(static_cast<float>(m_extents.x * 2) / CST::FLOW_FIELD_TILE_SIZE)};
-    const int height{static_cast<int>(static_cast<float>(m_extents.y * 2) / CST::FLOW_FIELD_TILE_SIZE)};
+    const int width{static_cast<int>(static_cast<float>(m_extents.x * 2))};
+    const int height{static_cast<int>(static_cast<float>(m_extents.y * 2))};
     m_numTiles = width * height;
 
     // create box collider
@@ -119,4 +119,24 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
         m_tileGrid[node].m_children[i] = m_tileGrid.size() - 1;
     }
     m_tileGrid[node].m_hasChildren = true;
+}
+
+std::size_t FlowFieldGenerator::getNode(const glm::vec2& pos)
+{
+    int gridX{static_cast<int>(pos.x / CST::FLOW_FIELD_TILE_SIZE) - m_extents.x};
+    int gridY{static_cast<int>(pos.y / CST::FLOW_FIELD_TILE_SIZE) - m_extents.y};
+
+    return 0;
+}
+
+void FlowFieldGenerator::printQuadTree()
+{
+    for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
+    {
+        TileNode* node{&m_tileGrid[i]};
+        std::cout << std::boolalpha << "{'pos': [" << node->m_position.x << ", " << node->m_position.y
+                  << "], 'dimensions': [" << node->m_dimensions.x << ", " << node->m_dimensions.y
+                  << "], solid: " << node->m_solid << "}\n";
+    }
+    std::cout << std::endl;
 }

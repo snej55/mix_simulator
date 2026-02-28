@@ -65,6 +65,11 @@ public:
     [[nodiscard]] bool getInit() const { return m_init; }
     [[nodiscard]] const std::vector<TileNode>& getTileGrid() const { return m_tileGrid; }
 
+    // pos: vec3.x, vec3.z
+    [[nodiscard]] std::size_t getNode(const glm::vec2& pos);
+
+    void printQuadTree();
+
 private:
     glm::ivec2 m_extents;
     glm::ivec2 m_center;

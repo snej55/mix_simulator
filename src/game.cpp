@@ -71,6 +71,7 @@ bool Game::init()
                    static_cast<int>(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)},
         3.f);
     m_flowField->init(m_engine.getJoltInstance());
+    m_flowField->printQuadTree();
 
     return true;
 }
