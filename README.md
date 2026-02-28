@@ -89,6 +89,11 @@ cd build
 - [ ] Generate flow field quadtree
 - [ ] Paralax mapping with tesselation shader?
 - [ ] Add flow field pathfinding algorithm
+- [ ] Make enemies fall apart
+  - [ ] Precalculate fracture in blender
+  - [ ] Load shards
+  - [ ] Instance render shards
+  - [ ] Pregenerate convex hull shapes (jolt)
 - [ ] Clean up data folder
 
 ## Debugging todo:
