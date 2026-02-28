@@ -42,7 +42,7 @@ struct TileNode
      */
     void divide()
     {
-        if (m_children[0] == nullptr)
+        if (m_children[0] != nullptr)
             return;
 
         for (std::size_t i{0}; i < 4; ++i)
@@ -60,12 +60,13 @@ struct TileNode
                 node = new TileNode{{m_position.x, m_position.y + m_dimensions.y * 0.5f}, m_dimensions * 0.5f};
                 break;
             default:
-                node = new TileNode{{m_position.x + m_dimensions.y * 0.5f, m_position.y + m_dimensions.y * 0.5f},
+                node = new TileNode{{m_position.x + m_dimensions.x * 0.5f, m_position.y + m_dimensions.y * 0.5f},
                                     m_dimensions * 0.5f};
                 break;
             }
             m_children[i] = node;
         }
+        m_hasChildren = true;
     }
 
     [[nodiscard]] bool getDivided() const { return m_children[0] != nullptr; }
@@ -106,7 +107,8 @@ public:
     [[nodiscard]] bool getInit() const { return m_init; }
     [[nodiscard]] TileNode** getTileGrid() const { return m_tileGrid; }
 
-    void initTile(TileNode* node);
+    void generateQuadTree(TileNode* node, JoltInstance* jolt, int depth);
+    [[nodiscard]] bool checkCollision(TileNode* node, JoltInstance* jolt);
 
 private:
     glm::ivec2 m_extents;
@@ -116,6 +118,8 @@ private:
     bool m_init{false};
     TileNode** m_tileGrid{nullptr};
     std::size_t m_numTiles{0};
+
+    JPH::ShapeRefC m_boxCollider;
 };
 
 #endif
