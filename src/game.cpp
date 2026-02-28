@@ -14,6 +14,7 @@
 #include "core/renderer.hpp"
 #include "core/texture.hpp"
 #include "core/ui.hpp"
+#include "pathfinding.hpp"
 
 #include "game.hpp"
 
@@ -61,6 +62,15 @@ bool Game::init()
     m_player = std::make_unique<Player>(glm::vec3{10.0f, 100.f, 10.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
     m_scene->addEntity(m_player->getEntity());
+
+    // generate flow field quadtree
+    m_flowField = std::make_unique<FlowFieldGenerator>(
+        glm::ivec2{static_cast<int>(m_scene->getLevelExtents().x / CST::FLOW_FIELD_TILE_SIZE),
+                   static_cast<int>(m_scene->getLevelExtents().z) / CST::FLOW_FIELD_TILE_SIZE},
+        glm::ivec2{static_cast<int>(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
+                   static_cast<int>(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)},
+        3.f);
+    m_flowField->init(m_engine.getJoltInstance());
 
     return true;
 }

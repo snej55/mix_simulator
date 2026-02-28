@@ -31,6 +31,7 @@ void FlowFieldGenerator::init(JoltInstance* jolt)
     JPH::BoxShapeSettings boxSettings{JPH::Vec3{1.0f, 1.0f, 1.0f}};
     m_boxCollider = boxSettings.Create().Get();
 
+    std::cout << "FLOW_FIELD_GENERATOR::INIT: Generating quadtrees!" << std::endl;
     m_tileGrid.reserve(width * height);
     for (std::size_t y{0}; y < height; ++y)
     {
@@ -43,6 +44,7 @@ void FlowFieldGenerator::init(JoltInstance* jolt)
             generateQuadTree(y * width + x, jolt, 0);
         }
     }
+    std::cout << "FLOW_FIELD_GENERATOR::INIT: Initialized quadtrees!" << std::endl;
 }
 
 void FlowFieldGenerator::generateQuadTree(const std::size_t node, JoltInstance* jolt, const int depth)

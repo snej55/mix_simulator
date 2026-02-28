@@ -2,6 +2,7 @@
 
 // for scene parsing
 #include <JSON/json.hpp>
+#include <limits>
 #include <memory>
 #include "lights.hpp"
 using json = nlohmann::json;
@@ -19,10 +20,7 @@ using json = nlohmann::json;
 
 SceneChunk::SceneChunk(const glm::vec3& pos) : m_pos{pos} { init(); }
 
-SceneChunk::SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entities) : m_pos{pos}, m_entities{entities}
-{
-    init();
-}
+SceneChunk::SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entities) : m_pos{pos}, m_entities{entities} { init(); }
 
 void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& discardEntities, JoltInstance* jolt)
 {
@@ -109,9 +107,7 @@ void SceneChunk::addEntity(Entity* entity)
 void SceneChunk::init()
 {
     m_aabb = std::make_unique<Bounds::AABB>(
-        Bounds::AABB{m_pos,
-                     {m_pos.x + SpatialHashing::CELL_SIZE, m_pos.y + SpatialHashing::CELL_SIZE,
-                      m_pos.z + SpatialHashing::CELL_SIZE}});
+        Bounds::AABB{m_pos, {m_pos.x + SpatialHashing::CELL_SIZE, m_pos.y + SpatialHashing::CELL_SIZE, m_pos.z + SpatialHashing::CELL_SIZE}});
 }
 
 Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine(engine) {}
@@ -153,8 +149,7 @@ bool Scene::init(const char* scenePath)
         {
             const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
                                      entityEntry["position"][2].get<float>()};
-            const glm::vec3 scale{entityEntry["scale"][0].get<float>(), entityEntry["scale"][1].get<float>(),
-                                  entityEntry["scale"][2].get<float>()};
+            const glm::vec3 scale{entityEntry["scale"][0].get<float>(), entityEntry["scale"][1].get<float>(), entityEntry["scale"][2].get<float>()};
             const glm::vec3 rotation{entityEntry["rotation"][0].get<float>(), entityEntry["rotation"][1].get<float>(),
                                      entityEntry["rotation"][2].get<float>()};
             const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
@@ -184,16 +179,14 @@ bool Scene::init(const char* scenePath)
         std::cout << "SCENE::INIT Adding point lights to scene..." << std::endl;
         for (const auto& pointLightEntry : data[0]["level"]["pointLights"])
         {
-            const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
-                                     pointLightEntry["position"][1].get<float>(),
+            const glm::vec3 position{pointLightEntry["position"][0].get<float>(), pointLightEntry["position"][1].get<float>(),
                                      pointLightEntry["position"][2].get<float>()};
             const glm::vec3 color{pointLightEntry["color"][0].get<float>(), pointLightEntry["color"][1].get<float>(),
                                   pointLightEntry["color"][2].get<float>()};
             const float radius{pointLightEntry["radius"].get<float>()};
             addPointLight(position, color, radius);
         }
-        std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["pointLights"].size() << " pointLights for scene."
-                  << std::endl;
+        std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["pointLights"].size() << " pointLights for scene." << std::endl;
     }
     catch ([[maybe_unused]] const std::ifstream::failure& e)
     {
@@ -202,6 +195,11 @@ bool Scene::init(const char* scenePath)
         Util::endError();
         return false;
     }
+
+    calculateLevelDimensions();
+    std::cout << "SCENE::INIT::LEVEL_EXTENTS: {x: " << m_levelExtents.x << ", y: " << m_levelExtents.y << ", z: " << m_levelExtents.z << "}"
+              << std::endl;
+    std::cout << "SCENE::INIT::LEVEL_CENTER: {x: " << m_levelCenter.x << ", y: " << m_levelCenter.y << ", z: " << m_levelCenter.z << "}" << std::endl;
 
     sceneFile.close();
     return true;
@@ -280,8 +278,7 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
     cleanupEmptyChunks();
 }
 
-void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV,
-                             std::vector<SceneChunk*>& chunks)
+void Scene::getVisibleChunks(const Bounds::Frustum& camFrustum, const Bounds::AABB& frustumBV, std::vector<SceneChunk*>& chunks)
 {
     for (const auto& [key, chunkPtr] : m_chunks)
     {
@@ -309,8 +306,7 @@ void Scene::cleanupEmptyChunks()
     }
 }
 
-void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const BodyType& bodyType,
-                      const bool animated)
+void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform, const BodyType& bodyType, const bool animated)
 {
     assert(m_engine != nullptr);
     Engine* enginePtr{static_cast<Engine*>(m_engine)};
@@ -319,8 +315,7 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
     if (modelPtr == nullptr)
     {
         Util::beginError();
-        std::cout << "SCENE::ADD_ENTITY::ERROR: Model at path `" << modelPath
-                  << "` does not exist! Ensure it is preloaded beforehand.";
+        std::cout << "SCENE::ADD_ENTITY::ERROR: Model at path `" << modelPath << "` does not exist! Ensure it is preloaded beforehand.";
         Util::endError();
         return;
     }
@@ -337,11 +332,10 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
 void Scene::addEntity(Entity* entity)
 {
     assert(entity != nullptr);
-    if (glm::length(entity->getTransform().getGlobalPosition()) >
-        SpatialHashing::WORLD_CHUNK_LIMIT * SpatialHashing::CELL_SIZE)
+    if (glm::length(entity->getTransform().getGlobalPosition()) > SpatialHashing::WORLD_CHUNK_LIMIT * SpatialHashing::CELL_SIZE)
     {
-        std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
-                  << " chunks away from origin)" << std::endl;
+        std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT << " chunks away from origin)"
+                  << std::endl;
         return;
     }
 
@@ -349,18 +343,16 @@ void Scene::addEntity(Entity* entity)
     const SpatialHashing::ChunkKey key{getChunkKey(entity->getGlobalMidpoint())};
 
     constexpr std::array<glm::vec3, 27> neighbourOffsets{
-        glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f}, glm::vec3{-1.f, 0.f, -1.f},
-        glm::vec3{0.f, 0.f, -1.f},   glm::vec3{1.f, 0.f, -1.f},  glm::vec3{-1.f, 1.f, -1.f}, glm::vec3{0.f, 1.f, -1.f},
-        glm::vec3{1.f, 1.f, -1.f},   glm::vec3{-1.f, -1.f, 0.f}, glm::vec3{0.f, -1.f, 0.f},  glm::vec3{1.f, -1.f, 0.f},
-        glm::vec3{-1.f, 0.f, 0.f},   glm::vec3{0.f, 0.f, 0.f},   glm::vec3{1.f, 0.f, 0.f},   glm::vec3{-1.f, 1.f, 0.f},
-        glm::vec3{0.f, 1.f, 0.f},    glm::vec3{1.f, 1.f, 0.f},   glm::vec3{-1.f, -1.f, 1.f}, glm::vec3{0.f, -1.f, 1.f},
-        glm::vec3{1.f, -1.f, 1.f},   glm::vec3{-1.f, 0.f, 1.f},  glm::vec3{0.f, 0.f, 1.f},   glm::vec3{1.f, 0.f, 1.f},
-        glm::vec3{-1.f, 1.f, 1.f},   glm::vec3{0.f, 1.f, 1.f},   glm::vec3{1.f, 1.f, 1.f}};
+        glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f}, glm::vec3{-1.f, 0.f, -1.f}, glm::vec3{0.f, 0.f, -1.f},
+        glm::vec3{1.f, 0.f, -1.f},   glm::vec3{-1.f, 1.f, -1.f}, glm::vec3{0.f, 1.f, -1.f},  glm::vec3{1.f, 1.f, -1.f},  glm::vec3{-1.f, -1.f, 0.f},
+        glm::vec3{0.f, -1.f, 0.f},   glm::vec3{1.f, -1.f, 0.f},  glm::vec3{-1.f, 0.f, 0.f},  glm::vec3{0.f, 0.f, 0.f},   glm::vec3{1.f, 0.f, 0.f},
+        glm::vec3{-1.f, 1.f, 0.f},   glm::vec3{0.f, 1.f, 0.f},   glm::vec3{1.f, 1.f, 0.f},   glm::vec3{-1.f, -1.f, 1.f}, glm::vec3{0.f, -1.f, 1.f},
+        glm::vec3{1.f, -1.f, 1.f},   glm::vec3{-1.f, 0.f, 1.f},  glm::vec3{0.f, 0.f, 1.f},   glm::vec3{1.f, 0.f, 1.f},   glm::vec3{-1.f, 1.f, 1.f},
+        glm::vec3{0.f, 1.f, 1.f},    glm::vec3{1.f, 1.f, 1.f}};
 
     for (const glm::vec3& offset : neighbourOffsets)
     {
-        const SpatialHashing::ChunkKey neighbourKey{key.x + static_cast<long long>(offset.x),
-                                                    key.y + static_cast<long long>(offset.y),
+        const SpatialHashing::ChunkKey neighbourKey{key.x + static_cast<long long>(offset.x), key.y + static_cast<long long>(offset.y),
                                                     key.z + static_cast<long long>(offset.z)};
         if (m_chunks.find(neighbourKey) == m_chunks.end())
         {
@@ -397,8 +389,7 @@ void Scene::getShadowModels(std::vector<std::pair<Model*, glm::mat4>>& models) c
         {
             if (auto it{unique.find(entity)}; it == unique.end())
             {
-                models.emplace_back(
-                    std::pair<Model*, glm::mat4>{entity->getModel(), entity->getTransform().getModelMat()});
+                models.emplace_back(std::pair<Model*, glm::mat4>{entity->getModel(), entity->getTransform().getModelMat()});
                 unique.insert(entity);
             }
         }
@@ -429,4 +420,23 @@ void Scene::getPointLights(std::vector<Lights::PointLight*>& pointLights) const
     {
         pointLights.push_back(m_pointLights[i].get());
     }
+}
+
+void Scene::calculateLevelDimensions()
+{
+    glm::vec3 min{std::numeric_limits<float>::max()};
+    glm::vec3 max{std::numeric_limits<float>::lowest()};
+    Bounds::AABB globalAABB;
+    for (const auto& [key, chunkPtr] : m_chunks)
+    {
+        for (const Entity* entity : chunkPtr->getEntities())
+        {
+            globalAABB = entity->getGlobalAABB();
+            min = glm::min(globalAABB.center - globalAABB.extents, min);
+            max = glm::max(globalAABB.center + globalAABB.extents, max);
+        }
+    }
+
+    m_levelCenter = (min + max) * 0.5f;
+    m_levelExtents = (max - min) * 0.5f;
 }

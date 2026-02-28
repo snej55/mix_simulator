@@ -97,12 +97,19 @@ public:
 
     void getPointLights(std::vector<Lights::PointLight*>& pointLights) const;
 
+    [[nodiscard]] const glm::vec3& getLevelExtents() const { return m_levelExtents; }
+    [[nodiscard]] const glm::vec3& getLevelCenter() const { return m_levelCenter; }
+
 private:
     void* m_engine{nullptr};
 
     std::unordered_map<SpatialHashing::ChunkKey, std::unique_ptr<SceneChunk>, SpatialHashing::ChunkKeyHasher>
         m_chunks{};
     std::vector<std::unique_ptr<Lights::PointLight>> m_pointLights{};
+
+    glm::vec3 m_levelExtents{0.0f};
+    glm::vec3 m_levelCenter{0.0f};
+    void calculateLevelDimensions();
 
     static SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos);
 };

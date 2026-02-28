@@ -65,7 +65,6 @@ public:
     [[nodiscard]] bool getInit() const { return m_init; }
     [[nodiscard]] const std::vector<TileNode>& getTileGrid() const { return m_tileGrid; }
 
-
 private:
     glm::ivec2 m_extents;
     glm::ivec2 m_center;

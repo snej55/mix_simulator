@@ -13,6 +13,7 @@
 
 #include "player.hpp"
 #include "assets.hpp"
+#include "pathfinding.hpp"
 
 class Game final
 {
@@ -41,6 +42,7 @@ private:
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};
+    std::unique_ptr<FlowFieldGenerator> m_flowField{nullptr};
 
     std::unique_ptr<Player> m_player{nullptr};
     std::unique_ptr<Assets> m_assets{nullptr};
