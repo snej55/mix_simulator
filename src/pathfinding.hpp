@@ -9,6 +9,7 @@
 #include "core/physics.hpp"
 
 #include <array>
+#include <vector>
 
 struct TileNode
 {
@@ -16,66 +17,23 @@ struct TileNode
     {
         for (std::size_t i{0}; i < 4; ++i)
         {
-            m_children[i] = nullptr;
+            m_children[i] = 0;
         }
     }
 
-    TileNode(glm::vec2 position, glm::vec2 dimensions, std::array<TileNode*, 4> children) :
+    TileNode(glm::vec2 position, glm::vec2 dimensions, std::array<std::size_t, 4> children) :
         m_position{position}, m_dimensions{dimensions}, m_children{children}
     {
     }
 
-    ~TileNode()
-    {
-        for (std::size_t i{0}; i < 4; ++i)
-        {
-            delete m_children[i];
-        }
-    }
+    ~TileNode() = default;
 
-    /* Divides the children
-     * ___________
-     * | 1  |  2 |
-     * |---------|
-     * | 3  |  4 |
-     * -----------
-     */
-    void divide()
-    {
-        if (m_children[0] != nullptr)
-            return;
-
-        for (std::size_t i{0}; i < 4; ++i)
-        {
-            TileNode* node;
-            switch (i)
-            {
-            case 0:
-                node = new TileNode{m_position, m_dimensions * 0.5f};
-                break;
-            case 1:
-                node = new TileNode{{m_position.x + m_dimensions.x * 0.5f, m_position.y}, m_dimensions * 0.5f};
-                break;
-            case 2:
-                node = new TileNode{{m_position.x, m_position.y + m_dimensions.y * 0.5f}, m_dimensions * 0.5f};
-                break;
-            default:
-                node = new TileNode{{m_position.x + m_dimensions.x * 0.5f, m_position.y + m_dimensions.y * 0.5f},
-                                    m_dimensions * 0.5f};
-                break;
-            }
-            m_children[i] = node;
-        }
-        m_hasChildren = true;
-    }
-
-    [[nodiscard]] bool getDivided() const { return m_children[0] != nullptr; }
     [[nodiscard]] glm::vec2 getCenter() const { return m_position + m_dimensions * 0.5f; }
 
     glm::vec2 m_position;
     glm::vec2 m_dimensions;
 
-    std::array<TileNode*, 4> m_children;
+    std::array<std::size_t, 4> m_children;
     bool m_hasChildren{false};
     bool m_solid{false};
     int m_direction{0};
@@ -105,10 +63,8 @@ public:
     [[nodiscard]] float getHeight() const { return m_height; }
 
     [[nodiscard]] bool getInit() const { return m_init; }
-    [[nodiscard]] TileNode** getTileGrid() const { return m_tileGrid; }
+    [[nodiscard]] const std::vector<TileNode>& getTileGrid() const { return m_tileGrid; }
 
-    void generateQuadTree(TileNode* node, JoltInstance* jolt, int depth);
-    [[nodiscard]] bool checkCollision(TileNode* node, JoltInstance* jolt);
 
 private:
     glm::ivec2 m_extents;
@@ -116,10 +72,16 @@ private:
     float m_height;
 
     bool m_init{false};
-    TileNode** m_tileGrid{nullptr};
+    std::vector<TileNode> m_tileGrid{};
     std::size_t m_numTiles{0};
 
     JPH::ShapeRefC m_boxCollider;
+
+    void generateQuadTree(std::size_t node, JoltInstance* jolt, int depth);
+    [[nodiscard]] bool checkCollision(std::size_t node, JoltInstance* jolt);
+
+    // Divides the children (1: top left, 2: top right, 3: bottom left, 4: bottom right)
+    void divideNode(std::size_t node);
 };
 
 #endif

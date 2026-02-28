@@ -16,17 +16,12 @@ FlowFieldGenerator::FlowFieldGenerator(const glm::ivec2& extents, const glm::ive
 {
 }
 
-FlowFieldGenerator::~FlowFieldGenerator()
-{
-    for (std::size_t i{0}; i < m_numTiles; ++i)
-    {
-        delete m_tileGrid[i];
-    }
-    delete[] m_tileGrid;
-}
+FlowFieldGenerator::~FlowFieldGenerator() = default;
 
 void FlowFieldGenerator::init(JoltInstance* jolt)
 {
+    assert(m_tileGrid.size() == 0);
+
     // initialize tile grid
     const int width{static_cast<int>(static_cast<float>(m_extents.x * 2) / CST::FLOW_FIELD_TILE_SIZE)};
     const int height{static_cast<int>(static_cast<float>(m_extents.y * 2) / CST::FLOW_FIELD_TILE_SIZE)};
@@ -36,22 +31,21 @@ void FlowFieldGenerator::init(JoltInstance* jolt)
     JPH::BoxShapeSettings boxSettings{JPH::Vec3{1.0f, 1.0f, 1.0f}};
     m_boxCollider = boxSettings.Create().Get();
 
-    m_tileGrid = new TileNode*[width * height];
+    m_tileGrid.reserve(width * height);
     for (std::size_t y{0}; y < height; ++y)
     {
         for (std::size_t x{0}; x < width; ++x)
         {
-            TileNode* node{new TileNode{
+            m_tileGrid.emplace_back(TileNode{
                 {static_cast<float>(m_center.x - m_extents.x) + static_cast<float>(x) * CST::FLOW_FIELD_TILE_SIZE,
                  static_cast<float>(m_center.y - m_extents.y) + static_cast<float>(y) * CST::FLOW_FIELD_TILE_SIZE},
-                {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}}};
-            generateQuadTree(node, jolt, 0);
-            m_tileGrid[y * width + x] = node;
+                {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}});
+            generateQuadTree(y * width + x, jolt, 0);
         }
     }
 }
 
-void FlowFieldGenerator::generateQuadTree(TileNode* node, JoltInstance* jolt, const int depth)
+void FlowFieldGenerator::generateQuadTree(const std::size_t node, JoltInstance* jolt, const int depth)
 {
     const bool intersect{checkCollision(node, jolt)};
     if (!intersect)
@@ -61,28 +55,26 @@ void FlowFieldGenerator::generateQuadTree(TileNode* node, JoltInstance* jolt, co
 
     if (depth >= CST::FLOW_FIELD_DEPTH_LIMIT)
     {
-        node->m_solid = true;
+        m_tileGrid[node].m_solid = true;
         return;
     }
 
-    node->divide();
+    divideNode(node);
 
+    std::array<std::size_t, 4> children{m_tileGrid[node].m_children};
     for (std::size_t i{0}; i < 4; ++i)
     {
-        if (node->m_children[i] != nullptr)
-        {
-            generateQuadTree(node->m_children[i], jolt, depth + 1);
-        }
+        generateQuadTree(children[i], jolt, depth + 1);
     }
 }
 
-bool FlowFieldGenerator::checkCollision(TileNode* node, JoltInstance* jolt)
+bool FlowFieldGenerator::checkCollision(const std::size_t node, JoltInstance* jolt)
 {
-    glm::vec2 center{node->getCenter()};
+    glm::vec2 center{m_tileGrid[node].getCenter()};
     JPH::Vec3 position{center.x, m_height, center.y};
     JPH::Quat rotation{JPH::Quat::sIdentity()};
     // make sure collider doesn't touch the floor
-    JPH::Vec3 scale{node->m_dimensions.x * 0.5f, m_height * 0.49f, node->m_dimensions.y * 0.5f};
+    JPH::Vec3 scale{m_tileGrid[node].m_dimensions.x * 0.5f, m_height * 0.49f, m_tileGrid[node].m_dimensions.y * 0.5f};
 
     JPH::AnyHitCollisionCollector<JPH::CollideShapeCollector> collector;
     JPH::SpecifiedObjectLayerFilter staticFilter{ObjectLayers::NON_MOVING};
@@ -93,4 +85,36 @@ bool FlowFieldGenerator::checkCollision(TileNode* node, JoltInstance* jolt)
         JPH::Vec3::sZero(), collector, broadPhaseFilter, staticFilter);
 
     return collector.HadHit();
+}
+
+void FlowFieldGenerator::divideNode(const std::size_t node)
+{
+    TileNode parent{m_tileGrid[node]};
+    if (parent.m_hasChildren)
+        return;
+
+    for (std::size_t i{0}; i < 4; ++i)
+    {
+        switch (i)
+        {
+        case 0:
+            m_tileGrid.emplace_back(TileNode{parent.m_position, parent.m_dimensions * 0.5f});
+            break;
+        case 1:
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f, parent.m_position.y},
+                                             parent.m_dimensions * 0.5f});
+            break;
+        case 2:
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x, parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
+            break;
+        default:
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f,
+                                              parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
+            break;
+        }
+        m_tileGrid[node].m_children[i] = m_tileGrid.size() - 1;
+    }
+    m_tileGrid[node].m_hasChildren = true;
 }
