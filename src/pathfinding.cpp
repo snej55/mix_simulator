@@ -26,16 +26,19 @@ void FlowFieldGenerator::init(Scene* scene)
 
     std::cout << "FLOW_FIELD_GENERATOR::INIT: Generating quadtrees!" << std::endl;
 
-    m_tileGrid.reserve(width * height);
+    m_tileGrid.reserve(width * height * 100);
     std::vector<Bounds::Rect2D> staticRects{};
     scene->getStaticRects(staticRects);
 
     std::cout << m_center.x << " " << m_center.y << std::endl;
     std::cout << m_extents.x << " " << m_extents.y << std::endl;
-    for (std::size_t y{0}; y < height; ++y)
+    std::cout << m_numTiles << " " << width << " " << height << std::endl;
+    for (int y{0}; y < height; ++y)
     {
-        for (std::size_t x{0}; x < width; ++x)
+        for (int x{0}; x < width; ++x)
         {
+            std::cout << static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE << " "
+                      << static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE << std::endl;
             m_tileGrid.emplace_back(
                 TileNode{{static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
                           static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE},
@@ -50,10 +53,10 @@ void FlowFieldGenerator::init(Scene* scene)
             std::vector<Bounds::Rect2D*> neighbourEntities{};
             for (std::size_t i{0}; i < staticRects.size(); ++i)
             {
-                if (staticRects[i].colliderect(tileRect))
-                {
-                    neighbourEntities.emplace_back(&staticRects[i]);
-                }
+                // if (staticRects[i].colliderect(tileRect))
+                // {
+                neighbourEntities.emplace_back(&staticRects[i]);
+                // }
             }
 
             if (neighbourEntities.size() > 0)
@@ -62,6 +65,7 @@ void FlowFieldGenerator::init(Scene* scene)
             }
         }
     }
+    std::cout << m_tileGrid.size() << std::endl;
     for (const Bounds::Rect2D rect : staticRects)
     {
         std::cout << "[" << rect.m_center.x - rect.m_extents.x << ", " << rect.m_center.y - rect.m_extents.y << ", "
