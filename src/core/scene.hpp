@@ -100,6 +100,9 @@ public:
     [[nodiscard]] const glm::vec3& getLevelExtents() const { return m_levelExtents; }
     [[nodiscard]] const glm::vec3& getLevelCenter() const { return m_levelCenter; }
 
+    void getStaticEntities(std::vector<Entity*>& entities);
+    void getStaticRects(std::vector<Bounds::Rect2D>& rects);
+
 private:
     void* m_engine{nullptr};
 

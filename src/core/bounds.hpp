@@ -174,6 +174,24 @@ namespace Bounds
 
     AABB generateAABB_BV(const Model* model, const glm::vec3& scale = {1.0f, 1.0f, 1.0f});
     AABB getFrustumBV(const Frustum& frustum, const Camera* cam, float zFar, float fovY, float aspectR);
+
+    struct Rect2D
+    {
+        glm::vec2 m_center{0.f};
+        glm::vec2 m_extents{0.f};
+
+        Rect2D() = default;
+        Rect2D(const glm::vec2& center, const glm::vec2& extents);
+
+        bool colliderect(const Rect2D& other) const;
+    };
+
+    inline std::ostream& operator<<(std::ostream& os, const Rect2D& rect)
+    {
+        os << "Rect2D(Center: {" << rect.m_center.x << ", " << rect.m_center.y << "}, Extents: {" << rect.m_extents.x
+           << ", " << rect.m_extents.y << "})";
+        return os;
+    }
 } // namespace Bounds
 
 #endif // MAIN_BOUNDS_HPP

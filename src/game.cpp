@@ -70,7 +70,7 @@ bool Game::init()
         glm::ivec2{static_cast<int>(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
                    static_cast<int>(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)},
         3.f);
-    m_flowField->init(m_engine.getJoltInstance());
+    m_flowField->init(m_scene.get());
     m_flowField->printQuadTree();
 
     return true;

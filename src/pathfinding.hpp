@@ -6,7 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/fwd.hpp>
 
-#include "core/physics.hpp"
+#include "core/scene.hpp"
+#include "core/bounds.hpp"
 
 #include <array>
 #include <vector>
@@ -50,7 +51,7 @@ public:
     FlowFieldGenerator(const glm::ivec2& extents, const glm::ivec2& center, float height);
     ~FlowFieldGenerator();
 
-    void init(JoltInstance* jolt);
+    void init(Scene* scene);
 
     void setExtents(const glm::ivec2& extents) { m_extents = extents; }
     // extents in tile size around the center
@@ -81,8 +82,8 @@ private:
 
     JPH::ShapeRefC m_boxCollider;
 
-    void generateQuadTree(std::size_t node, JoltInstance* jolt, int depth);
-    [[nodiscard]] bool checkCollision(std::size_t node, JoltInstance* jolt);
+    void generateQuadTree(std::size_t node, const std::vector<Bounds::Rect2D*>& neighbourEntities, int depth);
+    [[nodiscard]] bool checkCollision(std::size_t node, const std::vector<Bounds::Rect2D*>& neighbourEntities);
 
     // Divides the children (1: top left, 2: top right, 3: bottom left, 4: bottom right)
     void divideNode(std::size_t node);

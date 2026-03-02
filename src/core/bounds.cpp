@@ -346,3 +346,13 @@ Bounds::AABB Bounds::getFrustumBV(const Frustum& frustum, const Camera* cam, flo
 
     return {minAABB, maxAABB};
 }
+
+Bounds::Rect2D::Rect2D(const glm::vec2& center, const glm::vec2& extents) : m_center{center}, m_extents{extents} {}
+
+bool Bounds::Rect2D::colliderect(const Rect2D& other) const
+{
+    return (m_center.x - m_extents.x < other.m_center.x + other.m_extents.x &&
+            m_center.x + m_extents.x > other.m_center.x - other.m_extents.x &&
+            m_center.y + m_extents.y > other.m_center.y - other.m_extents.y &&
+            m_center.y - m_extents.y < other.m_center.y + other.m_extents.y);
+}
