@@ -120,7 +120,7 @@ bool Bounds::Sphere::collideSphere(const Sphere& other) const
 Bounds::Sphere Bounds::generateSphereBV(const Model* model)
 {
     glm::vec3 minAABB{glm::vec3{std::numeric_limits<float>::max()}};
-    glm::vec3 maxAABB{glm::vec3{std::numeric_limits<float>::min()}};
+    glm::vec3 maxAABB{glm::vec3{std::numeric_limits<float>::lowest()}};
 
     for (const Mesh* mesh : model->getOpaqueMeshes())
     {
@@ -253,7 +253,7 @@ bool Bounds::AABB::collideAABB(const AABB& other) const
 Bounds::AABB Bounds::generateAABB_BV(const Model* model, const glm::vec3& scale)
 {
     glm::vec3 minAABB{glm::vec3{std::numeric_limits<float>::max()}};
-    glm::vec3 maxAABB{glm::vec3{std::numeric_limits<float>::min()}};
+    glm::vec3 maxAABB{glm::vec3{std::numeric_limits<float>::lowest()}};
 
     for (const Mesh* mesh : model->getOpaqueMeshes())
     {
@@ -331,7 +331,7 @@ Bounds::AABB Bounds::getFrustumBV(const Frustum& frustum, const Camera* cam, flo
 
     // get actual bounding volume
     glm::vec3 minAABB{std::numeric_limits<float>::max()};
-    glm::vec3 maxAABB{std::numeric_limits<float>::min()};
+    glm::vec3 maxAABB{std::numeric_limits<float>::lowest()};
     for (std::size_t i{0}; i < 8; ++i)
     {
         const glm::vec3* corner{&corners[i]};
@@ -351,8 +351,8 @@ Bounds::Rect2D::Rect2D(const glm::vec2& center, const glm::vec2& extents) : m_ce
 
 bool Bounds::Rect2D::colliderect(const Rect2D& other) const
 {
-    return (m_center.x - m_extents.x < other.m_center.x + other.m_extents.x &&
-            m_center.x + m_extents.x > other.m_center.x - other.m_extents.x &&
-            m_center.y - m_extents.y < other.m_center.y + other.m_extents.y &&
-            m_center.y + m_extents.y > other.m_center.y - other.m_extents.y);
+    return (m_center.x - m_extents.x <= other.m_center.x + other.m_extents.x &&
+            m_center.x + m_extents.x >= other.m_center.x - other.m_extents.x &&
+            m_center.y - m_extents.y <= other.m_center.y + other.m_extents.y &&
+            m_center.y + m_extents.y >= other.m_center.y - other.m_extents.y);
 }

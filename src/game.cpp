@@ -66,7 +66,7 @@ bool Game::init()
     // generate flow field quadtree
     m_flowField = std::make_unique<FlowFieldGenerator>(
         glm::ivec2{static_cast<int>(m_scene->getLevelExtents().x / CST::FLOW_FIELD_TILE_SIZE),
-                   static_cast<int>(m_scene->getLevelExtents().z) / CST::FLOW_FIELD_TILE_SIZE},
+                   static_cast<int>(m_scene->getLevelExtents().z / CST::FLOW_FIELD_TILE_SIZE)},
         glm::ivec2{static_cast<int>(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
                    static_cast<int>(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)},
         3.f);

@@ -33,19 +33,14 @@ void FlowFieldGenerator::init(Scene* scene)
     {
         for (int x{0}; x < width; ++x)
         {
-            std::cout << static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE << " "
-                      << static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE << std::endl;
-            m_tileGrid.emplace_back(
-                TileNode{{static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
-                          static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE},
-                         {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}});
+            TileNode node{{static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
+                           static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE},
+                          {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}};
 
-            const Bounds::Rect2D tileRect{
-                {static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE +
-                     CST::FLOW_FIELD_TILE_SIZE * 0.5f,
-                 static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE +
-                     CST::FLOW_FIELD_TILE_SIZE * 0.5f},
-                {CST::FLOW_FIELD_TILE_SIZE * 0.5f, CST::FLOW_FIELD_TILE_SIZE * 0.5f}};
+            const std::size_t root{m_tileGrid.size()};
+            m_tileGrid.emplace_back(node);
+
+            const Bounds::Rect2D tileRect{m_tileGrid[root].getCenter(), m_tileGrid[root].m_dimensions * 0.5f};
             std::vector<Bounds::Rect2D*> neighbourEntities{};
             for (std::size_t i{0}; i < staticRects.size(); ++i)
             {
@@ -55,18 +50,18 @@ void FlowFieldGenerator::init(Scene* scene)
                 }
             }
 
-            if (neighbourEntities.size() > 0)
+            if (!neighbourEntities.empty())
             {
-                generateQuadTree(y * width + x, neighbourEntities, 0);
+                generateQuadTree(root, neighbourEntities, 0);
             }
         }
     }
     std::cout << m_tileGrid.size() << std::endl;
-    for (const Bounds::Rect2D rect : staticRects)
-    {
-        std::cout << "[" << rect.m_center.x - rect.m_extents.x << ", " << rect.m_center.y - rect.m_extents.y << ", "
-                  << rect.m_extents.x * 2 << ", " << rect.m_extents.y * 2 << "],\n";
-    }
+    // for (const Bounds::Rect2D rect : staticRects)
+    // {
+    //     std::cout << "[" << rect.m_center.x - rect.m_extents.x << ", " << rect.m_center.y - rect.m_extents.y << ", "
+    //               << rect.m_extents.x * 2 << ", " << rect.m_extents.y * 2 << "],\n";
+    // }
     std::cout << "FLOW_FIELD_GENERATOR::INIT: Initialized quadtrees!" << std::endl;
 }
 
@@ -112,11 +107,13 @@ bool FlowFieldGenerator::checkCollision(const std::size_t node,
     //     m_boxCollider, scale, JPH::Mat44::sRotationTranslation(rotation, position), JPH::CollideShapeSettings{},
     //     JPH::Vec3::sZero(), collector, broadPhaseFilter, staticFilter);
 
+    std::cout << neighbourEntities.size() << std::endl;
     const Bounds::Rect2D tileRect{m_tileGrid[node].getCenter(), m_tileGrid[node].m_dimensions * 0.5f};
     for (const Bounds::Rect2D* rect : neighbourEntities)
     {
         if (rect->colliderect(tileRect))
         {
+            std::cout << *rect << std::endl;
             std::cout << m_tileGrid[node].m_position.x << " " << m_tileGrid[node].m_position.y << std::endl;
             return true;
         }
