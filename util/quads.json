@@ -1,3832 +1,928 @@
 {
-    "entities": [
-        [
-            -1,
-            -1,
-            2,
-            2
-        ],
-        [
-            -8.29979,
-            -1,
-            2,
-            2
-        ],
-        [
-            -30.6734,
-            -4.7775,
-            9.55499,
-            9.55499
-        ],
-        [
-            -29.6745,
-            -17.9763,
-            9.55499,
-            9.55499
-        ],
-        [
-            -57.5931,
-            -11.2023,
-            22.4046,
-            22.4046
-        ],
-        [
-            -57.2886,
-            36.8882,
-            22.4046,
-            22.4046
-        ],
-        [
-            -50.671,
-            16.8196,
-            9.55499,
-            9.55499
-        ]
+  "entities": [
+    [
+      -1,
+      -1,
+      2,
+      2
     ],
-    "quads": [
-        {
-            "pos": [
-                -120,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -90,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -30,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                30,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                60,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                90,
-                -90
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -120,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -90,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -30,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                30,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                60,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                90,
-                -60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -120,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -90,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -30
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -45,
-                -30
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -15
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -45,
-                -15
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -30,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                30,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -56.25,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -48.75,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -52.5,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                60,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -45,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -41.25,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -45,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -33.75,
-                -15
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -37.5,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -33.75,
-                -11.25
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -45,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -33.75,
-                -7.5
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -33.75,
-                -3.75
-            ],
-            "dimensions": [
-                3.75,
-                3.75
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                90,
-                -30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -120,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -52.5,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -90,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -52.5,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -30,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -45,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -43.125,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -43.125,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -39.375,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -39.375,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                0,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -37.5,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -35.625,
-                -11.25
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -35.625,
-                -9.375
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                30,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -45,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -43.125,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -43.125,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -39.375,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -39.375,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -43.125,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -43.125,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -39.375,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -41.25,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -39.375,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                60,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -37.5,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -35.625,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -35.625,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -33.75,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -31.875,
-                -7.5
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -33.75,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -31.875,
-                -5.625
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -35.625,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -37.5,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -35.625,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -33.75,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -31.875,
-                -3.75
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -33.75,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -31.875,
-                -1.875
-            ],
-            "dimensions": [
-                1.875,
-                1.875
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                90,
-                0
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -30,
-                -30
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -15,
-                -30
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -30,
-                -15
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -15,
-                -15
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -30,
-                -30
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -22.5,
-                -30
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -30,
-                -22.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -22.5,
-                -22.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -30,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -22.5,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -30,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -22.5,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -15,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -7.5,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -15,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -7.5,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -120,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                -30
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                15,
-                -30
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                -15
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                15,
-                -15
-            ],
-            "dimensions": [
-                15,
-                15
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                7.5,
-                -15
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                7.5,
-                -7.5
-            ],
-            "dimensions": [
-                7.5,
-                7.5
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -90,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -60,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -30,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                0,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                30,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -56.25,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                60,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                90,
-                30
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -120,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -52.5,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -90,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -48.75,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -11.25
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -10.3125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -9.375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -8.4375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -60,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -30,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -56.25,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                0,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -58.125,
-                -3.75
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -3.75
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -2.8125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -2.8125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -1.875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -1.875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -58.125,
-                -0.9375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -57.1875,
-                -0.9375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                30,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -56.25,
-                -3.75
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -3.75
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -2.8125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -2.8125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -3.75
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -3.75
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -2.8125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -2.8125
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -1.875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -1.875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -56.25,
-                -0.9375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -55.3125,
-                -0.9375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -1.875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -1.875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -54.375,
-                -0.9375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -53.4375,
-                -0.9375
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                60,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -52.5,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -52.5,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -51.5625,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -50.625,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -49.6875,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                90,
-                60
-            ],
-            "dimensions": [
-                30,
-                30
-            ],
-            "solid": false
-        },
-        {
-            "pos": [
-                -48.75,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -7.5
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -6.5625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -48.75,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -47.8125,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -5.625
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -46.875,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        },
-        {
-            "pos": [
-                -45.9375,
-                -4.6875
-            ],
-            "dimensions": [
-                0.9375,
-                0.9375
-            ],
-            "solid": true
-        }
+    [
+      -8.29979,
+      -1,
+      2,
+      2
+    ],
+    [
+      -30.6734,
+      -4.7775,
+      9.55499,
+      9.55499
+    ],
+    [
+      -29.6745,
+      -17.9763,
+      9.55499,
+      9.55499
+    ],
+    [
+      -57.5931,
+      -11.2023,
+      22.4046,
+      22.4046
+    ],
+    [
+      -57.2886,
+      36.8882,
+      22.4046,
+      22.4046
+    ],
+    [
+      -50.671,
+      16.8196,
+      9.55499,
+      9.55499
     ]
+  ],
+  "quads": [
+    {
+      "pos": [
+        -120,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -90,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -30,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        0,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        30,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        60,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        90,
+        -90
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -120,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -90,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -30,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        0,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        30,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        60,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        90,
+        -60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -120,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -90,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        -30
+      ],
+      "dimensions": [
+        15,
+        15
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -45,
+        -30
+      ],
+      "dimensions": [
+        15,
+        15
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        -15
+      ],
+      "dimensions": [
+        15,
+        15
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -45,
+        -15
+      ],
+      "dimensions": [
+        15,
+        15
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        -15
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -52.5,
+        -15
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -60,
+        -7.5
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -52.5,
+        -7.5
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -45,
+        -15
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -37.5,
+        -15
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -45,
+        -7.5
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -37.5,
+        -7.5
+      ],
+      "dimensions": [
+        7.5,
+        7.5
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -30,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        0,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        30,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        60,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        90,
+        -30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -120,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -90,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -52.5,
+        -7.5
+      ],
+      "dimensions": [
+        3.75,
+        3.75
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -48.75,
+        -7.5
+      ],
+      "dimensions": [
+        3.75,
+        3.75
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -52.5,
+        -3.75
+      ],
+      "dimensions": [
+        3.75,
+        3.75
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -48.75,
+        -3.75
+      ],
+      "dimensions": [
+        3.75,
+        3.75
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -52.5,
+        -7.5
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -50.625,
+        -7.5
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -52.5,
+        -5.625
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -50.625,
+        -5.625
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -48.75,
+        -7.5
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -46.875,
+        -7.5
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -48.75,
+        -5.625
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -46.875,
+        -5.625
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -52.5,
+        -3.75
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -50.625,
+        -3.75
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -52.5,
+        -1.875
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -50.625,
+        -1.875
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -48.75,
+        -3.75
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -46.875,
+        -3.75
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -48.75,
+        -1.875
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -46.875,
+        -1.875
+      ],
+      "dimensions": [
+        1.875,
+        1.875
+      ],
+      "solid": true
+    },
+    {
+      "pos": [
+        -30,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        0,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        30,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        60,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        90,
+        0
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -120,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -90,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -30,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        0,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        30,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        60,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        90,
+        30
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -120,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -90,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -60,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        -30,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        0,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        30,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        60,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    },
+    {
+      "pos": [
+        90,
+        60
+      ],
+      "dimensions": [
+        30,
+        30
+      ],
+      "solid": false
+    }
+  ]
 }

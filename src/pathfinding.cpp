@@ -20,13 +20,9 @@ void FlowFieldGenerator::init(Scene* scene)
     const int height{static_cast<int>(static_cast<float>(m_extents.y * 2))};
     m_numTiles = width * height;
 
-    // create box collider
-    JPH::BoxShapeSettings boxSettings{JPH::Vec3{1.0f, 1.0f, 1.0f}};
-    m_boxCollider = boxSettings.Create().Get();
-
     std::cout << "FLOW_FIELD_GENERATOR::INIT: Generating quadtrees!" << std::endl;
 
-    m_tileGrid.reserve(width * height * 100);
+    m_tileGrid.reserve(width * height * std::pow(2, CST::FLOW_FIELD_DEPTH_LIMIT));
     std::vector<Bounds::Rect2D> staticRects{};
     scene->getStaticRects(staticRects);
 
@@ -53,10 +49,10 @@ void FlowFieldGenerator::init(Scene* scene)
             std::vector<Bounds::Rect2D*> neighbourEntities{};
             for (std::size_t i{0}; i < staticRects.size(); ++i)
             {
-                // if (staticRects[i].colliderect(tileRect))
-                // {
-                neighbourEntities.emplace_back(&staticRects[i]);
-                // }
+                if (staticRects[i].colliderect(tileRect))
+                {
+                    neighbourEntities.emplace_back(&staticRects[i]);
+                }
             }
 
             if (neighbourEntities.size() > 0)
@@ -91,14 +87,15 @@ void FlowFieldGenerator::generateQuadTree(const std::size_t node, const std::vec
 
     divideNode(node);
 
-    std::array<std::size_t, 4> children{m_tileGrid[node].m_children};
+    const std::array<std::size_t, 4> children{m_tileGrid[node].m_children};
     for (std::size_t i{0}; i < 4; ++i)
     {
         generateQuadTree(children[i], neighbourEntities, depth + 1);
     }
 }
 
-bool FlowFieldGenerator::checkCollision(const std::size_t node, const std::vector<Bounds::Rect2D*>& neighbourEntities)
+bool FlowFieldGenerator::checkCollision(const std::size_t node,
+                                        const std::vector<Bounds::Rect2D*>& neighbourEntities) const
 {
     // glm::vec2 center{m_tileGrid[node].getCenter()};
     // JPH::Vec3 position{center.x, m_height, center.y};
@@ -115,11 +112,12 @@ bool FlowFieldGenerator::checkCollision(const std::size_t node, const std::vecto
     //     m_boxCollider, scale, JPH::Mat44::sRotationTranslation(rotation, position), JPH::CollideShapeSettings{},
     //     JPH::Vec3::sZero(), collector, broadPhaseFilter, staticFilter);
 
-    Bounds::Rect2D tileRect{m_tileGrid[node].getCenter(), m_tileGrid[node].m_dimensions * 0.5f};
+    const Bounds::Rect2D tileRect{m_tileGrid[node].getCenter(), m_tileGrid[node].m_dimensions * 0.5f};
     for (const Bounds::Rect2D* rect : neighbourEntities)
     {
         if (rect->colliderect(tileRect))
         {
+            std::cout << m_tileGrid[node].m_position.x << " " << m_tileGrid[node].m_position.y << std::endl;
             return true;
         }
     }
@@ -167,11 +165,11 @@ std::size_t FlowFieldGenerator::getNode(const glm::vec2& pos)
     return 0;
 }
 
-void FlowFieldGenerator::printQuadTree()
+void FlowFieldGenerator::printQuadTree() const
 {
     for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
     {
-        TileNode* node{&m_tileGrid[i]};
+        const TileNode* node{&m_tileGrid[i]};
         std::cout << std::boolalpha << "{'pos': [" << node->m_position.x << ", " << node->m_position.y
                   << "], 'dimensions': [" << node->m_dimensions.x << ", " << node->m_dimensions.y
                   << "], 'solid': " << node->m_solid << "},\n";
