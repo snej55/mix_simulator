@@ -26,9 +26,6 @@ void FlowFieldGenerator::init(Scene* scene)
     std::vector<Bounds::Rect2D> staticRects{};
     scene->getStaticRects(staticRects);
 
-    std::cout << m_center.x << " " << m_center.y << std::endl;
-    std::cout << m_extents.x << " " << m_extents.y << std::endl;
-    std::cout << m_numTiles << " " << width << " " << height << std::endl;
     for (int y{0}; y < height; ++y)
     {
         for (int x{0}; x < width; ++x)
@@ -56,12 +53,6 @@ void FlowFieldGenerator::init(Scene* scene)
             }
         }
     }
-    std::cout << m_tileGrid.size() << std::endl;
-    // for (const Bounds::Rect2D rect : staticRects)
-    // {
-    //     std::cout << "[" << rect.m_center.x - rect.m_extents.x << ", " << rect.m_center.y - rect.m_extents.y << ", "
-    //               << rect.m_extents.x * 2 << ", " << rect.m_extents.y * 2 << "],\n";
-    // }
     std::cout << "FLOW_FIELD_GENERATOR::INIT: Initialized quadtrees!" << std::endl;
     m_init = true;
 }
@@ -99,22 +90,6 @@ void FlowFieldGenerator::generateQuadTree(const std::size_t node, const std::vec
 std::pair<bool, float> FlowFieldGenerator::checkCollision(const std::size_t node,
                                                           const std::vector<Bounds::Rect2D*>& neighbourEntities) const
 {
-    // glm::vec2 center{m_tileGrid[node].getCenter()};
-    // JPH::Vec3 position{center.x, m_height, center.y};
-    // JPH::Quat rotation{JPH::Quat::sIdentity()};
-    // // make sure collider doesn't touch the floor
-    // JPH::Vec3 scale{m_tileGrid[node].m_dimensions.x * 0.5f, m_height * 0.49f, m_tileGrid[node].m_dimensions.y *
-    // 0.5f};
-
-    // JPH::AnyHitCollisionCollector<JPH::CollideShapeCollector> collector;
-    // JPH::SpecifiedObjectLayerFilter staticFilter{ObjectLayers::NON_MOVING};
-    // JPH::SpecifiedBroadPhaseLayerFilter broadPhaseFilter{BroadPhaseLayers::NON_MOVING};
-
-    // jolt->getPhysicsSystem()->GetNarrowPhaseQuery().CollideShape(
-    //     m_boxCollider, scale, JPH::Mat44::sRotationTranslation(rotation, position), JPH::CollideShapeSettings{},
-    //     JPH::Vec3::sZero(), collector, broadPhaseFilter, staticFilter);
-
-    std::cout << neighbourEntities.size() << std::endl;
     const Bounds::Rect2D tileRect{m_tileGrid[node].getCenter(), m_tileGrid[node].m_dimensions * 0.5f};
     for (const Bounds::Rect2D* rect : neighbourEntities)
     {
