@@ -63,14 +63,21 @@ void FlowFieldGenerator::init(Scene* scene)
     //               << rect.m_extents.x * 2 << ", " << rect.m_extents.y * 2 << "],\n";
     // }
     std::cout << "FLOW_FIELD_GENERATOR::INIT: Initialized quadtrees!" << std::endl;
+    m_init = true;
 }
 
 void FlowFieldGenerator::generateQuadTree(const std::size_t node, const std::vector<Bounds::Rect2D*>& neighbourEntities,
                                           const int depth)
 {
-    const bool intersect{checkCollision(node, neighbourEntities)};
-    if (!intersect)
+    const std::pair<bool, float> intersect{checkCollision(node, neighbourEntities)};
+    if (!intersect.first)
     {
+        return;
+    }
+
+    if (intersect.second >= 1.f - static_cast<float>(depth) * 0.02f)
+    {
+        m_tileGrid[node].m_solid = true;
         return;
     }
 
@@ -89,8 +96,8 @@ void FlowFieldGenerator::generateQuadTree(const std::size_t node, const std::vec
     }
 }
 
-bool FlowFieldGenerator::checkCollision(const std::size_t node,
-                                        const std::vector<Bounds::Rect2D*>& neighbourEntities) const
+std::pair<bool, float> FlowFieldGenerator::checkCollision(const std::size_t node,
+                                                          const std::vector<Bounds::Rect2D*>& neighbourEntities) const
 {
     // glm::vec2 center{m_tileGrid[node].getCenter()};
     // JPH::Vec3 position{center.x, m_height, center.y};
@@ -113,13 +120,12 @@ bool FlowFieldGenerator::checkCollision(const std::size_t node,
     {
         if (rect->colliderect(tileRect))
         {
-            std::cout << *rect << std::endl;
-            std::cout << m_tileGrid[node].m_position.x << " " << m_tileGrid[node].m_position.y << std::endl;
-            return true;
+            const float intersect{rect->calcOverlap(tileRect)};
+            return {true, intersect / (tileRect.m_extents.x * tileRect.m_extents.y * 4.f)};
         }
     }
 
-    return false;
+    return {false, 0.0f};
 }
 
 void FlowFieldGenerator::divideNode(const std::size_t node)

@@ -184,6 +184,7 @@ namespace Bounds
         Rect2D(const glm::vec2& center, const glm::vec2& extents);
 
         bool colliderect(const Rect2D& other) const;
+        float calcOverlap(const Rect2D& other) const;
     };
 
     inline std::ostream& operator<<(std::ostream& os, const Rect2D& rect)

@@ -2,7 +2,7 @@ import pygame, json
 
 pygame.init()
 
-WIDTH, HEIGHT = 1000, 1000                                                                                                                                                  
+WIDTH, HEIGHT = 1500, 1200                                                                                                                                                  
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
@@ -14,7 +14,7 @@ with open("util/quads.json", "r") as f:
     data = json.load(f)                 
     quads = data["quads"]
     entities = data["entities"]
-scale = 4
+scale = 8
 
 scroll = [0, 0]
 
@@ -29,16 +29,21 @@ while running:
                 running = False
     
     screen.fill((0, 0, 0))
+    for entity in entities:
+        pygame.draw.rect(screen, (255, 0, 0), (entity[0] * scale - scroll[0], entity[1] * scale - scroll[1],
+                                               entity[2] * scale, entity[3] * scale))
     for quad in quads:
-
+        if quad["solid"]:
+            pygame.draw.rect(screen, (100, 0, 255), (quad["pos"][0] * scale - scroll[0],
+                                                        quad["pos"][1] * scale - scroll[1],
+                                                        quad["dimensions"][0] * scale,
+                                                            quad["dimensions"][1] * scale), 1)
+        else:
             pygame.draw.rect(screen, (255, 255, 255), (quad["pos"][0] * scale - scroll[0],
                                                         quad["pos"][1] * scale - scroll[1],
                                                         quad["dimensions"][0] * scale,
                                                             quad["dimensions"][1] * scale), 1)
 
-    for entity in entities:
-        pygame.draw.rect(screen, (255, 0, 0), (entity[0] * scale - scroll[0], entity[1] * scale - scroll[1],
-                                               entity[2] * scale, entity[3] * scale))
 
 
     pygame.display.flip()

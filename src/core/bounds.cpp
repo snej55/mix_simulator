@@ -356,3 +356,13 @@ bool Bounds::Rect2D::colliderect(const Rect2D& other) const
             m_center.y - m_extents.y <= other.m_center.y + other.m_extents.y &&
             m_center.y + m_extents.y >= other.m_center.y - other.m_extents.y);
 }
+
+float Bounds::Rect2D::calcOverlap(const Rect2D& other) const
+{
+    return std::max(0.f,
+                    std::min(other.m_center.x + other.m_extents.x, m_center.x + m_extents.x) -
+                        std::max(other.m_center.x - other.m_extents.x, m_center.x - m_extents.x)) *
+        std::max(0.f,
+                 std::min(other.m_center.y + other.m_extents.y, m_center.y + m_extents.y) -
+                     std::max(other.m_center.y - other.m_extents.y, m_center.y - m_extents.y));
+}
