@@ -57,6 +57,24 @@ void FlowFieldGenerator::init(Scene* scene)
             }
         }
     }
+
+    for (int y{0}; y < height; ++y)
+    {
+        for (int x{0}; x < width; ++x)
+        {
+            const std::size_t node1{m_baseNodes[y * width + x]};
+            if (x + 1 < width)
+            {
+                const std::size_t node2{m_baseNodes[y * width + x + 1]};
+                calculateNeighbours(node1, node2, Direction::EAST);
+            }
+            if (y + 1 < height)
+            {
+                const std::size_t node2{m_baseNodes[y * width + width + x]};
+                calculateNeighbours(node1, node2, Direction::SOUTH);
+            }
+        }
+    }
     std::cout << "FLOW_FIELD_GENERATOR::INIT: Initialized quadtrees!" << std::endl;
     m_init = true;
 }
@@ -147,11 +165,10 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
 
 void FlowFieldGenerator::getNode(const glm::vec2& pos, std::size_t* node, bool* success) const
 {
-    const int gridX{static_cast<int>(pos.x / CST::FLOW_FIELD_TILE_SIZE) - m_extents.x};
-    const int gridY{static_cast<int>(pos.y / CST::FLOW_FIELD_TILE_SIZE) - m_extents.y};
+    const int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
+    const int gridY{static_cast<int>(std::floor(pos.y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y + m_extents.y};
 
-    if (gridX < m_center.x - m_extents.x || gridY < m_center.y - m_extents.y || gridX >= m_extents.x + m_extents.x ||
-        gridY >= m_extents.y + m_extents.y)
+    if (gridX < 0 || gridY < 0 || gridX >= m_extents.x * 2 || gridY >= m_extents.y * 2)
     {
         *success = false;
         return;
@@ -185,8 +202,8 @@ std::size_t FlowFieldGenerator::getClosestChild(const glm::vec2& pos, const std:
     return getClosestChild(pos, tile.m_children[0]);
 }
 
-void FlowFieldGenerator::getEdgeChildren(std::size_t node, std::pair<std::size_t, std::size_t>& children, const bool x,
-                                         const bool side) const
+void FlowFieldGenerator::getEdgeChildren(std::size_t node, std::pair<std::size_t, std::size_t>& children,
+                                         const Direction direction) const
 {
     if (!m_tileGrid[node].m_hasChildren)
     {
@@ -195,39 +212,80 @@ void FlowFieldGenerator::getEdgeChildren(std::size_t node, std::pair<std::size_t
     }
 
     const TileNode& tile{m_tileGrid[node]};
-    if (x && !side)
+    switch (direction)
     {
+    case Direction::NORTH:
+        children = {tile.m_children[0], tile.m_children[1]};
+        return;
+    case Direction::SOUTH:
+        children = {tile.m_children[2], tile.m_children[3]};
+        return;
+    case Direction::EAST:
+        children = {tile.m_children[1], tile.m_children[3]};
+        return;
+    case Direction::WEST:
         children = {tile.m_children[0], tile.m_children[2]};
         return;
     }
-    if (x && side)
+}
+
+void FlowFieldGenerator::calculateNeighbours(const std::size_t node1, const std::size_t node2,
+                                             const Direction direction)
+{
+    TileNode& tile1{m_tileGrid[node1]};
+    TileNode& tile2{m_tileGrid[node2]};
+
+    if (tile1.m_solid || tile2.m_solid)
+        return;
+
+    if (!tile1.m_hasChildren && !tile2.m_hasChildren)
     {
-        children = {tile.m_children[1], tile.m_children[3]};
+        m_tileGrid[node1].m_neighbours.push_back({node2, direction});
+        m_tileGrid[node2].m_neighbours.push_back({node1, getOpposite(direction)});
         return;
     }
 
-    if (!x && !side)
+    if (tile1.m_hasChildren && !tile2.m_hasChildren)
     {
-        children = {tile.m_children[0], tile.m_children[1]};
-        return;
+        std::pair<std::size_t, std::size_t> edgeChildren;
+        getEdgeChildren(node1, edgeChildren, direction);
+        calculateNeighbours(edgeChildren.first, node2, direction);
+        calculateNeighbours(edgeChildren.second, node2, direction);
     }
+    else if (!tile1.m_hasChildren && tile2.m_hasChildren)
+    {
+        std::pair<std::size_t, std::size_t> edgeChildren;
+        getEdgeChildren(node2, edgeChildren, getOpposite(direction));
+        calculateNeighbours(node1, edgeChildren.first, direction);
+        calculateNeighbours(node1, edgeChildren.second, direction);
+    }
+    else
+    {
+        // both have children
+        std::pair<std::size_t, std::size_t> edge1;
+        std::pair<std::size_t, std::size_t> edge2;
 
-    children = {tile.m_children[2], tile.m_children[3]};
+        getEdgeChildren(node1, edge1, direction);
+        getEdgeChildren(node2, edge2, getOpposite(direction));
+
+        calculateNeighbours(edge1.first, edge2.first, direction);
+        calculateNeighbours(edge1.second, edge2.second, direction);
+    }
 }
 
 void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success)
 {
-    const int gridX{static_cast<int>(pos.x / CST::FLOW_FIELD_TILE_SIZE) - m_extents.x};
-    const int gridY{static_cast<int>(pos.y / CST::FLOW_FIELD_TILE_SIZE) - m_extents.y};
+    const int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
+    const int gridY{static_cast<int>(std::floor(pos.y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y + m_extents.y};
 
-    if (gridX < m_center.x - m_extents.x || gridY < m_center.y - m_extents.y || gridX >= m_extents.x + m_extents.x ||
-        gridY >= m_extents.y + m_extents.y)
+    if (gridX < 0 || gridY < 0 || gridX >= m_extents.x * 2 || gridY >= m_extents.y * 2)
     {
         *success = false;
         return;
     }
 
     const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
+    *success = true;
 }
 
 void FlowFieldGenerator::printQuadTree() const
