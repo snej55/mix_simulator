@@ -33,13 +33,9 @@ void FlowFieldGenerator::init(Scene* scene)
     {
         for (int x{0}; x < width; ++x)
         {
-            TileNode node{
-                {
-                    static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
-                    static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE
-                },
-                {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}
-            };
+            TileNode node{{static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
+                           static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE},
+                          {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}};
 
             const std::size_t root{m_tileGrid.size()};
             m_tileGrid.emplace_back(node);
@@ -125,30 +121,28 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
             m_tileGrid.emplace_back(TileNode{parent.m_position, parent.m_dimensions * 0.5f});
             break;
         case 1:
-            m_tileGrid.emplace_back(TileNode{
-                {parent.m_position.x + parent.m_dimensions.x * 0.5f, parent.m_position.y},
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f, parent.m_position.y},
+                                             parent.m_dimensions * 0.5f});
             break;
         case 2:
-            m_tileGrid.emplace_back(TileNode{
-                {parent.m_position.x, parent.m_position.y + parent.m_dimensions.y * 0.5f},
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x, parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
             break;
         default:
-            m_tileGrid.emplace_back(TileNode{
-                {
-                    parent.m_position.x + parent.m_dimensions.x * 0.5f,
-                    parent.m_position.y + parent.m_dimensions.y * 0.5f
-                },
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f,
+                                              parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
             break;
         }
         m_tileGrid[node].m_children[i] = m_tileGrid.size() - 1;
     }
     m_tileGrid[node].m_hasChildren = true;
+
+    for (const std::size_t idx : m_tileGrid[node].m_children)
+    {
+        m_tileGrid[idx].m_parent = node;
+        m_tileGrid[idx].m_hasParent = true;
+    }
 }
 
 void FlowFieldGenerator::getNode(const glm::vec2& pos, std::size_t* node, bool* success) const
@@ -191,14 +185,29 @@ std::size_t FlowFieldGenerator::getClosestChild(const glm::vec2& pos, const std:
     return getClosestChild(pos, tile.m_children[0]);
 }
 
+void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success)
+{
+    const int gridX{static_cast<int>(pos.x / CST::FLOW_FIELD_TILE_SIZE) - m_extents.x};
+    const int gridY{static_cast<int>(pos.y / CST::FLOW_FIELD_TILE_SIZE) - m_extents.y};
+
+    if (gridX < m_center.x - m_extents.x || gridY < m_center.y - m_extents.y || gridX >= m_extents.x + m_extents.x ||
+        gridY >= m_extents.y + m_extents.y)
+    {
+        *success = false;
+        return;
+    }
+
+    const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
+}
+
 void FlowFieldGenerator::printQuadTree() const
 {
     for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
     {
         const TileNode* node{&m_tileGrid[i]};
         std::cout << std::boolalpha << "{'pos': [" << node->m_position.x << ", " << node->m_position.y
-            << "], 'dimensions': [" << node->m_dimensions.x << ", " << node->m_dimensions.y
-            << "], 'solid': " << node->m_solid << "},\n";
+                  << "], 'dimensions': [" << node->m_dimensions.x << ", " << node->m_dimensions.y
+                  << "], 'solid': " << node->m_solid << "},\n";
     }
     std::cout << std::endl;
 }

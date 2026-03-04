@@ -2,7 +2,7 @@ import pygame, json
 
 pygame.init()
 
-WIDTH, HEIGHT = 1500, 1200                                                                                                                                                  
+WIDTH, HEIGHT = 2000, 1300                                                                                                                                                  
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()

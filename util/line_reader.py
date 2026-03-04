@@ -48,7 +48,8 @@ for file in os.listdir('src/core'):
 
 for file in os.listdir('util'):
     # can't be asked to make a list of extensions lol
-    if file.endswith('.cpp') or file.endswith('.hpp') or file.endswith('.frag') or file.endswith('.vert') or file.endswith('.json') or file.endswith('.py'):
+    if file.endswith('.cpp') or file.endswith('.hpp') or file.endswith('.frag') or file.endswith('.vert') or file.endswith('.py'):
+
         file_path = os.path.join('util', file)
         try:
             line_count = read_lines_from_file(file_path)

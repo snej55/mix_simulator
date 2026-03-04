@@ -8,6 +8,7 @@
 
 #include "core/scene.hpp"
 #include "core/bounds.hpp"
+#include "constants.hpp"
 
 #include <array>
 #include <vector>
@@ -30,14 +31,20 @@ struct TileNode
     ~TileNode() = default;
 
     [[nodiscard]] glm::vec2 getCenter() const { return m_position + m_dimensions * 0.5f; }
+    [[nodiscard]] float getCost() const { return m_cost + m_bonus; }
 
     glm::vec2 m_position;
     glm::vec2 m_dimensions;
 
     std::array<std::size_t, 4> m_children{};
+    std::size_t m_parent{0};
+    std::array<std::size_t, 2 << (CST::FLOW_FIELD_DEPTH_LIMIT - 1)> m_neighbours{};
+
+    bool m_hasParent{false};
     bool m_hasChildren{false};
     bool m_solid{false};
-    int m_direction{0};
+    float m_bonus{0.0f}; // added to cost
+    float m_cost{0.0f};
 };
 
 class FlowFieldGenerator
@@ -69,6 +76,7 @@ public:
 
     // pos: vec3.x, vec3.
     void getNode(const glm::vec2& pos, std::size_t* node, bool* success) const;
+    void calculateFlowField(const glm::vec2& pos, bool* success);
 
     void printQuadTree() const;
 
