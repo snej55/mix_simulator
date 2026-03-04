@@ -183,7 +183,8 @@ namespace Bounds
         Rect2D() = default;
         Rect2D(const glm::vec2& center, const glm::vec2& extents);
 
-        bool colliderect(const Rect2D& other) const;
+        bool collideRect(const Rect2D& other) const;
+        bool collideAxis(const Rect2D& other, bool x) const;
         float calcOverlap(const Rect2D& other) const;
     };
 

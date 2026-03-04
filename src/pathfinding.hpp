@@ -68,6 +68,7 @@ struct TileNode
     bool m_solid{false};
     float m_bonus{0.0f}; // added to cost
     float m_cost{0.0f};
+    std::size_t m_leafPos{0};
 };
 
 class FlowFieldGenerator
@@ -122,7 +123,8 @@ private:
 
     [[nodiscard]] std::size_t getClosestChild(const glm::vec2& pos, std::size_t node) const;
     void getEdgeChildren(std::size_t node, std::pair<std::size_t, std::size_t>& children, Direction direction) const;
-    void calculateNeighbours(std::size_t node1, std::size_t node2, Direction direction);
+    void calculateNeighbours(std::size_t node, Direction direction);
+    std::size_t findNeighbour(std::size_t node, Direction direction) const;
 
     // Divides the children (1: top left, 2: top right, 3: bottom left, 4: bottom right)
     void divideNode(std::size_t node);

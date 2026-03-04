@@ -349,11 +349,22 @@ Bounds::AABB Bounds::getFrustumBV(const Frustum& frustum, const Camera* cam, flo
 
 Bounds::Rect2D::Rect2D(const glm::vec2& center, const glm::vec2& extents) : m_center{center}, m_extents{extents} {}
 
-bool Bounds::Rect2D::colliderect(const Rect2D& other) const
+bool Bounds::Rect2D::collideRect(const Rect2D& other) const
 {
     return (m_center.x - m_extents.x <= other.m_center.x + other.m_extents.x &&
             m_center.x + m_extents.x >= other.m_center.x - other.m_extents.x &&
             m_center.y - m_extents.y <= other.m_center.y + other.m_extents.y &&
+            m_center.y + m_extents.y >= other.m_center.y - other.m_extents.y);
+}
+
+bool Bounds::Rect2D::collideAxis(const Rect2D& other, const bool x) const
+{
+    if (x)
+    {
+        return (m_center.x - m_extents.x <= other.m_center.x + other.m_extents.x &&
+                m_center.x + m_extents.x >= other.m_center.x - other.m_extents.x);
+    }
+    return (m_center.y - m_extents.y <= other.m_center.y + other.m_extents.y &&
             m_center.y + m_extents.y >= other.m_center.y - other.m_extents.y);
 }
 
