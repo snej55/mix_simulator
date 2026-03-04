@@ -14,7 +14,7 @@
 
 struct TileNode
 {
-    TileNode(glm::vec2 position, glm::vec2 dimensions) : m_position{position}, m_dimensions{dimensions}
+    TileNode(const glm::vec2 position, const glm::vec2 dimensions) : m_position{position}, m_dimensions{dimensions}
     {
         for (std::size_t i{0}; i < 4; ++i)
         {
@@ -22,7 +22,7 @@ struct TileNode
         }
     }
 
-    TileNode(glm::vec2 position, glm::vec2 dimensions, std::array<std::size_t, 4> children) :
+    TileNode(const glm::vec2 position, const glm::vec2 dimensions, const std::array<std::size_t, 4>& children) :
         m_position{position}, m_dimensions{dimensions}, m_children{children}
     {
     }
@@ -34,7 +34,7 @@ struct TileNode
     glm::vec2 m_position;
     glm::vec2 m_dimensions;
 
-    std::array<std::size_t, 4> m_children;
+    std::array<std::size_t, 4> m_children{};
     bool m_hasChildren{false};
     bool m_solid{false};
     int m_direction{0};
@@ -65,9 +65,10 @@ public:
 
     [[nodiscard]] bool getInit() const { return m_init; }
     [[nodiscard]] const std::vector<TileNode>& getTileGrid() const { return m_tileGrid; }
+    [[nodiscard]] const std::vector<std::size_t>& getBaseNodes() const { return m_baseNodes; }
 
-    // pos: vec3.x, vec3.z
-    [[nodiscard]] std::size_t getNode(const glm::vec2& pos);
+    // pos: vec3.x, vec3.
+    void getNode(const glm::vec2& pos, std::size_t* node, bool* success) const;
 
     void printQuadTree() const;
 
@@ -80,11 +81,15 @@ private:
     std::vector<TileNode> m_tileGrid{};
     std::size_t m_numTiles{0};
 
+    std::vector<std::size_t> m_baseNodes{};
+
     JPH::ShapeRefC m_boxCollider;
 
     void generateQuadTree(std::size_t node, const std::vector<Bounds::Rect2D*>& neighbourEntities, int depth);
     [[nodiscard]] std::pair<bool, float> checkCollision(std::size_t node,
                                                         const std::vector<Bounds::Rect2D*>& neighbourEntities) const;
+
+    [[nodiscard]] std::size_t getClosestChild(const glm::vec2& pos, std::size_t node) const;
 
     // Divides the children (1: top left, 2: top right, 3: bottom left, 4: bottom right)
     void divideNode(std::size_t node);
