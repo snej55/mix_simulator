@@ -21,7 +21,7 @@ namespace SpatialHashing
         v.x += v.y * v.z;
         v.y += v.z * v.x;
         v.z += v.x * v.y;
-        v ^= v >> 16u;
+        v ^= v >> 17u;
         v.x += v.y * v.z;
         v.y += v.z * v.x;
         v.z += v.x * v.y;

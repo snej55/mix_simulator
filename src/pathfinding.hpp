@@ -38,7 +38,7 @@ struct TileNode
 
     std::array<std::size_t, 4> m_children{};
     std::size_t m_parent{0};
-    std::array<std::size_t, 2 << (CST::FLOW_FIELD_DEPTH_LIMIT - 1)> m_neighbours{};
+    std::array<std::size_t, (2 << (CST::FLOW_FIELD_DEPTH_LIMIT - 1)) * 4> m_neighbours{};
 
     bool m_hasParent{false};
     bool m_hasChildren{false};
@@ -98,6 +98,7 @@ private:
                                                         const std::vector<Bounds::Rect2D*>& neighbourEntities) const;
 
     [[nodiscard]] std::size_t getClosestChild(const glm::vec2& pos, std::size_t node) const;
+    void getEdgeChildren(std::size_t node, std::pair<std::size_t, std::size_t>& children, bool x, bool side) const;
 
     // Divides the children (1: top left, 2: top right, 3: bottom left, 4: bottom right)
     void divideNode(std::size_t node);

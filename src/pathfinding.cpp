@@ -185,6 +185,36 @@ std::size_t FlowFieldGenerator::getClosestChild(const glm::vec2& pos, const std:
     return getClosestChild(pos, tile.m_children[0]);
 }
 
+void FlowFieldGenerator::getEdgeChildren(std::size_t node, std::pair<std::size_t, std::size_t>& children, const bool x,
+                                         const bool side) const
+{
+    if (!m_tileGrid[node].m_hasChildren)
+    {
+        children = {0, 0};
+        return;
+    }
+
+    const TileNode& tile{m_tileGrid[node]};
+    if (x && !side)
+    {
+        children = {tile.m_children[0], tile.m_children[2]};
+        return;
+    }
+    if (x && side)
+    {
+        children = {tile.m_children[1], tile.m_children[3]};
+        return;
+    }
+
+    if (!x && !side)
+    {
+        children = {tile.m_children[0], tile.m_children[1]};
+        return;
+    }
+
+    children = {tile.m_children[2], tile.m_children[3]};
+}
+
 void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success)
 {
     const int gridX{static_cast<int>(pos.x / CST::FLOW_FIELD_TILE_SIZE) - m_extents.x};
