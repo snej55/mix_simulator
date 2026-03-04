@@ -14,7 +14,7 @@ with open("util/quads.json", "r") as f:
     data = json.load(f)                 
     quads = data["quads"]
     entities = data["entities"]
-scale = 8
+scale = 16
 
 scroll = [0, 0]
 
