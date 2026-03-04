@@ -131,7 +131,8 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/player.hpp
         src/player.cpp
         src/pathfinding.hpp
-	src/pathfinding.cpp)
+        src/pathfinding.cpp
+        src/pathfinding.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
