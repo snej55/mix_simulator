@@ -58,6 +58,17 @@ void FlowFieldGenerator::init(Scene* scene)
         }
     }
 
+    for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
+    {
+        if (!m_tileGrid[i].m_hasChildren && !m_tileGrid[i].m_solid)
+        {
+            calculateNeighbours(i, Direction::NORTH);
+            calculateNeighbours(i, Direction::SOUTH);
+            calculateNeighbours(i, Direction::EAST);
+            calculateNeighbours(i, Direction::WEST);
+        }
+    }
+
     // for (int y{0}; y < height; ++y)
     // {
     //     for (int x{0}; x < width; ++x)
