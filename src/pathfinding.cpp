@@ -160,6 +160,20 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
     m_tileGrid[node].m_hasChildren = true;
 }
 
+void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success)
+{
+    const int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
+    const int gridY{static_cast<int>(std::floor(pos.y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y + m_extents.y};
+
+    if (gridX < 0 || gridY < 0 || gridX >= m_extents.x * 2 || gridY >= m_extents.y * 2)
+    {
+        *success = false;
+        return;
+    }
+
+    const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
+    *success = true;
+}
 void FlowFieldGenerator::getNode(const glm::vec2& pos, std::size_t* node, bool* success) const
 {
     const int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
@@ -199,7 +213,7 @@ std::size_t FlowFieldGenerator::getClosestChild(const glm::vec2& pos, const std:
     return getClosestChild(pos, tile.m_children[0]);
 }
 
-void FlowFieldGenerator::getEdgeChildren(std::size_t node, std::pair<std::size_t, std::size_t>& children,
+void FlowFieldGenerator::getEdgeChildren(const std::size_t node, std::pair<std::size_t, std::size_t>& children,
                                          const Direction direction) const
 {
     if (!m_tileGrid[node].m_hasChildren)
@@ -226,20 +240,75 @@ void FlowFieldGenerator::getEdgeChildren(std::size_t node, std::pair<std::size_t
     }
 }
 
-
-void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success)
+void FlowFieldGenerator::getSubEdges(const std::size_t node, std::vector<std::size_t>& edges,
+                                     const Direction direction) const
 {
-    const int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
-    const int gridY{static_cast<int>(std::floor(pos.y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y + m_extents.y};
-
-    if (gridX < 0 || gridY < 0 || gridX >= m_extents.x * 2 || gridY >= m_extents.y * 2)
+    if (!m_tileGrid[node].m_hasChildren)
     {
-        *success = false;
-        return;
+        edges.push_back(node);
+    }
+    std::pair<std::size_t, std::size_t> children;
+    getEdgeChildren(node, children, direction);
+
+    getSubEdges(children.first, edges, direction);
+    getSubEdges(children.second, edges, direction);
+}
+
+void FlowFieldGenerator::calculateNeighbours(const std::size_t node, const Direction direction)
+{
+    TileNode& tile{m_tileGrid[node]};
+
+    // check if tile is on edge
+    if (direction == Direction::NORTH)
+    {
+        if (std::abs(tile.m_position.y - static_cast<float>(m_center.y - m_extents.y) * CST::FLOW_FIELD_TILE_SIZE) <
+            0.01f)
+        {
+            return;
+        }
+    }
+    else if (direction == Direction::SOUTH)
+    {
+        if (std::abs(tile.m_position.y + tile.m_dimensions.y -
+                     static_cast<float>(m_center.y + m_extents.y + 1) * CST::FLOW_FIELD_TILE_SIZE) < 0.01f)
+        {
+            return;
+        }
+    }
+    else if (direction == Direction::EAST)
+    {
+        if (std::abs(tile.m_position.x + tile.m_dimensions.x -
+                     static_cast<float>(m_center.x + m_extents.x + 1) * CST::FLOW_FIELD_TILE_SIZE) < 0.01f)
+        {
+            return;
+        }
+    }
+    else if (direction == Direction::WEST)
+    {
+        if (std::abs(tile.m_position.x - static_cast<float>(m_center.x - m_extents.x) * CST::FLOW_FIELD_TILE_SIZE) <
+            0.01f)
+        {
+            return;
+        }
     }
 
-    const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
-    *success = true;
+    // ok to search for neighbour in this direction
+    const std::size_t neighbour{findNeighbour(node, direction)};
+    std::vector<std::size_t> edges{};
+    getSubEdges(neighbour, edges, getOpposite(direction));
+
+    Bounds::Rect2D edgeRect;
+    const Bounds::Rect2D tileRect{tile.getCenter(), tile.m_dimensions * 0.5f};
+    const bool x{direction == Direction::EAST || direction == Direction::WEST};
+    for (std::size_t i{0}; i < edges.size(); ++i)
+    {
+        const TileNode& edge{m_tileGrid[edges[i]]};
+        edgeRect = Bounds::Rect2D{edge.getCenter(), edge.m_dimensions * 0.5f};
+        if (tileRect.collideAxis(edgeRect, x))
+        {
+            m_tileGrid[node].m_neighbours.push_back({edges[i], direction});
+        }
+    }
 }
 
 // NOTE: Don't call for edge leaves

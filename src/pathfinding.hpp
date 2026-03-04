@@ -123,6 +123,9 @@ private:
 
     [[nodiscard]] std::size_t getClosestChild(const glm::vec2& pos, std::size_t node) const;
     void getEdgeChildren(std::size_t node, std::pair<std::size_t, std::size_t>& children, Direction direction) const;
+    // calls getEdgeChildren recursively to get all edge nodes on boundary
+    void getSubEdges(std::size_t node, std::vector<std::size_t>& edges, Direction direction) const;
+
     void calculateNeighbours(std::size_t node, Direction direction);
     std::size_t findNeighbour(std::size_t node, Direction direction) const;
 
