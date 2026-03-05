@@ -14,9 +14,11 @@ with open("util/quads.json", "r") as f:
     data = json.load(f)                 
     quads = data["quads"]
     entities = data["entities"]
-scale = 16
+scale = 8
 
 scroll = [0, 0]
+
+current_node_index = 0
 
 while running:
     scroll[0] += (int(pygame.key.get_pressed()[pygame.K_RIGHT]) - int(pygame.key.get_pressed()[pygame.K_LEFT])) * 20
@@ -27,6 +29,8 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+            if event.key == pygame.K_n:
+                current_node_index = (current_node_index + 1) % len(quads)
     
     screen.fill((0, 0, 0))
     for entity in entities:
@@ -44,7 +48,18 @@ while running:
                                                         quad["dimensions"][0] * scale,
                                                             quad["dimensions"][1] * scale), 1)
 
-
+    current_quad = quads[current_node_index]
+    if not current_quad["hasChildren"]:
+        pygame.draw.rect(screen, (0, 255, 0), (current_quad["pos"][0] * scale - scroll[0],
+                                                            current_quad["pos"][1] * scale - scroll[1],
+                                                            current_quad["dimensions"][0] * scale,
+                                                                current_quad["dimensions"][1] * scale))
+        for i in current_quad["neighbours"]:
+            quad = quads[i]
+            pygame.draw.rect(screen, (255, 255, 20), (quad["pos"][0] * scale - scroll[0],
+                                                            quad["pos"][1] * scale - scroll[1],
+                                                            quad["dimensions"][0] * scale,
+                                                                quad["dimensions"][1] * scale))
 
     pygame.display.flip()
     clock.tick(60)

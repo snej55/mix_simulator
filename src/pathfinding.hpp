@@ -75,8 +75,8 @@ class FlowFieldGenerator
 {
 public:
     /*
-     * Extents: extents around center in tilesize
-     * Center: center position in tilesize
+     * Extents: extents around center in tile size
+     * Center: center position in tile size
      * Height: height above ground in world space to check for static objects
      */
     FlowFieldGenerator(const glm::ivec2& extents, const glm::ivec2& center, float height);
@@ -103,6 +103,7 @@ public:
     void calculateFlowField(const glm::vec2& pos, bool* success);
 
     void printQuadTree() const;
+    void printNode(std::size_t node) const;
 
 private:
     glm::ivec2 m_extents;
@@ -127,7 +128,7 @@ private:
     void getSubEdges(std::size_t node, std::vector<std::size_t>& edges, Direction direction) const;
 
     void calculateNeighbours(std::size_t node, Direction direction);
-    std::size_t findNeighbour(std::size_t node, Direction direction) const;
+    [[nodiscard]] std::size_t findNeighbour(std::size_t node, Direction direction, bool& edge) const;
 
     // Divides the children (1: top left, 2: top right, 3: bottom left, 4: bottom right)
     void divideNode(std::size_t node);

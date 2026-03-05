@@ -75,6 +75,7 @@ bool Game::init()
         },
         3.f);
     m_flowField->init(m_scene.get());
+    m_flowField->printQuadTree();
 
     return true;
 }
