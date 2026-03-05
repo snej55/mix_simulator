@@ -166,7 +166,7 @@ bool Scene::init(const char* scenePath)
             const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
             const bool animated{entityEntry.value("animated", false)};
 
-            const std::string_view bodyTypeStr{entityEntry.value("bodyType", "static")};
+            const std::string bodyTypeStr{entityEntry.value("bodyType", std::string{"static"})};
             BodyType bodyType;
             getBodyType(bodyTypeStr, &bodyType);
 
