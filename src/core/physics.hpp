@@ -151,7 +151,7 @@ public:
         mObjectToBroadPhase[ObjectLayers::MOVING] = BroadPhaseLayers::MOVING;
     }
 
-    virtual uint GetNumBroadPhaseLayers() const override { return BroadPhaseLayers::NUM_LAYERS; }
+    virtual JPH::uint GetNumBroadPhaseLayers() const override { return BroadPhaseLayers::NUM_LAYERS; }
 
     virtual JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override
     {

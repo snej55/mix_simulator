@@ -83,8 +83,7 @@ namespace MeshN
         aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |
         aiProcess_CalcTangentSpace | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes |
         aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials | aiProcess_FindDegenerates |
-        aiProcess_FindInvalidData | aiProcess_GenUVCoords | aiProcess_TransformUVCoords |
-        aiProcessPreset_TargetRealtime_Fast};
+        aiProcess_FindInvalidData | aiProcess_GenUVCoords | aiProcess_TransformUVCoords};
 } // namespace MeshN
 
 class Mesh

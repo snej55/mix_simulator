@@ -1,3 +1,9 @@
+
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 #include "src/game.hpp"
 
 #include <cstdlib>

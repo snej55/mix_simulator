@@ -18,6 +18,11 @@ using json = nlohmann::json;
 #include "util.hpp"
 #include "physics.hpp"
 
+#ifdef _WIN32
+#undef min
+#undef max
+#endif
+
 SceneChunk::SceneChunk(const glm::vec3& pos) : m_pos{pos} { init(); }
 
 SceneChunk::SceneChunk(const glm::vec3& pos, const std::vector<Entity*>& entities) : m_pos{pos}, m_entities{entities}
@@ -131,7 +136,7 @@ bool Scene::init(const char* scenePath)
         // load models
         std::cout << "SCENE::INIT: Loading models for scene...\n";
         std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
-        for (const auto& [key, value] : data[0]["level"]["models"].items())
+        for (const auto& [key, value] : data["level"]["models"].items())
         {
             const std::size_t modelID{std::stoul(key)};
             const std::string modelName{value["name"].get<std::string>()};
@@ -150,7 +155,7 @@ bool Scene::init(const char* scenePath)
 
         // load entities
         std::cout << "SCENE::INIT: Loading entities for scene...\n";
-        for (const auto& entityEntry : data[0]["level"]["objects"])
+        for (const auto& entityEntry : data["level"]["objects"])
         {
             const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
                                      entityEntry["position"][2].get<float>()};
@@ -180,10 +185,10 @@ bool Scene::init(const char* scenePath)
 
             addEntity(modelMap[modelID].second.c_str(), transform, bodyType, animated);
         }
-        std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["objects"].size() << " entities for scene.\n";
+        std::cout << "SCENE::INIT: Loaded " << data["level"]["objects"].size() << " entities for scene.\n";
 
         std::cout << "SCENE::INIT Adding point lights to scene..." << std::endl;
-        for (const auto& pointLightEntry : data[0]["level"]["pointLights"])
+        for (const auto& pointLightEntry : data["level"]["pointLights"])
         {
             const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
                                      pointLightEntry["position"][1].get<float>(),
@@ -193,7 +198,7 @@ bool Scene::init(const char* scenePath)
             const float radius{pointLightEntry["radius"].get<float>()};
             addPointLight(position, color, radius);
         }
-        std::cout << "SCENE::INIT: Loaded " << data[0]["level"]["pointLights"].size() << " pointLights for scene."
+        std::cout << "SCENE::INIT: Loaded " << data["level"]["pointLights"].size() << " pointLights for scene."
                   << std::endl;
     }
     catch ([[maybe_unused]] const std::ifstream::failure& e)

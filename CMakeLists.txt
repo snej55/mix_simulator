@@ -44,8 +44,20 @@ FetchContent_Declare(
         GIT_TAG master
         SOURCE_SUBDIR Build
 )
+
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    assimp
+    GIT_REPOSITORY https://github.com/assimp/assimp.git
+    GIT_TAG v5.4.3
+)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 FetchContent_MakeAvailable(Jolt)
+FetchContent_MakeAvailable(assimp)
 
 find_package(Git QUIET)
 if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
@@ -67,7 +79,7 @@ endif ()
 
 add_subdirectory(external/soloud/contrib)
 
-set(GL_LIBS glfw3 assimp freetype)
+set(GL_LIBS glfw3 freetype)
 
 if (CMAKE_SYSTEM MATCHES Windows)
     message(STATUS "Target system is Windows")
@@ -81,7 +93,7 @@ elseif (CMAKE_SYSTEM MATCHES Linux)
     # link_directories(lib)
     link_directories(${CMAKE_SOURCE_DIR}/lib/linux)
     # fedora: mesa-libGLU-devel
-    set(GL_LIBS GL GLU glfw3 assimp freetype z pthread)
+    set(GL_LIBS GL GLU glfw3 freetype z pthread)
 endif ()
 
 set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.hpp src/core/engine.cpp
@@ -136,12 +148,13 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} Jolt soloud $<$<PLATFORM_ID:Linux>:${ALSA_LIBRARIES}>)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} assimp Jolt soloud $<$<PLATFORM_ID:Linux>:${ALSA_LIBRARIES}>)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/external/soloud/include)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-        JPH_USE_SSE4_2
+    JPH_USE_SSE4_2
+    $<$<PLATFORM_ID:Windows>:NOMINMAX>
 )
 
 if (CMAKE_SYSTEM MATCHES Linux)
