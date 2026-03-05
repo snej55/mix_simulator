@@ -442,5 +442,5 @@ void FlowFieldGenerator::printNode(const std::size_t node) const
             std::cout << ", ";
         }
     }
-    std::cout << "], 'cost': " << tile.m_cost << "}\n";
+    std::cout << "], 'cost': " << tile.m_cost << "},\n";
 }

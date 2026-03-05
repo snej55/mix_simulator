@@ -14,7 +14,7 @@ with open("util/quads.json", "r") as f:
     data = json.load(f)                 
     quads = data["quads"]
     entities = data["entities"]
-scale = 16
+scale = 8
 
 scroll = [0, 0]
 
@@ -47,6 +47,12 @@ while running:
                                                         quad["pos"][1] * scale - scroll[1],
                                                         quad["dimensions"][0] * scale,
                                                             quad["dimensions"][1] * scale), 1)
+            if quad["cost"] < 10 and not quad["hasChildren"]:
+                color = pygame.Color(255, 0, 0).lerp(pygame.Color(0, 255, 0), quad["cost"] / 10)
+                pygame.draw.rect(screen, color, (quad["pos"][0] * scale - scroll[0] + 1,
+                                                        quad["pos"][1] * scale - scroll[1] + 1,
+                                                        quad["dimensions"][0] * scale - 2,
+                                                            quad["dimensions"][1] * scale - 2))
 
     current_quad = quads[current_node_index]
     if not current_quad["hasChildren"] and not current_quad["solid"]:
