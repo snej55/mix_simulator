@@ -133,10 +133,33 @@ bool Scene::init(const char* scenePath)
     {
         json data{json::parse(sceneFile)};
 
+        const json* root{&data};
+        if (data.is_array())
+        {
+            if (data.empty() || !data[0].is_object())
+            {
+                Util::beginError();
+                std::cout << "SCENE::INIT::ERROR: Scene is empty!";
+                Util::endError();
+                return false;
+            }
+            root = &data[0];
+        }
+
+        if (!root->contains("level") || !(*root)["level"].is_object())
+        {
+            Util::beginError();
+            std::cout << "SCENE::INIT::ERROR: Scene does not contain level data!";
+            Util::endError();
+            return false;
+        }
+
+        const json& level{(*root)["level"]};
+
         // load models
         std::cout << "SCENE::INIT: Loading models for scene...\n";
         std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
-        for (const auto& [key, value] : data["level"]["models"].items())
+        for (const auto& [key, value] : level["models"].items())
         {
             const std::size_t modelID{std::stoul(key)};
             const std::string modelName{value["name"].get<std::string>()};
@@ -155,7 +178,7 @@ bool Scene::init(const char* scenePath)
 
         // load entities
         std::cout << "SCENE::INIT: Loading entities for scene...\n";
-        for (const auto& entityEntry : data["level"]["objects"])
+        for (const auto& entityEntry : level["objects"])
         {
             const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
                                      entityEntry["position"][2].get<float>()};
@@ -185,10 +208,10 @@ bool Scene::init(const char* scenePath)
 
             addEntity(modelMap[modelID].second.c_str(), transform, bodyType, animated);
         }
-        std::cout << "SCENE::INIT: Loaded " << data["level"]["objects"].size() << " entities for scene.\n";
+        std::cout << "SCENE::INIT: Loaded " << level["objects"].size() << " entities for scene.\n";
 
         std::cout << "SCENE::INIT Adding point lights to scene..." << std::endl;
-        for (const auto& pointLightEntry : data["level"]["pointLights"])
+        for (const auto& pointLightEntry : level["pointLights"])
         {
             const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
                                      pointLightEntry["position"][1].get<float>(),
@@ -198,8 +221,7 @@ bool Scene::init(const char* scenePath)
             const float radius{pointLightEntry["radius"].get<float>()};
             addPointLight(position, color, radius);
         }
-        std::cout << "SCENE::INIT: Loaded " << data["level"]["pointLights"].size() << " pointLights for scene."
-                  << std::endl;
+        std::cout << "SCENE::INIT: Loaded " << level["pointLights"].size() << " pointLights for scene." << std::endl;
     }
     catch ([[maybe_unused]] const std::ifstream::failure& e)
     {
