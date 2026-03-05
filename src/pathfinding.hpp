@@ -61,14 +61,15 @@ struct TileNode
 
     std::array<std::size_t, 4> m_children{};
     std::size_t m_parent{0};
+    std::size_t m_leafPos{0};
     std::vector<std::pair<std::size_t, Direction>> m_neighbours{};
 
     bool m_hasParent{false};
     bool m_hasChildren{false};
     bool m_solid{false};
+
     float m_bonus{0.0f}; // added to cost
     float m_cost{0.0f};
-    std::size_t m_leafPos{0};
 };
 
 class FlowFieldGenerator
@@ -99,8 +100,9 @@ public:
     [[nodiscard]] const std::vector<std::size_t>& getBaseNodes() const { return m_baseNodes; }
 
     // pos: vec3.x, vec3.
-    void getNode(const glm::vec2& pos, std::size_t* node, bool* success) const;
-    void calculateFlowField(const glm::vec2& pos, bool* success);
+    void getNode(const glm::vec2& pos, std::size_t* node, bool* success, bool constrainEdges = false) const;
+    void calculateFlowField(const glm::vec2& pos, bool* success, bool constrainEdges = false);
+    void clearFlowField();
 
     void printQuadTree() const;
     void printNode(std::size_t node) const;
