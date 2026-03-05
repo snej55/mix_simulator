@@ -53,7 +53,7 @@ set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
     assimp
     GIT_REPOSITORY https://github.com/assimp/assimp.git
-    GIT_TAG v5.4.3
+    GIT_TAG v6.0.2
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
