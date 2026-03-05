@@ -47,8 +47,9 @@ while running:
                                                         quad["pos"][1] * scale - scroll[1],
                                                         quad["dimensions"][0] * scale,
                                                             quad["dimensions"][1] * scale), 1)
-            if quad["cost"] < 10 and not quad["hasChildren"]:
-                color = pygame.Color(255, 0, 0).lerp(pygame.Color(0, 255, 0), quad["cost"] / 10)
+            if not quad["hasChildren"]:
+                dist = 4
+                color = pygame.Color(255, 10, 10).lerp(pygame.Color(0, 200, 0).lerp(pygame.Color(0, 100, 100), min(1, max(quad["cost"] - dist, 0) / dist)), min(1, quad["cost"] / dist))
                 pygame.draw.rect(screen, color, (quad["pos"][0] * scale - scroll[0] + 1,
                                                         quad["pos"][1] * scale - scroll[1] + 1,
                                                         quad["dimensions"][0] * scale - 2,
