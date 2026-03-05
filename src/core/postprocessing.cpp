@@ -6,8 +6,6 @@
 #include "util.hpp"
 #include "shapes.hpp"
 
-#include <random>
-
 PostProcessor::PostProcessor(EngineObject* parent) : EngineObject{"PostProcessor", parent} {}
 
 PostProcessor::~PostProcessor() { free(); }
@@ -198,11 +196,10 @@ void PostProcessor::generateRenderbuffer()
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, m_width, m_height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, m_width, m_height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-    // attach rbo to framebuffer
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
     m_RBO = rbo;
 }
 

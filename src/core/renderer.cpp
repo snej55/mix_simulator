@@ -223,17 +223,13 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     // render gbuffer
     enginePtr->renderGBuffer(ibl, pointLights);
 
-    // render skybox
+    glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDepthMask(GL_FALSE);
     ibl->renderSkybox(engine);
-    glDepthMask(GL_TRUE);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glDepthMask(GL_FALSE);
-
 
     // ---- render leftovers using forward rendering ---
     // render dynamic meshes

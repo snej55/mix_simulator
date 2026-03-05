@@ -7,13 +7,14 @@ uniform float roughness = -1.0;
 
 void main()
 {
+    vec3 dir = normalize(localPos);
     vec3 envColor;
     const float MAX_LOD = 4.0;
     if (roughness > 0.0)
     {
-        envColor = textureLod(environmentMap, localPos, roughness * MAX_LOD).rgb;
+        envColor = textureLod(environmentMap, dir, roughness * MAX_LOD).rgb;
     } else {
-        envColor = texture(environmentMap, localPos).rgb;
+        envColor = texture(environmentMap, dir).rgb;
     }
     FragColor = vec4(envColor, 1.0);
 }
