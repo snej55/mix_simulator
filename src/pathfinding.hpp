@@ -101,7 +101,8 @@ public:
 
     // pos: vec3.x, vec3.
     void getNode(const glm::vec2& pos, std::size_t* node, bool* success, bool constrainEdges = false) const;
-    void calculateFlowField(const glm::vec2& pos, bool* success, bool constrainEdges = false);
+    void calculateFlowField(const glm::vec2& pos, bool* success, bool constrainEdges = false,
+                            float maxDistance = -1.0f);
     void clearFlowField();
 
     void printQuadTree() const;

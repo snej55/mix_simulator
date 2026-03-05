@@ -167,8 +167,11 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
     m_tileGrid[node].m_hasChildren = true;
 }
 
-void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success, const bool constrainEdges)
+void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success, const bool constrainEdges,
+                                            const float maxDistance)
 {
+    clearFlowField();
+
     std::size_t startNode;
     *success = true;
     getNode(pos, &startNode, success, constrainEdges);
@@ -177,14 +180,43 @@ void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success,
         return;
     }
 
-    std::vector<std::size_t> wave{};
+    m_tileGrid[startNode].m_cost = 0.0f;
+
+    // propagate flow field
+    std::vector<std::size_t> wave{startNode};
+    std::vector<std::size_t> newWave{};
+    newWave.reserve(m_tileGrid.size());
+
+    while (!wave.empty())
+    {
+        for (std::size_t i{0}; i < wave.size(); ++i)
+        {
+            const std::size_t node{wave[i]};
+            if (maxDistance > 0.0f && m_tileGrid[node].m_cost >= maxDistance)
+                continue;
+
+            for (const std::pair<std::size_t, Direction>& neighbour : m_tileGrid[node].m_neighbours)
+            {
+                const float cost{m_tileGrid[node].m_cost + 1.0f};
+
+                if (cost < m_tileGrid[neighbour.first].m_cost)
+                {
+                    m_tileGrid[neighbour.first].m_cost = cost;
+                    newWave.push_back(neighbour.first);
+                }
+            }
+        }
+
+        std::swap(newWave, wave);
+        newWave.clear();
+    }
 }
 
 void FlowFieldGenerator::clearFlowField()
 {
     for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
     {
-        m_tileGrid[i].m_cost = 0.0f;
+        m_tileGrid[i].m_cost = std::numeric_limits<float>::max();
     }
 }
 
@@ -410,5 +442,5 @@ void FlowFieldGenerator::printNode(const std::size_t node) const
             std::cout << ", ";
         }
     }
-    std::cout << "]},\n";
+    std::cout << "], 'cost': " << tile.m_cost << "}\n";
 }
