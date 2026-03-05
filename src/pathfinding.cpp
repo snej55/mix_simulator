@@ -33,13 +33,9 @@ void FlowFieldGenerator::init(Scene* scene)
     {
         for (int x{0}; x < width; ++x)
         {
-            TileNode node{
-                {
-                    static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
-                    static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE
-                },
-                {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}
-            };
+            TileNode node{{static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
+                           static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE},
+                          {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}};
 
             const std::size_t root{m_tileGrid.size()};
             m_tileGrid.emplace_back(node);
@@ -138,25 +134,17 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
             m_tileGrid.emplace_back(parent.m_position, parent.m_dimensions * 0.5f);
             break;
         case 1:
-            m_tileGrid.emplace_back(TileNode{
-                {parent.m_position.x + parent.m_dimensions.x * 0.5f, parent.m_position.y},
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f, parent.m_position.y},
+                                             parent.m_dimensions * 0.5f});
             break;
         case 2:
-            m_tileGrid.emplace_back(TileNode{
-                {parent.m_position.x, parent.m_position.y + parent.m_dimensions.y * 0.5f},
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x, parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
             break;
         default:
-            m_tileGrid.emplace_back(TileNode{
-                {
-                    parent.m_position.x + parent.m_dimensions.x * 0.5f,
-                    parent.m_position.y + parent.m_dimensions.y * 0.5f
-                },
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f,
+                                              parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
             break;
         }
         m_tileGrid[node].m_children[i] = m_tileGrid.size() - 1;
@@ -278,11 +266,14 @@ void FlowFieldGenerator::calculateNeighbours(const std::size_t node, const Direc
     getSubEdges(neighbour, edges, getOpposite(direction));
 
     const Bounds::Rect2D tileRect{tile.getCenter(), tile.m_dimensions * 0.5f};
-    const bool x{direction == Direction::EAST || direction == Direction::WEST};
+    const bool x{direction == Direction::NORTH || direction == Direction::SOUTH};
     for (std::size_t i{0}; i < edges.size(); ++i)
     {
         const TileNode& edge{m_tileGrid[edges[i]]};
-        const Bounds::Rect2D edgeRect{edge.getCenter(), edge.m_dimensions * 0.5f};
+        if (edge.m_solid)
+            continue;
+
+        const Bounds::Rect2D edgeRect{edge.getCenter(), edge.m_dimensions * 0.49f};
         if (tileRect.collideAxis(edgeRect, x))
         {
             m_tileGrid[node].m_neighbours.emplace_back(edges[i], direction);
@@ -296,14 +287,10 @@ std::size_t FlowFieldGenerator::findNeighbour(const std::size_t node, const Dire
     const TileNode& tile{m_tileGrid[node]};
     if (!tile.m_hasParent)
     {
-        int gridX{
-            static_cast<int>(std::floor(tile.getCenter().x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x +
-            m_extents.x
-        };
-        int gridY{
-            static_cast<int>(std::floor(tile.getCenter().y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y +
-            m_extents.y
-        };
+        int gridX{static_cast<int>(std::floor(tile.getCenter().x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x +
+                  m_extents.x};
+        int gridY{static_cast<int>(std::floor(tile.getCenter().y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y +
+                  m_extents.y};
 
         switch (direction)
         {
@@ -327,19 +314,20 @@ std::size_t FlowFieldGenerator::findNeighbour(const std::size_t node, const Dire
             return 0;
         }
 
+        edge = false;
         const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
         return root;
     }
 
+    edge = false;
     if (direction == Direction::NORTH)
     {
         if (tile.m_leafPos < 2)
         {
             return findNeighbour(tile.m_parent, direction, edge);
         }
-        return (tile.m_leafPos == 2)
-                   ? m_tileGrid[tile.m_parent].m_children[0]
-                   : m_tileGrid[tile.m_parent].m_children[1];
+        return (tile.m_leafPos == 2) ? m_tileGrid[tile.m_parent].m_children[0]
+                                     : m_tileGrid[tile.m_parent].m_children[1];
     }
     if (direction == Direction::SOUTH)
     {
@@ -364,7 +352,6 @@ std::size_t FlowFieldGenerator::findNeighbour(const std::size_t node, const Dire
         return findNeighbour(tile.m_parent, direction, edge);
     }
 
-    edge = false;
     return m_tileGrid[tile.m_parent].m_children[tile.m_leafPos - 1];
 }
 
@@ -381,8 +368,8 @@ void FlowFieldGenerator::printNode(const std::size_t node) const
 {
     const TileNode& tile{m_tileGrid[node]};
     std::cout << std::boolalpha << "{'pos': [" << tile.m_position.x << ", " << tile.m_position.y << "], 'dimensions': ["
-        << tile.m_dimensions.x << ", " << tile.m_dimensions.y << "], 'solid': " << tile.m_solid << ", 'hasChildren': "
-        << tile.m_hasChildren << ", 'neighbours': [";
+              << tile.m_dimensions.x << ", " << tile.m_dimensions.y << "], 'solid': " << tile.m_solid
+              << ", 'hasChildren': " << tile.m_hasChildren << ", 'neighbours': [";
     for (std::size_t i{0}; i < tile.m_neighbours.size(); ++i)
     {
         std::cout << tile.m_neighbours[i].first;

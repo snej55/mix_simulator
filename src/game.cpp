@@ -65,16 +65,13 @@ bool Game::init()
 
     // generate flow field quadtree
     m_flowField = std::make_unique<FlowFieldGenerator>(
-        glm::ivec2{
-            std::ceil(m_scene->getLevelExtents().x / CST::FLOW_FIELD_TILE_SIZE),
-            std::ceil(m_scene->getLevelExtents().z / CST::FLOW_FIELD_TILE_SIZE)
-        },
-        glm::ivec2{
-            std::ceil(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
-            std::ceil(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)
-        },
+        glm::ivec2{std::ceil(m_scene->getLevelExtents().x / CST::FLOW_FIELD_TILE_SIZE),
+                   std::ceil(m_scene->getLevelExtents().z / CST::FLOW_FIELD_TILE_SIZE)},
+        glm::ivec2{std::ceil(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
+                   std::ceil(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)},
         3.f);
     m_flowField->init(m_scene.get());
+    m_flowField->printQuadTree();
 
     return true;
 }
@@ -102,12 +99,9 @@ bool Game::menu()
     float targetPBScale{0.0f};
 
     UI::Button playButton{
-        {
-            static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
-            static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f
-        }
-    };
+        {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
+         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
+         static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
 
     while (!m_engine.getQuit())
     {
@@ -126,11 +120,9 @@ bool Game::menu()
         const Shader* fontShader{m_engine.getShader("fonts")};
 
         std::string titleTextStr{};
-        const std::size_t limit{
-            std::min(
-                titleText.size(),
-                static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))
-        };
+        const std::size_t limit{std::min(
+            titleText.size(),
+            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
         for (std::size_t i{0}; i < limit; ++i)
         {
             titleTextStr += titleText[i];
@@ -152,14 +144,12 @@ bool Game::menu()
         cposX *= windowScaleX;
         cposY *= windowScaleY;
 
-        playButton.m_rect = {
-            static_cast<float>(m_engine.getWidth()) * 0.5f -
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.6f -
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f
-        };
+        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+                             static_cast<float>(m_engine.getHeight()) * 0.6f -
+                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
         playButton.update(cposX, cposY);
 
         targetPBScale = (limit == titleText.size()) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
@@ -169,10 +159,8 @@ bool Game::menu()
 
         // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
-                                {
-                                    static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                    static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale
-                                },
+                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
                                 &m_engine, playButtonTex.width, playButtonTex.height, true,
                                 playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 
@@ -284,11 +272,9 @@ void Game::update()
         const float distFreq{glm::mix(20000.f, 1000.f, glm::clamp(dist / maxDist, 0.0f, 1.0f))};
         const float frequency{distFreq * glm::mix(0.2f, 1.0f, intensity)};
 
-        const unsigned int handle{
-            audioHandler->getSoLoud().play3dClocked(
-                static_cast<int>(glfwGetTime()), *audioHandler->getSound(m_assets->m_SFX_metalImpact), viewPosition.x,
-                viewPosition.y, viewPosition.z, 0.0f, 0.0f, 0.0f, volume)
-        };
+        const unsigned int handle{audioHandler->getSoLoud().play3dClocked(
+            static_cast<int>(glfwGetTime()), *audioHandler->getSound(m_assets->m_SFX_metalImpact), viewPosition.x,
+            viewPosition.y, viewPosition.z, 0.0f, 0.0f, 0.0f, volume)};
 
         audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
     }
@@ -366,12 +352,9 @@ bool Game::gameover()
     float targetPBScale{0.0f};
 
     UI::Button playButton{
-        {
-            static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
-            static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f
-        }
-    };
+        {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
+         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
+         static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
 
     constexpr float typeRate{30.f};
     while (!m_engine.getQuit())
@@ -390,11 +373,9 @@ bool Game::gameover()
         const Shader* fontShader{m_engine.getShader("fonts")};
 
         std::string titleTextStr{};
-        const std::size_t limit{
-            std::min(
-                titleText.size(),
-                static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))
-        };
+        const std::size_t limit{std::min(
+            titleText.size(),
+            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
         for (std::size_t i{0}; i < limit; ++i)
         {
             titleTextStr += titleText[i];
@@ -405,7 +386,7 @@ bool Game::gameover()
         fontRenderer->renderText(fontShader, "Play again?",
                                  std::min(-300.f + (m_engine.getTime() - startTime) * 30.f,
                                           static_cast<float>(m_engine.getWidth()) * 0.5f -
-                                          fontRenderer->getTextWidth("Play again?", 0.5f) * 0.5f),
+                                              fontRenderer->getTextWidth("Play again?", 0.5f) * 0.5f),
                                  60.f, 0.5f, glm::vec3{1.0f});
 
         fontRenderer->renderText(
@@ -427,14 +408,12 @@ bool Game::gameover()
         cposX *= windowScaleX;
         cposY *= windowScaleY;
 
-        playButton.m_rect = {
-            static_cast<float>(m_engine.getWidth()) * 0.5f -
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.6f -
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f
-        };
+        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+                             static_cast<float>(m_engine.getHeight()) * 0.6f -
+                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
         playButton.update(cposX, cposY);
 
         targetPBScale = (limit == titleText.size()) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
@@ -444,10 +423,8 @@ bool Game::gameover()
 
         // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
-                                {
-                                    static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                    static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale
-                                },
+                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
                                 &m_engine, playButtonTex.width, playButtonTex.height, true,
                                 playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 

@@ -2,7 +2,7 @@ import pygame, json
 
 pygame.init()
 
-WIDTH, HEIGHT = 2000, 1300                                                                                                                                                  
+WIDTH, HEIGHT = 2200, 1300                                                                                                                                                  
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
@@ -14,7 +14,7 @@ with open("util/quads.json", "r") as f:
     data = json.load(f)                 
     quads = data["quads"]
     entities = data["entities"]
-scale = 8
+scale = 16
 
 scroll = [0, 0]
 
@@ -49,7 +49,7 @@ while running:
                                                             quad["dimensions"][1] * scale), 1)
 
     current_quad = quads[current_node_index]
-    if not current_quad["hasChildren"]:
+    if not current_quad["hasChildren"] and not current_quad["solid"]:
         pygame.draw.rect(screen, (0, 255, 0), (current_quad["pos"][0] * scale - scroll[0],
                                                             current_quad["pos"][1] * scale - scroll[1],
                                                             current_quad["dimensions"][0] * scale,
@@ -60,6 +60,11 @@ while running:
                                                             quad["pos"][1] * scale - scroll[1],
                                                             quad["dimensions"][0] * scale,
                                                                 quad["dimensions"][1] * scale))
+    else:
+        pygame.draw.rect(screen, (0, 200, 200), (current_quad["pos"][0] * scale - scroll[0],
+                                                            current_quad["pos"][1] * scale - scroll[1],
+                                                            current_quad["dimensions"][0] * scale,
+                                                                current_quad["dimensions"][1] * scale))
 
     pygame.display.flip()
     clock.tick(60)
