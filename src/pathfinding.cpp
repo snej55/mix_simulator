@@ -219,6 +219,9 @@ void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success,
         }
 
         tile.m_target = minCost.second;
+        const glm::vec2 tileCenter{tile.getCenter()};
+        const glm::vec2 centerPos{m_tileGrid[minCost.second].getCenter()};
+        tile.m_direction = glm::vec2{tileCenter.x - centerPos.x, tileCenter.y - centerPos.y};
     }
 }
 

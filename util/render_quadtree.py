@@ -54,9 +54,15 @@ while running:
                                                         quad["pos"][1] * scale - scroll[1] + 1,
                                                         quad["dimensions"][0] * scale - 2,
                                                             quad["dimensions"][1] * scale - 2))
-                # pygame.draw.circle(screen, (255, 255, 255), (quad["pos"][0] * scale + quad["dimensions"][0] * scale * 0.5 + quad["direction"][0] * scale - scroll[0],
-                #                                              quad["pos"][1] * scale + quad["dimensions"][1] * scale * 0.5 + quad["direction"][1] * scale - scroll[1]), 5)
-        
+
+    for quad in quads:
+        if not quad["hasChildren"] and not quad["solid"]:
+            direction_scale = 0.7
+            pygame.draw.line(screen, (255, 255, 255), ((quad["pos"][0] + quad["dimensions"][0] * 0.5) * scale - scroll[0],
+                                                   (quad["pos"][1] + quad["dimensions"][1] * 0.5) * scale - scroll[1]), ((quad["pos"][0] + quad["dimensions"][0] * 0.5 - quad["direction"][0] * direction_scale) * scale - scroll[0],
+                                                   (quad["pos"][1] + quad["dimensions"][1] * 0.5 - quad["direction"][1] * direction_scale) * scale - scroll[1]))
+            pygame.draw.circle(screen, (255, 255, 255), ((quad["pos"][0] + quad["dimensions"][0] * 0.5 - quad["direction"][0] * direction_scale) * scale - scroll[0],
+                                                   (quad["pos"][1] + quad["dimensions"][1] * 0.5 - quad["direction"][1] * direction_scale) * scale - scroll[1]), 2)
 
     current_quad = quads[current_node_index]
     if not current_quad["hasChildren"] and not current_quad["solid"]:
