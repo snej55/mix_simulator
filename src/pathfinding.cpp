@@ -204,6 +204,22 @@ void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success,
         std::swap(newWave, wave);
         newWave.clear();
     }
+
+    for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
+    {
+        TileNode& tile{m_tileGrid[i]};
+        std::pair<float, std::size_t> minCost{tile.m_cost, i};
+        for (const std::pair<std::size_t, Direction>& neighbour : tile.m_neighbours)
+        {
+            if (m_tileGrid[neighbour.first].m_cost < minCost.first)
+            {
+                minCost.first = m_tileGrid[neighbour.first].m_cost;
+                minCost.second = neighbour.first;
+            }
+        }
+
+        tile.m_target = minCost.second;
+    }
 }
 
 void FlowFieldGenerator::clearFlowField()
@@ -431,5 +447,6 @@ void FlowFieldGenerator::printNode(const std::size_t node) const
             std::cout << ", ";
         }
     }
-    std::cout << "], 'cost': " << tile.m_cost << "},\n";
+    std::cout << "], 'cost': " << tile.m_cost << ", 'direction': [" << tile.m_direction.x << ", " << tile.m_direction.y
+              << "], 'target': " << tile.m_target << "},\n";
 }

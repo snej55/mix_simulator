@@ -10,6 +10,7 @@
 #include "core/bounds.hpp"
 
 #include <array>
+#include <limits>
 #include <vector>
 
 enum class Direction
@@ -54,7 +55,7 @@ struct TileNode
     ~TileNode() = default;
 
     [[nodiscard]] glm::vec2 getCenter() const { return m_position + m_dimensions * 0.5f; }
-    [[nodiscard]] float getCost() const { return m_cost + m_bonus; }
+    [[nodiscard]] float getCost() const { return m_cost; }
 
     glm::vec2 m_position;
     glm::vec2 m_dimensions;
@@ -68,8 +69,9 @@ struct TileNode
     bool m_hasChildren{false};
     bool m_solid{false};
 
-    float m_bonus{0.0f}; // added to cost
-    float m_cost{0.0f};
+    float m_cost{std::numeric_limits<float>::max()};
+    glm::vec2 m_direction{};
+    std::size_t m_target{0};
 };
 
 class FlowFieldGenerator
