@@ -88,17 +88,8 @@ cd build
 - [ ] Add sliding sfx
 - [X] Generate flow field quadtree
 - [ ] Paralax mapping with tesselation shader?
-- [ ] Add flow field pathfinding algorithm
-  - [ ] Add quad tree navigation functions
-  - [ ] Add wave propagation
-  - [ ] Dijkstra algorithm?
-  - [ ] Improve quadtree generation (cost/penetration depth)
-  - [ ] Optimize tile sizes
-- [ ] Make enemies fall apart
-  - [ ] Precalculate fracture in blender
-  - [ ] Load shards
-  - [ ] Instance render shards
-  - [ ] Pregenerate convex hull shapes (jolt)
+- [X] Quad tree generation
+- [X] Flow field generation
 - [ ] Clean up data folder
 
 ## Debugging todo:

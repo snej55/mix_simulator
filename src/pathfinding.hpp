@@ -102,13 +102,16 @@ public:
     [[nodiscard]] const std::vector<std::size_t>& getBaseNodes() const { return m_baseNodes; }
 
     // pos: vec3.x, vec3.
-    void getNode(const glm::vec2& pos, std::size_t* node, bool* success, bool constrainEdges = false) const;
-    void calculateFlowField(const glm::vec2& pos, bool* success, bool constrainEdges = false,
-                            float maxDistance = -1.0f);
+    void getNode(const glm::vec2& pos, std::size_t* node, bool* success = nullptr, bool constrainEdges = false) const;
+    void calculateFlowField(bool constrainEdges = false, float maxDistance = -1.0f);
     void clearFlowField();
 
     void printQuadTree() const;
     void printNode(std::size_t node) const;
+
+    [[nodiscard]] const glm::vec2& getPlayerPos() const { return m_playerPos; }
+    [[nodiscard]] std::size_t getPlayerNode() const { return m_playerNode; }
+    void setPlayerPos(const glm::vec2& val);
 
 private:
     glm::ivec2 m_extents;
@@ -122,6 +125,9 @@ private:
     std::vector<std::size_t> m_baseNodes{};
 
     JPH::ShapeRefC m_boxCollider;
+
+    glm::vec2 m_playerPos{0.0f, 0.0f};
+    std::size_t m_playerNode{};
 
     void generateQuadTree(std::size_t node, const std::vector<Bounds::Rect2D*>& neighbourEntities, int depth);
     [[nodiscard]] std::pair<bool, float> checkCollision(std::size_t node,

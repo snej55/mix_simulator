@@ -41,6 +41,11 @@ public:
     void setEntity(Entity* entity) { m_entity = entity; }
     [[nodiscard]] PlayerController* getController() { return m_input.get(); }
 
+    [[nodiscard]] glm::vec2 get2DPos() const
+    {
+        return {m_entity->getGlobalMidpoint().x, m_entity->getGlobalMidpoint().z};
+    }
+
 private:
     Entity* m_entity{nullptr};
 
