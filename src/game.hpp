@@ -47,6 +47,10 @@ private:
     std::unique_ptr<Player> m_player{nullptr};
     std::unique_ptr<Assets> m_assets{nullptr};
     SoLoud::BiquadResonantFilter m_bqrFilter;
+
+    std::vector<Entity*> m_enemies{};
+
+    void getEnemies();
 };
 
 #endif

@@ -102,6 +102,7 @@ public:
 
     void getStaticEntities(std::vector<Entity*>& entities);
     void getStaticRects(std::vector<Bounds::Rect2D>& rects);
+    void getDynamicEntities(std::vector<Entity*>& entities);
 
 private:
     void* m_engine{nullptr};

@@ -20,7 +20,6 @@
 #include "game.hpp"
 
 #include <memory>
-#include <chrono>
 
 Game::~Game() = default;
 
@@ -73,15 +72,8 @@ bool Game::init()
                    std::ceil(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)},
         3.f);
     m_flowField->init(m_scene.get());
-    bool success{false};
 
-    auto start = std::chrono::high_resolution_clock::now();
-    m_flowField->setPlayerPos(m_player->get2DPos());
-    m_flowField->calculateFlowField(true);
-
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration{end - start};
-    std::cout << "Flow field generation time: " << duration.count() << "\n";
+    getEnemies();
 
     return true;
 }
@@ -457,4 +449,18 @@ bool Game::gameover()
         glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
     return false;
+}
+
+void Game::getEnemies()
+{
+    m_enemies.clear();
+    std::vector<Entity*> dynamicEntities{};
+    m_scene->getDynamicEntities(dynamicEntities);
+    for (std::size_t i{0}; i < dynamicEntities.size(); ++i)
+    {
+        if (dynamicEntities[i] != m_player->getEntity())
+        {
+            m_enemies.push_back(dynamicEntities[i]);
+        }
+    }
 }
