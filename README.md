@@ -98,6 +98,16 @@ cd build
 - [X] Flow field generation
 - [ ] Clean up data folder
 
+## Blender items:
+
+- [ ] Mug
+- [ ] Bud vase
+- [ ] Pot
+- [ ] Cider jug
+- [ ] Pestle
+- [ ] Anaphora
+- [ ] Ewer
+
 ## Debugging/Release todo:
 - [ ] Polish shadows
 - [ ] Fix camera jitter when falling

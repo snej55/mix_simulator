@@ -441,6 +441,7 @@ void FlowFieldGenerator::printQuadTree() const
     std::cout << std::endl;
 }
 
+// can be stored in json for debug renderer
 void FlowFieldGenerator::printNode(const std::size_t node) const
 {
     const TileNode& tile{m_tileGrid[node]};
