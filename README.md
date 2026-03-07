@@ -89,9 +89,18 @@ cd build
 - [X] Generate flow field quadtree
 - [ ] Paralax mapping with tesselation shader?
 - [X] Quad tree generation
+- [X] Flow field pathfinding
+- [ ] Make some models
+- [ ] Generate shards in blender
+- [ ] Preload jolt convex hulls
+- [ ] Shatter logic
+- [ ] Test shadows with complex shapes
 - [X] Flow field generation
 - [ ] Clean up data folder
 
-## Debugging todo:
+## Debugging/Release todo:
 - [ ] Polish shadows
 - [ ] Fix camera jitter when falling
+- [ ] Fix minimizing bug on Windows
+- [ ] Fix mouse position scaling with menu button on Windows
+- [ ] Fix MacOS build
