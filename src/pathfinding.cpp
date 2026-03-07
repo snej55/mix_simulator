@@ -156,17 +156,17 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
 
 void FlowFieldGenerator::calculateFlowField(const bool constrainEdges, const float maxDistance)
 {
-    clearFlowField();
-
     std::size_t startNode;
     bool success{false};
     getNode(m_playerPos, &startNode, &success, constrainEdges);
-    if (!success || startNode == m_playerNode)
+    if (!success || startNode == m_playerNode || m_tileGrid[startNode].m_solid)
     {
+        // keep same flow field as before
         return;
     }
     m_playerNode = startNode;
 
+    clearFlowField();
     m_tileGrid[startNode].m_cost = 0.0f;
 
     // propagate flow field
@@ -187,9 +187,8 @@ void FlowFieldGenerator::calculateFlowField(const bool constrainEdges, const flo
                 // use manhattan distance
                 const float cost{
                     m_tileGrid[node].m_cost +
-                    1.0f *
-                        (std::abs(m_tileGrid[neighbour.first].getCenter().x - m_tileGrid[node].getCenter().x) +
-                         std::abs(m_tileGrid[neighbour.first].getCenter().y - m_tileGrid[node].getCenter().y)) /
+                    (std::abs(m_tileGrid[neighbour.first].getCenter().x - m_tileGrid[node].getCenter().x) +
+                     std::abs(m_tileGrid[neighbour.first].getCenter().y - m_tileGrid[node].getCenter().y)) /
                         CST::FLOW_FIELD_TILE_SIZE};
 
                 if (cost < m_tileGrid[neighbour.first].m_cost)

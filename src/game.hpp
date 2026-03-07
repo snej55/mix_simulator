@@ -51,6 +51,7 @@ private:
     std::vector<Entity*> m_enemies{};
 
     void getEnemies();
+    void updateEnemies();
 };
 
 #endif

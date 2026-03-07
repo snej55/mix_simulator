@@ -100,6 +100,7 @@ public:
     [[nodiscard]] bool getInit() const { return m_init; }
     [[nodiscard]] const std::vector<TileNode>& getTileGrid() const { return m_tileGrid; }
     [[nodiscard]] const std::vector<std::size_t>& getBaseNodes() const { return m_baseNodes; }
+    [[nodiscard]] const TileNode& getTile(const std::size_t node) const { return m_tileGrid[node]; }
 
     // pos: vec3.x, vec3.
     void getNode(const glm::vec2& pos, std::size_t* node, bool* success = nullptr, bool constrainEdges = false) const;
