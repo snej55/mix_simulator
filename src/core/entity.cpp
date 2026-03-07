@@ -18,10 +18,15 @@ Entity::Entity(const Model* model, const Bounds::Transform& transform, const Bod
     m_static = (bodyType == BodyType::STATIC);
 }
 
-Entity::~Entity() = default;
+Entity::~Entity() { setEntityController(nullptr); }
 
 void Entity::update(const float deltaTime, const JPH::BodyInterface* bodyInterface)
 {
+    if (m_controller != nullptr)
+    {
+        m_controller->update();
+    }
+
     if (bodyInterface != nullptr && m_physicsBody.get() != nullptr)
     {
         m_physicsBody->syncTransform(m_transform, bodyInterface);
@@ -83,3 +88,14 @@ void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface)
 }
 
 void Entity::setPhysicsBody(PhysicsBody& physicsBody) { m_physicsBody = std::make_unique<PhysicsBody>(physicsBody); }
+
+void Entity::setEntityController(EntityController* controller)
+{
+    if (m_controller != nullptr)
+    {
+        delete m_controller;
+        m_controller = nullptr;
+    }
+
+    m_controller = controller;
+}

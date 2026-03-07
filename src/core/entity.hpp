@@ -11,6 +11,16 @@
 #include "bounds.hpp"
 #include "physics.hpp"
 
+struct EntityController
+{
+    void* m_entity;
+
+    EntityController(void* entity) : m_entity{entity} {}
+    virtual ~EntityController() = default;
+
+    virtual void update() = 0;
+};
+
 class Entity final
 {
 public:
@@ -58,6 +68,9 @@ public:
     void eraseChunks() { m_chunks.clear(); }
     [[nodiscard]] std::vector<std::pair<std::size_t, void*>>& getChunks() { return m_chunks; }
 
+    [[nodiscard]] EntityController* getController() const { return m_controller; }
+    void setEntityController(EntityController* entity);
+
 private:
     std::string m_path{};
     Bounds::Transform m_transform{};
@@ -74,6 +87,8 @@ private:
     bool m_dirty{false};
     bool m_rendered{false};
     bool m_discarded{false};
+
+    EntityController* m_controller{nullptr};
 
     std::vector<std::pair<std::size_t, void*>> m_chunks{};
 };
