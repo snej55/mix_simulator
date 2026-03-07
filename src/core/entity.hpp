@@ -11,6 +11,7 @@
 #include "bounds.hpp"
 #include "physics.hpp"
 
+using EntityCallback = void (*)(void*);
 struct EntityController
 {
     void* m_entity;
@@ -71,6 +72,9 @@ public:
     [[nodiscard]] EntityController* getController() const { return m_controller; }
     void setEntityController(EntityController* entity);
 
+    [[nodiscard]] EntityCallback getCallback() const { return m_callback; }
+    void setCallback(EntityCallback callback) { m_callback = callback; }
+
 private:
     std::string m_path{};
     Bounds::Transform m_transform{};
@@ -89,6 +93,7 @@ private:
     bool m_discarded{false};
 
     EntityController* m_controller{nullptr};
+    EntityCallback m_callback{nullptr};
 
     std::vector<std::pair<std::size_t, void*>> m_chunks{};
 };

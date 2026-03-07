@@ -22,6 +22,10 @@ Entity::~Entity() { setEntityController(nullptr); }
 
 void Entity::update(const float deltaTime, const JPH::BodyInterface* bodyInterface)
 {
+    if (m_callback != nullptr)
+    {
+        m_callback(this);
+    }
     if (m_controller != nullptr)
     {
         m_controller->update();

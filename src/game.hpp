@@ -14,6 +14,7 @@
 #include "player.hpp"
 #include "assets.hpp"
 #include "pathfinding.hpp"
+#include "enemy.hpp"
 
 class Game final
 {
@@ -48,7 +49,7 @@ private:
     std::unique_ptr<Assets> m_assets{nullptr};
     SoLoud::BiquadResonantFilter m_bqrFilter;
 
-    std::vector<Entity*> m_enemies{};
+    std::vector<Enemy> m_enemies{};
 
     void getEnemies();
     void updateEnemies();

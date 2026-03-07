@@ -5,18 +5,13 @@
 #include "pathfinding.hpp"
 #include "player.hpp"
 
-struct EnemyArgs
+struct Enemy
 {
+    Entity* m_entity;
     Player* m_player{nullptr};
     FlowFieldGenerator* m_flowField{nullptr};
     JPH::BodyInterface* m_bodyInterface{nullptr};
-};
 
-struct Enemy : public EntityController
-{
-    EnemyArgs m_args{};
-
-    Enemy(void* entity);
-    Enemy(void* entity, EnemyArgs args);
+    Enemy(Entity* entity);
     void update();
 };

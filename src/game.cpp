@@ -242,7 +242,6 @@ void Game::update()
 
     m_flowField->setPlayerPos(m_player->get2DPos());
     m_flowField->calculateFlowField(true);
-
     updateEnemies();
 
     // update entities
@@ -463,43 +462,21 @@ void Game::getEnemies()
     {
         if (dynamicEntities[i] != m_player->getEntity())
         {
-            m_enemies.push_back(dynamicEntities[i]);
+            Enemy enemy{dynamicEntities[i]};
+            enemy.m_player = m_player.get();
+            enemy.m_flowField = m_flowField.get();
+            enemy.m_bodyInterface = m_engine.getJoltInstance()->getBodyInterface();
+
+            m_enemies.emplace_back(enemy);
         }
     }
 }
 
 void Game::updateEnemies()
 {
-    constexpr float speed{100000.0f};
-    constexpr float torque{50000.f};
-    JPH::BodyInterface* bodyInterface{m_engine.getJoltInstance()->getBodyInterface()};
     for (std::size_t i{0}; i < m_enemies.size(); ++i)
     {
-        Entity* enemy{m_enemies[i]};
-        PhysicsBody* physicsBody{enemy->getPhysicsBody()};
-
-        const glm::vec3 midPoint{enemy->getGlobalMidpoint()};
-        std::size_t node;
-        bool success{false};
-        m_flowField->getNode({midPoint.x, midPoint.z}, &node, &success, true);
-
-        const TileNode& tile{m_flowField->getTile(node)};
-        glm::vec2 direction{0.0f, 0.0f};
-        if (tile.m_solid || tile.m_direction.length() < 0.01f)
-        {
-            direction = glm::vec2{m_player->getEntity()->getMidpoint().x - midPoint.x,
-                                  m_player->getEntity()->getGlobalMidpoint().z - midPoint.z};
-        }
-        else
-        {
-            direction = tile.m_direction;
-        }
-        direction.x = std::clamp(direction.x, -1.f, 1.f);
-        direction.y = std::clamp(direction.y, -1.f, 1.f);
-        direction = -direction;
-
-        const JPH::BodyID& bodyID{physicsBody->getBodyID()};
-        bodyInterface->AddForceAndTorque(bodyID, {direction.x * speed, 0.f, direction.y * speed},
-                                         {direction.x * torque, 0.f, direction.y * torque});
+        Enemy& enemy{m_enemies[i]};
+        enemy.update();
     }
 }
