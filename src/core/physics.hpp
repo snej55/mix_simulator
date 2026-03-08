@@ -30,8 +30,13 @@
 #include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Collision/CollideShape.h>
 #include <Jolt/Math/Vec3.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Body/MassProperties.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
 
 #include <glm/gtc/quaternion.hpp>
+#include "Jolt/Geometry/IndexedTriangle.h"
+#include "Jolt/Math/Float3.h"
 #define GLM_FORCE_QUAT_DATA_WXYZ
 
 #include <iostream>
@@ -47,6 +52,7 @@ using t_duration = std::chrono::duration<double>;
 #include "engine_types.hpp"
 #include "bounds.hpp"
 #include "util.hpp"
+#include "mesh.hpp"
 
 #define PHYSICS_TIME_STEP 0.0166667
 #define PHYSICS_CONVEX_RADIUS 0.05f
@@ -354,12 +360,129 @@ private:
 
 using PBSettingsModifier = void (*)(JPH::BodyCreationSettings*);
 
-// only simple boxes for now
 class PhysicsBody final
 {
 public:
     PhysicsBody() = default;
 
+    // for static meshes (MUST BE STATIC)
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<MeshN::Vertex>& vertices,
+                const std::vector<unsigned int>& indices, const glm::vec3& rotation, const BodyType bodyType,
+                const glm::vec3& position = {0.0f, 0.0f, 0.0f}, PBSettingsModifier settingsModifier = nullptr,
+                const float density = 1.0f) : m_bodyType{bodyType}
+    {
+        JPH::VertexList joltVertices{};
+        joltVertices.reserve(vertices.size());
+        for (const MeshN::Vertex& v : vertices)
+        {
+            joltVertices.push_back(JPH::Float3{v.position.x, v.position.y, v.position.z});
+        }
+
+        JPH::IndexedTriangleList joltIndices{};
+        joltIndices.reserve(indices.size() / 3);
+        for (std::size_t i{0}; i < indices.size(); i += 3)
+        {
+            joltIndices.emplace_back(indices[i], indices[i + 1], indices[i + 2]);
+        }
+
+        JPH::MeshShapeSettings shapeSettings{std::move(joltVertices), std::move(joltIndices)};
+        shapeSettings.mActiveEdgeCosThresholdAngle = 0.999f;
+        JPH::Shape::ShapeResult result{shapeSettings.Create()};
+
+        if (result.HasError())
+        {
+            Util::beginError();
+            std::cout << "PHYSICS_BODY::ERROR: Failed to create mesh shape from " << vertices.size() << " vertices and "
+                      << indices.size() << " indices.";
+            Util::endError();
+            return;
+        }
+
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles(Util::convertVectorJolt(rotation))};
+        JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
+
+        JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, JPH::EMotionType::Static,
+                                           ObjectLayers::NON_MOVING};
+
+        if (settingsModifier != nullptr)
+        {
+            settingsModifier(&settings);
+        }
+
+        m_bodyID = bodyInterface->CreateAndAddBody(settings, JPH::EActivation::DontActivate);
+        m_settings = settings;
+    }
+
+    // convex hull
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<MeshN::Vertex>& vertices,
+                const glm::vec3& rotation, const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
+                PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
+    {
+        std::vector<JPH::Vec3> joltVertices{};
+        joltVertices.reserve(vertices.size());
+        for (const MeshN::Vertex& v : vertices)
+        {
+            joltVertices.emplace_back(Util::convertVectorJolt(v.position));
+        }
+
+        JPH::ConvexHullShapeSettings shapeSettings;
+        shapeSettings.mPoints.assign(joltVertices.begin(), joltVertices.end());
+        shapeSettings.mMaxConvexRadius = PHYSICS_CONVEX_RADIUS;
+        JPH::Shape::ShapeResult result{shapeSettings.Create()};
+
+        if (result.HasError())
+        {
+            Util::beginError();
+            std::cout << "PHYSICS_BODY::ERROR: Failed to create convex hull from " << vertices.size() << " vertices";
+            Util::endError();
+            return;
+        }
+
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
+        JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
+        JPH::Vec3 center{result.Get()->GetCenterOfMass()};
+        bodyPos += joltRotation * center; // hope this works :)
+
+        JPH::EMotionType motionType;
+        JPH::ObjectLayer layer;
+
+        switch (bodyType)
+        {
+        case BodyType::STATIC:
+            motionType = JPH::EMotionType::Static;
+            layer = ObjectLayers::NON_MOVING;
+            break;
+        case BodyType::DYNAMIC:
+            motionType = JPH::EMotionType::Dynamic;
+            layer = ObjectLayers::MOVING;
+            break;
+        case BodyType::KINEMATIC:
+            motionType = JPH::EMotionType::Kinematic;
+            layer = ObjectLayers::MOVING;
+            break;
+        }
+
+        JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
+        JPH::Ref<JPH::Shape> shape{result.Get()};
+        JPH::MassProperties massProperties{shape->GetMassProperties()};
+        massProperties.ScaleToMass(density);
+        settings.mMassPropertiesOverride = massProperties;
+        settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+
+        if (settingsModifier != nullptr)
+        {
+            settingsModifier(&settings);
+        }
+
+        JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
+                                                                             : JPH::EActivation::Activate};
+
+        m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
+        m_settings = settings;
+        m_convexHull = true;
+    }
+
+    // simple AABB
     PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const glm::vec3& rotation,
                 const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
                 PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
@@ -439,11 +562,14 @@ public:
     void setBodyID(const JPH::BodyID id) { m_bodyID = id; }
     [[nodiscard]] BodyType getBodyType() const { return m_bodyType; }
     void setBodyType(const BodyType bodyType) { m_bodyType = bodyType; }
+    [[nodiscard]] bool isSimple() const { return !m_convexHull; }
 
 private:
     BodyType m_bodyType;
     JPH::BodyID m_bodyID;
     JPH::BodyCreationSettings m_settings;
+
+    bool m_convexHull{false};
 };
 
 class JoltInstance final : public EngineObject
