@@ -15,6 +15,7 @@ public:
     ~ShardBody() = default;
 
     bool init();
+    void explode(float force);
 
     [[nodiscard]] Model* getModel() const { return m_model; }
     [[nodiscard]] Entity* getEntity() const { return m_entity; }

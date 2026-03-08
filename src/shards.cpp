@@ -1,6 +1,7 @@
 // Created by Jens Kromdijk 08/03/2026
 
 #include "shards.hpp"
+#include "core/bounds.hpp"
 #include "core/physics.hpp"
 
 ShardBody::ShardBody(Model* model, Entity* entity, JPH::BodyInterface* bodyInterface) :
@@ -32,6 +33,12 @@ bool ShardBody::init()
     }
 
     return true;
+}
+
+void ShardBody::explode(const float force)
+{
+    const Bounds::Transform& transform{m_entity->getTransform()};
+    const glm::vec3 forceCenter{m_entity->getGlobalMidpoint()};
 }
 
 std::pair<Mesh*, ShapeLoader*> ShardBody::getShard(const std::size_t idx)

@@ -538,6 +538,55 @@ public:
         m_settings = settings;
     }
 
+    PhysicsBody(const JPH::Shape::ShapeResult* result, JPH::BodyInterface* bodyInterface, const glm::vec3& rotation,
+                const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
+                PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
+    {
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles(Util::convertVectorJolt(glm::radians(rotation)))};
+        JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
+        JPH::Vec3 center{result->Get()->GetCenterOfMass()};
+        m_centerOffset = center;
+        bodyPos += joltRotation * center;
+
+        JPH::EMotionType motionType;
+        JPH::ObjectLayer layer;
+
+        switch (bodyType)
+        {
+        case BodyType::STATIC:
+            motionType = JPH::EMotionType::Static;
+            layer = ObjectLayers::NON_MOVING;
+            break;
+        case BodyType::DYNAMIC:
+            motionType = JPH::EMotionType::Dynamic;
+            layer = ObjectLayers::MOVING;
+            break;
+        case BodyType::KINEMATIC:
+            motionType = JPH::EMotionType::Kinematic;
+            layer = ObjectLayers::MOVING;
+            break;
+        }
+
+        JPH::BodyCreationSettings settings{result->Get(), bodyPos, joltRotation, motionType, layer};
+        JPH::Ref<JPH::Shape> shape{result->Get()};
+        JPH::MassProperties massProperties{shape->GetMassProperties()};
+        massProperties.ScaleToMass(massProperties.mMass * density);
+        settings.mMassPropertiesOverride = massProperties;
+        settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+
+        if (settingsModifier != nullptr)
+        {
+            settingsModifier(&settings);
+        }
+
+        JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
+                                                                             : JPH::EActivation::Activate};
+
+        m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
+        m_settings = settings;
+        m_convexHull = true;
+    }
+
     ~PhysicsBody() = default;
 
     void syncTransform(Bounds::Transform& transform, const JPH::BodyInterface* bodyInterface) const

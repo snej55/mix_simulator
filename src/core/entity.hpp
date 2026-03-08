@@ -75,6 +75,9 @@ public:
     [[nodiscard]] EntityCallback getCallback() const { return m_callback; }
     void setCallback(EntityCallback callback) { m_callback = callback; }
 
+    void setKill(const bool val) { m_kill = val; }
+    [[nodiscard]] bool getKill() const { return m_kill; }
+
 private:
     std::string m_path{};
     Bounds::Transform m_transform{};
@@ -91,6 +94,8 @@ private:
     bool m_dirty{false};
     bool m_rendered{false};
     bool m_discarded{false};
+
+    bool m_kill{false};
 
     EntityController* m_controller{nullptr};
     EntityCallback m_callback{nullptr};

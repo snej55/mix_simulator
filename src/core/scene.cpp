@@ -115,18 +115,12 @@ void SceneChunk::addEntity(Entity* entity)
 void SceneChunk::init()
 {
     m_aabb = std::make_unique<Bounds::AABB>(
-        Bounds::AABB{
-            m_pos,
-            {
-                m_pos.x + SpatialHashing::CELL_SIZE, m_pos.y + SpatialHashing::CELL_SIZE,
-                m_pos.z + SpatialHashing::CELL_SIZE
-            }
-        });
+        Bounds::AABB{m_pos,
+                     {m_pos.x + SpatialHashing::CELL_SIZE, m_pos.y + SpatialHashing::CELL_SIZE,
+                      m_pos.z + SpatialHashing::CELL_SIZE}});
 }
 
-Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine(engine)
-{
-}
+Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine(engine) {}
 
 Scene::~Scene() { free(); }
 
@@ -186,18 +180,12 @@ bool Scene::init(const char* scenePath)
         std::cout << "SCENE::INIT: Loading entities for scene...\n";
         for (const auto& entityEntry : level["objects"])
         {
-            const glm::vec3 position{
-                entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
-                entityEntry["position"][2].get<float>()
-            };
-            const glm::vec3 scale{
-                entityEntry["scale"][0].get<float>(), entityEntry["scale"][1].get<float>(),
-                entityEntry["scale"][2].get<float>()
-            };
-            const glm::vec3 rotation{
-                entityEntry["rotation"][0].get<float>(), entityEntry["rotation"][1].get<float>(),
-                entityEntry["rotation"][2].get<float>()
-            };
+            const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
+                                     entityEntry["position"][2].get<float>()};
+            const glm::vec3 scale{entityEntry["scale"][0].get<float>(), entityEntry["scale"][1].get<float>(),
+                                  entityEntry["scale"][2].get<float>()};
+            const glm::vec3 rotation{entityEntry["rotation"][0].get<float>(), entityEntry["rotation"][1].get<float>(),
+                                     entityEntry["rotation"][2].get<float>()};
             const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
             const bool animated{entityEntry.value("animated", false)};
 
@@ -225,15 +213,11 @@ bool Scene::init(const char* scenePath)
         std::cout << "SCENE::INIT Adding point lights to scene..." << std::endl;
         for (const auto& pointLightEntry : level["pointLights"])
         {
-            const glm::vec3 position{
-                pointLightEntry["position"][0].get<float>(),
-                pointLightEntry["position"][1].get<float>(),
-                pointLightEntry["position"][2].get<float>()
-            };
-            const glm::vec3 color{
-                pointLightEntry["color"][0].get<float>(), pointLightEntry["color"][1].get<float>(),
-                pointLightEntry["color"][2].get<float>()
-            };
+            const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
+                                     pointLightEntry["position"][1].get<float>(),
+                                     pointLightEntry["position"][2].get<float>()};
+            const glm::vec3 color{pointLightEntry["color"][0].get<float>(), pointLightEntry["color"][1].get<float>(),
+                                  pointLightEntry["color"][2].get<float>()};
             const float radius{pointLightEntry["radius"].get<float>()};
             addPointLight(position, color, radius);
         }
@@ -249,9 +233,9 @@ bool Scene::init(const char* scenePath)
 
     calculateLevelDimensions();
     std::cout << "SCENE::INIT::LEVEL_EXTENTS: {x: " << m_levelExtents.x << ", y: " << m_levelExtents.y
-        << ", z: " << m_levelExtents.z << "}" << std::endl;
+              << ", z: " << m_levelExtents.z << "}" << std::endl;
     std::cout << "SCENE::INIT::LEVEL_CENTER: {x: " << m_levelCenter.x << ", y: " << m_levelCenter.y
-        << ", z: " << m_levelCenter.z << "}" << std::endl;
+              << ", z: " << m_levelCenter.z << "}" << std::endl;
 
     sceneFile.close();
     return true;
@@ -319,7 +303,10 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
             discardChunks.emplace_back(chunkPtr);
         }
         entity->eraseChunks();
-        addEntity(entity);
+        if (!entity->getKill())
+        {
+            addEntity(entity);
+        }
     }
 
     for (std::size_t i{0}; i < discardChunks.size(); ++i)
@@ -370,7 +357,7 @@ void Scene::addEntity(const char* modelPath, const Bounds::Transform& transform,
     {
         Util::beginError();
         std::cout << "SCENE::ADD_ENTITY::ERROR: Model at path `" << modelPath
-            << "` does not exist! Ensure it is preloaded beforehand.";
+                  << "` does not exist! Ensure it is preloaded beforehand.";
         Util::endError();
         return;
     }
@@ -391,7 +378,7 @@ void Scene::addEntity(Entity* entity)
         SpatialHashing::WORLD_CHUNK_LIMIT * SpatialHashing::CELL_SIZE)
     {
         std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
-            << " chunks away from origin)" << std::endl;
+                  << " chunks away from origin)" << std::endl;
         return;
     }
 
@@ -400,28 +387,23 @@ void Scene::addEntity(Entity* entity)
 
     constexpr std::array<glm::vec3, 27> neighbourOffsets{
         glm::vec3{-1.f, -1.f, -1.f}, glm::vec3{0.f, -1.f, -1.f}, glm::vec3{1.f, -1.f, -1.f}, glm::vec3{-1.f, 0.f, -1.f},
-        glm::vec3{0.f, 0.f, -1.f}, glm::vec3{1.f, 0.f, -1.f}, glm::vec3{-1.f, 1.f, -1.f}, glm::vec3{0.f, 1.f, -1.f},
-        glm::vec3{1.f, 1.f, -1.f}, glm::vec3{-1.f, -1.f, 0.f}, glm::vec3{0.f, -1.f, 0.f}, glm::vec3{1.f, -1.f, 0.f},
-        glm::vec3{-1.f, 0.f, 0.f}, glm::vec3{0.f, 0.f, 0.f}, glm::vec3{1.f, 0.f, 0.f}, glm::vec3{-1.f, 1.f, 0.f},
-        glm::vec3{0.f, 1.f, 0.f}, glm::vec3{1.f, 1.f, 0.f}, glm::vec3{-1.f, -1.f, 1.f}, glm::vec3{0.f, -1.f, 1.f},
-        glm::vec3{1.f, -1.f, 1.f}, glm::vec3{-1.f, 0.f, 1.f}, glm::vec3{0.f, 0.f, 1.f}, glm::vec3{1.f, 0.f, 1.f},
-        glm::vec3{-1.f, 1.f, 1.f}, glm::vec3{0.f, 1.f, 1.f}, glm::vec3{1.f, 1.f, 1.f}
-    };
+        glm::vec3{0.f, 0.f, -1.f},   glm::vec3{1.f, 0.f, -1.f},  glm::vec3{-1.f, 1.f, -1.f}, glm::vec3{0.f, 1.f, -1.f},
+        glm::vec3{1.f, 1.f, -1.f},   glm::vec3{-1.f, -1.f, 0.f}, glm::vec3{0.f, -1.f, 0.f},  glm::vec3{1.f, -1.f, 0.f},
+        glm::vec3{-1.f, 0.f, 0.f},   glm::vec3{0.f, 0.f, 0.f},   glm::vec3{1.f, 0.f, 0.f},   glm::vec3{-1.f, 1.f, 0.f},
+        glm::vec3{0.f, 1.f, 0.f},    glm::vec3{1.f, 1.f, 0.f},   glm::vec3{-1.f, -1.f, 1.f}, glm::vec3{0.f, -1.f, 1.f},
+        glm::vec3{1.f, -1.f, 1.f},   glm::vec3{-1.f, 0.f, 1.f},  glm::vec3{0.f, 0.f, 1.f},   glm::vec3{1.f, 0.f, 1.f},
+        glm::vec3{-1.f, 1.f, 1.f},   glm::vec3{0.f, 1.f, 1.f},   glm::vec3{1.f, 1.f, 1.f}};
 
     for (const glm::vec3& offset : neighbourOffsets)
     {
-        const SpatialHashing::ChunkKey neighbourKey{
-            key.x + static_cast<long long>(offset.x),
-            key.y + static_cast<long long>(offset.y),
-            key.z + static_cast<long long>(offset.z)
-        };
+        const SpatialHashing::ChunkKey neighbourKey{key.x + static_cast<long long>(offset.x),
+                                                    key.y + static_cast<long long>(offset.y),
+                                                    key.z + static_cast<long long>(offset.z)};
         if (m_chunks.find(neighbourKey) == m_chunks.end())
         {
-            glm::vec3 chunkPos{
-                static_cast<float>(neighbourKey.x) * SpatialHashing::CELL_SIZE,
-                static_cast<float>(neighbourKey.y) * SpatialHashing::CELL_SIZE,
-                static_cast<float>(neighbourKey.z) * SpatialHashing::CELL_SIZE
-            };
+            glm::vec3 chunkPos{static_cast<float>(neighbourKey.x) * SpatialHashing::CELL_SIZE,
+                               static_cast<float>(neighbourKey.y) * SpatialHashing::CELL_SIZE,
+                               static_cast<float>(neighbourKey.z) * SpatialHashing::CELL_SIZE};
             m_chunks[neighbourKey] = std::make_unique<SceneChunk>(chunkPos);
         }
         if (m_chunks[neighbourKey]->getAABB()->collideAABB(entity->getGlobalAABB()))
@@ -541,8 +523,8 @@ void Scene::getDynamicEntities(std::vector<Entity*>& entities)
     {
         for (Entity* entity : chunkPtr->getEntities())
         {
-            if (!entity->getStatic() && std::find(uniqueEntities.begin(), uniqueEntities.end(), entity) ==
-                uniqueEntities.end())
+            if (!entity->getStatic() &&
+                std::find(uniqueEntities.begin(), uniqueEntities.end(), entity) == uniqueEntities.end())
             {
                 entities.emplace_back(entity);
                 uniqueEntities.emplace_back(entity);
