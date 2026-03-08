@@ -86,6 +86,7 @@ cd build
 - [X] Make some music
 - [X] Add physics sfx using jolt contact listeners
 - [ ] Add sliding sfx
+- [ ] Add different sfx for different materials
 - [X] Generate flow field quadtree
 - [ ] Paralax mapping with tesselation shader?
 - [X] Quad tree generation
@@ -94,9 +95,11 @@ cd build
 - [ ] Generate shards in blender
 - [ ] Preload jolt convex hulls
 - [ ] Shatter logic
-- [ ] Test shadows with complex shapes
+- [X] Test shadows with complex shapes
 - [X] Flow field generation
 - [ ] Clean up data folder
+- [ ] Convex hull preloading (export jolt bodies as binaries)
+- [ ] Particle vfx
 
 ## Blender items:
 
@@ -107,6 +110,7 @@ cd build
 - [ ] Pestle
 - [ ] Anaphora
 - [ ] Ewer
+- [ ] Player character (rubber duck)
 
 ## Debugging/Release todo:
 - [ ] Polish shadows

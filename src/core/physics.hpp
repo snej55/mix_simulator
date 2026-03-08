@@ -33,10 +33,13 @@
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Body/MassProperties.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Geometry/IndexedTriangle.h>
+#include <Jolt/Math/Float3.h>
+#include <Jolt/Core/StreamWrapper.h>
 
+#include <fstream>
 #include <glm/gtc/quaternion.hpp>
-#include "Jolt/Geometry/IndexedTriangle.h"
-#include "Jolt/Math/Float3.h"
+#include <ios>
 #define GLM_FORCE_QUAT_DATA_WXYZ
 
 #include <iostream>
@@ -629,6 +632,8 @@ class ShapeLoader
 {
 public:
     // create convex hull
+    ShapeLoader() = default;
+    ShapeLoader(const char* path);
     explicit ShapeLoader(const std::vector<glm::vec3>& vertices)
     {
         std::vector<JPH::Vec3> joltVertices{};
@@ -648,6 +653,20 @@ public:
             Util::beginError();
             std::cout << "SHAPE_LOADER::ERROR: Failed to create convex hull from " << vertices.size() << " vertices";
             Util::endError();
+        }
+    }
+
+    void exportFile(const char* path)
+    {
+        assert(!m_result.HasError());
+
+        JPH::RefConst<JPH::Shape> shape{m_result.Get()};
+
+        std::ofstream file{path, std::ios::binary};
+        if (file.is_open())
+        {
+            JPH::StreamOutWrapper stream{file};
+            // shape->SaveWithChildren;
         }
     }
 

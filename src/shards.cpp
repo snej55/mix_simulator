@@ -11,8 +11,10 @@ ShardBody::ShardBody(Model* model, Entity* entity, JPH::BodyInterface* bodyInter
 
 bool ShardBody::init()
 {
+    std::cout << "Initializing shard..." << std::endl;
     const std::vector<Mesh*>& meshes1{m_model->getOpaqueMeshes()};
     const std::vector<Mesh*>& meshes2{m_model->getTransparentMeshes()};
+    std::cout << meshes1.size() << " " << meshes2.size() << std::endl;
     m_meshes.insert(m_meshes.end(), meshes1.begin(), meshes1.end());
     m_meshes.insert(m_meshes.end(), meshes2.begin(), meshes2.end());
     m_hulls.reserve(m_meshes.size());
@@ -31,6 +33,7 @@ bool ShardBody::init()
 
         m_hulls.push_back(ShapeLoader{vertices});
     }
+    std::cout << "Got " << m_hulls.size() << ":" << m_meshes.size() << " shards from " << m_model->getName() << "\n";
 
     return true;
 }

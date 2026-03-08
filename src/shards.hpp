@@ -10,7 +10,6 @@
 class ShardBody
 {
 public:
-    ShardBody(Model* model, Entity* entity);
     ShardBody(Model* model, Entity* entity, JPH::BodyInterface* bodyInterface);
     ~ShardBody() = default;
 

@@ -4,7 +4,6 @@
 #include <GLFW/glfw3.h>
 #include <soloud_biquadresonantfilter.h>
 
-#include "constants.hpp"
 #include "core/audio.hpp"
 #include "core/bounds.hpp"
 #include "core/engine.hpp"
@@ -16,8 +15,10 @@
 #include "core/texture.hpp"
 #include "core/ui.hpp"
 #include "core/util.hpp"
-#include "pathfinding.hpp"
 
+#include "pathfinding.hpp"
+#include "constants.hpp"
+#include "shards.hpp"
 #include "game.hpp"
 
 #include <memory>
@@ -75,6 +76,11 @@ bool Game::init()
     m_flowField->init(m_scene.get());
 
     getEnemies();
+
+    m_engine.addModel("mug_shards", "data/models/mug_shards.glb");
+    ShardBody shard{m_engine.getModel("mug_shards"), m_player->getEntity(),
+                    m_engine.getJoltInstance()->getBodyInterface()};
+    shard.init();
 
     return true;
 }
