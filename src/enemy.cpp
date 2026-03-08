@@ -30,8 +30,8 @@ void Enemy::update()
     direction.y = std::clamp(direction.y, -1.f, 1.f);
     direction = -direction; // dunno why it needs to be negative, just works like that
 
-    constexpr float speed{100000.0f};
-    constexpr float torque{50000.f};
+    constexpr float speed{4.0f};
+    constexpr float torque{1.f};
     m_bodyInterface->AddForceAndTorque(bodyID, {direction.x * speed, 0.f, direction.y * speed},
                                        {direction.x * torque, 0.f, direction.y * torque});
 }

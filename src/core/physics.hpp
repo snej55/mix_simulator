@@ -52,10 +52,9 @@ using t_duration = std::chrono::duration<double>;
 #include "engine_types.hpp"
 #include "bounds.hpp"
 #include "util.hpp"
-#include "mesh.hpp"
 
 #define PHYSICS_TIME_STEP 0.0166667
-#define PHYSICS_CONVEX_RADIUS 0.05f
+#define PHYSICS_CONVEX_RADIUS 0.005f
 // #define PHYSICS_DEBUG_LOG
 
 enum class BodyType
@@ -366,16 +365,16 @@ public:
     PhysicsBody() = default;
 
     // for static meshes (MUST BE STATIC)
-    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<MeshN::Vertex>& vertices,
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<glm::vec3>& vertices,
                 const std::vector<unsigned int>& indices, const glm::vec3& rotation, const BodyType bodyType,
                 const glm::vec3& position = {0.0f, 0.0f, 0.0f}, PBSettingsModifier settingsModifier = nullptr,
                 const float density = 1.0f) : m_bodyType{bodyType}
     {
         JPH::VertexList joltVertices{};
         joltVertices.reserve(vertices.size());
-        for (const MeshN::Vertex& v : vertices)
+        for (const glm::vec3& v : vertices)
         {
-            joltVertices.push_back(JPH::Float3{v.position.x, v.position.y, v.position.z});
+            joltVertices.push_back(JPH::Float3{v.x, v.y, v.z});
         }
 
         JPH::IndexedTriangleList joltIndices{};
@@ -414,15 +413,16 @@ public:
     }
 
     // convex hull
-    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<MeshN::Vertex>& vertices,
-                const glm::vec3& rotation, const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
-                PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox,
+                const std::vector<glm::vec3>& vertices, const glm::vec3& rotation, const BodyType bodyType,
+                const glm::vec3& position = {0.0f, 0.0f, 0.0f}, PBSettingsModifier settingsModifier = nullptr,
+                const float density = 1.0f) : m_bodyType{bodyType}
     {
         std::vector<JPH::Vec3> joltVertices{};
         joltVertices.reserve(vertices.size());
-        for (const MeshN::Vertex& v : vertices)
+        for (const glm::vec3& v : vertices)
         {
-            joltVertices.emplace_back(Util::convertVectorJolt(v.position));
+            joltVertices.emplace_back(Util::convertVectorJolt(v));
         }
 
         JPH::ConvexHullShapeSettings shapeSettings;
@@ -438,10 +438,11 @@ public:
             return;
         }
 
-        JPH::Quat joltRotation{JPH::Quat::sEulerAngles({rotation.x, rotation.y, rotation.z})};
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles(Util::convertVectorJolt(glm::radians(rotation)))};
         JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
         JPH::Vec3 center{result.Get()->GetCenterOfMass()};
-        bodyPos += joltRotation * center; // hope this works :)
+        m_centerOffset = center;
+        bodyPos += joltRotation * center;
 
         JPH::EMotionType motionType;
         JPH::ObjectLayer layer;
@@ -465,7 +466,7 @@ public:
         JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
         JPH::Ref<JPH::Shape> shape{result.Get()};
         JPH::MassProperties massProperties{shape->GetMassProperties()};
-        massProperties.ScaleToMass(density);
+        massProperties.ScaleToMass(massProperties.mMass * density);
         settings.mMassPropertiesOverride = massProperties;
         settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
 
@@ -550,8 +551,10 @@ public:
         JPH::Quat jRot;
         bodyInterface->GetPositionAndRotation(m_bodyID, jPos, jRot);
 
-        transform.setLocalPosition(
-            {static_cast<float>(jPos.GetX()), static_cast<float>(jPos.GetY()), static_cast<float>(jPos.GetZ())});
+        const JPH::Vec3 rotateOffset{jRot * m_centerOffset};
+        transform.setLocalPosition({static_cast<float>(jPos.GetX() - rotateOffset.GetX()),
+                                    static_cast<float>(jPos.GetY() - rotateOffset.GetY()),
+                                    static_cast<float>(jPos.GetZ() - rotateOffset.GetZ())});
 
         glm::quat glmQuat{jRot.GetW(), jRot.GetX(), jRot.GetY(), jRot.GetZ()};
         glm::vec3 angles{glm::eulerAngles(glmQuat)};
@@ -570,6 +573,7 @@ private:
     JPH::BodyCreationSettings m_settings;
 
     bool m_convexHull{false};
+    JPH::Vec3 m_centerOffset{};
 };
 
 class JoltInstance final : public EngineObject

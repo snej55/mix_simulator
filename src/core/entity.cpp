@@ -78,7 +78,7 @@ glm::vec3 Entity::getGlobalMidpoint() const
     return glm::vec3(globalCenter);
 }
 
-void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface)
+void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface, const bool simple)
 {
     if (m_physicsBody.get() != nullptr)
     {
@@ -87,8 +87,37 @@ void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface)
     }
 
     Bounds::AABB localAABB{*m_BV};
-    m_physicsBody = std::make_unique<PhysicsBody>(bodyInterface, localAABB, m_transform.getLocalRotation(), m_bodyType,
-                                                  m_transform.getGlobalPosition() + m_transform.getPivotOffset());
+    if (simple)
+    {
+        m_physicsBody =
+            std::make_unique<PhysicsBody>(bodyInterface, localAABB, m_transform.getLocalRotation(), m_bodyType,
+                                          m_transform.getGlobalPosition() + m_transform.getPivotOffset());
+    }
+    else
+    {
+        std::vector<glm::vec3> vertices{};
+        const glm::vec3 pivot{m_transform.getPivotOffset()};
+        const glm::vec3 scale{m_transform.getLocalScale()};
+        for (const Mesh* mesh : m_model->getOpaqueMeshes())
+        {
+            for (const MeshN::Vertex& v : mesh->getVertices())
+            {
+                vertices.push_back((v.position + pivot) * scale);
+            }
+        }
+        for (const Mesh* mesh : m_model->getTransparentMeshes())
+        {
+            for (const MeshN::Vertex& v : mesh->getVertices())
+            {
+                vertices.push_back((v.position + pivot) * scale);
+            }
+        }
+
+        // do a convex hull
+        m_physicsBody =
+            std::make_unique<PhysicsBody>(bodyInterface, localAABB, vertices, m_transform.getLocalRotation(),
+                                          m_bodyType, m_transform.getGlobalPosition() + m_transform.getPivotOffset());
+    }
 }
 
 void Entity::setPhysicsBody(PhysicsBody& physicsBody) { m_physicsBody = std::make_unique<PhysicsBody>(physicsBody); }

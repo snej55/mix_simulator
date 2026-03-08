@@ -61,7 +61,7 @@ public:
 
     [[nodiscard]] const BodyType& getBodyType() const { return m_bodyType; }
     [[nodiscard]] PhysicsBody* getPhysicsBody() const { return m_physicsBody.get(); }
-    void initPhysicsBody(JPH::BodyInterface* bodyInterface);
+    void initPhysicsBody(JPH::BodyInterface* bodyInterface, bool simple = false);
     void setPhysicsBody(PhysicsBody& physicsBody);
 
     // keep track of which chunks this entity belongs to
