@@ -115,8 +115,8 @@ void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface, const bool simpl
 
         // do a convex hull
         m_physicsBody =
-            std::make_unique<PhysicsBody>(bodyInterface, localAABB, vertices, m_transform.getLocalRotation(),
-                                          m_bodyType, m_transform.getGlobalPosition() + m_transform.getPivotOffset());
+            std::make_unique<PhysicsBody>(bodyInterface, vertices, m_transform.getLocalRotation(), m_bodyType,
+                                          m_transform.getGlobalPosition() + m_transform.getPivotOffset());
     }
 }
 

@@ -83,7 +83,6 @@ void Player::setupPhysicsBody(JPH::BodyInterface* bodyInterface)
         }
     }
     PhysicsBody physicsBody{bodyInterface,
-                            *m_entity->getBoundingVolume(),
                             vertices,
                             m_entity->getTransform().getLocalRotation(),
                             m_entity->getBodyType(),

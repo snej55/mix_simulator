@@ -413,10 +413,9 @@ public:
     }
 
     // convex hull
-    PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox,
-                const std::vector<glm::vec3>& vertices, const glm::vec3& rotation, const BodyType bodyType,
-                const glm::vec3& position = {0.0f, 0.0f, 0.0f}, PBSettingsModifier settingsModifier = nullptr,
-                const float density = 1.0f) : m_bodyType{bodyType}
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<glm::vec3>& vertices, const glm::vec3& rotation,
+                const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
+                PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
     {
         std::vector<JPH::Vec3> joltVertices{};
         joltVertices.reserve(vertices.size());
@@ -574,6 +573,39 @@ private:
 
     bool m_convexHull{false};
     JPH::Vec3 m_centerOffset{};
+};
+
+// physics body that isn't added to body interface immediately (stored for later)
+class ShapeLoader
+{
+public:
+    // create convex hull
+    explicit ShapeLoader(const std::vector<glm::vec3>& vertices)
+    {
+        std::vector<JPH::Vec3> joltVertices{};
+        joltVertices.reserve(vertices.size());
+        for (const glm::vec3& v : vertices)
+        {
+            joltVertices.emplace_back(Util::convertVectorJolt(v));
+        }
+
+        JPH::ConvexHullShapeSettings shapeSettings;
+        shapeSettings.mPoints.assign(joltVertices.begin(), joltVertices.end());
+        shapeSettings.mMaxConvexRadius = PHYSICS_CONVEX_RADIUS;
+        m_result = shapeSettings.Create();
+
+        if (m_result.HasError())
+        {
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to create convex hull from " << vertices.size() << " vertices";
+            Util::endError();
+        }
+    }
+
+    [[nodiscard]] JPH::Shape::ShapeResult* getResult() { return &m_result; }
+
+private:
+    JPH::Shape::ShapeResult m_result;
 };
 
 class JoltInstance final : public EngineObject
