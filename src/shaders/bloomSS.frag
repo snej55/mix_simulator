@@ -12,7 +12,7 @@ uniform sampler2D bloomBlur;
 uniform sampler2D dirtMask;
 uniform int useDirtMask = 0;
 
-uniform float bloomStrength = 0.04f;
+uniform float bloomStrength = 0.03f;
 uniform float dirtMaskStrength = 20.0f;
 
 uniform int useACES = 1;

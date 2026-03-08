@@ -5,7 +5,6 @@ import pyray as ray
 WIDTH, HEIGHT = 2000, 1900
 POINT_LIGHT_SIZE = 1
 
-
 class Editor:
     def __init__(self):
         ray.init_window(WIDTH, HEIGHT, "Level Editor")
