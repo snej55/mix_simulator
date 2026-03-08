@@ -15,8 +15,8 @@ Player::Player(const glm::vec3& pos, const Model* model)
 
 void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
 {
-    constexpr float speed{200000.f};
-    constexpr float torque{100000.f};
+    constexpr float speed{50000.f};
+    constexpr float torque{20000.f};
 
     const glm::vec3 front{camera->getFront()};
     const glm::vec3 right{camera->getRight()};
@@ -63,13 +63,33 @@ void Player::setupPhysicsBody(JPH::BodyInterface* bodyInterface)
                                                              settings->mAngularDamping = 0.5f;
                                                              settings->mFriction = 0.8f;
                                                          }};
+
+    // create convex hull
+    std::vector<glm::vec3> vertices{};
+    const glm::vec3 pivot{m_entity->getTransform().getPivotOffset()};
+    const glm::vec3 scale{m_entity->getTransform().getLocalScale()};
+    for (const Mesh* mesh : m_entity->getModel()->getOpaqueMeshes())
+    {
+        for (const MeshN::Vertex& v : mesh->getVertices())
+        {
+            vertices.push_back((v.position + pivot) * scale);
+        }
+    }
+    for (const Mesh* mesh : m_entity->getModel()->getTransparentMeshes())
+    {
+        for (const MeshN::Vertex& v : mesh->getVertices())
+        {
+            vertices.push_back((v.position + pivot) * scale);
+        }
+    }
     PhysicsBody physicsBody{bodyInterface,
                             *m_entity->getBoundingVolume(),
+                            vertices,
                             m_entity->getTransform().getLocalRotation(),
                             m_entity->getBodyType(),
                             m_entity->getTransform().getGlobalPosition() + m_entity->getTransform().getPivotOffset(),
                             settingsModifier,
-                            0.1f};
+                            0.2f};
     m_entity->setPhysicsBody(physicsBody);
     std::cout << "PLAYER::SETUP_PHYSICS_BODY: Added custom body settings!" << std::endl;
 }
