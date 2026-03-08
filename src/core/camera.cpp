@@ -27,15 +27,18 @@ void Camera::followPlayer(const glm::vec3& position, JPH::BodyID playerID, void*
     joltInstance->getPhysicsSystem()->GetNarrowPhaseQuery().CastRay(JPH::RRayCast{ray}, JPH::RayCastSettings{},
                                                                     collector, {}, layerFilter, bodyFilter);
 
+    float focalLength{1.0f};
     if (collector.HadHit())
     {
-        m_position = focalPoint +
-            (glm::vec3{direction.GetX(), direction.GetY(), direction.GetZ()} * collector.mHit.mFraction * 0.9f);
+        focalLength = collector.mHit.mFraction;
+        m_position =
+            focalPoint + (glm::vec3{direction.GetX(), direction.GetY(), direction.GetZ()} * m_focalLength * 0.9f);
     }
     else
     {
         m_position = followPos;
     }
+    m_focalLength += (focalLength - m_focalLength) * 0.05f * dt;
 
     m_front = glm::normalize(focalPoint - m_position);
     m_right = glm::normalize(glm::cross(m_front, m_worldUp));
