@@ -4,6 +4,7 @@
 #include "core/bounds.hpp"
 #include "core/physics.hpp"
 #include "core/engine.hpp"
+#include "core/util.hpp"
 
 #include <filesystem>
 
@@ -43,25 +44,36 @@ void ShardBody::init(void* engine)
     for (std::size_t i{0}; i < m_models.size(); ++i)
     {
         const Model* model{m_models[i]};
-
-        std::vector<glm::vec3> vertices{};
-        for (const Mesh* mesh : model->getOpaqueMeshes())
+        const std::string cachePath{"data/cache/" + m_name + std::to_string(i) + ".bin"};
+        ShapeLoader shapeLoader;
+        if (!Util::fileExists(cachePath))
         {
-            for (const MeshN::Vertex& v : mesh->getVertices())
+            std::vector<glm::vec3> vertices{};
+            for (const Mesh* mesh : model->getOpaqueMeshes())
             {
-                vertices.emplace_back((v.position + pivot) * scale);
+                for (const MeshN::Vertex& v : mesh->getVertices())
+                {
+                    vertices.emplace_back((v.position + pivot) * scale);
+                }
             }
-        }
 
-        for (const Mesh* mesh : model->getTransparentMeshes())
+            for (const Mesh* mesh : model->getTransparentMeshes())
+            {
+                for (const MeshN::Vertex& v : mesh->getVertices())
+                {
+                    vertices.emplace_back((v.position + pivot) * scale);
+                }
+            }
+
+            shapeLoader = ShapeLoader{vertices};
+            shapeLoader.exportFile(cachePath.c_str());
+        }
+        else
         {
-            for (const MeshN::Vertex& v : mesh->getVertices())
-            {
-                vertices.emplace_back((v.position + pivot) * scale);
-            }
+            shapeLoader = ShapeLoader{};
+            shapeLoader.loadFile(cachePath.c_str());
         }
-
-        m_hulls.emplace_back(ShapeLoader{vertices});
+        m_hulls.emplace_back(shapeLoader);
     }
 }
 

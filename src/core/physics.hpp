@@ -541,6 +541,7 @@ public:
         m_settings = settings;
     }
 
+    // create shape from convex hull shape result (in order to use ShapeLoader)
     PhysicsBody(const JPH::Shape::ShapeResult* result, JPH::BodyInterface* bodyInterface, const glm::vec3& rotation,
                 const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
                 PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
