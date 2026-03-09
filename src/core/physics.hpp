@@ -738,7 +738,6 @@ public:
         physicsSystem.SetBodyActivationListener(&m_BodyActivationListener);
 #endif
 
-
         static JPH::BodyInterface& bodyInterface{physicsSystem.GetBodyInterface()};
         m_BodyInterface = &bodyInterface; // don't worry this works trust me
 

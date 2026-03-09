@@ -307,6 +307,12 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
         {
             addEntity(entity);
         }
+        else
+        {
+            jolt->getBodyInterface()->RemoveBody(entity->getPhysicsBody()->getBodyID());
+            jolt->getBodyInterface()->DestroyBody(entity->getPhysicsBody()->getBodyID());
+            delete entity;
+        }
     }
 
     for (std::size_t i{0}; i < discardChunks.size(); ++i)

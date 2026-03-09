@@ -16,7 +16,6 @@ public:
     ~ShardBody() = default;
 
     void init(void* engine);
-    void explode(float force);
 
     [[nodiscard]] std::string_view getName() const { return m_name; }
     [[nodiscard]] std::string_view getPath() const { return m_path; }

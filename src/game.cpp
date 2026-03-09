@@ -191,50 +191,12 @@ bool Game::menu()
 
 void Game::handleIO()
 {
-    if (m_engine.getPressed(GLFW_KEY_W) || m_engine.getPressed(GLFW_KEY_UP))
-    {
-        m_player->getController()->setControl(Controls::UP, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::UP, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_S) || m_engine.getPressed(GLFW_KEY_DOWN))
-    {
-        m_player->getController()->setControl(Controls::DOWN, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::DOWN, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_D) || m_engine.getPressed(GLFW_KEY_RIGHT))
-    {
-        m_player->getController()->setControl(Controls::RIGHT, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::RIGHT, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_A) || m_engine.getPressed(GLFW_KEY_LEFT))
-    {
-        m_player->getController()->setControl(Controls::LEFT, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::LEFT, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_SPACE))
-    {
-        m_player->getController()->setControl(Controls::SPACE, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::SPACE, false);
-    }
+    PlayerController* controller{m_player->getController()};
+    controller->setControl(Controls::UP, m_engine.getPressed(GLFW_KEY_W) || m_engine.getPressed(GLFW_KEY_UP));
+    controller->setControl(Controls::DOWN, m_engine.getPressed(GLFW_KEY_S) || m_engine.getPressed(GLFW_KEY_DOWN));
+    controller->setControl(Controls::LEFT, m_engine.getPressed(GLFW_KEY_A) || m_engine.getPressed(GLFW_KEY_LEFT));
+    controller->setControl(Controls::RIGHT, m_engine.getPressed(GLFW_KEY_D) || m_engine.getPressed(GLFW_KEY_RIGHT));
+    controller->setControl(Controls::SPACE, m_engine.getPressed(GLFW_KEY_SPACE));
 }
 
 void Game::update()

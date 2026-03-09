@@ -77,12 +77,6 @@ void ShardBody::init(void* engine)
     }
 }
 
-void ShardBody::explode(const float force)
-{
-    const Bounds::Transform& transform{m_entity->getTransform()};
-    const glm::vec3 forceCenter{m_entity->getGlobalMidpoint()};
-}
-
 std::pair<Model*, ShapeLoader*> ShardBody::getShard(const std::size_t idx)
 {
     assert(idx < m_models.size() && idx < m_hulls.size());
