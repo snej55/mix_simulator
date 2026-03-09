@@ -3,39 +3,66 @@
 #include "shards.hpp"
 #include "core/bounds.hpp"
 #include "core/physics.hpp"
+#include "core/engine.hpp"
 
-ShardBody::ShardBody(Model* model, Entity* entity, JPH::BodyInterface* bodyInterface) :
-    m_model{model}, m_entity{entity}, m_bodyInterface{bodyInterface}
+#include <filesystem>
+
+ShardBody::ShardBody(const char* name, const char* shardsFolder, Entity* entity, JPH::BodyInterface* bodyInterface) :
+    m_name{name}, m_path{shardsFolder}, m_entity{entity}, m_bodyInterface{bodyInterface}
 {
 }
 
-bool ShardBody::init()
+void ShardBody::init(void* engine)
 {
-    std::cout << "Initializing shard..." << std::endl;
-    const std::vector<Mesh*>& meshes1{m_model->getOpaqueMeshes()};
-    const std::vector<Mesh*>& meshes2{m_model->getTransparentMeshes()};
-    std::cout << meshes1.size() << " " << meshes2.size() << std::endl;
-    m_meshes.insert(m_meshes.end(), meshes1.begin(), meshes1.end());
-    m_meshes.insert(m_meshes.end(), meshes2.begin(), meshes2.end());
-    m_hulls.reserve(m_meshes.size());
+    // load shard models
+    Engine* enginePtr{static_cast<Engine*>(engine)};
+    for (const auto& entry : std::filesystem::directory_iterator(m_path))
+    {
+        const std::filesystem::path path{entry.path()};
+        const std::string extension{path.extension()};
+        if (extension == ".glb" || extension == ".gltf")
+        {
+            ++m_numShards;
+            const std::string modelName{m_name + std::to_string(m_numShards)};
+            // avoid loading same model twice
+            if (!enginePtr->modelExists(modelName))
+            {
+                enginePtr->addModel(modelName, path.string());
+            }
+            Model* model{enginePtr->getModel(modelName)};
+            m_models.emplace_back(model);
+        }
+    }
 
+    // create convex hulls
     const Bounds::Transform& transform{m_entity->getTransform()};
     const glm::vec3 pivot{transform.getPivotOffset()};
     const glm::vec3 scale{transform.getLocalScale()};
-    for (const Mesh* mesh : m_meshes)
+
+    m_hulls.reserve(m_models.size());
+    for (std::size_t i{0}; i < m_models.size(); ++i)
     {
+        const Model* model{m_models[i]};
+
         std::vector<glm::vec3> vertices{};
-        vertices.reserve(mesh->getVertices().size());
-        for (const MeshN::Vertex& v : mesh->getVertices())
+        for (const Mesh* mesh : model->getOpaqueMeshes())
         {
-            vertices.push_back((v.position + pivot) * scale);
+            for (const MeshN::Vertex& v : mesh->getVertices())
+            {
+                vertices.emplace_back((v.position + pivot) * scale);
+            }
         }
 
-        m_hulls.push_back(ShapeLoader{vertices});
-    }
-    std::cout << "Got " << m_hulls.size() << ":" << m_meshes.size() << " shards from " << m_model->getName() << "\n";
+        for (const Mesh* mesh : model->getTransparentMeshes())
+        {
+            for (const MeshN::Vertex& v : mesh->getVertices())
+            {
+                vertices.emplace_back((v.position + pivot) * scale);
+            }
+        }
 
-    return true;
+        m_hulls.emplace_back(ShapeLoader{vertices});
+    }
 }
 
 void ShardBody::explode(const float force)
@@ -44,8 +71,8 @@ void ShardBody::explode(const float force)
     const glm::vec3 forceCenter{m_entity->getGlobalMidpoint()};
 }
 
-std::pair<Mesh*, ShapeLoader*> ShardBody::getShard(const std::size_t idx)
+std::pair<Model*, ShapeLoader*> ShardBody::getShard(const std::size_t idx)
 {
-    assert(idx < m_meshes.size() && idx < m_hulls.size());
-    return {m_meshes[idx], &m_hulls[idx]};
+    assert(idx < m_models.size() && idx < m_hulls.size());
+    return {m_models[idx], &m_hulls[idx]};
 }

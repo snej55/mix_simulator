@@ -100,6 +100,8 @@ cd build
 - [ ] Clean up data folder
 - [ ] Convex hull preloading (export jolt bodies as binaries)
 - [ ] Particle vfx
+- [ ] Load all assets at the start
+- [ ] Loading screen! (multithreading ugh)
 
 ## Blender items:
 

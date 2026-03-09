@@ -77,10 +77,9 @@ bool Game::init()
 
     getEnemies();
 
-    m_engine.addModel("mug_shards", "data/models/mug_shards.glb");
-    ShardBody shard{m_engine.getModel("mug_shards"), m_player->getEntity(),
+    ShardBody shard{"mug_shards", "data/models/mug_shards/", m_player->getEntity(),
                     m_engine.getJoltInstance()->getBodyInterface()};
-    shard.init();
+    shard.init(&m_engine);
 
     return true;
 }

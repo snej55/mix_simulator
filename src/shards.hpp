@@ -7,28 +7,34 @@
 #include "core/entity.hpp"
 #include "core/physics.hpp"
 
+#include <string>
+
 class ShardBody
 {
 public:
-    ShardBody(Model* model, Entity* entity, JPH::BodyInterface* bodyInterface);
+    ShardBody(const char* name, const char* shardsFolder, Entity* entity, JPH::BodyInterface* bodyInterface);
     ~ShardBody() = default;
 
-    bool init();
+    void init(void* engine);
     void explode(float force);
 
-    [[nodiscard]] Model* getModel() const { return m_model; }
+    [[nodiscard]] std::string_view getName() const { return m_name; }
+    [[nodiscard]] std::string_view getPath() const { return m_path; }
     [[nodiscard]] Entity* getEntity() const { return m_entity; }
-    [[nodiscard]] const std::vector<Mesh*>& getMeshes() const { return m_meshes; }
+    [[nodiscard]] const std::vector<Model*>& getMeshes() const { return m_models; }
     [[nodiscard]] const std::vector<ShapeLoader>& getPhysicsBodies() const { return m_hulls; }
+    [[nodiscard]] std::size_t getNumShards() const { return m_numShards; }
 
-    [[nodiscard]] std::pair<Mesh*, ShapeLoader*> getShard(std::size_t idx);
+    [[nodiscard]] std::pair<Model*, ShapeLoader*> getShard(std::size_t idx);
 
 private:
-    Model* m_model;
+    std::string m_name;
+    std::string m_path;
     Entity* m_entity;
     JPH::BodyInterface* m_bodyInterface;
 
-    std::vector<Mesh*> m_meshes{}; // just to combine transparent and opaque meshes
+    std::size_t m_numShards{0};
+    std::vector<Model*> m_models{}; // just to combine transparent and opaque meshes
     std::vector<ShapeLoader> m_hulls{};
 };
 
