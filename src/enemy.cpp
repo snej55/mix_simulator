@@ -1,8 +1,15 @@
 // Created by Jens Kromdijk 07/03/2026
 
 #include "enemy.hpp"
+#include "shards.hpp"
 
-Enemy::Enemy(Entity* entity) : m_entity{entity} {}
+Enemy::Enemy(Entity* entity, const char* name) : m_entity{entity}, m_name{name} {}
+
+Enemy::Enemy(const Enemy& other) :
+    m_entity{other.m_entity}, m_name{other.m_name}, m_shardBody{other.m_shardBody}, m_flowField{other.m_flowField},
+    m_bodyInterface{other.m_bodyInterface}
+{
+}
 
 void Enemy::update()
 {
@@ -34,4 +41,15 @@ void Enemy::update()
     constexpr float torque{1000.f};
     m_bodyInterface->AddForceAndTorque(bodyID, {direction.x * speed, 0.f, direction.y * speed},
                                        {direction.x * torque, 0.f, direction.y * torque});
+}
+
+void Enemy::setupShards(const char* shardsFolder)
+{
+    m_shardBody = new ShardBody{m_name.c_str(), shardsFolder, m_entity, m_bodyInterface};
+}
+
+void Enemy::free()
+{
+    delete m_shardBody;
+    m_shardBody = nullptr;
 }

@@ -429,7 +429,7 @@ void Game::getEnemies()
     {
         if (dynamicEntities[i] != m_player->getEntity())
         {
-            Enemy enemy{dynamicEntities[i]};
+            Enemy enemy{dynamicEntities[i], "enemy"};
             enemy.m_player = m_player.get();
             enemy.m_flowField = m_flowField.get();
             enemy.m_bodyInterface = m_engine.getJoltInstance()->getBodyInterface();
