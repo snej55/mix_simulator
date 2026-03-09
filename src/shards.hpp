@@ -16,6 +16,7 @@ public:
     ~ShardBody() = default;
 
     void init(void* engine);
+    void explode(float force, std::vector<Entity*>& entities);
 
     [[nodiscard]] std::string_view getName() const { return m_name; }
     [[nodiscard]] std::string_view getPath() const { return m_path; }
@@ -25,6 +26,7 @@ public:
     [[nodiscard]] std::size_t getNumShards() const { return m_numShards; }
 
     [[nodiscard]] std::pair<Model*, ShapeLoader*> getShard(std::size_t idx);
+    [[nodiscard]] bool getBroken() const { return m_broken; }
 
 private:
     std::string m_name;
@@ -35,6 +37,8 @@ private:
     std::size_t m_numShards{0};
     std::vector<Model*> m_models{}; // just to combine transparent and opaque meshes
     std::vector<ShapeLoader> m_hulls{};
+
+    bool m_broken{false};
 };
 
 #endif

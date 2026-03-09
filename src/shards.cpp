@@ -77,6 +77,23 @@ void ShardBody::init(void* engine)
     }
 }
 
+void ShardBody::explode(const float force, std::vector<Entity*>& shards)
+{
+    const Bounds::Transform& transform{m_entity->getTransform()};
+    shards.clear();
+    shards.reserve(m_numShards);
+    for (std::size_t i{0}; i < m_numShards; ++i)
+    {
+        Entity* shard{new Entity{m_models[i], transform, BodyType::DYNAMIC, false}};
+        PhysicsBody physicsBody{m_hulls[i].getResult(), m_bodyInterface, transform.getLocalRotation(),
+                                BodyType::DYNAMIC, transform.getGlobalPosition() + transform.getPivotOffset()};
+        shard->setPhysicsBody(physicsBody);
+        shards.emplace_back(shard);
+    }
+    m_entity->setKill(true);
+    m_broken = false;
+}
+
 std::pair<Model*, ShapeLoader*> ShardBody::getShard(const std::size_t idx)
 {
     assert(idx < m_models.size() && idx < m_hulls.size());
