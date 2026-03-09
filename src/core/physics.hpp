@@ -666,7 +666,19 @@ public:
         if (file.is_open())
         {
             JPH::StreamOutWrapper stream{file};
-            // shape->SaveWithChildren;
+            JPH::Shape::ShapeToIDMap ioShapeMap;
+            JPH::Shape::MaterialToIDMap ioMaterialMap;
+            shape->SaveWithChildren(stream, ioShapeMap, ioMaterialMap);
+        }
+    }
+
+    void loadFile(const char* path)
+    {
+        std::ifstream file{path, std::ios::binary};
+        if (file.is_open())
+        {
+            JPH::StreamInWrapper stream{file};
+            m_result = JPH::Shape::sRestoreFromBinaryState(stream);
         }
     }
 
