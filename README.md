@@ -98,14 +98,14 @@ cd build
 - [X] Test shadows with complex shapes
 - [X] Flow field generation
 - [ ] Clean up data folder
-- [ ] Convex hull preloading (export jolt bodies as binaries)
+- [X] Convex hull preloading (export jolt bodies as binaries)
 - [ ] Particle vfx
 - [ ] Load all assets at the start
 - [ ] Loading screen! (multithreading ugh)
 
 ## Blender items:
 
-- [ ] Mug
+- [X] Mug
 - [ ] Bud vase
 - [ ] Pot
 - [ ] Cider jug

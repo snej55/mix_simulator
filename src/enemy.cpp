@@ -6,8 +6,8 @@
 Enemy::Enemy(Entity* entity, const char* name) : m_entity{entity}, m_name{name} {}
 
 Enemy::Enemy(const Enemy& other) :
-    m_entity{other.m_entity}, m_name{other.m_name}, m_shardBody{other.m_shardBody}, m_flowField{other.m_flowField},
-    m_bodyInterface{other.m_bodyInterface}
+    m_entity{other.m_entity}, m_name{other.m_name}, m_shardBody{other.m_shardBody}, m_player{other.m_player},
+    m_flowField{other.m_flowField}, m_bodyInterface{other.m_bodyInterface}
 {
 }
 

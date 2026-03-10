@@ -23,7 +23,13 @@
 
 #include <memory>
 
-Game::~Game() = default;
+Game::~Game()
+{
+    for (std::size_t i{0}; i < m_enemies.size(); ++i)
+    {
+        m_enemies[i].free();
+    }
+}
 
 bool Game::init()
 {
@@ -433,6 +439,7 @@ void Game::getEnemies()
             enemy.m_player = m_player.get();
             enemy.m_flowField = m_flowField.get();
             enemy.m_bodyInterface = m_engine.getJoltInstance()->getBodyInterface();
+            enemy.setupShards("data/models/mug_shards/");
 
             m_enemies.emplace_back(enemy);
         }
@@ -444,6 +451,15 @@ void Game::updateEnemies()
     for (std::size_t i{0}; i < m_enemies.size(); ++i)
     {
         Enemy& enemy{m_enemies[i]};
-        enemy.update();
+        std::vector<Entity*> shards{};
+        enemy.m_shardBody->explode(10, shards);
+        for (std::size_t s{0}; s < shards.size(); ++s)
+        {
+            m_scene->addEntity(shards[s]);
+        }
+
+        std::swap(m_enemies[m_enemies.size() - 1], m_enemies[i]);
+        m_enemies.pop_back();
+        --i;
     }
 }
