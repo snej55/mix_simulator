@@ -320,10 +320,14 @@ void RenderQueue::addChunk(const SceneChunk* chunk, const Bounds::Frustum& camFr
     const std::vector<Entity*>& entities{chunk->getEntities()};
     for (Entity* entity : entities)
     {
+        if (entity == nullptr)
+            continue;
+
         if (entity->getBoundingVolume()->onFrustum(camFrustum, entity->getTransform()))
         {
             if (entity->getRendered())
                 continue;
+
             entity->setRendered(true);
 
             if (entity->getGlobalAABB().onFrustum(camFrustum, {}))

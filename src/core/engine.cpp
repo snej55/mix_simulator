@@ -1184,9 +1184,15 @@ bool Engine::createSSAOGenerator()
 
 void Engine::updateSSAOGenerator(const int width, const int height)
 {
-    m_arena->removeObject(m_ssaoGenerator->getID());
-    m_ssaoGenerator = nullptr;
-    createSSAOGenerator();
+    if (width <= 0 || height <= 0)
+        return;
+
+    if (m_ssaoGenerator == nullptr)
+    {
+        if (!createSSAOGenerator())
+            return;
+    }
+
     m_ssaoGenerator->init(width, height);
 }
 

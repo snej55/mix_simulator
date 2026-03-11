@@ -6,13 +6,13 @@
 #include "bounds.hpp"
 #include "physics.hpp"
 
-Entity::Entity(const Model* model, const Bounds::Transform& transform, const BodyType& bodyType, const bool animated) :
+Entity::Entity(Model* model, const Bounds::Transform& transform, const BodyType& bodyType, const bool animated) :
     m_transform{transform}, m_bodyType{bodyType}, m_animated{animated}
 {
     m_transform.computeModelMatrix();
-    m_model = std::make_unique<Model>(*model);
+    m_model = model;
     m_path = m_model->getPath();
-    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get(), m_transform.getLocalScale()));
+    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model, m_transform.getLocalScale()));
     m_transform.setPivotOffset(-m_BV->center);
     m_transform.computeModelMatrix();
     m_static = (bodyType == BodyType::STATIC);

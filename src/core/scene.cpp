@@ -35,7 +35,8 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
     for (std::size_t i{0}; i < m_entities.size(); ++i)
     {
         Entity* entity{m_entities[i]};
-        assert(entity != nullptr);
+        if (entity == nullptr)
+            continue;
 
         if (entity->getDiscarded())
             continue;
@@ -130,7 +131,10 @@ void SceneChunk::init()
                       m_pos.z + SpatialHashing::CELL_SIZE}});
 }
 
-Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine(engine) {}
+Scene::Scene(void* engine, JoltInstance* jolt) :
+    EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine{engine}, m_jolt{jolt}
+{
+}
 
 Scene::~Scene() { free(); }
 
@@ -402,6 +406,12 @@ void Scene::addEntity(Entity* entity)
     {
         std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
                   << " chunks away from origin)" << std::endl;
+        if (entity->getPhysicsBody() != nullptr)
+        {
+            m_jolt->getBodyInterface()->RemoveBody(entity->getPhysicsBody()->getBodyID());
+            m_jolt->getBodyInterface()->DestroyBody(entity->getPhysicsBody()->getBodyID());
+        }
+        delete entity;
         return;
     }
 

@@ -63,7 +63,7 @@ inline std::ostream& operator<<(std::ostream& os, const SceneChunk* chunk)
 class Scene final : public EngineObject
 {
 public:
-    explicit Scene(void* engine);
+    explicit Scene(void* engine, JoltInstance* jolt);
     ~Scene() override;
 
     // load entities from json
@@ -106,6 +106,7 @@ public:
 
 private:
     void* m_engine{nullptr};
+    JoltInstance* m_jolt{nullptr};
 
     std::unordered_map<SpatialHashing::ChunkKey, std::unique_ptr<SceneChunk>, SpatialHashing::ChunkKeyHasher>
         m_chunks{};

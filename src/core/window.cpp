@@ -117,19 +117,41 @@ void Window::updateDimensions()
 // window callbacks
 void Window::framebuffer_size_callback(const int width, const int height)
 {
+    if (width <= 0 || height <= 0)
+        return;
+
     setWidth(width);
     setHeight(height);
     glViewport(0, 0, width, height);
 
     Engine* enginePtr{dynamic_cast<Engine*>(m_parent)};
+    if (enginePtr == nullptr)
+    {
+        return;
+    }
 
     // update framebuffers
-    enginePtr->updatePostProcessor(width, height);
-    enginePtr->updateDeferredRenderer(width, height);
-    enginePtr->updateSSAOGenerator(width, height);
-    enginePtr->getUIRenderer()->generate(width, height);
+    if (enginePtr->getPostProcessor() != nullptr)
+    {
+        enginePtr->updatePostProcessor(width, height);
+    }
 
-    if (enginePtr->getFontRenderer()->getLoaded())
+    if (enginePtr->getDeferredRenderer() != nullptr)
+    {
+        enginePtr->updateDeferredRenderer(width, height);
+    }
+
+    if (enginePtr->getSSAOGenerator() != nullptr)
+    {
+        enginePtr->updateSSAOGenerator(width, height);
+    }
+
+    if (enginePtr->getUIRenderer() != nullptr)
+    {
+        enginePtr->getUIRenderer()->generate(width, height);
+    }
+
+    if (enginePtr->getFontRenderer() != nullptr && enginePtr->getFontRenderer()->getLoaded())
     {
         enginePtr->getFontRenderer()->updateProjection(static_cast<float>(width), static_cast<float>(height));
     }

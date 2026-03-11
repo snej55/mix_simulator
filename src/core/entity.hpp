@@ -26,7 +26,7 @@ class Entity final
 {
 public:
     Entity() = default;
-    Entity(const Model* model, const Bounds::Transform& transform, const BodyType& bodyType, bool animated = false);
+    Entity(Model* model, const Bounds::Transform& transform, const BodyType& bodyType, bool animated = false);
     ~Entity();
 
     void update(float deltaTime, const JPH::BodyInterface* bodyInterface = nullptr);
@@ -36,7 +36,7 @@ public:
     [[nodiscard]] const std::string& getPath() const { return m_path; }
     [[nodiscard]] glm::vec3 getPosition() const { return m_transform.getGlobalPosition(); }
 
-    [[nodiscard]] Model* getModel() const { return m_model.get(); }
+    [[nodiscard]] Model* getModel() const { return m_model; }
     [[nodiscard]] bool getAnimated() const { return m_animated; }
 
     [[nodiscard]] const Bounds::Transform& getTransform() const { return m_transform; }
@@ -83,7 +83,7 @@ private:
     Bounds::Transform m_transform{};
     std::unique_ptr<Bounds::AABB> m_BV{};
 
-    std::unique_ptr<Model> m_model{nullptr};
+    Model* m_model{nullptr};
     bool m_animated{false};
 
     bool m_inFrustum{false};

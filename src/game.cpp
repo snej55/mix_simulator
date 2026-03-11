@@ -1,5 +1,3 @@
-// Created by Jens Kromdijk 05-01-2025
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <soloud_biquadresonantfilter.h>
@@ -46,7 +44,7 @@ bool Game::init()
     m_engine.getAudioHandler()->getSound(m_assets->m_SFX_metalImpact)->setFilter(0, &m_bqrFilter);
 
     // load level data
-    m_scene = std::make_unique<Scene>(&m_engine);
+    m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
     m_scene->init("data/maps/0.json");
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
@@ -201,7 +199,6 @@ void Game::update()
                                        m_player->getEntity()->getPhysicsBody()->getBodyID(), m_engine.getJoltInstance(),
                                        m_engine.getDeltaTime());
     m_player->update(m_engine.getJoltInstance()->getBodyInterface(), m_engine.getCamera());
-    bool success{false};
 
     m_flowField->setPlayerPos(m_player->get2DPos());
     m_flowField->calculateFlowField(true);
@@ -249,7 +246,7 @@ void Game::update()
 
         audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
     }
-    m_engine.getJoltInstance()->getSoundListener()->clearSounds();
+    // m_engine.getJoltInstance()->getSoundListener()->clearSounds();
 }
 
 void Game::render()
@@ -453,13 +450,13 @@ void Game::updateEnemies()
 
         if (!enemy.m_shardBody->getBroken())
         {
-            std::vector<Entity*> shards{};
-            enemy.m_shardBody->explode(10, shards);
-            std::cout << "exploded\n";
+            std::vector<Entity*> shards;
+            enemy.m_shardBody->explode(10.f, shards);
             for (std::size_t s{0}; s < shards.size(); ++s)
             {
                 m_scene->addEntity(shards[s]);
             }
+            std::cout << "exploded\n";
         }
     }
 

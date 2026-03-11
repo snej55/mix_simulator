@@ -328,11 +328,12 @@ class SoundContactListener : public JPH::ContactListener
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - m_startTime)
                 .count())};
 
-        constexpr double rate{PHYSICS_TIME_STEP * 1000.0}; // only one sound per frame please
+        constexpr double rate{PHYSICS_TIME_STEP * 1000.0};
+
+        std::lock_guard<std::mutex> lock{m_queueMutex};
         auto it{m_collisions.find(bodyPair)};
         if (it == m_collisions.end() || (time - it->second.first) > rate || velocity > it->second.second * 1.5f)
         {
-            std::lock_guard<std::mutex> lock{m_queueMutex};
             m_soundsQueue.emplace_back(pos, velocity);
             m_collisions[bodyPair] = {time, velocity};
         }
@@ -347,7 +348,14 @@ class SoundContactListener : public JPH::ContactListener
     }
 
 public:
-    [[nodiscard]] const std::vector<std::pair<JPH::RVec3, float>>& getSoundsQueue() const { return m_soundsQueue; }
+    [[nodiscard]] std::vector<std::pair<JPH::RVec3, float>> getSoundsQueue()
+    {
+        std::lock_guard<std::mutex> lock{m_queueMutex};
+        std::vector<std::pair<JPH::RVec3, float>> out{};
+        out.swap(m_soundsQueue);
+        return out;
+    }
+
     void clearSounds() { m_soundsQueue.clear(); }
 
 private:

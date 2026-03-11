@@ -29,7 +29,7 @@ class Player
 public:
     Player() = default;
     explicit Player(Entity* entity);
-    Player(const glm::vec3& pos, const Model* model);
+    Player(const glm::vec3& pos, Model* model);
 
     ~Player() = default;
 
