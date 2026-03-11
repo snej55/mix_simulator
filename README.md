@@ -92,9 +92,9 @@ cd build
 - [X] Quad tree generation
 - [X] Flow field pathfinding
 - [ ] Make some models
-- [ ] Generate shards in blender
-- [ ] Preload jolt convex hulls
-- [ ] Shatter logic
+- [X] Generate shards in blender
+- [X] Preload jolt convex hulls
+- [X] Shatter logic
 - [X] Test shadows with complex shapes
 - [X] Flow field generation
 - [ ] Clean up data folder
