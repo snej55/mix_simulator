@@ -103,6 +103,9 @@ cd build
 - [ ] Particle vfx
 - [ ] Load all assets at the start
 - [ ] Loading screen! (multithreading ugh)
+- [ ] Fix sounds
+- [ ] Make shards despawn
+- [ ] Fix pathfinding when player is same tile
 
 ## Blender items:
 
