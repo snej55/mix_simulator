@@ -37,6 +37,9 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         Entity* entity{m_entities[i]};
         assert(entity != nullptr);
 
+        if (entity->getDiscarded())
+            continue;
+
         if (entity->getKill())
         {
             entity->setDiscarded(true);
@@ -44,7 +47,7 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
             continue;
         }
 
-        if (entity->getDiscarded() || entity->getStatic())
+        if (entity->getStatic())
         {
             continue;
         }
@@ -304,8 +307,12 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
     }
 
     std::vector<SceneChunk*> discardChunks{};
+    std::unordered_set<Entity*> processed{};
     for (Entity* entity : discardEntities)
     {
+        if (entity == nullptr || !processed.insert(entity).second)
+            continue;
+
         for (const std::pair<std::size_t, void*>& chunkPair : entity->getChunks())
         {
             SceneChunk* chunkPtr{static_cast<SceneChunk*>(chunkPair.second)};
@@ -491,11 +498,14 @@ void Scene::calculateLevelDimensions()
 {
     glm::vec3 min{std::numeric_limits<float>::max()};
     glm::vec3 max{std::numeric_limits<float>::lowest()};
-    Bounds::AABB globalAABB;
+    Bounds::AABB globalAABB{};
     for (const auto& [key, chunkPtr] : m_chunks)
     {
         for (const Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             globalAABB = entity->getGlobalAABB();
             min = glm::min(globalAABB.center - globalAABB.extents, min);
             max = glm::max(globalAABB.center + globalAABB.extents, max);
@@ -513,6 +523,9 @@ void Scene::getStaticEntities(std::vector<Entity*>& entities)
     {
         for (Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             if (entity->getStatic() && std::strcmp(entity->getModel()->getName(), "MODEL floor") != 0 &&
                 std::find(uniqueEntities.begin(), uniqueEntities.end(), entity) == uniqueEntities.end())
             {
@@ -542,6 +555,9 @@ void Scene::getDynamicEntities(std::vector<Entity*>& entities)
     {
         for (Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             if (!entity->getStatic() &&
                 std::find(uniqueEntities.begin(), uniqueEntities.end(), entity) == uniqueEntities.end())
             {
