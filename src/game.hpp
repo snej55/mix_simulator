@@ -53,6 +53,8 @@ private:
 
     void getEnemies();
     void updateEnemies();
+    void setupShards(Enemy& enemy);
+    std::string getEntityName(Entity* entity) const;
 };
 
 #endif

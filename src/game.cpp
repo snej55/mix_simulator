@@ -425,11 +425,11 @@ void Game::getEnemies()
     {
         if (dynamicEntities[i] != m_player->getEntity())
         {
-            Enemy enemy{dynamicEntities[i], "enemy"};
+            Enemy enemy{dynamicEntities[i], getEntityName(dynamicEntities[i]).c_str()};
             enemy.m_player = m_player.get();
             enemy.m_flowField = m_flowField.get();
             enemy.m_bodyInterface = m_engine.getJoltInstance()->getBodyInterface();
-            enemy.setupShards("data/models/mug_shards/", &m_engine);
+            setupShards(enemy);
 
             m_enemies.emplace_back(std::move(enemy));
         }
@@ -454,4 +454,21 @@ void Game::updateEnemies()
     m_enemies.erase(
         std::remove_if(m_enemies.begin(), m_enemies.end(), [](const Enemy& e) { return e.m_entity->getKill(); }),
         m_enemies.end());
+}
+
+void Game::setupShards(Enemy& enemy)
+{
+    std::string_view name{enemy.m_entity->getModel()->getName()};
+    if (name == "MODEL mug")
+    {
+        enemy.setupShards("data/models/mug_shards/", &m_engine);
+    }
+}
+
+std::string Game::getEntityName(Entity* entity) const
+{
+    std::vector<std::string> words{};
+    words.reserve(2);
+    Util::splitStr(entity->getModel()->getName(), words, ' ');
+    return words[1];
 }

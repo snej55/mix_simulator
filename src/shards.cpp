@@ -78,8 +78,7 @@ void ShardBody::init(void* engine)
     {
         const Model* model{m_models[i]};
         const glm::vec3 shardCenter{getModelLocalCenter(model)};
-        const std::string cachePath{"data/cache/" + m_name + "_" +
-                                    std::filesystem::path(model->getPath()).stem().string() + ".bin"};
+        const std::string cachePath{"data/cache/" + m_name + "/" + std::to_string(i) + ".bin"};
 
         ShapeLoader shapeLoader{};
         bool validCache{false};
@@ -115,6 +114,7 @@ void ShardBody::init(void* engine)
 
             shapeLoader = ShapeLoader{vertices};
             shapeLoader.exportFile(cachePath.c_str());
+            std::cout << "Cached shard convex hull: `" << cachePath << "`\n";
         }
 
         m_hulls.emplace_back(shapeLoader);

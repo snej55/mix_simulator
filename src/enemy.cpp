@@ -45,7 +45,7 @@ void Enemy::setupShards(const char* shardsFolder, void* engine)
 
 void Enemy::explode(Scene* scene, const float force)
 {
-    if (m_shardBody->getBroken())
+    if (m_shardBody == nullptr || m_shardBody->getBroken())
     {
         return;
     }
