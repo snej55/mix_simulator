@@ -48,6 +48,8 @@
 #include <string_view>
 #include <chrono>
 #include <mutex>
+#include <algorithm>
+#include <cmath>
 
 using t_timepoint = std::chrono::time_point<std::chrono::system_clock>;
 using t_duration = std::chrono::duration<double>;
@@ -755,16 +757,10 @@ public:
     // deltatime is seconds
     void update(const float deltaTime) const
     {
-        static float accumulator{0.0f};
+        const float dt = deltaTime * PHYSICS_TIME_STEP;
+        const int steps = std::clamp(static_cast<int>(std::ceil(deltaTime)), 1, 4);
 
-        accumulator += deltaTime / 60.f;
-        accumulator = std::min(accumulator, 0.25f);
-
-        while (accumulator >= PHYSICS_TIME_STEP)
-        {
-            m_PhysicsSystem->Update(PHYSICS_TIME_STEP, 1, m_TempAllocator, m_JobSystem);
-            accumulator -= PHYSICS_TIME_STEP;
-        }
+        m_PhysicsSystem->Update(std::min(dt, 0.05f), steps, m_TempAllocator, m_JobSystem);
     }
 
     [[nodiscard]] JPH::TempAllocatorImpl* getTempAllocator() const { return m_TempAllocator; }

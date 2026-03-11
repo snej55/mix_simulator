@@ -458,7 +458,6 @@ void Game::updateEnemies()
             {
                 m_scene->addEntity(shards[s]);
             }
-            std::cout << "exploded\n";
         }
     }
 

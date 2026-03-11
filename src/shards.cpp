@@ -126,8 +126,6 @@ void ShardBody::explode(const float force, std::vector<Entity*>& shards)
     if (m_broken)
         return;
 
-    std::cout << "exploded!!\n";
-
     const Bounds::Transform& src{m_entity->getTransform()};
     const glm::vec3 scale{src.getLocalScale()};
     const glm::quat rotationQuat{glm::quat(glm::radians(src.getLocalRotation()))};
