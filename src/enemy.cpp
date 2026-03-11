@@ -1,8 +1,13 @@
 // Created by Jens Kromdijk 07/03/2026
 
-#include "enemy.hpp"
-#include "Jolt/Physics/Body/BodyInterface.h"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
+
+#include "Jolt/Physics/Body/BodyID.h"
 #include "shards.hpp"
+#include "enemy.hpp"
 
 Enemy::Enemy(Entity* entity, const char* name) : m_entity{entity}, m_name{name} {}
 
@@ -63,6 +68,7 @@ EnemyManager::EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flo
                            JPH::BodyInterface* bodyInterface, void* engine) :
     m_player{player}, m_scene{scene}, m_flowField{flowField}, m_bodyInterface{bodyInterface}, m_engine{engine}
 {
+    m_listener.setManager(this);
     getEnemies();
 }
 
@@ -78,12 +84,31 @@ void EnemyManager::update()
             --i;
             continue;
         }
+
+        if (enemy.m_shouldExplode)
+        {
+            enemy.explode(m_scene, 10.f);
+            enemy.m_shouldExplode = false;
+        }
         enemy.update();
     }
 
     m_enemies.erase(
         std::remove_if(m_enemies.begin(), m_enemies.end(), [](const Enemy& e) { return e.m_entity->getKill(); }),
         m_enemies.end());
+}
+
+void EnemyManager::handleCollision(const JPH::BodyID& body1, const JPH::BodyID& body2)
+{
+    for (std::size_t i{0}; i < m_enemies.size(); ++i)
+    {
+        Enemy& enemy{m_enemies[i]};
+        const JPH::BodyID& enemyID{enemy.m_entity->getPhysicsBody()->getBodyID()};
+        if (enemyID == body1 || enemyID == body2)
+        {
+            enemy.m_shouldExplode = true;
+        }
+    }
 }
 
 void EnemyManager::getEnemies()
@@ -124,3 +149,35 @@ std::string EnemyManager::getEntityName(Entity* entity) const
     Util::splitStr(entity->getModel()->getName(), words, ' ');
     return words[1];
 }
+
+// Jolt contact listener
+JPH::ValidateResult EnemyListener::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                                     JPH::RVec3Arg inBaseOffset,
+                                                     const JPH::CollideShapeResult& inCollisionResult)
+{
+    return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
+}
+
+void EnemyListener::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                   const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
+{
+    JPH::RVec3 pos{inManifold.GetWorldSpaceContactPointOn1(0)};
+    JPH::Vec3 vel1{inBody1.IsStatic() ? JPH::Vec3::sZero() : inBody1.GetPointVelocity(pos)};
+    JPH::Vec3 vel2{inBody2.IsStatic() ? JPH::Vec3::sZero() : inBody2.GetPointVelocity(pos)};
+
+    JPH::Vec3 relVel{vel1 - vel2};
+    const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
+
+    if (impactSpeed > 20.0f)
+    {
+        std::cout << impactSpeed << std::endl;
+        static_cast<EnemyManager*>(m_manager)->handleCollision(inBody1.GetID(), inBody2.GetID());
+    }
+}
+
+void EnemyListener::OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                       const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
+{
+}
+
+void EnemyListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) {}

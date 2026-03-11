@@ -60,7 +60,7 @@ bool Game::init()
 
     m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
 
-    m_player = std::make_unique<Player>(glm::vec3{10.0f, 100.f, 10.0f}, m_engine.getModel("table"));
+    m_player = std::make_unique<Player>(glm::vec3{50.0f, 5.f, 50.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
     m_scene->addEntity(m_player->getEntity());
 
@@ -75,6 +75,7 @@ bool Game::init()
 
     m_enemyManager = std::make_unique<EnemyManager>(m_player.get(), m_scene.get(), m_flowField.get(),
                                                     m_engine.getJoltInstance()->getBodyInterface(), &m_engine);
+    m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
     return true;
 }
 
