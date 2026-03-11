@@ -265,6 +265,53 @@ struct BodyPairHash
     }
 };
 
+class CollisionListener : public JPH::ContactListener
+{
+public:
+    virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                                  JPH::RVec3Arg inBaseOffset,
+                                                  const JPH::CollideShapeResult& inCollisionResult) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactValidate(inBody1, inBody2, inBaseOffset, inCollisionResult);
+        }
+        return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
+    }
+
+    virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactAdded(inBody1, inBody2, inManifold, ioSettings);
+        }
+    }
+
+    virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                    const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactPersisted(inBody1, inBody2, inManifold, ioSettings);
+        }
+    }
+
+    virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactRemoved(inSubShapePair);
+        }
+    }
+
+    void addListener(JPH::ContactListener* listener) { m_listeners.push_back(listener); }
+    [[nodiscard]] const std::vector<JPH::ContactListener*>& getListeners() const { return m_listeners; }
+
+private:
+    std::vector<JPH::ContactListener*> m_listeners{};
+};
+
 class SoundContactListener : public JPH::ContactListener
 {
     virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2,
@@ -766,7 +813,8 @@ public:
         physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactContraints,
                            m_BroadPhaseLayerInterface, m_ObjectVsBroadphaseLayerFilter, m_ObjectVsObjectLayerFilter);
 
-        physicsSystem.SetContactListener(&m_SoundListener);
+        physicsSystem.SetContactListener(&m_CollisionListener);
+        m_CollisionListener.addListener(&m_SoundListener);
 
 #ifdef PHYSICS_DEBUG_LOG
         physicsSystem.SetContactListener(&m_ContactListener);
@@ -807,6 +855,7 @@ public:
     [[nodiscard]] DebugBodyActivationListener& getBodyActivationListener() { return m_BodyActivationListener; }
 #endif
 
+    [[nodiscard]] CollisionListener* getCollisionListener() { return &m_CollisionListener; }
     [[nodiscard]] SoundContactListener* getSoundListener() { return &m_SoundListener; }
 
     [[nodiscard]] bool getInit() const { return m_init; }
@@ -827,6 +876,7 @@ private:
     DebugBodyActivationListener m_BodyActivationListener;
 #endif
 
+    CollisionListener m_CollisionListener;
     SoundContactListener m_SoundListener;
 
     bool m_init{false};
