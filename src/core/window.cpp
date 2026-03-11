@@ -130,36 +130,7 @@ void Window::framebuffer_size_callback(const int width, const int height)
         return;
     }
 
-    // update framebuffers
-    if (enginePtr->getPostProcessor() != nullptr)
-    {
-        enginePtr->updatePostProcessor(width, height);
-    }
-
-    if (enginePtr->getDeferredRenderer() != nullptr)
-    {
-        enginePtr->updateDeferredRenderer(width, height);
-    }
-
-    if (enginePtr->getSSAOGenerator() != nullptr)
-    {
-        enginePtr->updateSSAOGenerator(width, height);
-    }
-
-    if (enginePtr->getUIRenderer() != nullptr)
-    {
-        enginePtr->getUIRenderer()->generate(width, height);
-    }
-
-    if (enginePtr->getFontRenderer() != nullptr && enginePtr->getFontRenderer()->getLoaded())
-    {
-        enginePtr->getFontRenderer()->updateProjection(static_cast<float>(width), static_cast<float>(height));
-    }
-
-    if (enginePtr->getFBOCallback() != nullptr)
-    {
-        enginePtr->getFBOCallback()(enginePtr->getFBOCallbackArgs(), width, height);
-    }
+    enginePtr->resize(width, height);
 }
 
 // gets called from glfw cursor pos callback

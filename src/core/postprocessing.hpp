@@ -112,7 +112,7 @@ private:
     unsigned int m_quadVBO{};
 
     void initQuad();
-    void freeQuad() const;
+    void freeQuad();
 };
 
 

@@ -69,6 +69,8 @@ public:
 
     void setupViewport() const;
 
+    void resize(int width, int height);
+
     // ------ IOHandler ------ //
 
     // create iohandler for keyboard input
@@ -333,6 +335,10 @@ private:
 
     // miscellaneous stuff
     std::vector<float> m_deltaTimes{};
+
+    glm::ivec2 m_tempRes{0, 0};
+    bool m_resize{false};
+    void resizePPChain();
 };
 
 #endif

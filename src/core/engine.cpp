@@ -252,6 +252,8 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
 {
     assert((renderQueue != nullptr) == (ibl != nullptr));
 
+    resizePPChain();
+
     // ----- Handle IO ----- //
     // check for esc
     // swap buffers
@@ -379,6 +381,43 @@ void Engine::displayFrameTime()
 }
 
 void Engine::setupViewport() const { glViewport(0, 0, getWidth(), getHeight()); }
+
+void Engine::resize(const int width, const int height)
+{
+    if (width <= 0 || height <= 0)
+        return;
+
+    m_tempRes.x = width;
+    m_tempRes.y = height;
+    m_resize = true;
+}
+
+void Engine::resizePPChain()
+{
+    if (!m_resize)
+        return;
+
+    m_window->setWidth(m_tempRes.x);
+    m_window->setHeight(m_tempRes.y);
+
+    updateDeferredRenderer(m_tempRes.x, m_tempRes.y);
+    updateSSAOGenerator(m_tempRes.x, m_tempRes.y);
+
+    updatePostProcessor(m_tempRes.x, m_tempRes.y);
+    m_uiRenderer->generate(m_tempRes.x, m_tempRes.y);
+    if (m_fontRenderer != nullptr && m_fontRenderer->getLoaded())
+    {
+        m_fontRenderer->updateProjection(static_cast<float>(m_tempRes.x), static_cast<float>(m_tempRes.y));
+    }
+
+    if (getFBOCallback() != nullptr)
+    {
+        getFBOCallback()(getFBOCallbackArgs(), m_tempRes.x, m_tempRes.y);
+    }
+
+    glViewport(0, 0, m_tempRes.x, m_tempRes.y);
+    m_resize = false;
+}
 
 // ------ IOHandler ------ //
 

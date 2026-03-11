@@ -69,7 +69,7 @@ void DeferredRenderer::init(const int scrWidth, const int scrHeight)
 
     glGenTextures(1, &m_geomNormal);
     glBindTexture(GL_TEXTURE_2D, m_geomNormal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, scrWidth, scrHeight, 0, GL_RG, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, scrWidth, scrHeight, 0, GL_RG, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -119,15 +119,23 @@ void DeferredRenderer::free()
 
 void DeferredRenderer::renderQuad() const
 {
+    const GLboolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
+    if (cullWasEnabled)
+        glDisable(GL_CULL_FACE);
+
     glBindVertexArray(m_quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+
+    if (cullWasEnabled)
+        glEnable(GL_CULL_FACE);
 }
 
 void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection,
                                          const glm::mat4& view) const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+    glViewport(0, 0, m_scrWidth, m_scrHeight);
     gpShader->use();
     gpShader->setMat4("projection", projection);
     gpShader->setMat4("view", view);
@@ -221,6 +229,7 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     glClear(GL_COLOR_BUFFER_BIT);
 
     // render gbuffer
+    glDisable(GL_CULL_FACE);
     enginePtr->renderGBuffer(ibl, pointLights);
 
     glEnable(GL_DEPTH_TEST);

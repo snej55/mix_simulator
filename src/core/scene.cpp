@@ -277,8 +277,20 @@ void Scene::free()
         const std::vector<Entity*>& entities{chunkPtr->getEntities()};
         for (Entity* entity : entities)
         {
-            if (std::find(freedEntities.begin(), freedEntities.end(), entity) == freedEntities.end())
-                delete entity;
+            if (entity == nullptr)
+                continue;
+
+            if (std::find(freedEntities.begin(), freedEntities.end(), entity) != freedEntities.end())
+                continue;
+
+            const JPH::BodyID bodyID{entity->getPhysicsBody()->getBodyID()};
+            if (!bodyID.IsInvalid())
+            {
+                m_jolt->getBodyInterface()->RemoveBody(bodyID);
+                m_jolt->getBodyInterface()->DestroyBody(bodyID);
+            }
+
+            delete entity;
             freedEntities.emplace_back(entity);
         }
     }

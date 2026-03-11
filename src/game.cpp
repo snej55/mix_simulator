@@ -254,6 +254,8 @@ void Game::render()
     // render ui framebuffer
     renderUI();
 
+    m_engine.setupViewport();
+
     // render scene
     std::vector<Lights::PointLight*> pointLights{};
     m_scene->getPointLights(pointLights);
