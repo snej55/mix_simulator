@@ -106,6 +106,7 @@ cd build
 - [ ] Fix sounds
 - [ ] Make shards despawn
 - [ ] Fix pathfinding when player is same tile
+- [ ] Different screen resolutions
 
 ## Blender items:
 

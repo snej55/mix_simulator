@@ -17,7 +17,6 @@
 
 #include "pathfinding.hpp"
 #include "constants.hpp"
-#include "shards.hpp"
 #include "game.hpp"
 
 #include <memory>
@@ -450,11 +449,6 @@ void Game::updateEnemies()
             continue;
         }
         enemy.update();
-
-        if (!enemy.m_shardBody->getBroken())
-        {
-            enemy.explode(m_scene.get(), 10.f);
-        }
     }
 
     m_enemies.erase(

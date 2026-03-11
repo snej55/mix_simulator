@@ -418,12 +418,7 @@ void Scene::addEntity(Entity* entity)
     {
         std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
                   << " chunks away from origin)" << std::endl;
-        if (entity->getPhysicsBody() != nullptr)
-        {
-            m_jolt->getBodyInterface()->RemoveBody(entity->getPhysicsBody()->getBodyID());
-            m_jolt->getBodyInterface()->DestroyBody(entity->getPhysicsBody()->getBodyID());
-        }
-        delete entity;
+        entity->setKill(true);
         return;
     }
 

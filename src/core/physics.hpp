@@ -785,7 +785,7 @@ public:
         const float dt = deltaTime * PHYSICS_TIME_STEP;
         const int steps = std::clamp(static_cast<int>(std::ceil(deltaTime)), 1, 4);
 
-        m_PhysicsSystem->Update(std::min(dt, 0.05f), steps, m_TempAllocator, m_JobSystem);
+        m_PhysicsSystem->Update(std::min(dt, 0.05f), 1, m_TempAllocator, m_JobSystem);
     }
 
     [[nodiscard]] JPH::TempAllocatorImpl* getTempAllocator() const { return m_TempAllocator; }
