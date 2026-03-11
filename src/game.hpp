@@ -49,12 +49,7 @@ private:
     std::unique_ptr<Assets> m_assets{nullptr};
     SoLoud::BiquadResonantFilter m_bqrFilter;
 
-    std::vector<Enemy> m_enemies{};
-
-    void getEnemies();
-    void updateEnemies();
-    void setupShards(Enemy& enemy);
-    std::string getEntityName(Entity* entity) const;
+    std::unique_ptr<EnemyManager> m_enemyManager{nullptr};
 };
 
 #endif

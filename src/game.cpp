@@ -73,8 +73,8 @@ bool Game::init()
         3.f);
     m_flowField->init(m_scene.get());
 
-    getEnemies();
-
+    m_enemyManager = std::make_unique<EnemyManager>(m_player.get(), m_scene.get(), m_flowField.get(),
+                                                    m_engine.getJoltInstance()->getBodyInterface(), &m_engine);
     return true;
 }
 
@@ -202,7 +202,8 @@ void Game::update()
 
     m_flowField->setPlayerPos(m_player->get2DPos());
     m_flowField->calculateFlowField(true);
-    updateEnemies();
+
+    m_enemyManager->update();
 
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
@@ -413,62 +414,4 @@ bool Game::gameover()
         glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
     return false;
-}
-
-void Game::getEnemies()
-{
-    m_enemies.clear();
-    m_enemies.reserve(64); // give us some space
-    std::vector<Entity*> dynamicEntities{};
-    m_scene->getDynamicEntities(dynamicEntities);
-    for (std::size_t i{0}; i < dynamicEntities.size(); ++i)
-    {
-        if (dynamicEntities[i] != m_player->getEntity())
-        {
-            Enemy enemy{dynamicEntities[i], getEntityName(dynamicEntities[i]).c_str()};
-            enemy.m_player = m_player.get();
-            enemy.m_flowField = m_flowField.get();
-            enemy.m_bodyInterface = m_engine.getJoltInstance()->getBodyInterface();
-            setupShards(enemy);
-
-            m_enemies.emplace_back(std::move(enemy));
-        }
-    }
-}
-
-void Game::updateEnemies()
-{
-    for (std::size_t i{0}; i < m_enemies.size(); ++i)
-    {
-        Enemy& enemy{m_enemies[i]};
-        if (enemy.m_entity->getKill())
-        {
-            std::swap(m_enemies[m_enemies.size() - 1], m_enemies[i]);
-            m_enemies.pop_back();
-            --i;
-            continue;
-        }
-        enemy.update();
-    }
-
-    m_enemies.erase(
-        std::remove_if(m_enemies.begin(), m_enemies.end(), [](const Enemy& e) { return e.m_entity->getKill(); }),
-        m_enemies.end());
-}
-
-void Game::setupShards(Enemy& enemy)
-{
-    std::string_view name{enemy.m_entity->getModel()->getName()};
-    if (name == "MODEL mug")
-    {
-        enemy.setupShards("data/models/mug_shards/", &m_engine);
-    }
-}
-
-std::string Game::getEntityName(Entity* entity) const
-{
-    std::vector<std::string> words{};
-    words.reserve(2);
-    Util::splitStr(entity->getModel()->getName(), words, ' ');
-    return words[1];
 }

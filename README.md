@@ -107,6 +107,8 @@ cd build
 - [ ] Make shards despawn
 - [ ] Fix pathfinding when player is same tile
 - [ ] Different screen resolutions
+- [ ] Screenshake
+- [ ] Variance shadow mapping
 
 ## Blender items:
 
