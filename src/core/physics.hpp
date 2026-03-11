@@ -37,11 +37,11 @@
 #include <Jolt/Math/Float3.h>
 #include <Jolt/Core/StreamWrapper.h>
 
-#include <fstream>
 #include <glm/gtc/quaternion.hpp>
-#include <ios>
 #define GLM_FORCE_QUAT_DATA_WXYZ
 
+#include <fstream>
+#include <ios>
 #include <iostream>
 #include <cstdarg>
 #include <cassert>
@@ -50,6 +50,7 @@
 #include <mutex>
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 
 using t_timepoint = std::chrono::time_point<std::chrono::system_clock>;
 using t_duration = std::chrono::duration<double>;
@@ -669,28 +670,52 @@ public:
 
     void exportFile(const char* path)
     {
-        assert(!m_result.HasError());
+        assert(!m_result.HasError() && m_result.Get() != nullptr);
 
-        JPH::RefConst<JPH::Shape> shape{m_result.Get()};
+        std::filesystem::path filePath{path};
+        if (filePath.has_parent_path())
+        {
+            std::filesystem::create_directories(filePath.parent_path());
+        }
 
         std::ofstream file{path, std::ios::binary};
-        if (file.is_open())
+        if (!file.is_open())
         {
-            JPH::StreamOutWrapper stream{file};
-            JPH::Shape::ShapeToIDMap ioShapeMap;
-            JPH::Shape::MaterialToIDMap ioMaterialMap;
-            shape->SaveWithChildren(stream, ioShapeMap, ioMaterialMap);
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to export to `" << path << "`" << std::endl;
+            Util::endError();
+            return;
         }
+
+        JPH::StreamOutWrapper stream{file};
+        JPH::RefConst<JPH::Shape> shape{m_result.Get()};
+
+        shape->SaveBinaryState(stream);
+        file.flush();
     }
 
     void loadFile(const char* path)
     {
         std::ifstream file{path, std::ios::binary};
-        if (file.is_open())
+        if (!file.is_open())
         {
-            JPH::StreamInWrapper stream{file};
-            m_result = JPH::Shape::sRestoreFromBinaryState(stream);
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to load from `" << path << "`";
+            Util::endError();
+            return;
         }
+
+        JPH::StreamInWrapper stream{file};
+        JPH::Shape::ShapeResult shape{JPH::Shape::sRestoreFromBinaryState(stream)};
+        if (shape.HasError() || shape.Get() == nullptr)
+        {
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to load shape from `" << path << "`";
+            Util::endError();
+            return;
+        }
+
+        m_result = std::move(shape);
     }
 
     [[nodiscard]] JPH::Shape::ShapeResult* getResult() { return &m_result; }
