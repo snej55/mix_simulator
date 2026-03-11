@@ -21,4 +21,5 @@ struct Enemy
 
     void update();
     void setupShards(const char* shardsFolder, void* engine);
+    void explode(Scene* scene, float force);
 };

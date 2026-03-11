@@ -453,12 +453,7 @@ void Game::updateEnemies()
 
         if (!enemy.m_shardBody->getBroken())
         {
-            std::vector<Entity*> shards;
-            enemy.m_shardBody->explode(10.f, shards);
-            for (std::size_t s{0}; s < shards.size(); ++s)
-            {
-                m_scene->addEntity(shards[s]);
-            }
+            enemy.explode(m_scene.get(), 10.f);
         }
     }
 

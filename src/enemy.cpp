@@ -42,3 +42,18 @@ void Enemy::setupShards(const char* shardsFolder, void* engine)
     m_shardBody = std::make_unique<ShardBody>(m_name.c_str(), shardsFolder, m_entity, m_bodyInterface);
     m_shardBody->init(engine);
 }
+
+void Enemy::explode(Scene* scene, const float force)
+{
+    if (m_shardBody->getBroken())
+    {
+        return;
+    }
+
+    std::vector<Entity*> shards;
+    m_shardBody->explode(force, shards);
+    for (std::size_t s{0}; s < shards.size(); ++s)
+    {
+        scene->addEntity(shards[s]);
+    }
+}

@@ -28,7 +28,7 @@ cd build
 - Skeletal animation
 - GLTF Model loading
 - Hybrid renderer (deferred for opaque meshes, forward for transparent)
-- HDR ([Khronos PBR Neutral Tonemapping)](https://github.com/KhronosGroup/ToneMapping/tree/main/PBR_Neutral)
+- HDR [ACES & Khronos PBR Neutral Tonemapping](https://github.com/KhronosGroup/ToneMapping/tree/main/PBR_Neutral)
 - Bloom (PBR)
 - SSAO (Screen Space Ambient Occlusion)
 - Anti-aliasing (FXAA)
@@ -36,6 +36,7 @@ cd build
 - Freetype2 font rendering
 - Physics engine ([Jolt](https://github.com/jrouwe/JoltPhysics))
 - Cascading Shadow Maps
+- Flow field pathfinding
 
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20251213_093758.png)
 
