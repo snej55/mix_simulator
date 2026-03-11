@@ -126,6 +126,11 @@ void ShardBody::explode(const float force, std::vector<Entity*>& shards)
     if (m_broken)
         return;
 
+    const JPH::BodyID& entityID{m_entity->getPhysicsBody()->getBodyID()};
+    JPH::Vec3 linearVel;
+    JPH::Vec3 angularVel;
+    m_bodyInterface->GetLinearAndAngularVelocity(entityID, linearVel, angularVel);
+
     const Bounds::Transform& src{m_entity->getTransform()};
     const glm::vec3 scale{src.getLocalScale()};
     const glm::quat rotationQuat{glm::quat(glm::radians(src.getLocalRotation()))};
@@ -149,6 +154,13 @@ void ShardBody::explode(const float force, std::vector<Entity*>& shards)
         PhysicsBody physicsBody{m_hulls[i].getResult(), m_bodyInterface, finalT.getLocalRotation(), BodyType::DYNAMIC,
                                 finalT.getGlobalPosition() + finalT.getPivotOffset()};
         shard->setPhysicsBody(physicsBody);
+        m_bodyInterface->SetLinearAndAngularVelocity(
+            shard->getPhysicsBody()->getBodyID(),
+            linearVel + angularVel.Cross({worldOffset.x, worldOffset.y, worldOffset.z}), angularVel);
+        constexpr float randForce{20.f};
+        m_bodyInterface->AddAngularImpulse(
+            shard->getPhysicsBody()->getBodyID(),
+            {Util::random() * randForce, Util::random() * randForce, Util::random() * randForce});
 
         if (force > 0.0f)
         {
