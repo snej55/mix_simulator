@@ -23,13 +23,7 @@
 
 #include <memory>
 
-Game::~Game()
-{
-    for (std::size_t i{0}; i < m_enemies.size(); ++i)
-    {
-        m_enemies[i].free();
-    }
-}
+Game::~Game() {}
 
 bool Game::init()
 {
@@ -82,10 +76,6 @@ bool Game::init()
     m_flowField->init(m_scene.get());
 
     getEnemies();
-
-    ShardBody shard{"mug_shards", "data/models/mug_shards/", m_player->getEntity(),
-                    m_engine.getJoltInstance()->getBodyInterface()};
-    shard.init(&m_engine);
 
     return true;
 }
@@ -429,6 +419,7 @@ bool Game::gameover()
 void Game::getEnemies()
 {
     m_enemies.clear();
+    m_enemies.reserve(64); // give us some space
     std::vector<Entity*> dynamicEntities{};
     m_scene->getDynamicEntities(dynamicEntities);
     for (std::size_t i{0}; i < dynamicEntities.size(); ++i)
@@ -439,9 +430,9 @@ void Game::getEnemies()
             enemy.m_player = m_player.get();
             enemy.m_flowField = m_flowField.get();
             enemy.m_bodyInterface = m_engine.getJoltInstance()->getBodyInterface();
-            enemy.setupShards("data/models/mug_shards/");
+            enemy.setupShards("data/models/mug_shards/", &m_engine);
 
-            m_enemies.emplace_back(enemy);
+            m_enemies.emplace_back(std::move(enemy));
         }
     }
 }
@@ -451,15 +442,28 @@ void Game::updateEnemies()
     for (std::size_t i{0}; i < m_enemies.size(); ++i)
     {
         Enemy& enemy{m_enemies[i]};
-        std::vector<Entity*> shards{};
-        enemy.m_shardBody->explode(10, shards);
-        for (std::size_t s{0}; s < shards.size(); ++s)
+        if (enemy.m_entity->getKill())
         {
-            m_scene->addEntity(shards[s]);
+            std::swap(m_enemies[m_enemies.size() - 1], m_enemies[i]);
+            m_enemies.pop_back();
+            --i;
+            continue;
         }
+        enemy.update();
 
-        std::swap(m_enemies[m_enemies.size() - 1], m_enemies[i]);
-        m_enemies.pop_back();
-        --i;
+        if (!enemy.m_shardBody->getBroken())
+        {
+            std::vector<Entity*> shards{};
+            enemy.m_shardBody->explode(10, shards);
+            std::cout << "exploded\n";
+            for (std::size_t s{0}; s < shards.size(); ++s)
+            {
+                m_scene->addEntity(shards[s]);
+            }
+        }
     }
+
+    m_enemies.erase(
+        std::remove_if(m_enemies.begin(), m_enemies.end(), [](const Enemy& e) { return e.m_entity->getKill(); }),
+        m_enemies.end());
 }

@@ -45,8 +45,20 @@ void ShardBody::init(void* engine)
     {
         const Model* model{m_models[i]};
         const std::string cachePath{"data/cache/" + m_name + std::to_string(i) + ".bin"};
-        ShapeLoader shapeLoader;
-        if (!Util::fileExists(cachePath))
+        ShapeLoader shapeLoader{};
+
+        bool validCache{false};
+        if (Util::fileExists(cachePath))
+        {
+            shapeLoader.loadFile(cachePath.c_str());
+            JPH::Shape::ShapeResult* result{shapeLoader.getResult()};
+            if (!result->HasError() && result->Get() != nullptr &&
+                result->Get()->GetSubType() == JPH::EShapeSubType::ConvexHull)
+            {
+                validCache = true;
+            }
+        }
+        if (!validCache)
         {
             std::vector<glm::vec3> vertices{};
             for (const Mesh* mesh : model->getOpaqueMeshes())
@@ -68,17 +80,13 @@ void ShardBody::init(void* engine)
             shapeLoader = ShapeLoader{vertices};
             shapeLoader.exportFile(cachePath.c_str());
         }
-        else
-        {
-            shapeLoader = ShapeLoader{};
-            shapeLoader.loadFile(cachePath.c_str());
-        }
         m_hulls.emplace_back(shapeLoader);
     }
 }
 
 void ShardBody::explode(const float force, std::vector<Entity*>& shards)
 {
+    std::cout << "exploded!!\n";
     const Bounds::Transform& transform{m_entity->getTransform()};
     shards.clear();
     shards.reserve(m_numShards);
@@ -91,7 +99,7 @@ void ShardBody::explode(const float force, std::vector<Entity*>& shards)
         shards.emplace_back(shard);
     }
     m_entity->setKill(true);
-    m_broken = false;
+    m_broken = true;
 }
 
 std::pair<Model*, ShapeLoader*> ShardBody::getShard(const std::size_t idx)

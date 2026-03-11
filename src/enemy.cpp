@@ -5,12 +5,6 @@
 
 Enemy::Enemy(Entity* entity, const char* name) : m_entity{entity}, m_name{name} {}
 
-Enemy::Enemy(const Enemy& other) :
-    m_entity{other.m_entity}, m_name{other.m_name}, m_shardBody{other.m_shardBody}, m_player{other.m_player},
-    m_flowField{other.m_flowField}, m_bodyInterface{other.m_bodyInterface}
-{
-}
-
 void Enemy::update()
 {
     assert(m_player != nullptr && m_flowField != nullptr && m_bodyInterface != nullptr);
@@ -43,13 +37,8 @@ void Enemy::update()
                                        {direction.x * torque, 0.f, direction.y * torque});
 }
 
-void Enemy::setupShards(const char* shardsFolder)
+void Enemy::setupShards(const char* shardsFolder, void* engine)
 {
-    m_shardBody = new ShardBody{m_name.c_str(), shardsFolder, m_entity, m_bodyInterface};
-}
-
-void Enemy::free()
-{
-    delete m_shardBody;
-    m_shardBody = nullptr;
+    m_shardBody = std::make_unique<ShardBody>(m_name.c_str(), shardsFolder, m_entity, m_bodyInterface);
+    m_shardBody->init(engine);
 }

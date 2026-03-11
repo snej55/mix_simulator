@@ -37,6 +37,13 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
         Entity* entity{m_entities[i]};
         assert(entity != nullptr);
 
+        if (entity->getKill())
+        {
+            entity->setDiscarded(true);
+            discardEntities.emplace_back(entity);
+            continue;
+        }
+
         if (entity->getDiscarded() || entity->getStatic())
         {
             continue;
@@ -277,6 +284,9 @@ void Scene::resetEntityFlags()
     {
         for (Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             entity->setDirty(false);
             entity->setRendered(false);
         }
@@ -438,6 +448,9 @@ void Scene::getShadowModels(std::vector<std::pair<Model*, glm::mat4>>& models) c
     {
         for (const Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             if (auto it{unique.find(entity)}; it == unique.end())
             {
                 models.emplace_back(
