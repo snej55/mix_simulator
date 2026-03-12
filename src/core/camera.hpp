@@ -172,7 +172,6 @@ private:
 
     float m_followDistance;
     glm::vec3 m_targetPosition{};
-    float m_focalLength{0.0f};
 
     void updateCameraVectors()
     {

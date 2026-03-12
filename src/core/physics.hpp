@@ -355,7 +355,7 @@ class SoundContactListener : public JPH::ContactListener
 
         // const float scrapeSpeed{(relVel - impactSpeed * inManifold.mWorldSpaceNormal).Length()};
 
-        constexpr float threshold{0.3f};
+        constexpr float threshold{0.6f};
         if (impactSpeed > threshold)
         {
             if (!m_started)

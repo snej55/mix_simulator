@@ -105,10 +105,11 @@ cd build
 - [ ] Loading screen! (multithreading ugh)
 - [ ] Fix sounds
 - [ ] Make shards despawn
-- [ ] Fix pathfinding when player is same tile
-- [ ] Different screen resolutions
+- [X] Fix pathfinding when player is same tile
+- [X] Different screen resolutions
 - [ ] Screenshake
-- [ ] Variance shadow mapping
+- [ ] Variance shadow mapping?
+- [ ] Add settings page to menu
 
 ## Blender items:
 
