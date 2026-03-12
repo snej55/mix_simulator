@@ -114,9 +114,9 @@ cd build
 ## Blender items:
 
 - [X] Mug
-- [ ] Bud vase
+- [X] Bud vase
 - [ ] Pot
-- [ ] Cider jug
+- [X] Cider jug
 - [ ] Pestle
 - [ ] Anaphora
 - [ ] Ewer
