@@ -242,7 +242,6 @@ bool Engine::init(const int width, const int height, const char* title)
     }
 
     std::cout << "ENGINE::INIT: Successfully created components!\n";
-
     return true;
 }
 
@@ -397,13 +396,10 @@ void Engine::resizePPChain()
     if (!m_resize)
         return;
 
-    m_window->setWidth(m_tempRes.x);
-    m_window->setHeight(m_tempRes.y);
+    updateDeferredRenderer(getRenderWidth(), getRenderHeight());
+    updateSSAOGenerator(getRenderWidth(), getRenderHeight());
+    updatePostProcessor(getRenderWidth(), getRenderHeight());
 
-    updateDeferredRenderer(m_tempRes.x, m_tempRes.y);
-    updateSSAOGenerator(m_tempRes.x, m_tempRes.y);
-
-    updatePostProcessor(m_tempRes.x, m_tempRes.y);
     m_uiRenderer->generate(m_tempRes.x, m_tempRes.y);
     if (m_fontRenderer != nullptr && m_fontRenderer->getLoaded())
     {
@@ -417,6 +413,16 @@ void Engine::resizePPChain()
 
     glViewport(0, 0, m_tempRes.x, m_tempRes.y);
     m_resize = false;
+}
+
+void Engine::setRenderScale(const float scale)
+{
+    m_renderScale = std::clamp(scale, 0.1f, 1.0f);
+    if (m_window != nullptr)
+    {
+        m_tempRes = {getWidth(), getHeight()};
+        m_resize = true;
+    }
 }
 
 // ------ IOHandler ------ //
@@ -1098,6 +1104,9 @@ void Engine::disablePostProcessing() const { m_postProcessor->disable(); }
 void Engine::renderPostProcessing() const
 {
     m_postProcessor->renderHDR(getShader("bloomSS"));
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, getWidth(), getHeight());
 
     unsigned int uiTEX{m_uiRenderer->getTEX()};
     m_postProcessor->renderFinal(getShader("FXAA"), &uiTEX);

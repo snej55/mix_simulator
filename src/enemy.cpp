@@ -87,7 +87,7 @@ void EnemyManager::update()
 
         if (enemy.m_shouldExplode)
         {
-            enemy.explode(m_scene, 100000.f);
+            enemy.explode(m_scene, 6700.f);
             enemy.m_shouldExplode = false;
         }
         enemy.update();
@@ -170,7 +170,6 @@ void EnemyListener::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& in
 
     if (impactSpeed > 20.0f)
     {
-        std::cout << impactSpeed << std::endl;
         static_cast<EnemyManager*>(m_manager)->handleCollision(inBody1.GetID(), inBody2.GetID());
     }
 }

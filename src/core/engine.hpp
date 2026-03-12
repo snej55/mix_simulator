@@ -71,6 +71,18 @@ public:
 
     void resize(int width, int height);
 
+    [[nodiscard]] float getRenderScale() const { return m_renderScale; }
+    [[nodiscard]] int getRenderWidth() const
+    {
+        return std::max(1, static_cast<int>(std::floor(static_cast<float>(getWidth()) * m_renderScale)));
+    }
+    [[nodiscard]] int getRenderHeight() const
+    {
+        return std::max(1, static_cast<int>(std::floor(static_cast<float>(getHeight()) * m_renderScale)));
+    }
+
+    void setRenderScale(float scale);
+
     // ------ IOHandler ------ //
 
     // create iohandler for keyboard input
@@ -337,6 +349,7 @@ private:
     std::vector<float> m_deltaTimes{};
 
     glm::ivec2 m_tempRes{0, 0};
+    float m_renderScale{1.0f};
     bool m_resize{false};
     void resizePPChain();
 };

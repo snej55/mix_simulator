@@ -36,6 +36,7 @@ bool Game::init()
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
 
     m_engine.setCameraControlsEnabled(false);
+    // m_engine.setRenderScale(0.8);
 
     m_assets = std::make_unique<Assets>();
     m_assets->loadAssets(m_engine.getAudioHandler());
