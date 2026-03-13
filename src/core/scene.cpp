@@ -342,6 +342,7 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
         }
         else
         {
+            std::cout << "Removed entity\n";
             jolt->getBodyInterface()->RemoveBody(entity->getPhysicsBody()->getBodyID());
             jolt->getBodyInterface()->DestroyBody(entity->getPhysicsBody()->getBodyID());
             delete entity;

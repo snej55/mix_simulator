@@ -205,7 +205,7 @@ void Game::update()
     m_flowField->setPlayerPos(m_player->get2DPos());
     m_flowField->calculateFlowField(true);
 
-    m_enemyManager->update();
+    m_enemyManager->update(m_engine.getDeltaTime());
 
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());

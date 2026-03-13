@@ -22,7 +22,7 @@ struct Enemy
 
     void update();
     void setupShards(const char* shardsFolder, void* engine);
-    void explode(Scene* scene, float force);
+    void explode(Scene* scene, float force, void* manager = nullptr);
 };
 
 class EnemyListener : public JPH::ContactListener
@@ -53,12 +53,14 @@ public:
     EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flowField, JPH::BodyInterface* bodyInterface,
                  void* engine);
 
-    void update();
+    void update(float dt);
 
     void handleCollision(const JPH::BodyID& body1, const JPH::BodyID& body2);
 
     [[nodiscard]] const std::vector<Enemy>& getEnemiesVec() const { return m_enemies; }
     [[nodiscard]] EnemyListener* getListener() { return &m_listener; }
+    void addShard(Entity* entity);
+    [[nodiscard]] const std::vector<std::pair<double, Entity*>>& getShards() const { return m_shards; }
 
 private:
     Player* m_player;
@@ -69,6 +71,8 @@ private:
 
     std::vector<Enemy> m_enemies{};
     EnemyListener m_listener{};
+
+    std::vector<std::pair<double, Entity*>> m_shards{};
 
     void getEnemies();
     void setupShards(Enemy& enemy);

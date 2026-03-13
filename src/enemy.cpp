@@ -4,8 +4,8 @@
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
+#include <Jolt/Physics/Body/BodyID.h>
 
-#include "Jolt/Physics/Body/BodyID.h"
 #include "shards.hpp"
 #include "enemy.hpp"
 
@@ -49,7 +49,7 @@ void Enemy::setupShards(const char* shardsFolder, void* engine)
     m_shardBody->init(engine);
 }
 
-void Enemy::explode(Scene* scene, const float force)
+void Enemy::explode(Scene* scene, const float force, void* manager)
 {
     if (m_shardBody == nullptr || m_shardBody->getBroken())
     {
@@ -60,8 +60,13 @@ void Enemy::explode(Scene* scene, const float force)
     m_shardBody->explode(force, shards);
     for (std::size_t s{0}; s < shards.size(); ++s)
     {
+        if (manager != nullptr)
+        {
+            static_cast<EnemyManager*>(manager)->addShard(shards[s]);
+        }
         scene->addEntity(shards[s]);
     }
+    std::cout << std::endl;
 }
 
 EnemyManager::EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flowField,
@@ -72,8 +77,24 @@ EnemyManager::EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flo
     getEnemies();
 }
 
-void EnemyManager::update()
+void EnemyManager::update(const float dt)
 {
+    for (std::size_t s{0}; s < m_shards.size(); ++s)
+    {
+        m_shards[s].first += dt;
+        if (m_shards[s].first > 60.0)
+        {
+            m_shards[s].second->setKill(true);
+        }
+
+        if (m_shards[s].second->getKill())
+        {
+            m_shards[s].second->setKill(true);
+            std::swap(m_shards[0], m_shards[s]);
+            m_shards.pop_back();
+            --s;
+        }
+    }
     for (std::size_t i{0}; i < m_enemies.size(); ++i)
     {
         Enemy& enemy{m_enemies[i]};
@@ -87,7 +108,7 @@ void EnemyManager::update()
 
         if (enemy.m_shouldExplode)
         {
-            enemy.explode(m_scene, 6700.f);
+            enemy.explode(m_scene, 6700.f, this);
             enemy.m_shouldExplode = false;
         }
         enemy.update();
@@ -110,6 +131,8 @@ void EnemyManager::handleCollision(const JPH::BodyID& body1, const JPH::BodyID& 
         }
     }
 }
+
+void EnemyManager::addShard(Entity* entity) { m_shards.emplace_back(std::pair{0.0, entity}); }
 
 void EnemyManager::getEnemies()
 {

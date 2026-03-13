@@ -110,6 +110,7 @@ cd build
 - [ ] Screenshake
 - [ ] Variance shadow mapping?
 - [ ] Add settings page to menu
+- [ ] Make player explodable
 
 ## Blender items:
 
@@ -121,6 +122,7 @@ cd build
 - [ ] Anaphora
 - [ ] Ewer
 - [ ] Player character (rubber duck)
+- [ ] Add all the shards
 
 ## Debugging/Release todo:
 - [ ] Polish shadows
