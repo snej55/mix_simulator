@@ -40,4 +40,12 @@ void Camera::followPlayer(const glm::vec3& position, JPH::BodyID playerID, void*
     m_front = glm::normalize(focalPoint - m_position);
     m_right = glm::normalize(glm::cross(m_front, m_worldUp));
     m_up = glm::normalize(glm::cross(m_right, m_front));
+
+    if (m_roll != 0.0f)
+    {
+        glm::mat4 rollMatrix{glm::rotate(glm::mat4{1.0f}, glm::radians(m_roll), m_front)};
+
+        m_right = glm::vec3{rollMatrix * glm::vec4{m_right, 0.0f}};
+        m_up = glm::vec3{rollMatrix * glm::vec4{m_up, 0.0f}};
+    }
 }
