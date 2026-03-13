@@ -158,8 +158,8 @@ public:
     void setTargetPosition(const glm::vec3& position) { m_targetPosition = position; }
     [[nodiscard]] const glm::vec3& getTargetPosition() const { return m_targetPosition; }
 
-    void setScreenShake(const float val) { m_screenShake = val; }
-    [[nodiscard]] float getScreenShake() const { return m_screenShake; }
+    void setRoll(const float val) { m_roll = val; }
+    [[nodiscard]] float getRoll() const { return m_roll; }
 
 private:
     glm::vec3 m_position{};
@@ -171,7 +171,6 @@ private:
     float m_yaw;
     float m_pitch;
     float m_roll;
-    float m_screenShake{0.0f};
 
     float m_movementSpeed;
     float m_mouseSensitivity;
