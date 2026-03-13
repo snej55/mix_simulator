@@ -107,7 +107,7 @@ cd build
 - [ ] Make shards despawn
 - [X] Fix pathfinding when player is same tile
 - [X] Different screen resolutions
-- [ ] Screenshake
+- [X] Screenshake
 - [ ] Variance shadow mapping?
 - [ ] Add settings page to menu
 - [ ] Make player explodable
