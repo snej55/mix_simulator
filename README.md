@@ -111,13 +111,14 @@ cd build
 - [ ] Variance shadow mapping?
 - [ ] Add settings page to menu
 - [ ] Make player explodable
+- [ ] Fix floating enemies bug (wth)
 
 ## Blender items:
 
 - [X] Mug
 - [X] Bud vase
 - [ ] Pot
-- [X] Cider jug
+- [ ] Cider jug (remake)
 - [ ] Pestle
 - [ ] Anaphora
 - [ ] Ewer

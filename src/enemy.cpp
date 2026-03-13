@@ -167,6 +167,10 @@ void EnemyManager::setupShards(Enemy& enemy)
     {
         enemy.setupShards("data/models/bud_vase_shards/", m_engine);
     }
+    else if (name == "MODEL cider_jug")
+    {
+        enemy.setupShards("data/models/cider_shards/", m_engine);
+    }
 }
 
 std::string EnemyManager::getEntityName(Entity* entity) const

@@ -265,10 +265,7 @@ int Mesh::SMTGetNumFaces(const SMikkTSpaceContext* context)
 {
     Mesh* mesh{static_cast<Mesh*>(context->m_pUserData)};
 
-    const float fSize{static_cast<float>(mesh->getIndices().size()) / 3.f};
     const int iSize{static_cast<int>(mesh->getIndices().size()) / 3};
-
-    assert((fSize - static_cast<float>(iSize)) == 0.f);
 
     return iSize;
 }
