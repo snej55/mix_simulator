@@ -39,7 +39,7 @@ bool Game::init()
     // m_engine.setRenderScale(0.8);
 
     m_assets = std::make_unique<Assets>();
-    m_assets->loadAssets(m_engine.getAudioHandler());
+    m_assets->loadAssets(m_engine.getAudioHandler(), &m_engine);
 
     m_bqrFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 22000.f, 2.f);
     m_engine.getAudioHandler()->getSound(m_assets->m_SFX_metalImpact)->setFilter(0, &m_bqrFilter);

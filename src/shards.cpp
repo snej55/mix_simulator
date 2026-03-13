@@ -6,7 +6,6 @@
 #include "core/engine.hpp"
 #include "core/util.hpp"
 
-#include <algorithm>
 #include <filesystem>
 #include <limits>
 #include <glm/gtx/quaternion.hpp>
@@ -58,7 +57,6 @@ void ShardBody::init(void* engine)
             shardPaths.emplace_back(path);
         }
     }
-    std::sort(shardPaths.begin(), shardPaths.end());
 
     for (const auto& path : shardPaths)
     {
