@@ -8,6 +8,7 @@
 
 #include "shards.hpp"
 #include "enemy.hpp"
+#include "core/engine.hpp"
 
 Enemy::Enemy(Entity* entity, const char* name) : m_entity{entity}, m_name{name} {}
 
@@ -110,6 +111,7 @@ void EnemyManager::update(const float dt)
         {
             enemy.explode(m_scene, 10000.f, this);
             enemy.m_shouldExplode = false;
+            static_cast<Engine*>(m_engine)->setScreenShake(16.f);
         }
         enemy.update();
     }
