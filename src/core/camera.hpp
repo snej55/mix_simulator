@@ -165,6 +165,7 @@ private:
 
     float m_yaw;
     float m_pitch;
+    float m_roll;
 
     float m_movementSpeed;
     float m_mouseSensitivity;

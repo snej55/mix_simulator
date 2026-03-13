@@ -108,7 +108,7 @@ void EnemyManager::update(const float dt)
 
         if (enemy.m_shouldExplode)
         {
-            enemy.explode(m_scene, 6700.f, this);
+            enemy.explode(m_scene, 10000.f, this);
             enemy.m_shouldExplode = false;
         }
         enemy.update();
