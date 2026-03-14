@@ -36,10 +36,11 @@ bool Game::init()
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
 
     m_engine.setCameraControlsEnabled(false);
-    // m_engine.setRenderScale(0.8);
 
+    m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
     m_assets = std::make_unique<Assets>();
     m_assets->loadAssets(m_engine.getAudioHandler(), &m_engine);
+    loading();
 
     m_bqrFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 22000.f, 2.f);
     m_engine.getAudioHandler()->getSound(m_assets->m_SFX_metalImpact)->setFilter(0, &m_bqrFilter);
@@ -59,7 +60,6 @@ bool Game::init()
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
-    m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
 
     m_player = std::make_unique<Player>(glm::vec3{50.0f, 5.f, 50.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
@@ -78,6 +78,59 @@ bool Game::init()
                                                     m_engine.getJoltInstance()->getBodyInterface(), &m_engine);
     m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
     return true;
+}
+
+bool Game::loading()
+{
+    m_engine.setupViewport();
+
+    GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
+    FontManager* fontRenderer{m_engine.getFontRenderer()};
+    UIRenderer* uiRenderer{m_engine.getUIRenderer()};
+
+    glDisable(GL_DEPTH_TEST);
+    m_engine.setCameraEnabled(false);
+    while (!m_assets->m_loaded)
+    {
+        constexpr float typeRate{10.f};
+        glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
+        glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
+        glDisable(GL_DEPTH_TEST);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // ---- RENDER FONTS ---- //
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        const Shader* fontShader{m_engine.getShader("fonts")};
+
+        fontRenderer->renderText(fontShader, "Loading " + std::to_string(m_assets->m_progress * 100.f) + "%",
+                                 static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+
+        glDisable(GL_BLEND);
+        // ---------------------- //
+
+        double cposX, cposY;
+        float windowScaleX, windowScaleY;
+        glfwGetCursorPos(windowPtr, &cposX, &cposY);
+        glfwGetWindowContentScale(windowPtr, &windowScaleX, &windowScaleY);
+        cposX *= windowScaleX;
+        cposY *= windowScaleY;
+
+        // ---- RENDER TEXTURES ---- //
+
+        glEnable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // ------------------------ //
+
+        m_engine.update(nullptr, nullptr, {}, {}, true);
+        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
+    }
+    return false;
 }
 
 bool Game::menu()

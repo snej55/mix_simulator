@@ -24,6 +24,8 @@ public:
 
     bool init();
 
+    bool loading();
+
     bool menu();
 
     bool gameover();
