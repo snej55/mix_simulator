@@ -119,7 +119,7 @@ cd build
 - [ ] Create decor
 - [ ] Maze generation?
 - [X] Walls around level
-- [ ] New HDRI
+- [X] New HDRI
 - [ ] Limit player flying
 - [X] Find rubber duck model
 - [ ] Particles
@@ -137,8 +137,8 @@ cd build
 - [ ] Add all the shards
 
 ## Debugging/Release todo:
-- [ ] Polish shadows
-- [ ] Fix camera jitter when falling
+- [X] Polish shadows
+- [X] Fix camera jitter when falling
 - [ ] Fix minimizing bug on Windows
 - [ ] Fix mouse position scaling with menu button on Windows
 - [ ] Fix MacOS build
