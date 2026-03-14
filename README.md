@@ -142,3 +142,4 @@ cd build
 - [ ] Fix minimizing bug on Windows
 - [ ] Fix mouse position scaling with menu button on Windows
 - [ ] Fix MacOS build
+- [ ] Centre models around WS origin
