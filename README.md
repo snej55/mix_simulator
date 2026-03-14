@@ -101,8 +101,7 @@ cd build
 - [ ] Clean up data folder
 - [X] Convex hull preloading (export jolt bodies as binaries)
 - [ ] Particle vfx
-- [ ] Load all assets at the start
-- [ ] Loading screen! (multithreading ugh)
+- [X] Load all assets at the start
 - [ ] Fix sounds
 - [ ] Make shards despawn
 - [X] Fix pathfinding when player is same tile
@@ -112,6 +111,14 @@ cd build
 - [ ] Add settings page to menu
 - [ ] Make player explodable
 - [ ] Fix floating enemies bug (wth)
+
+## Game loop (today):
+- [ ] Create walls/decor for maze
+- [ ] Maze generation?
+- [ ] Walls around level
+- [ ] Limit player flying
+- [ ] Find rubber duck model
+- [ ] Particles
 
 ## Blender items:
 

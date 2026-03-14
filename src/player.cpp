@@ -15,8 +15,8 @@ Player::Player(const glm::vec3& pos, Model* model)
 
 void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
 {
-    constexpr float speed{50000.f};
-    constexpr float torque{20000.f};
+    constexpr float speed{5000.f};
+    constexpr float torque{2000.f};
 
     const glm::vec3 front{camera->getFront()};
     const glm::vec3 right{camera->getRight()};

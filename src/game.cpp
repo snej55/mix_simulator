@@ -60,7 +60,7 @@ bool Game::init()
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
 
-    m_player = std::make_unique<Player>(glm::vec3{50.0f, 5.f, 50.0f}, m_engine.getModel("table"));
+    m_player = std::make_unique<Player>(glm::vec3{50.0f, 50.f, 50.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
     m_scene->addEntity(m_player->getEntity());
 
