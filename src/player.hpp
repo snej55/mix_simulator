@@ -48,6 +48,7 @@ public:
 
 private:
     Entity* m_entity{nullptr};
+    bool m_jump{false};
 
     std::unique_ptr<PlayerController> m_input{nullptr};
 };

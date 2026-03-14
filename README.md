@@ -120,7 +120,7 @@ cd build
 - [ ] Maze generation?
 - [X] Walls around level
 - [X] New HDRI
-- [ ] Limit player flying
+- [X] Limit player flying
 - [X] Find rubber duck model
 - [ ] Particles
 
@@ -133,7 +133,7 @@ cd build
 - [ ] Pestle
 - [ ] Anaphora
 - [ ] Ewer
-- [ ] Player character (rubber duck)
+- [X] Player character (rubber duck)
 - [ ] Add all the shards
 
 ## Debugging/Release todo:

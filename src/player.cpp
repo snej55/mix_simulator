@@ -48,10 +48,20 @@ void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
                                          {-rightDir.x * speed, 0.f, -rightDir.z * speed},
                                          {-rightDir.x * torque, 0.f, rightDir.z * torque});
     }
-    if (m_input->getControl(Controls::SPACE))
+    if (m_input->getControl(Controls::SPACE) && m_jump)
     {
         bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, speed, 0.f},
                                          {0.f, torque, 0.f});
+    }
+
+    float y{m_entity->getGlobalMidpoint().y};
+    if (y < 0.5f)
+    {
+        m_jump = true;
+    }
+    if (y > 2.5f)
+    {
+        m_jump = false;
     }
 }
 
