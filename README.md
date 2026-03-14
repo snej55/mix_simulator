@@ -3,7 +3,7 @@
 
 A physics based game made using C++ and OpenGL. Currently a renderer based off of my opengl framework.
 
-![screenshot](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260214_202103.png)
+![screenshot](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192138.png)
 
 Sketchfab GLTF model used: [https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66](https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66)
 
@@ -38,7 +38,10 @@ cd build
 - Cascading Shadow Maps
 - Flow field pathfinding
 
-![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20251213_093758.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192035.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192255.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192231.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20251213_093650.png)
 
 ## TODO:
 - [X] Finish IBL
@@ -113,11 +116,12 @@ cd build
 - [ ] Fix floating enemies bug (wth)
 
 ## Game loop (today):
-- [ ] Create walls/decor for maze
+- [ ] Create decor
 - [ ] Maze generation?
-- [ ] Walls around level
+- [X] Walls around level
+- [ ] New HDRI
 - [ ] Limit player flying
-- [ ] Find rubber duck model
+- [X] Find rubber duck model
 - [ ] Particles
 
 ## Blender items:

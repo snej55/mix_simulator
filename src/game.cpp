@@ -51,8 +51,7 @@ bool Game::init()
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
-    m_iblGenerator->init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png",
-                         &m_engine);
+    m_iblGenerator->init("data/skyboxes/sky.hdr", "data/IBL/sunset/output_iem.hdr", "data/IBL/brdf_lut.png", &m_engine);
     Util::printVec3(m_iblGenerator->getLightDirection());
     m_engine.setLightDirection(m_iblGenerator->getLightDirection());
 
