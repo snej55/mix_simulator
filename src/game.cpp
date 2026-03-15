@@ -208,6 +208,8 @@ void Game::update()
 
     m_enemyManager->update(m_engine.getDeltaTime());
 
+    m_particles->addParticle(m_player->getEntity()->getGlobalMidpoint(),
+                             {Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f});
     m_particles->update(m_engine.getDeltaTime());
 
     // update entities
