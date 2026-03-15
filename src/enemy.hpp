@@ -5,6 +5,7 @@
 #include "pathfinding.hpp"
 #include "player.hpp"
 #include "shards.hpp"
+#include "particles.hpp"
 
 #include <memory>
 
@@ -53,7 +54,7 @@ public:
     EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flowField, JPH::BodyInterface* bodyInterface,
                  void* engine);
 
-    void update(float dt);
+    void update(float dt, ParticleManager* particles);
 
     void handleCollision(const JPH::BodyID& body1, const JPH::BodyID& body2);
 

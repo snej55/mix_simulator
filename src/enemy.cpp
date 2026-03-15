@@ -6,6 +6,7 @@
 #include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
 #include <Jolt/Physics/Body/BodyID.h>
 
+#include "particles.hpp"
 #include "shards.hpp"
 #include "enemy.hpp"
 #include "core/engine.hpp"
@@ -78,7 +79,7 @@ EnemyManager::EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flo
     getEnemies();
 }
 
-void EnemyManager::update(const float dt)
+void EnemyManager::update(const float dt, ParticleManager* particles)
 {
     for (std::size_t s{0}; s < m_shards.size(); ++s)
     {
@@ -112,6 +113,15 @@ void EnemyManager::update(const float dt)
             enemy.explode(m_scene, 10000.f, this);
             enemy.m_shouldExplode = false;
             static_cast<Engine*>(m_engine)->setScreenShake(16.f);
+
+            const std::size_t amount{static_cast<std::size_t>(Util::random() * 30.f + 50.f)};
+            for (std::size_t i{0}; i < amount; ++i)
+            {
+                glm::vec3 direction{Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f};
+                direction = glm::normalize(direction);
+                const float speed{1.f + Util::random() * 0.5f - 0.25f};
+                particles->addParticle(enemy.m_entity->getGlobalMidpoint(), direction * speed, Util::random());
+            }
         }
         enemy.update();
     }

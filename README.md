@@ -113,7 +113,9 @@ cd build
 - [ ] Variance shadow mapping?
 - [ ] Add settings page to menu
 - [ ] Make player explodable
-- [ ] Fix floating enemies bug (wth)
+- [ ] Spikes
+- [ ] Star particles
+- [ ] Dash
 
 ## Game loop (today):
 - [ ] Create decor
