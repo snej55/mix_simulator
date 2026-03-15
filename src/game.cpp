@@ -59,7 +59,6 @@ bool Game::init()
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
-
     m_player = std::make_unique<Player>(glm::vec3{50.0f, 50.f, 50.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
     m_scene->addEntity(m_player->getEntity());
@@ -96,7 +95,7 @@ bool Game::menu()
     glDisable(GL_DEPTH_TEST);
     m_engine.setCameraEnabled(false);
 
-    const std::vector<const char*> titleText{"M", "i", "x", " ", "S", "i", "m", "u", "l", "a", "t", "o", "r"};
+    const std::vector<const char*> titleText{"D", "u", "c", "k", " ", "B", "o", "w", "l", "i", "n", "g"};
     const float startTime{m_engine.getTime() + 0.5f};
 
     float playButtonScale{0.f};
@@ -132,8 +131,11 @@ bool Game::menu()
         {
             titleTextStr += titleText[i];
         }
-        fontRenderer->renderText(fontShader, titleTextStr, static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
-                                 static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+        const float titleSize{static_cast<float>(limit) / static_cast<float>(titleText.size())};
+        fontRenderer->renderText(
+            fontShader, titleTextStr,
+            static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(titleTextStr, titleSize) * 0.5f,
+            static_cast<float>(m_engine.getHeight()) * 0.7f, titleSize, glm::vec3{1.0f, 1.0f, 1.0f});
 
         fontRenderer->renderText(fontShader, "A game by @snej55",
                                  std::min(-300.f + (m_engine.getTime() - startTime) * 30.f, 10.f), 10.f, 0.5f,

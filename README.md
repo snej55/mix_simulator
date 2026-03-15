@@ -123,6 +123,9 @@ cd build
 - [ ] Cloudy skybox
 - [ ] Different fog intensities
 - [ ] Level transitions
+- [ ] Add invisible walls around whole thing
+- [ ] Try some cool post processing fx (cross stitching?)
+- [ ] Duck jokes on first menu
 
 ## Game loop (today):
 - [ ] Create decor
