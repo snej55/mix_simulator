@@ -15,7 +15,7 @@ struct Particle
 {
     glm::vec3 pos;
     glm::vec3 vel;
-    float size{1.0f};
+    float size;
 };
 
 class ParticleManager
@@ -27,7 +27,7 @@ public:
     void update(float dt);
     // NOTE: Use shader first, this only renders VAO
     void render();
-    void addParticle(const glm::vec3& position, const glm::vec3& vel);
+    void addParticle(const glm::vec3& position, const glm::vec3& vel, float size = 1.f);
 
     [[nodiscard]] const Shader* getShader() const { return m_shader; }
     [[nodiscard]] const std::array<Particle, MAX_PARTICLES>& getParticles() const { return m_particles; }

@@ -17,7 +17,7 @@ ParticleManager::~ParticleManager()
 
 void ParticleManager::update(const float dt)
 {
-    constexpr float friction{0.98f};
+    constexpr float friction{0.08f};
     constexpr float decay{0.01f};
 
     for (std::size_t i{0}; i < m_end; ++i)
@@ -26,11 +26,7 @@ void ParticleManager::update(const float dt)
 
         particle.pos += particle.vel * dt;
         particle.vel *= 1.0 - friction * dt;
-        particle.pos.x += particle.vel.x * dt;
-        particle.vel.x += (particle.vel.x * friction - particle.vel.x) * dt;
-        particle.pos.y += particle.vel.y * dt;
-        particle.vel.y += (particle.vel.y * friction - particle.vel.y) * dt;
-
+        particle.vel.y -= 0.01 * dt;
         particle.size -= decay * dt;
         if (particle.size <= 0.0f)
         {
@@ -49,12 +45,12 @@ void ParticleManager::render()
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, m_end);
 }
 
-void ParticleManager::addParticle(const glm::vec3& position, const glm::vec3& vel)
+void ParticleManager::addParticle(const glm::vec3& position, const glm::vec3& vel, const float size)
 {
     if (m_end >= MAX_PARTICLES)
         return;
 
-    m_particles[m_end] = Particle{position, vel};
+    m_particles[m_end] = Particle{position, vel * size, size};
     ++m_end;
 }
 
@@ -95,9 +91,12 @@ void ParticleManager::init()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), reinterpret_cast<void*>(offsetof(Particle, pos)));
     glVertexAttribDivisor(1, 1);
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Particle),
-                          reinterpret_cast<void*>(offsetof(Particle, size)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), reinterpret_cast<void*>(offsetof(Particle, vel)));
     glVertexAttribDivisor(2, 1);
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle),
+                          reinterpret_cast<void*>(offsetof(Particle, size)));
+    glVertexAttribDivisor(3, 1);
 
     glBindVertexArray(0);
 }
