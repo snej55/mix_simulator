@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_STROKER_H
 
 // glm libraries
 #include <glm/glm.hpp>
@@ -19,8 +20,11 @@
 struct Character
 {
     unsigned int textureID;
+    unsigned int outlineID;
     glm::ivec2 size;
     glm::ivec2 bearing;
+    glm::ivec2 outSize;
+    glm::ivec2 outBearing;
     unsigned int advance;
 };
 
