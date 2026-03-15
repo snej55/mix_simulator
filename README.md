@@ -117,6 +117,8 @@ cd build
 - [ ] Star particles
 - [X] Dash
 - [ ] Collision particles
+- [ ] Shockwave postprocessing
+- [ ] Perlin noise fog?
 
 ## Game loop (today):
 - [ ] Create decor
