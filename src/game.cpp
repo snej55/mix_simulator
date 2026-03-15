@@ -38,7 +38,7 @@ bool Game::init()
 
     m_engine.setCameraControlsEnabled(false);
 
-    m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
+    m_engine.initFontRenderer("data/fonts/supply.ttf", CST::FONT_TEX_SIZE);
     m_assets = std::make_unique<Assets>();
     m_assets->loadAssets(m_engine.getAudioHandler(), &m_engine);
 
@@ -320,12 +320,14 @@ void Game::renderUI() const
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    fontRenderer->renderText(m_engine.getShader("fonts"), "Hello+World!", 10.f, 10.f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
 
     glDisable(GL_BLEND);
 
     glEnable(GL_DEPTH_TEST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
 
 bool Game::gameover()
 {

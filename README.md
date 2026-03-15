@@ -122,6 +122,7 @@ cd build
 - [ ] Make camera scroll change focal length
 - [ ] Cloudy skybox
 - [ ] Different fog intensities
+- [ ] Level transitions
 
 ## Game loop (today):
 - [ ] Create decor
@@ -137,7 +138,8 @@ cd build
 - [X] Mug
 - [X] Bud vase
 - [ ] Pot
-- [ ] Cider jug (remake)
+- [X] Cider jug (remake)
+- [X] Wrecking ball 
 - [ ] Pestle
 - [ ] Anaphora
 - [ ] Ewer
