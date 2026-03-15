@@ -119,6 +119,9 @@ cd build
 - [ ] Collision particles
 - [ ] Shockwave postprocessing
 - [ ] Perlin noise fog?
+- [ ] Make camera scroll change focal length
+- [ ] Cloudy skybox
+- [ ] Different fog intensities
 
 ## Game loop (today):
 - [ ] Create decor

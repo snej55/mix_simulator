@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <limits>
 #include <memory>
 #include <ostream>
 #include <unordered_map>
@@ -101,7 +102,8 @@ public:
     [[nodiscard]] const glm::vec3& getLevelCenter() const { return m_levelCenter; }
 
     void getStaticEntities(std::vector<Entity*>& entities);
-    void getStaticRects(std::vector<Bounds::Rect2D>& rects);
+    void getStaticRects(std::vector<Bounds::Rect2D>& rects, float minHeight = std::numeric_limits<float>::lowest(),
+                        float maxHeight = std::numeric_limits<float>::max());
     void getDynamicEntities(std::vector<Entity*>& entities);
 
 private:

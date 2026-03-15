@@ -44,6 +44,10 @@
             "10": {
                 "name": "container",
                 "path": "data/models/container.glb"
+            },
+            "11": {
+                "name": "ball",
+                "path": "data/models/ball.glb"
             }
         },
         "objects": [
@@ -474,7 +478,7 @@
                     -55.99132061004639
                 ],
                 "rotation": [
-                    1,
+                    45,
                     0,
                     0
                 ],
@@ -486,6 +490,26 @@
                 "modelID": 10,
                 "animated": false,
                 "bodyType": "static"
+            },
+            {
+                "position": [
+                    37.29688596725464,
+                    7.2995524406433105,
+                    -18.09730625152588
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 11,
+                "animated": false,
+                "bodyType": "dynamic"
             }
         ],
         "pointLights": [

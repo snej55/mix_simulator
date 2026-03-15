@@ -1,6 +1,7 @@
 // Created by Jens Kromdijk 27/02/2026
 
 #include "pathfinding.hpp"
+#include <limits>
 #include "constants.hpp"
 #include "core/bounds.hpp"
 
@@ -26,7 +27,7 @@ void FlowFieldGenerator::init(Scene* scene)
     m_baseNodes.reserve(width * height);
 
     std::vector<Bounds::Rect2D> staticRects{};
-    scene->getStaticRects(staticRects);
+    scene->getStaticRects(staticRects, std::numeric_limits<float>::lowest(), 2.f);
 
     for (int y{0}; y < height; ++y)
     {

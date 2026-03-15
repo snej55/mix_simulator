@@ -554,15 +554,19 @@ void Scene::getStaticEntities(std::vector<Entity*>& entities)
     }
 }
 
-void Scene::getStaticRects(std::vector<Bounds::Rect2D>& rects)
+void Scene::getStaticRects(std::vector<Bounds::Rect2D>& rects, const float minHeight, const float maxHeight)
 {
     std::vector<Entity*> staticEntities{};
     getStaticEntities(staticEntities);
     for (const Entity* entity : staticEntities)
     {
         const Bounds::AABB globalAABB = entity->getGlobalAABB();
-        rects.emplace_back(
-            Bounds::Rect2D{{globalAABB.center.x, globalAABB.center.z}, {globalAABB.extents.x, globalAABB.extents.z}});
+        if (globalAABB.center.y + globalAABB.extents.y >= minHeight &&
+            globalAABB.center.y - globalAABB.extents.y < maxHeight)
+        {
+            rects.emplace_back(Bounds::Rect2D{{globalAABB.center.x, globalAABB.center.z},
+                                              {globalAABB.extents.x, globalAABB.extents.z}});
+        }
     }
 }
 
