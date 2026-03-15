@@ -153,8 +153,15 @@
       "name": "depthOnly",
       "shader": {
         "frag": "depthOnly.frag",
-        "vert": "depthOnly.vert",
-        "geom": "depthOnly.geom"
+        "geom": "depthOnly.geom",
+        "vert": "depthOnly.vert"
+      }
+    },
+    {
+      "name": "particles",
+      "shader": {
+        "frag": "particles.frag",
+        "vert": "particles.vert"
       }
     }
   ]
