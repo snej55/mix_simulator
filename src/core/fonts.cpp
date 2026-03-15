@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "engine_types.hpp"
+#include "freetype/ftglyph.h"
 #include "fonts.hpp"
 
 FontManager::FontManager(EngineObject* parent) : EngineObject("fontManager", parent) {}
@@ -26,7 +27,7 @@ bool FontManager::init(const std::string& path, const int height)
 
     FT_Stroker stroker;
     FT_Stroker_New(m_FT, &stroker);
-    FT_Stroker_Set(stroker, 64 * 10, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+    FT_Stroker_Set(stroker, 64 * 2, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 
     // set font size
     FT_Set_Pixel_Sizes(m_face, 0, height);
@@ -38,7 +39,8 @@ bool FontManager::init(const std::string& path, const int height)
     for (unsigned char c{0}; c < 128; c++)
     {
         // load character glyph
-        if (FT_Load_Char(m_face, c, FT_LOAD_RENDER))
+        if (FT_Load_Char(m_face, c, FT_LOAD_DEFAULT)) // NOTE: FT_LOAD_RENDER loads bitmap immediately and discards
+                                                      // vector data (which is needed for strokes)
         {
             std::cout << "ERROR::FONT_MANAGER: Failed to load glyph" << std::endl;
             continue; // go to next character
@@ -83,6 +85,7 @@ bool FontManager::init(const std::string& path, const int height)
                             static_cast<unsigned int>(m_face->glyph->advance.x)};
         // insert character into map
         m_characters.insert(std::pair<char, Character>{c, character});
+        FT_Done_Glyph(outlineGlyph);
     }
 
     FT_Stroker_Done(stroker);
@@ -166,11 +169,11 @@ void FontManager::renderText(const Shader* shader, const std::string text, float
     {
         Character c{m_characters[*chr]};
 
-        const float xpos{x + c.outBearing.x * scale};
-        const float ypos{y - (c.outSize.y - c.outBearing.y) * scale};
+        const float xpos{x + c.bearing.x * scale};
+        const float ypos{y - (c.size.y - c.bearing.y) * scale};
 
-        const float w{c.outSize.x * scale};
-        const float h{c.outSize.y * scale};
+        const float w{c.size.x * scale};
+        const float h{c.size.y * scale};
         // update vbo for each character
         float vertices[6][4] = {// first triangle
                                 {xpos, ypos + h, 0.0f, 0.0f},

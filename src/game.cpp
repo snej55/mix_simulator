@@ -342,7 +342,7 @@ void Game::renderUI()
     {
         targetPos = upperTarget;
     }
-    m_scorePos += (targetPos - m_scorePos) * 0.5f * m_engine.getDeltaTime();
+    m_scorePos += (targetPos - m_scorePos) * 0.1f * m_engine.getDeltaTime();
     const float cover{(upperTarget - m_scorePos) / (upperTarget - lowerTarget)};
 
     m_engine.drawScreenRect(
@@ -351,7 +351,7 @@ void Game::renderUI()
     std::stringstream scoreText{};
     m_complete =
         static_cast<float>(m_enemyManager->getExploded()) / static_cast<float>(m_enemyManager->getNumEnemies());
-    m_renderComplete = std::min(m_renderComplete + 0.0015f * m_engine.getDeltaTime(), m_complete);
+    m_renderComplete = std::min(m_renderComplete + 0.001f * m_engine.getDeltaTime(), m_complete);
     scoreText << "Complete: " << static_cast<int>(m_renderComplete * 100.f) << "%";
     const float scale{0.3f};
     fontRenderer->renderText(m_engine.getShader("fonts"), scoreText.str(),
