@@ -182,6 +182,11 @@ bool Game::menu()
                 return true;
         }
 
+        if (m_engine.getPressed(GLFW_KEY_ENTER))
+        {
+            return true;
+        }
+
         m_engine.update(nullptr, nullptr, {}, {}, true);
         glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
@@ -329,7 +334,6 @@ void Game::renderUI() const
     glEnable(GL_DEPTH_TEST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
 
 bool Game::gameover()
 {
