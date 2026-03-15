@@ -3,6 +3,32 @@
 #include "player.hpp"
 #include "core/physics.hpp"
 
+void PlayerController::update(const float dt, Engine* engine)
+{
+    if (m_dash)
+    {
+        m_dashTime += dt;
+    }
+    if (m_dashTime > 100.f && !m_dashPressed)
+    {
+        m_dash = false;
+        m_dashTime = 0.0f;
+    }
+
+    constexpr float duration{20.f};
+    if (m_dashPressed && !m_dash && m_dashTime <= duration)
+    {
+        m_dash = true;
+        m_dashing = true;
+        engine->setScreenShake(8.f);
+    }
+
+    if (m_dashTime > duration)
+    {
+        m_dashing = false;
+    }
+}
+
 Player::Player(Entity* entity) : m_entity{entity} {}
 
 Player::Player(const glm::vec3& pos, Model* model)
@@ -52,6 +78,14 @@ void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
     {
         bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, speed, 0.f},
                                          {0.f, torque, 0.f});
+    }
+
+    if (m_input->getDashing())
+    {
+        constexpr float dashSpeed{50000.f};
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
+                                         {forwardDir.x * dashSpeed, 0.f, forwardDir.z * dashSpeed},
+                                         {forwardDir.x * torque, 0.f, forwardDir.z * torque});
     }
 
     float y{m_entity->getGlobalMidpoint().y};

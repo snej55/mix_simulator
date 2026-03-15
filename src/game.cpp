@@ -194,6 +194,7 @@ void Game::handleIO()
     controller->setControl(Controls::LEFT, m_engine.getPressed(GLFW_KEY_A) || m_engine.getPressed(GLFW_KEY_LEFT));
     controller->setControl(Controls::RIGHT, m_engine.getPressed(GLFW_KEY_D) || m_engine.getPressed(GLFW_KEY_RIGHT));
     controller->setControl(Controls::SPACE, m_engine.getPressed(GLFW_KEY_SPACE));
+    controller->setDashedPressed(m_engine.getPressed(GLFW_KEY_E));
 }
 
 void Game::update()
@@ -208,9 +209,16 @@ void Game::update()
 
     m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get());
 
-    // m_particles->addParticle(m_player->getEntity()->getGlobalMidpoint(),
-    //                          {Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f},
-    //                          Util::random());
+    m_player->getController()->update(m_engine.getDeltaTime(), &m_engine);
+    if (m_player->getController()->getDashing())
+    {
+        for (std::size_t i{0}; i < 2.f; ++i)
+        {
+            m_particles->addParticle(
+                m_player->getEntity()->getGlobalMidpoint(),
+                glm::vec3{Util::random() - 0.5f, Util::random() - 0.5f, Util::random() - 0.5f} * 0.1f, Util::random());
+        }
+    }
     m_particles->update(m_engine.getDeltaTime());
 
     // update entities

@@ -124,7 +124,7 @@ cd build
 - [X] New HDRI
 - [X] Limit player flying
 - [X] Find rubber duck model
-- [ ] Particles
+- [X] Particles
 
 ## Blender items:
 

@@ -7,6 +7,7 @@
 
 #include "core/entity.hpp"
 #include "core/iohandler.hpp"
+#include "core/engine.hpp"
 
 enum class Controls
 {
@@ -22,6 +23,20 @@ class PlayerController : public Controller<Controls>
 {
 public:
     PlayerController() : Controller<Controls>{} {};
+
+    void update(float dt, Engine* engine);
+
+    void setDashedPressed(const bool val) { m_dashPressed = val; }
+    [[nodiscard]] bool getDashedPressed() const { return m_dashPressed; }
+    [[nodiscard]] bool getDash() const { return m_dash; }
+    [[nodiscard]] float getDashTime() const { return m_dashTime; }
+    [[nodiscard]] bool getDashing() const { return m_dashing; }
+
+private:
+    bool m_dashPressed{false};
+    float m_dashTime{0.0f};
+    bool m_dash{false};
+    bool m_dashing{false};
 };
 
 class Player
