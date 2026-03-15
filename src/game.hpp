@@ -15,6 +15,7 @@
 #include "assets.hpp"
 #include "pathfinding.hpp"
 #include "enemy.hpp"
+#include "particles.hpp"
 
 class Game final
 {
@@ -52,6 +53,7 @@ private:
     SoLoud::BiquadResonantFilter m_bqrFilter;
 
     std::unique_ptr<EnemyManager> m_enemyManager{nullptr};
+    std::unique_ptr<ParticleManager> m_particles{nullptr};
 };
 
 #endif

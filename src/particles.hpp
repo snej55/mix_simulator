@@ -9,6 +9,8 @@
 
 #include <glm/glm.hpp>
 
+#include "core/shader.hpp"
+
 struct Particle
 {
     glm::vec3 pos;
@@ -19,14 +21,15 @@ struct Particle
 class ParticleManager
 {
 public:
-    ParticleManager();
-    ~ParticleManager() = default;
+    explicit ParticleManager(Shader* particleShader);
+    ~ParticleManager();
 
     void update(float dt);
     // NOTE: Use shader first, this only renders VAO
     void render();
     void addParticle(const glm::vec3& position, const glm::vec3& vel);
 
+    [[nodiscard]] const Shader* getShader() const { return m_shader; }
     [[nodiscard]] const std::array<Particle, MAX_PARTICLES>& getParticles() const { return m_particles; }
     [[nodiscard]] std::size_t getEnd() const { return m_end; }
 
@@ -35,6 +38,8 @@ public:
     [[nodiscard]] unsigned int getInstanceVBO() const { return m_instanceVBO; }
 
 private:
+    Shader* m_shader;
+
     std::array<Particle, MAX_PARTICLES> m_particles{};
     std::size_t m_end{0};
 

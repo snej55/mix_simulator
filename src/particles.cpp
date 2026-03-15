@@ -6,14 +6,21 @@
 
 #include "particles.hpp"
 
-ParticleManager::ParticleManager() { init(); }
+ParticleManager::ParticleManager(Shader* particlesShader) : m_shader{particlesShader} { init(); }
+
+ParticleManager::~ParticleManager()
+{
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteBuffers(1, &m_instanceVBO);
+    glDeleteVertexArrays(1, &m_VAO);
+}
 
 void ParticleManager::update(const float dt)
 {
     constexpr float friction{0.98f};
     constexpr float decay{0.01f};
 
-    for (std::size_t i{0}; i < m_particles.size(); ++i)
+    for (std::size_t i{0}; i < m_end; ++i)
     {
         Particle& particle{m_particles[i]};
 

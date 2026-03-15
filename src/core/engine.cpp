@@ -247,7 +247,8 @@ bool Engine::init(const int width, const int height, const char* title)
 
 // update components
 void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vector<Lights::PointLight*>& pointLights,
-                    const std::vector<std::pair<Model*, glm::mat4>>& shadowModels, const bool menu)
+                    const std::vector<std::pair<Model*, glm::mat4>>& shadowModels, const bool menu,
+                    RenderQueue::fdDrawCallback callback)
 {
     assert((renderQueue != nullptr) == (ibl != nullptr));
 
@@ -308,7 +309,7 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
             renderQueue->renderShadows(this, shadowModels);
         }
         renderQueue->renderFrame(getShader("gBuffer"), m_deferredRenderer, getShader("texturePBR"), m_postProcessor,
-                                 this, ibl, getCameraPosition(), pointLights);
+                                 this, ibl, getCameraPosition(), pointLights, callback);
         renderQueue->update();
     }
     else

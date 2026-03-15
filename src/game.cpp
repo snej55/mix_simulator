@@ -15,6 +15,7 @@
 #include "core/ui.hpp"
 #include "core/util.hpp"
 
+#include "particles.hpp"
 #include "pathfinding.hpp"
 #include "constants.hpp"
 #include "game.hpp"
@@ -75,6 +76,8 @@ bool Game::init()
     m_enemyManager = std::make_unique<EnemyManager>(m_player.get(), m_scene.get(), m_flowField.get(),
                                                     m_engine.getJoltInstance()->getBodyInterface(), &m_engine);
     m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
+
+    m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
     return true;
 }
 
@@ -205,6 +208,8 @@ void Game::update()
 
     m_enemyManager->update(m_engine.getDeltaTime());
 
+    m_particles->update(m_engine.getDeltaTime());
+
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
 
@@ -263,7 +268,17 @@ void Game::render()
 
     std::vector<std::pair<Model*, glm::mat4>> shadowModels{};
     m_scene->getShadowModels(shadowModels);
-    m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights, shadowModels);
+
+    m_particles->getShader()->use();
+    m_particles->getShader()->setMat4("projection", m_engine.getProjectionMatrix());
+    m_particles->getShader()->setMat4("view", m_engine.getViewMatrix());
+    void (*particleCallback)(void* handler){[](void* handler)
+                                            {
+                                                static_cast<ParticleManager*>(handler)->getShader()->use();
+                                                static_cast<ParticleManager*>(handler)->render();
+                                            }};
+    m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights, shadowModels, false,
+                    RenderQueue::fdDrawCallback{particleCallback, m_particles.get()});
 }
 
 void Game::run()

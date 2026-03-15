@@ -16,7 +16,7 @@ Player::Player(const glm::vec3& pos, Model* model)
 void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
 {
     constexpr float speed{5000.f};
-    constexpr float torque{2000.f};
+    constexpr float torque{1000.f};
 
     const glm::vec3 front{camera->getFront()};
     const glm::vec3 right{camera->getRight()};
@@ -55,11 +55,11 @@ void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
     }
 
     float y{m_entity->getGlobalMidpoint().y};
-    if (y < 0.5f)
+    if (y < 0.1f)
     {
         m_jump = true;
     }
-    if (y > 2.5f)
+    if (y > 2.f)
     {
         m_jump = false;
     }

@@ -41,7 +41,8 @@ public:
     // update components
     void update(RenderQueue* renderQueue = nullptr, IBLGenerator* ibl = nullptr,
                 const std::vector<Lights::PointLight*>& pointLights = {},
-                const std::vector<std::pair<Model*, glm::mat4>>& shadowModels = {}, bool menu = false);
+                const std::vector<std::pair<Model*, glm::mat4>>& shadowModels = {}, bool menu = false,
+                RenderQueue::fdDrawCallback callback = {nullptr, nullptr});
 
     // ------ Window ------ //
 

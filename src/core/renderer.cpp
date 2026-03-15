@@ -173,7 +173,8 @@ void RenderQueue::update() { m_dynamicModels.clear(); }
 
 void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
                               const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl,
-                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights)
+                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights,
+                              fdDrawCallback callback)
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
 
@@ -291,6 +292,12 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
         }
     }
     glDisable(GL_CULL_FACE);
+
+    // render particles and stuff here
+    if (callback.first != nullptr)
+    {
+        callback.first(callback.second);
+    }
 
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
