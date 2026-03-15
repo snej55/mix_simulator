@@ -115,7 +115,8 @@ cd build
 - [ ] Make player explodable
 - [ ] Spikes
 - [ ] Star particles
-- [ ] Dash
+- [X] Dash
+- [ ] Collision particles
 
 ## Game loop (today):
 - [ ] Create decor
