@@ -113,8 +113,9 @@ cd build
 - [ ] Variance shadow mapping?
 - [ ] Add settings page to menu
 - [ ] Make player explodable
-- [ ] Spikes
-- [ ] Star particles
+- [ ] Score
+- [ ] Spikes?
+- [ ] Star particles?
 - [X] Dash
 - [ ] Collision particles
 - [ ] Shockwave postprocessing
@@ -123,7 +124,7 @@ cd build
 - [ ] Cloudy skybox
 - [ ] Different fog intensities
 - [ ] Level transitions
-- [ ] Add invisible walls around whole thing
+- [X] Add invisible walls around whole thing
 - [ ] Try some cool post processing fx (cross stitching?)
 - [ ] Duck jokes on first menu
 

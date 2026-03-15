@@ -118,6 +118,9 @@ private:
     glm::vec3 m_levelCenter{0.0f};
     void calculateLevelDimensions();
 
+    std::vector<JPH::BodyID> m_wallIDs{};
+    void setupWalls(JoltInstance* jolt);
+
     static SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos);
 };
 

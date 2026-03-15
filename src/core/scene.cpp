@@ -252,6 +252,7 @@ bool Scene::init(const char* scenePath)
               << ", z: " << m_levelCenter.z << "}" << std::endl;
 
     sceneFile.close();
+
     return true;
 }
 
@@ -266,6 +267,7 @@ void Scene::initPhysicsBodies(JoltInstance* jolt)
                 entity->initPhysicsBody(jolt->getBodyInterface());
         }
     }
+    setupWalls(jolt);
     jolt->getPhysicsSystem()->OptimizeBroadPhase();
 }
 
@@ -588,4 +590,87 @@ void Scene::getDynamicEntities(std::vector<Entity*>& entities)
             }
         }
     }
+}
+
+void Scene::setupWalls(JoltInstance* jolt)
+{
+    for (std::size_t i{0}; i < m_wallIDs.size(); ++i)
+    {
+        jolt->getBodyInterface()->RemoveBody(m_wallIDs[i]);
+        jolt->getBodyInterface()->DestroyBody(m_wallIDs[i]);
+    }
+
+    m_wallIDs.clear();
+    m_wallIDs.reserve(4);
+    std::vector<Entity*> staticEntities{};
+    std::pair<const Entity*, const Entity*> widthWalls{nullptr, nullptr};
+    std::pair<const Entity*, const Entity*> lengthWalls{nullptr, nullptr};
+    getStaticEntities(staticEntities);
+    for (const Entity* entity : staticEntities)
+    {
+        if (std::strcmp(entity->getModel()->getName(), "MODEL widthwall") == 0)
+        {
+            std::cout << "Found a width wall\n";
+            if (widthWalls.first == nullptr)
+            {
+                widthWalls.first = entity;
+            }
+            else
+            {
+                widthWalls.second = entity;
+            }
+        }
+        else if (std::strcmp(entity->getModel()->getName(), "MODEL lengthwall") == 0)
+        {
+            std::cout << "Found a length wall\n";
+            if (lengthWalls.first == nullptr)
+            {
+                lengthWalls.first = entity;
+            }
+            else
+            {
+                lengthWalls.second = entity;
+            }
+        }
+    }
+
+    if (widthWalls.first == nullptr || widthWalls.second == nullptr || lengthWalls.first == nullptr ||
+        lengthWalls.second == nullptr)
+    {
+        return;
+    }
+
+    Bounds::AABB aabb{*widthWalls.first->getBoundingVolume()};
+    aabb.extents.y = 1000.f;
+    PhysicsBody p1{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   widthWalls.first->getTransform().getGlobalPosition()};
+    aabb = *widthWalls.second->getBoundingVolume();
+    aabb.extents.y = 1000.f;
+    PhysicsBody p2{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   widthWalls.second->getTransform().getGlobalPosition()};
+    aabb = *lengthWalls.first->getBoundingVolume();
+    aabb.extents.y = 1000.f;
+    PhysicsBody p3{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   lengthWalls.first->getTransform().getGlobalPosition()};
+    aabb = *lengthWalls.second->getBoundingVolume();
+    aabb.extents.y = 1000.f;
+    PhysicsBody p4{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   lengthWalls.second->getTransform().getGlobalPosition()};
+
+    m_wallIDs.emplace_back(p1.getBodyID());
+    m_wallIDs.emplace_back(p2.getBodyID());
+    m_wallIDs.emplace_back(p3.getBodyID());
+    m_wallIDs.emplace_back(p4.getBodyID());
 }
