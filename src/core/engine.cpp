@@ -925,8 +925,8 @@ void Engine::drawRect(const FRect& rect, const Color& color) const
 void Engine::drawScreenRect(const FRect& rect, const Color& color) const
 {
     drawRect({rect.x / static_cast<float>(getWidth()) * 2.0f - 1.0f,
-              (rect.y + rect.h) / static_cast<float>(getHeight()) * 2.0f - 1.0f,
-              rect.w / static_cast<float>(getWidth()) * 2.0f, rect.h / static_cast<float>(getHeight()) * 2.0f},
+              rect.y / static_cast<float>(getHeight()) * 2.0f - 1.0f, rect.w / static_cast<float>(getWidth()) * 2.0f,
+              rect.h / static_cast<float>(getHeight()) * 2.0f},
              color);
 }
 

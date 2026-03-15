@@ -122,6 +122,8 @@ void EnemyManager::update(const float dt, ParticleManager* particles)
                 const float speed{1.f + Util::random() * 0.5f - 0.25f};
                 particles->addParticle(enemy.m_entity->getGlobalMidpoint(), direction * speed, Util::random());
             }
+
+            ++m_exploded;
         }
         enemy.update();
     }
@@ -150,6 +152,9 @@ void EnemyManager::addShard(Entity* entity) { m_shards.emplace_back(std::pair{0.
 
 void EnemyManager::getEnemies()
 {
+    m_totalEnemies = 0;
+    m_exploded = 0;
+
     m_enemies.clear();
     m_enemies.reserve(64);
     std::vector<Entity*> dynamicEntities{};
@@ -168,6 +173,8 @@ void EnemyManager::getEnemies()
             m_enemies.emplace_back(std::move(enemy));
         }
     }
+
+    m_totalEnemies = m_enemies.size();
 }
 
 void EnemyManager::setupShards(Enemy& enemy)

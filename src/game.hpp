@@ -37,11 +37,14 @@ public:
 
     void run();
 
-    void renderUI() const;
+    void renderUI();
 
 private:
     // core components
     Engine m_engine{};
+
+    float m_complete{0.0f};
+    float m_renderComplete{0.0f};
 
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};

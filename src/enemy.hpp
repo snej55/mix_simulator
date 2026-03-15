@@ -63,6 +63,9 @@ public:
     void addShard(Entity* entity);
     [[nodiscard]] const std::vector<std::pair<double, Entity*>>& getShards() const { return m_shards; }
 
+    [[nodiscard]] int getExploded() const { return m_exploded; }
+    [[nodiscard]] int getNumEnemies() const { return m_totalEnemies; }
+
 private:
     Player* m_player;
     Scene* m_scene;
@@ -74,6 +77,9 @@ private:
     EnemyListener m_listener{};
 
     std::vector<std::pair<double, Entity*>> m_shards{};
+
+    int m_exploded{0};
+    int m_totalEnemies{0};
 
     void getEnemies();
     void setupShards(Enemy& enemy);

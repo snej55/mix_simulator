@@ -38,7 +38,7 @@ bool Game::init()
 
     m_engine.setCameraControlsEnabled(false);
 
-    m_engine.initFontRenderer("data/fonts/supply.ttf", CST::FONT_TEX_SIZE);
+    m_engine.initFontRenderer("data/fonts/grow.ttf", CST::FONT_TEX_SIZE);
     m_assets = std::make_unique<Assets>();
     m_assets->loadAssets(m_engine.getAudioHandler(), &m_engine);
 
@@ -131,7 +131,10 @@ bool Game::menu()
         {
             titleTextStr += titleText[i];
         }
-        const float titleSize{static_cast<float>(limit) / static_cast<float>(titleText.size())};
+        const float titleSize{std::min(1.0f,
+                                       std::max(0.f, (m_engine.getTime() - startTime - 2.2f) * typeRate) /
+                                               static_cast<float>(titleText.size()) +
+                                           0.2f)};
         fontRenderer->renderText(
             fontShader, titleTextStr,
             static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(titleTextStr, titleSize) * 0.5f,
@@ -313,7 +316,7 @@ void Game::run()
     }
 }
 
-void Game::renderUI() const
+void Game::renderUI()
 {
     const UIRenderer* uiRenderer{m_engine.getUIRenderer()};
     FontManager* fontRenderer{m_engine.getFontRenderer()};
@@ -327,7 +330,21 @@ void Game::renderUI() const
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    fontRenderer->renderText(m_engine.getShader("fonts"), "Hello+World!", 10.f, 10.f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+
+    m_engine.drawScreenRect(
+        {0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()), 30.f}, {1, 1, 1});
+
+    std::stringstream scoreText{};
+    m_complete =
+        static_cast<float>(m_enemyManager->getExploded()) / static_cast<float>(m_enemyManager->getNumEnemies());
+    m_renderComplete = std::min(m_renderComplete + 0.005f * m_engine.getDeltaTime(), m_complete);
+    scoreText << "Complete: " << static_cast<int>(m_renderComplete * 100.f) << "%";
+    const float scale{0.3f};
+    fontRenderer->renderText(m_engine.getShader("fonts"), scoreText.str(),
+                             static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 fontRenderer->getTextWidth(scoreText.str(), scale) * 0.5f,
+                             static_cast<float>(m_engine.getHeight()) - 24.f, scale, glm::vec3{1.0f, 1.0f, 1.0f});
+    scoreText.clear();
 
     glDisable(GL_BLEND);
 

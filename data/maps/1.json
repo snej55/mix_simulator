@@ -1,0 +1,61 @@
+{
+    "level": {
+        "models": {
+            "0": {
+                "name": "floor",
+                "path": "data/models/concrete_floor.glb"
+            },
+            "1": {
+                "name": "table",
+                "path": "data/models/duck.glb"
+            },
+            "2": {
+                "name": "block",
+                "path": "data/models/level/block.glb"
+            }
+        },
+        "objects": [
+            {
+                "position": [
+                    0.0,
+                    -5.1021223068237305,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "modelID": 0,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    0.0,
+                    -4.3024678230285645,
+                    0.0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 2,
+                "animated": false,
+                "bodyType": "static"
+            }
+        ],
+        "pointLights": []
+    }
+}
