@@ -137,7 +137,9 @@ void EnemyManager::handleCollision(const JPH::BodyID& body1, const JPH::BodyID& 
     {
         Enemy& enemy{m_enemies[i]};
         const JPH::BodyID& enemyID{enemy.m_entity->getPhysicsBody()->getBodyID()};
-        if (enemyID == body1 || enemyID == body2)
+        const JPH::BodyID& playerID{m_player->getEntity()->getPhysicsBody()->getBodyID()};
+        // if (enemyID == body1 || enemyID == body2)
+        if ((enemyID == body1 && playerID == body2) || (enemyID == body2 && playerID == body1))
         {
             enemy.m_shouldExplode = true;
         }
