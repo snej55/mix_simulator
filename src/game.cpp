@@ -331,20 +331,49 @@ void Game::renderUI()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    float targetPos;
+    const float upperTarget{static_cast<float>(m_engine.getHeight()) + 150.f};
+    const float lowerTarget{static_cast<float>(m_engine.getHeight()) * 0.85f};
+    if (m_complete - m_renderComplete > 0.001f)
+    {
+        targetPos = lowerTarget;
+    }
+    else
+    {
+        targetPos = upperTarget;
+    }
+    m_scorePos += (targetPos - m_scorePos) * 0.5f * m_engine.getDeltaTime();
+    const float cover{(upperTarget - m_scorePos) / (upperTarget - lowerTarget)};
+
     m_engine.drawScreenRect(
         {0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()), 30.f}, {1, 1, 1});
 
     std::stringstream scoreText{};
     m_complete =
         static_cast<float>(m_enemyManager->getExploded()) / static_cast<float>(m_enemyManager->getNumEnemies());
-    m_renderComplete = std::min(m_renderComplete + 0.005f * m_engine.getDeltaTime(), m_complete);
+    m_renderComplete = std::min(m_renderComplete + 0.0015f * m_engine.getDeltaTime(), m_complete);
     scoreText << "Complete: " << static_cast<int>(m_renderComplete * 100.f) << "%";
     const float scale{0.3f};
     fontRenderer->renderText(m_engine.getShader("fonts"), scoreText.str(),
                              static_cast<float>(m_engine.getWidth()) * 0.5f -
                                  fontRenderer->getTextWidth(scoreText.str(), scale) * 0.5f,
                              static_cast<float>(m_engine.getHeight()) - 24.f, scale, glm::vec3{1.0f, 1.0f, 1.0f});
+
     scoreText.clear();
+    m_engine.drawScreenRect(
+        {0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()), cover * 30.f},
+        {1, 1, 1});
+
+    std::string score{std::to_string(static_cast<int>(m_renderComplete * 100.0f)) + "%"};
+    // m_engine.drawScreenRect(
+    //     {static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(score, 1.0f) * 0.5f - 2.f,
+    //      static_cast<float>(m_engine.getHeight()), fontRenderer->getTextWidth(score, 1.0f) + 4.f,
+    //      std::max(0.0f, static_cast<float>(m_engine.getHeight()) - m_scorePos + 30.0f)},
+    //     {1, 1, 1});
+    fontRenderer->renderText(m_engine.getShader("fonts"), score,
+                             static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 fontRenderer->getTextWidth(score, 1.0f) * 0.5f,
+                             m_scorePos, 1.0f, {1.0f, 1.0f, 1.0f});
 
     glDisable(GL_BLEND);
 

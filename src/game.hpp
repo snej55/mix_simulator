@@ -45,6 +45,7 @@ private:
 
     float m_complete{0.0f};
     float m_renderComplete{0.0f};
+    float m_scorePos{180.0f};
 
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
