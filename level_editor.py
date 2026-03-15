@@ -21,7 +21,7 @@ class Editor:
         self.objects = []
         self.point_lights = []
 
-        self.level_path = "data/maps/0.json"
+        self.level_path = "data/maps/1.json"
         self.load_level(self.level_path)
 
         ray.set_config_flags(
@@ -154,7 +154,7 @@ class Editor:
             else:
                 self.objects.append(
                     {
-                        "position": self.objects[self.current_model_index]["position"],
+                        "position": self.objects[self.current_model_index]["position"].copy(),
                         "rotation": [0, 0, 0],
                         "scale": [1, 1, 1],
                         "modelID": 0,

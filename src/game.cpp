@@ -50,8 +50,8 @@ bool Game::init()
     m_scene->init("data/maps/0.json");
     std::cout << "Loaded first scene!\n";
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
-    m_scene->initRaw("data/maps/0.json");
-    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
+    // m_scene->initRaw("data/maps/1.json");
+    // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
@@ -355,6 +355,8 @@ void Game::renderUI()
     m_complete =
         static_cast<float>(m_enemyManager->getExploded()) / static_cast<float>(m_enemyManager->getNumEnemies());
     m_renderComplete = std::min(m_renderComplete + 0.001f * m_engine.getDeltaTime(), m_complete);
+    m_complete = std::min(1.f, m_complete);
+    m_renderComplete = std::min(1.f, m_renderComplete);
     scoreText << "Complete: " << static_cast<int>(m_renderComplete * 100.f) << "%";
     const float scale{0.3f};
     fontRenderer->renderText(m_engine.getShader("fonts"), scoreText.str(),

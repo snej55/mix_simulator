@@ -3,6 +3,8 @@
 #include "player.hpp"
 #include "core/physics.hpp"
 
+#include <cmath>
+
 void PlayerController::update(const float dt, Engine* engine)
 {
     if (m_dash)
@@ -47,45 +49,56 @@ void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
     const glm::vec3 front{camera->getFront()};
     const glm::vec3 right{camera->getRight()};
 
-    glm::vec3 forwardDir{glm::normalize(glm::vec3(front.x, 0.0f, front.z))};
-    glm::vec3 rightDir{glm::normalize(glm::vec3{right.x, 0.0f, right.z})};
+    auto finite = [](const glm::vec3& v) -> bool
+    { return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z); };
+
+    auto normalize = [&](const glm::vec3& vel, const glm::vec3& fallback) -> glm::vec3
+    {
+        const glm::vec3 v{vel.x, 0.0f, vel.z};
+        const float dist2 = glm::dot(v, v);
+        if (!std::isfinite(dist2) || dist2 < 1e-8f)
+            return fallback;
+        return v / std::sqrt(dist2);
+    };
+
+    const glm::vec3 forwardDir{normalize(front, glm::vec3{0.0f, 0.0f, -1.0f})};
+    const glm::vec3 rightDir{normalize(right, glm::vec3{1.0f, 0.0f, 0.0f})};
+
+    auto move = [&](const glm::vec3& force, const glm::vec3& torque)
+    {
+        if (!finite(force) || !finite(torque))
+            return;
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {force.x, force.y, force.z},
+                                         {torque.x, torque.y, torque.z});
+    };
 
     if (m_input->getControl(Controls::UP))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {forwardDir.x * speed, 0.f, forwardDir.z * speed},
-                                         {forwardDir.x * torque, 0.f, forwardDir.z * torque});
+        move({forwardDir.x * speed, 0.f, forwardDir.z * speed}, {forwardDir.x * torque, 0.f, forwardDir.z * torque});
     }
     if (m_input->getControl(Controls::DOWN))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {-forwardDir.x * speed, 0.f, -forwardDir.z * speed},
-                                         {-forwardDir.x * torque, 0.f, -forwardDir.z * torque});
+        move({-forwardDir.x * speed, 0.f, -forwardDir.z * speed},
+             {-forwardDir.x * torque, 0.f, -forwardDir.z * torque});
     }
     if (m_input->getControl(Controls::RIGHT))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {rightDir.x * speed, 0.f, rightDir.z * speed},
-                                         {rightDir.x * torque, 0.f, -rightDir.z * torque});
+        move({rightDir.x * speed, 0.f, rightDir.z * speed}, {rightDir.x * torque, 0.f, -rightDir.z * torque});
     }
     if (m_input->getControl(Controls::LEFT))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {-rightDir.x * speed, 0.f, -rightDir.z * speed},
-                                         {-rightDir.x * torque, 0.f, rightDir.z * torque});
+        move({-rightDir.x * speed, 0.f, -rightDir.z * speed}, {-rightDir.x * torque, 0.f, rightDir.z * torque});
     }
     if (m_input->getControl(Controls::SPACE) && m_jump)
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, speed, 0.f},
-                                         {0.f, torque, 0.f});
+        move({0.f, speed, 0.f}, {0.f, torque, 0.f});
     }
 
     if (m_input->getDashing())
     {
         constexpr float dashSpeed{50000.f};
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {forwardDir.x * dashSpeed, 0.f, forwardDir.z * dashSpeed},
-                                         {forwardDir.x * torque, 0.f, forwardDir.z * torque});
+        move({forwardDir.x * dashSpeed, 0.f, forwardDir.z * dashSpeed},
+             {forwardDir.x * torque, 0.f, forwardDir.z * torque});
     }
 
     float y{m_entity->getGlobalMidpoint().y};
