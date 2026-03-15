@@ -48,6 +48,9 @@ bool Game::init()
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
     m_scene->init("data/maps/0.json");
+    std::cout << "Loaded first scene!\n";
+    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
+    m_scene->initRaw("data/maps/0.json");
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox

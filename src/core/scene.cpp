@@ -271,6 +271,119 @@ void Scene::initPhysicsBodies(JoltInstance* jolt)
     jolt->getPhysicsSystem()->OptimizeBroadPhase();
 }
 
+bool Scene::initRaw(const char* scenePath)
+{
+    std::cout << "SCENE::INIT_RAW: Loading scene objects from path `" << scenePath << "`..." << std::endl;
+    free();
+
+    std::ifstream sceneFile{scenePath};
+    sceneFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try
+    {
+        json data{json::parse(sceneFile)};
+
+        const json* root{&data};
+        if (data.is_array())
+        {
+            if (data.empty() || !data[0].is_object())
+            {
+                Util::beginError();
+                std::cout << "SCENE::INIT_RAW::ERROR: Scene is empty!";
+                Util::endError();
+                return false;
+            }
+            root = &data[0];
+        }
+
+        if (!root->contains("level") || !(*root)["level"].is_object())
+        {
+            Util::beginError();
+            std::cout << "SCENE::INIT_RAW::ERROR: Scene does not contain level data!";
+            Util::endError();
+            return false;
+        }
+
+        const json& level{(*root)["level"]};
+
+        std::cout << "SCENE::INIT_RAW: Loading models for scene...\n";
+        std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
+        for (const auto& [key, value] : level["models"].items())
+        {
+            const std::size_t modelID{std::stoul(key)};
+            const std::string modelName{value["name"].get<std::string>()};
+            const std::string modelPath{value["path"].get<std::string>()};
+            std::cout << modelName << " " << modelPath << std::endl;
+
+            modelMap[modelID] = std::pair{modelName, modelPath};
+        }
+        std::cout << "SCENE::INIT_RAW: Loaded " << modelMap.size() << " models for scene.\n";
+
+        // load entities
+        std::cout << "SCENE::INIT_RAW: Loading entities for scene...\n";
+        for (const auto& entityEntry : level["objects"])
+        {
+            const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
+                                     entityEntry["position"][2].get<float>()};
+            const glm::vec3 scale{entityEntry["scale"][0].get<float>(), entityEntry["scale"][1].get<float>(),
+                                  entityEntry["scale"][2].get<float>()};
+            const glm::vec3 rotation{entityEntry["rotation"][0].get<float>(), entityEntry["rotation"][1].get<float>(),
+                                     entityEntry["rotation"][2].get<float>()};
+            const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
+            const bool animated{entityEntry.value("animated", false)};
+
+            const std::string bodyTypeStr{entityEntry.value("bodyType", std::string{"static"})};
+            BodyType bodyType;
+            getBodyType(bodyTypeStr, &bodyType);
+
+            Bounds::Transform transform{};
+            transform.setLocalPosition(position);
+            transform.setLocalScale(scale);
+            transform.setLocalRotation(rotation);
+
+            if (modelMap.find(modelID) == modelMap.end())
+            {
+                Util::beginError();
+                std::cout << "SCENE::INIT_RAW::ERROR: Model ID `" << modelID << "` not found in model map!";
+                Util::endError();
+                continue;
+            }
+
+            addEntity(modelMap[modelID].second.c_str(), transform, bodyType, animated);
+        }
+        std::cout << "SCENE::INIT_RAW: Loaded " << level["objects"].size() << " entities for scene.\n";
+
+        std::cout << "SCENE::INIT_RAW Adding point lights to scene..." << std::endl;
+        for (const auto& pointLightEntry : level["pointLights"])
+        {
+            const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
+                                     pointLightEntry["position"][1].get<float>(),
+                                     pointLightEntry["position"][2].get<float>()};
+            const glm::vec3 color{pointLightEntry["color"][0].get<float>(), pointLightEntry["color"][1].get<float>(),
+                                  pointLightEntry["color"][2].get<float>()};
+            const float radius{pointLightEntry["radius"].get<float>()};
+            addPointLight(position, color, radius);
+        }
+        std::cout << "SCENE::INIT_RAW: Loaded " << level["pointLights"].size() << " pointLights for scene."
+                  << std::endl;
+    }
+    catch ([[maybe_unused]] const std::ifstream::failure& e)
+    {
+        Util::beginError();
+        std::cout << "SCENE::INIT_RAW::ERROR: Could not read scene file at path `" << scenePath << "`!";
+        Util::endError();
+        return false;
+    }
+
+    calculateLevelDimensions();
+    std::cout << "SCENE::INIT::LEVEL_EXTENTS: {x: " << m_levelExtents.x << ", y: " << m_levelExtents.y
+              << ", z: " << m_levelExtents.z << "}" << std::endl;
+    std::cout << "SCENE::INIT::LEVEL_CENTER: {x: " << m_levelCenter.x << ", y: " << m_levelCenter.y
+              << ", z: " << m_levelCenter.z << "}" << std::endl;
+
+    sceneFile.close();
+    return true;
+}
+
 void Scene::free()
 {
     std::vector<Entity*> freedEntities;
@@ -297,6 +410,7 @@ void Scene::free()
         }
     }
     m_chunks.clear();
+    m_pointLights.clear();
 }
 
 void Scene::resetEntityFlags()

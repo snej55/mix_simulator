@@ -71,6 +71,8 @@ public:
     bool init(const char* scenePath);
     void initPhysicsBodies(JoltInstance* jolt);
 
+    bool initRaw(const char* scenePath);
+
     void resetEntityFlags(); // call this before updating entities
     void updateEntities(float deltaTime, JoltInstance* jolt = nullptr);
 
