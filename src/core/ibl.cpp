@@ -23,6 +23,17 @@ void IBLGenerator::free()
 
 void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* brdfLutPath, void* engine)
 {
+    GLint prevViewport[4]{0, 0, 0, 0};
+    GLint prevDepthFunc{GL_LESS};
+    const GLboolean depthWasEnabled{glIsEnabled(GL_DEPTH_TEST)};
+    const GLboolean cullWasEnabled{glIsEnabled(GL_CULL_FACE)};
+    glGetIntegerv(GL_VIEWPORT, prevViewport);
+    glGetIntegerv(GL_DEPTH_FUNC, &prevDepthFunc);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDisable(GL_CULL_FACE);
+
     // load textures
     bool success;
     m_hdrTexture = TextureN::loadHDRMap(hdrPath, &success, &m_lightDirection, &m_luminance);
@@ -77,6 +88,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, sbWidth, sbHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
 
     // generate cubemap color textures
     glGenTextures(1, &m_envCubemap);
@@ -171,6 +184,8 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
 
     constexpr unsigned int maxLevels{5};
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(maxLevels - 1));
     for (unsigned int mip{0}; mip < maxLevels; ++mip)
     {
         const unsigned int mipWidth{static_cast<unsigned int>(pmremSize * std::pow(0.5, mip))};
@@ -192,9 +207,31 @@ void IBLGenerator::init(const char* hdrPath, const char* iemPath, const char* br
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteRenderbuffers(1, &captureRBO);
+    glDeleteFramebuffers(1, &captureFBO);
 
-    // reset window viewport
-    glViewport(0, 0, enginePtr->getWidth(), enginePtr->getHeight());
+    if (cullWasEnabled)
+    {
+        glEnable(GL_CULL_FACE);
+    }
+    else
+    {
+        glDisable(GL_CULL_FACE);
+    }
+
+    if (depthWasEnabled)
+    {
+        glEnable(GL_DEPTH_TEST);
+    }
+    else
+    {
+        glDisable(GL_DEPTH_TEST);
+    }
+
+    glDepthFunc(prevDepthFunc);
+
+    // reset viewport to pre-bake values
+    glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
 }
 
 void IBLGenerator::renderSkybox(void* engine)
@@ -207,6 +244,7 @@ void IBLGenerator::renderSkybox(void* engine)
     skyboxShader->setMat4("view", enginePtr->getViewMatrix());
     skyboxShader->setMat4("projection", enginePtr->getProjectionMatrix());
     skyboxShader->setInt("environmentMap", 0);
+    skyboxShader->setFloat("roughness", -1.0f);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
