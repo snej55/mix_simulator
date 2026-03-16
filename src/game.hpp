@@ -39,6 +39,8 @@ public:
 
     void renderUI();
 
+    void loadLevel(const std::string& path);
+
 private:
     // core components
     Engine m_engine{};

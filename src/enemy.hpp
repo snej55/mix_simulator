@@ -55,6 +55,8 @@ public:
                  void* engine);
 
     void update(float dt, ParticleManager* particles);
+    void clearEnemies() { m_enemies.clear(); }
+    void getEnemies();
 
     void handleCollision(const JPH::BodyID& body1, const JPH::BodyID& body2);
 
@@ -65,6 +67,8 @@ public:
 
     [[nodiscard]] int getExploded() const { return m_exploded; }
     [[nodiscard]] int getNumEnemies() const { return m_totalEnemies; }
+
+    void setPlayer(Player* player) { m_player = player; }
 
 private:
     Player* m_player;
@@ -81,7 +85,6 @@ private:
     int m_exploded{0};
     int m_totalEnemies{0};
 
-    void getEnemies();
     void setupShards(Enemy& enemy);
     [[nodiscard]] std::string getEntityName(Entity* entity) const;
 };

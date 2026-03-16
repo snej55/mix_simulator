@@ -14,7 +14,8 @@ FlowFieldGenerator::~FlowFieldGenerator() = default;
 
 void FlowFieldGenerator::init(Scene* scene)
 {
-    assert(m_tileGrid.empty());
+    m_tileGrid.clear();
+    m_baseNodes.clear();
 
     // initialize tile grid
     const int width{static_cast<int>(static_cast<float>(m_extents.x * 2))};

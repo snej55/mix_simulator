@@ -81,7 +81,31 @@ bool Game::init()
     m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
 
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
+
+    loadLevel("data/maps/0.json");
     return true;
+}
+
+void Game::loadLevel(const std::string& path)
+{
+    m_scene->initRaw(path.c_str());
+    m_scene->initPhysicsBodies(m_engine.getJoltInstance());
+
+    m_player = std::make_unique<Player>(glm::vec3{50.0f, 50.f, 50.0f}, m_engine.getModel("table"));
+    m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
+    m_scene->addEntity(m_player->getEntity());
+
+    m_flowField->setExtents(glm::ivec2{std::ceil(m_scene->getLevelExtents().x / CST::FLOW_FIELD_TILE_SIZE),
+                                       std::ceil(m_scene->getLevelExtents().z / CST::FLOW_FIELD_TILE_SIZE)});
+    m_flowField->setCenter(glm::ivec2{std::ceil(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
+                                      std::ceil(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)});
+    m_flowField->init(m_scene.get());
+
+    m_enemyManager->setPlayer(m_player.get());
+    m_enemyManager->clearEnemies();
+    m_enemyManager->getEnemies();
+
+    m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
 }
 
 bool Game::menu()

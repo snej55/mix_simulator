@@ -127,6 +127,7 @@ cd build
 - [X] Add invisible walls around whole thing
 - [ ] Try some cool post processing fx (cross stitching?)
 - [ ] Duck jokes on first menu
+- [ ] Add player start pos to level editor
 
 ## Game loop (today):
 - [ ] Create decor
