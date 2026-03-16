@@ -111,7 +111,7 @@ cd build
 - [X] Different screen resolutions
 - [X] Screenshake
 - [ ] Variance shadow mapping?
-- [ ] Add settings page to menu
+- [X] Add settings page to menu
 - [ ] Make player explodable
 - [ ] Score
 - [ ] Spikes?

@@ -283,14 +283,14 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
     m_screenShake = std::max(0.0f, m_screenShake - getDeltaTime());
     m_camera->setRoll(Util::random() * m_screenShake - m_screenShake * 0.5f);
 
-    if (m_iohandler->getPressed(GLFW_KEY_T))
-    {
-        m_ssaoEnabled = false;
-    }
-    if (m_iohandler->getPressed(GLFW_KEY_E))
-    {
-        m_ssaoEnabled = true;
-    }
+    // if (m_iohandler->getPressed(GLFW_KEY_T))
+    // {
+    //     m_ssaoEnabled = false;
+    // }
+    // if (m_iohandler->getPressed(GLFW_KEY_E))
+    // {
+    //     m_ssaoEnabled = true;
+    // }
 
     // ----- Update game state ----- //
     if (!menu)

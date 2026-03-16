@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <iomanip>
 #include <soloud_biquadresonantfilter.h>
 
 #include "core/audio.hpp"
@@ -33,7 +34,6 @@ bool Game::init()
     }
     std::cout << "Initialized engine!" << std::endl;
 
-    m_engine.setRenderScale(0.8f);
     glfwSetWindowSizeLimits(m_engine.getWindow()->getWindow(), CST::WINDOW_START_WIDTH, CST::WINDOW_START_HEIGHT,
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
 
@@ -48,7 +48,7 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
-    m_scene->init("data/maps/1.json");
+    m_scene->init("data/maps/0.json");
     std::cout << "Loaded first scene!\n";
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
     // m_scene->initRaw("data/maps/1.json");
@@ -113,8 +113,9 @@ bool Game::menu()
 
     bool settings{false};
     float renderScale{m_engine.getRenderScale()};
-    constexpr std::size_t nHandles{3};
-    std::array<void*, nHandles> handler{&settings, &renderScale, &m_engine};
+    bool quit{true};
+    constexpr std::size_t nHandles{4};
+    std::array<void*, nHandles> handler{&settings, &renderScale, &m_engine, &quit};
     void (*keyCallback)(int, int, int, int, void*){
         [](const int key, const int scancode, const int action, const int mods, void* handler)
         {
@@ -130,11 +131,29 @@ bool Game::menu()
                 *static_cast<float*>((*handlerPtr)[1]) = static_cast<float>(rScale) * 0.1f + 0.2f;
                 static_cast<Engine*>((*handlerPtr)[2])->setRenderScale(*static_cast<float*>((*handlerPtr)[1]) + 0.1f);
             }
+            else if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
+            {
+                if (*static_cast<bool*>((*handlerPtr)[0]))
+                {
+                    *static_cast<bool*>((*handlerPtr)[0]) = false;
+                }
+                else
+                {
+                    *static_cast<bool*>((*handlerPtr)[4]) = false;
+                }
+            }
+            else if (key == GLFW_KEY_G && action == GLFW_PRESS && *static_cast<bool*>((*handlerPtr)[0]))
+            {
+                static_cast<Engine*>((*handlerPtr)[2])
+                    ->setSSAOEnabled(!static_cast<Engine*>((*handlerPtr)[2])->getSSAOEnabled());
+            }
         }};
     m_engine.getWindow()->setKeyCallback(keyCallback, &handler);
 
-    bool quit{true};
-    while (!m_engine.getQuit())
+    float settingsTarget{0.0f};
+    float settingsY{0.0f};
+
+    while (!m_engine.getQuit() && quit)
     {
         constexpr float typeRate{10.f};
         glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
@@ -170,6 +189,10 @@ bool Game::menu()
         fontRenderer->renderText(fontShader, "A game by @snej55",
                                  std::min(-300.f + (m_engine.getTime() - startTime) * 30.f, 10.f), 10.f, 0.5f,
                                  glm::vec3{1.0f});
+        fontRenderer->renderText(
+            fontShader, "Press [s] for settings",
+            static_cast<float>(m_engine.getWidth()) - fontRenderer->getTextWidth("Press [s] for settings", 0.5) - 10.f,
+            std::min(10.f, -100.f + (m_engine.getTime() - startTime) * 30.f), 0.5f, {1.f, 1.f, 1.f});
 
         glDisable(GL_BLEND);
         // ---------------------- //
@@ -201,6 +224,29 @@ bool Game::menu()
                                 &m_engine, playButtonTex.width, playButtonTex.height, true,
                                 playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        settingsTarget = settings ? static_cast<float>(m_engine.getHeight()) : 0.0f;
+        settingsY += (settingsTarget - settingsY) * 0.1f * m_engine.getDeltaTime();
+        m_engine.drawScreenRect(
+            {0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()), settingsY},
+            {1, 1, 1});
+
+        std::stringstream ss{};
+        ss << "Render Scale: " << std::setprecision(1) << m_engine.getRenderScale() << "     ([j] to cycle)";
+        fontRenderer->renderText(fontShader, ss.str(),
+                                 static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                     fontRenderer->getTextWidth(ss.str(), 0.5f) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 1.7f - settingsY, 0.5f, {1.f, 1.f, 1.f});
+        ss.str(std::string());
+        ss << "SSAO: " << (m_engine.getSSAOEnabled() ? "Enabled" : "Disabled") << "     ([g] to "
+           << (m_engine.getSSAOEnabled() ? "Disable" : "Enable") << ")";
+        fontRenderer->renderText(
+            fontShader, ss.str(),
+            static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(ss.str(), 0.5f) * 0.5f,
+            static_cast<float>(m_engine.getHeight()) * 1.7f - settingsY - 60.f, 0.5f, {1.f, 1.f, 1.f});
+        glDisable(GL_BLEND);
+
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -208,17 +254,10 @@ bool Game::menu()
 
         if (glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
-            if (playButton.m_highlighted)
+            if (playButton.m_highlighted && !settings)
             {
                 quit = false;
-                break;
             }
-        }
-
-        if (m_engine.getPressed(GLFW_KEY_ENTER))
-        {
-            quit = false;
-            break;
         }
 
         m_engine.update(nullptr, nullptr, {}, {}, true);
