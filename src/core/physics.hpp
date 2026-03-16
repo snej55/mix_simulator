@@ -378,14 +378,34 @@ class SoundContactListener : public JPH::ContactListener
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - m_startTime)
                 .count())};
 
-        constexpr double rate{PHYSICS_TIME_STEP * 1000.0};
+        constexpr double rate{60.0};
+        constexpr std::size_t maxSounds{256};
 
         std::lock_guard<std::mutex> lock{m_queueMutex};
+        if (m_soundsQueue.size() >= maxSounds)
+            return;
+
         auto it{m_collisions.find(bodyPair)};
         if (it == m_collisions.end() || (time - it->second.first) > rate || velocity > it->second.second * 1.5f)
         {
             m_soundsQueue.emplace_back(pos, velocity);
             m_collisions[bodyPair] = {time, velocity};
+        }
+
+        // lazy cleanup
+        if ((m_soundsQueue.size() & 31u) == 0u)
+        {
+            for (auto itr{m_collisions.begin()}; itr != m_collisions.end();)
+            {
+                if ((time - itr->second.first) > 2000.0)
+                {
+                    itr = m_collisions.erase(itr);
+                }
+                else
+                {
+                    ++itr;
+                }
+            }
         }
     }
 

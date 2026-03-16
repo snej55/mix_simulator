@@ -33,6 +33,7 @@ bool Game::init()
     }
     std::cout << "Initialized engine!" << std::endl;
 
+    m_engine.setRenderScale(0.8f);
     glfwSetWindowSizeLimits(m_engine.getWindow()->getWindow(), CST::WINDOW_START_WIDTH, CST::WINDOW_START_HEIGHT,
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
 
@@ -249,32 +250,62 @@ void Game::update()
     AudioHandler* audioHandler{m_engine.getAudioHandler()};
     std::vector<std::pair<JPH::RVec3, float>> sounds{m_engine.getJoltInstance()->getSoundListener()->getSoundsQueue()};
 
+    constexpr std::size_t maxSounds{32};
+    std::size_t soundsPlayed{0};
+
+    const glm::vec3 camPos{m_engine.getCamera()->getPosition()};
+    const bool finite{Util::finite3D(camPos)};
+
     for (std::size_t i{0}; i < sounds.size(); ++i)
     {
+        if (soundsPlayed >= maxSounds)
+            break;
+
         const float velocity{sounds[i].second};
         constexpr float minVel{0.5f};
         constexpr float maxVel{20.f};
 
-        if (velocity < minVel)
+        if (velocity < minVel || !std::isfinite(velocity))
+        {
             continue;
-        const float intensity{glm::clamp((velocity - minVel) / (maxVel - minVel), 0.0f, 1.0f)};
-
-        constexpr float a{1.4142}; // sqrt 10
-        const float volume{a * glm::sqrt(intensity)};
+        }
 
         const glm::vec3 worldPosition{sounds[i].first.GetX(), sounds[i].first.GetY(), sounds[i].first.GetZ()};
-        const glm::vec3 viewPosition{m_engine.getViewMatrix() * glm::vec4{worldPosition, 1.0}};
+        if (!Util::finite3D(worldPosition))
+        {
+            continue;
+        }
 
-        constexpr float maxDist{60.f};
-        const float dist{glm::length(viewPosition)};
-        const float distFreq{glm::mix(20000.f, 1000.f, glm::clamp(dist / maxDist, 0.0f, 1.0f))};
-        const float frequency{distFreq * glm::mix(0.2f, 1.0f, intensity)};
+        const float intensity{glm::clamp((velocity - minVel) / (maxVel - minVel), 0.0f, 1.0f)};
+        constexpr float a{1.4142}; // sqrt 10
+        const float volume{a * glm::sqrt(intensity)};
+        if (!std::isfinite(volume))
+        {
+            continue;
+        }
 
-        const unsigned int handle{audioHandler->getSoLoud().play3dClocked(
-            static_cast<int>(glfwGetTime()), *audioHandler->getSound(m_assets->m_SFX_metalImpact), viewPosition.x,
-            viewPosition.y, viewPosition.z, 0.0f, 0.0f, 0.0f, volume)};
+        float frequency{12000.f};
+        if (Util::finite3D(camPos))
+        {
+            constexpr float maxDist{60.f};
+            const float dist{glm::length(worldPosition - camPos)};
+            if (std::isfinite(dist))
+            {
+                const float distFreq{glm::mix(20000.f, 1000.f, glm::clamp(dist / maxDist, 0.0f, 1.0f))};
+                const float f{distFreq * glm::mix(0.2f, 1.0f, intensity)};
+                if (std::isfinite(f))
+                {
+                    frequency = f;
+                }
+            }
+        }
+
+        const unsigned int handle{audioHandler->getSoLoud().play3d(*audioHandler->getSound(m_assets->m_SFX_metalImpact),
+                                                                   worldPosition.x, worldPosition.y, worldPosition.z,
+                                                                   0.0f, 0.0f, 0.0f, volume)};
 
         audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
+        ++soundsPlayed;
     }
     // m_engine.getJoltInstance()->getSoundListener()->clearSounds();
 }

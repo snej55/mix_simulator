@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include <cmath>
 
 #include <assimp/matrix4x4.h>
 #include <assimp/quaternion.h>
@@ -180,6 +181,11 @@ namespace Util
         {
             words.push_back(str.substr(start, str.length() - start));
         }
+    }
+
+    inline bool finite3D(const glm::vec3& vec)
+    {
+        return std::isfinite(vec.x) && std::isfinite(vec.y) && std::isfinite(vec.z);
     }
 } // namespace Util
 

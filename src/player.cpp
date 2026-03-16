@@ -2,8 +2,7 @@
 
 #include "player.hpp"
 #include "core/physics.hpp"
-
-#include <cmath>
+#include "core/util.hpp"
 
 void PlayerController::update(const float dt, Engine* engine)
 {
@@ -49,25 +48,19 @@ void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
     const glm::vec3 front{camera->getFront()};
     const glm::vec3 right{camera->getRight()};
 
-    auto finite = [](const glm::vec3& v) -> bool
-    { return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z); };
-
-    auto normalize = [&](const glm::vec3& vel, const glm::vec3& fallback) -> glm::vec3
+    glm::vec3 forwardDir{0.0f, 0.0f, -1.0f};
+    glm::vec3 rightDir{1.0f, 0.0f, 0.0f};
+    if (Util::finite3D(front) && glm::length(front) > 1e-6f)
     {
-        const glm::vec3 v{vel.x, 0.0f, vel.z};
-        const float dist2 = glm::dot(v, v);
-        if (!std::isfinite(dist2) || dist2 < 1e-8f)
-            return fallback;
-        return v / std::sqrt(dist2);
-    };
-
-    const glm::vec3 forwardDir{normalize(front, glm::vec3{0.0f, 0.0f, -1.0f})};
-    const glm::vec3 rightDir{normalize(right, glm::vec3{1.0f, 0.0f, 0.0f})};
+        forwardDir = glm::normalize(front);
+    }
+    if (Util::finite3D(right) && glm::length(right) > 1e-6f)
+    {
+        rightDir = glm::normalize(right);
+    }
 
     auto move = [&](const glm::vec3& force, const glm::vec3& torque)
     {
-        if (!finite(force) || !finite(torque))
-            return;
         bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {force.x, force.y, force.z},
                                          {torque.x, torque.y, torque.z});
     };
