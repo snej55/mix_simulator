@@ -139,7 +139,7 @@ bool Game::menu()
                 }
                 else
                 {
-                    *static_cast<bool*>((*handlerPtr)[4]) = false;
+                    *static_cast<bool*>((*handlerPtr)[3]) = false;
                 }
             }
             else if (key == GLFW_KEY_G && action == GLFW_PRESS && *static_cast<bool*>((*handlerPtr)[0]))
