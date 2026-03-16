@@ -3,21 +3,55 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
+#include <filesystem>
+#include <algorithm>
+
+#include "core/engine.hpp"
+#include "core/model.hpp"
 #include "core/audio.hpp"
 
 struct Assets
 {
-    explicit Assets() {}
-    ~Assets() = default;
-
     unsigned int m_SFX_metalImpact;
     unsigned int m_MUSIC_menu;
 
-    void loadAssets(AudioHandler* audioHandler)
+    void loadFolder(std::vector<Model*>& models, const char* path, const std::string& name, Engine* engine, float start,
+                    float end)
+    {
+        models.clear();
+        std::vector<std::filesystem::path> modelPaths{};
+        for (const auto& entry : std::filesystem::directory_iterator(path))
+        {
+            const std::filesystem::path path{entry.path()};
+            const std::string extension{path.extension().string()};
+            if (extension == ".glb" || extension == ".gltf")
+            {
+                modelPaths.emplace_back(path);
+            }
+        }
+
+        std::sort(modelPaths.begin(), modelPaths.end());
+
+        if (modelPaths.empty())
+        {
+            return;
+        }
+
+        for (std::size_t i{0}; i < modelPaths.size(); ++i)
+        {
+            const std::string modelName{name + "_" + modelPaths[i].stem().string()};
+            if (!engine->modelExists(modelName))
+            {
+                engine->addModel(modelName, modelPaths[i].string());
+            }
+            models.emplace_back(engine->getModel(modelName));
+        }
+    }
+
+    void loadAssets(AudioHandler* audioHandler, Engine* engine)
     {
         m_SFX_metalImpact = audioHandler->loadSound("data/audio/sfx/metal_impact.ogg");
         m_MUSIC_menu = audioHandler->loadStream("data/audio/music/menu.mp3");
-        std::cout << "Loaded game assets!" << std::endl;
     }
 };
 

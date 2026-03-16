@@ -119,15 +119,23 @@ void DeferredRenderer::free()
 
 void DeferredRenderer::renderQuad() const
 {
+    const GLboolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
+    if (cullWasEnabled)
+        glDisable(GL_CULL_FACE);
+
     glBindVertexArray(m_quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+
+    if (cullWasEnabled)
+        glEnable(GL_CULL_FACE);
 }
 
 void DeferredRenderer::setupGeometryPass(const Shader* gpShader, const glm::mat4& projection,
                                          const glm::mat4& view) const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+    glViewport(0, 0, m_scrWidth, m_scrHeight);
     gpShader->use();
     gpShader->setMat4("projection", projection);
     gpShader->setMat4("view", view);
@@ -165,7 +173,8 @@ void RenderQueue::update() { m_dynamicModels.clear(); }
 
 void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* dfRenderer, const Shader* fdShader,
                               const PostProcessor* postProcessor, void* engine, IBLGenerator* ibl,
-                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights)
+                              const glm::vec3& cameraPos, const std::vector<Lights::PointLight*>& pointLights,
+                              fdDrawCallback callback)
 {
     Engine* enginePtr{static_cast<Engine*>(engine)};
 
@@ -221,6 +230,7 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     glClear(GL_COLOR_BUFFER_BIT);
 
     // render gbuffer
+    glDisable(GL_CULL_FACE);
     enginePtr->renderGBuffer(ibl, pointLights);
 
     glEnable(GL_DEPTH_TEST);
@@ -283,6 +293,12 @@ void RenderQueue::renderFrame(const Shader* dfShader, const DeferredRenderer* df
     }
     glDisable(GL_CULL_FACE);
 
+    // render particles and stuff here
+    if (callback.first != nullptr)
+    {
+        callback.first(callback.second);
+    }
+
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
 
@@ -320,10 +336,14 @@ void RenderQueue::addChunk(const SceneChunk* chunk, const Bounds::Frustum& camFr
     const std::vector<Entity*>& entities{chunk->getEntities()};
     for (Entity* entity : entities)
     {
+        if (entity == nullptr)
+            continue;
+
         if (entity->getBoundingVolume()->onFrustum(camFrustum, entity->getTransform()))
         {
             if (entity->getRendered())
                 continue;
+
             entity->setRendered(true);
 
             if (entity->getGlobalAABB().onFrustum(camFrustum, {}))

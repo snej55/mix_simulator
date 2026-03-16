@@ -7,7 +7,7 @@
             },
             "1": {
                 "name": "table",
-                "path": "data/models/box.glb"
+                "path": "data/models/duck.glb"
             },
             "2": {
                 "name": "block",
@@ -20,6 +20,34 @@
             "4": {
                 "name": "block_large",
                 "path": "data/models/level/block_large.glb"
+            },
+            "5": {
+                "name": "mug",
+                "path": "data/models/mug.glb"
+            },
+            "6": {
+                "name": "bud_vase",
+                "path": "data/models/bud_vase.glb"
+            },
+            "7": {
+                "name": "cider_jug",
+                "path": "data/models/cider_jug.glb"
+            },
+            "8": {
+                "name": "widthwall",
+                "path": "data/models/widthwall.glb"
+            },
+            "9": {
+                "name": "lengthwall",
+                "path": "data/models/lengthwall.glb"
+            },
+            "10": {
+                "name": "container",
+                "path": "data/models/container.glb"
+            },
+            "11": {
+                "name": "ball",
+                "path": "data/models/ball.glb"
             }
         },
         "objects": [
@@ -59,7 +87,7 @@
                     180.0,
                     70.0
                 ],
-                "modelID": 1,
+                "modelID": 5,
                 "animated": false,
                 "bodyType": "dynamic"
             },
@@ -79,7 +107,7 @@
                     1,
                     1
                 ],
-                "modelID": 1,
+                "modelID": 5,
                 "animated": false,
                 "bodyType": "dynamic"
             },
@@ -99,7 +127,7 @@
                     1,
                     1
                 ],
-                "modelID": 1,
+                "modelID": 5,
                 "animated": false,
                 "bodyType": "dynamic"
             },
@@ -119,7 +147,7 @@
                     1,
                     1
                 ],
-                "modelID": 1,
+                "modelID": 5,
                 "animated": false,
                 "bodyType": "dynamic"
             },
@@ -139,7 +167,7 @@
                     1,
                     1
                 ],
-                "modelID": 1,
+                "modelID": 5,
                 "animated": false,
                 "bodyType": "dynamic"
             },
@@ -282,6 +310,206 @@
                 "modelID": 3,
                 "animated": false,
                 "bodyType": "static"
+            },
+            {
+                "position": [
+                    -1.0005440711975098,
+                    1.0990920066833496,
+                    -10.198665618896484
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -7.398475170135498,
+                    -2.0992112159729004,
+                    5.998439311981201
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 6,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -11.19922685623169,
+                    -2.2983169555664062,
+                    0.0
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 7,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -2.1996002197265625,
+                    -2.998297691345215,
+                    6.698757648468018
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 7,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -104.78042364120483,
+                    0.30089521408081055,
+                    -4.199584007263184
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 8,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    103.77974081039429,
+                    0.2997708320617676,
+                    -3.799936294555664
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 8,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    0.0,
+                    0.29972219467163086,
+                    -103.08990955352783
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 9,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    0.0,
+                    0.29972219467163086,
+                    102.38866996765137
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 9,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    0.0,
+                    1.5989413261413574,
+                    -55.99132061004639
+                ],
+                "rotation": [
+                    -45,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 10,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    37.29688596725464,
+                    7.2995524406433105,
+                    -18.09730625152588
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 11,
+                "animated": false,
+                "bodyType": "dynamic"
             }
         ],
         "pointLights": [

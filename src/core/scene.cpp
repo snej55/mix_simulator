@@ -35,9 +35,20 @@ void SceneChunk::updateEntities(const float deltaTime, std::vector<Entity*>& dis
     for (std::size_t i{0}; i < m_entities.size(); ++i)
     {
         Entity* entity{m_entities[i]};
-        assert(entity != nullptr);
+        if (entity == nullptr)
+            continue;
 
-        if (entity->getDiscarded() || entity->getStatic())
+        if (entity->getDiscarded())
+            continue;
+
+        if (entity->getKill())
+        {
+            entity->setDiscarded(true);
+            discardEntities.emplace_back(entity);
+            continue;
+        }
+
+        if (entity->getStatic())
         {
             continue;
         }
@@ -120,7 +131,10 @@ void SceneChunk::init()
                       m_pos.z + SpatialHashing::CELL_SIZE}});
 }
 
-Scene::Scene(void* engine) : EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine(engine) {}
+Scene::Scene(void* engine, JoltInstance* jolt) :
+    EngineObject{"Scene", static_cast<EngineObject*>(engine)}, m_engine{engine}, m_jolt{jolt}
+{
+}
 
 Scene::~Scene() { free(); }
 
@@ -133,10 +147,33 @@ bool Scene::init(const char* scenePath)
     {
         json data{json::parse(sceneFile)};
 
+        const json* root{&data};
+        if (data.is_array())
+        {
+            if (data.empty() || !data[0].is_object())
+            {
+                Util::beginError();
+                std::cout << "SCENE::INIT::ERROR: Scene is empty!";
+                Util::endError();
+                return false;
+            }
+            root = &data[0];
+        }
+
+        if (!root->contains("level") || !(*root)["level"].is_object())
+        {
+            Util::beginError();
+            std::cout << "SCENE::INIT::ERROR: Scene does not contain level data!";
+            Util::endError();
+            return false;
+        }
+
+        const json& level{(*root)["level"]};
+
         // load models
         std::cout << "SCENE::INIT: Loading models for scene...\n";
         std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
-        for (const auto& [key, value] : data["level"]["models"].items())
+        for (const auto& [key, value] : level["models"].items())
         {
             const std::size_t modelID{std::stoul(key)};
             const std::string modelName{value["name"].get<std::string>()};
@@ -155,7 +192,7 @@ bool Scene::init(const char* scenePath)
 
         // load entities
         std::cout << "SCENE::INIT: Loading entities for scene...\n";
-        for (const auto& entityEntry : data["level"]["objects"])
+        for (const auto& entityEntry : level["objects"])
         {
             const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
                                      entityEntry["position"][2].get<float>()};
@@ -185,10 +222,10 @@ bool Scene::init(const char* scenePath)
 
             addEntity(modelMap[modelID].second.c_str(), transform, bodyType, animated);
         }
-        std::cout << "SCENE::INIT: Loaded " << data["level"]["objects"].size() << " entities for scene.\n";
+        std::cout << "SCENE::INIT: Loaded " << level["objects"].size() << " entities for scene.\n";
 
         std::cout << "SCENE::INIT Adding point lights to scene..." << std::endl;
-        for (const auto& pointLightEntry : data["level"]["pointLights"])
+        for (const auto& pointLightEntry : level["pointLights"])
         {
             const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
                                      pointLightEntry["position"][1].get<float>(),
@@ -198,8 +235,7 @@ bool Scene::init(const char* scenePath)
             const float radius{pointLightEntry["radius"].get<float>()};
             addPointLight(position, color, radius);
         }
-        std::cout << "SCENE::INIT: Loaded " << data["level"]["pointLights"].size() << " pointLights for scene."
-                  << std::endl;
+        std::cout << "SCENE::INIT: Loaded " << level["pointLights"].size() << " pointLights for scene." << std::endl;
     }
     catch ([[maybe_unused]] const std::ifstream::failure& e)
     {
@@ -216,6 +252,7 @@ bool Scene::init(const char* scenePath)
               << ", z: " << m_levelCenter.z << "}" << std::endl;
 
     sceneFile.close();
+
     return true;
 }
 
@@ -230,7 +267,121 @@ void Scene::initPhysicsBodies(JoltInstance* jolt)
                 entity->initPhysicsBody(jolt->getBodyInterface());
         }
     }
+    setupWalls(jolt);
     jolt->getPhysicsSystem()->OptimizeBroadPhase();
+}
+
+bool Scene::initRaw(const char* scenePath)
+{
+    std::cout << "SCENE::INIT_RAW: Loading scene objects from path `" << scenePath << "`..." << std::endl;
+    free();
+
+    std::ifstream sceneFile{scenePath};
+    sceneFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try
+    {
+        json data{json::parse(sceneFile)};
+
+        const json* root{&data};
+        if (data.is_array())
+        {
+            if (data.empty() || !data[0].is_object())
+            {
+                Util::beginError();
+                std::cout << "SCENE::INIT_RAW::ERROR: Scene is empty!";
+                Util::endError();
+                return false;
+            }
+            root = &data[0];
+        }
+
+        if (!root->contains("level") || !(*root)["level"].is_object())
+        {
+            Util::beginError();
+            std::cout << "SCENE::INIT_RAW::ERROR: Scene does not contain level data!";
+            Util::endError();
+            return false;
+        }
+
+        const json& level{(*root)["level"]};
+
+        std::cout << "SCENE::INIT_RAW: Loading models for scene...\n";
+        std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
+        for (const auto& [key, value] : level["models"].items())
+        {
+            const std::size_t modelID{std::stoul(key)};
+            const std::string modelName{value["name"].get<std::string>()};
+            const std::string modelPath{value["path"].get<std::string>()};
+            std::cout << modelName << " " << modelPath << std::endl;
+
+            modelMap[modelID] = std::pair{modelName, modelPath};
+        }
+        std::cout << "SCENE::INIT_RAW: Loaded " << modelMap.size() << " models for scene.\n";
+
+        // load entities
+        std::cout << "SCENE::INIT_RAW: Loading entities for scene...\n";
+        for (const auto& entityEntry : level["objects"])
+        {
+            const glm::vec3 position{entityEntry["position"][0].get<float>(), entityEntry["position"][1].get<float>(),
+                                     entityEntry["position"][2].get<float>()};
+            const glm::vec3 scale{entityEntry["scale"][0].get<float>(), entityEntry["scale"][1].get<float>(),
+                                  entityEntry["scale"][2].get<float>()};
+            const glm::vec3 rotation{entityEntry["rotation"][0].get<float>(), entityEntry["rotation"][1].get<float>(),
+                                     entityEntry["rotation"][2].get<float>()};
+            const std::size_t modelID{entityEntry["modelID"].get<std::size_t>()};
+            const bool animated{entityEntry.value("animated", false)};
+
+            const std::string bodyTypeStr{entityEntry.value("bodyType", std::string{"static"})};
+            BodyType bodyType;
+            getBodyType(bodyTypeStr, &bodyType);
+
+            Bounds::Transform transform{};
+            transform.setLocalPosition(position);
+            transform.setLocalScale(scale);
+            transform.setLocalRotation(rotation);
+
+            if (modelMap.find(modelID) == modelMap.end())
+            {
+                Util::beginError();
+                std::cout << "SCENE::INIT_RAW::ERROR: Model ID `" << modelID << "` not found in model map!";
+                Util::endError();
+                continue;
+            }
+
+            addEntity(modelMap[modelID].second.c_str(), transform, bodyType, animated);
+        }
+        std::cout << "SCENE::INIT_RAW: Loaded " << level["objects"].size() << " entities for scene.\n";
+
+        std::cout << "SCENE::INIT_RAW Adding point lights to scene..." << std::endl;
+        for (const auto& pointLightEntry : level["pointLights"])
+        {
+            const glm::vec3 position{pointLightEntry["position"][0].get<float>(),
+                                     pointLightEntry["position"][1].get<float>(),
+                                     pointLightEntry["position"][2].get<float>()};
+            const glm::vec3 color{pointLightEntry["color"][0].get<float>(), pointLightEntry["color"][1].get<float>(),
+                                  pointLightEntry["color"][2].get<float>()};
+            const float radius{pointLightEntry["radius"].get<float>()};
+            addPointLight(position, color, radius);
+        }
+        std::cout << "SCENE::INIT_RAW: Loaded " << level["pointLights"].size() << " pointLights for scene."
+                  << std::endl;
+    }
+    catch ([[maybe_unused]] const std::ifstream::failure& e)
+    {
+        Util::beginError();
+        std::cout << "SCENE::INIT_RAW::ERROR: Could not read scene file at path `" << scenePath << "`!";
+        Util::endError();
+        return false;
+    }
+
+    calculateLevelDimensions();
+    std::cout << "SCENE::INIT::LEVEL_EXTENTS: {x: " << m_levelExtents.x << ", y: " << m_levelExtents.y
+              << ", z: " << m_levelExtents.z << "}" << std::endl;
+    std::cout << "SCENE::INIT::LEVEL_CENTER: {x: " << m_levelCenter.x << ", y: " << m_levelCenter.y
+              << ", z: " << m_levelCenter.z << "}" << std::endl;
+
+    sceneFile.close();
+    return true;
 }
 
 void Scene::free()
@@ -241,12 +392,25 @@ void Scene::free()
         const std::vector<Entity*>& entities{chunkPtr->getEntities()};
         for (Entity* entity : entities)
         {
-            if (std::find(freedEntities.begin(), freedEntities.end(), entity) == freedEntities.end())
-                delete entity;
+            if (entity == nullptr)
+                continue;
+
+            if (std::find(freedEntities.begin(), freedEntities.end(), entity) != freedEntities.end())
+                continue;
+
+            const JPH::BodyID bodyID{entity->getPhysicsBody()->getBodyID()};
+            if (!bodyID.IsInvalid())
+            {
+                m_jolt->getBodyInterface()->RemoveBody(bodyID);
+                m_jolt->getBodyInterface()->DestroyBody(bodyID);
+            }
+
+            delete entity;
             freedEntities.emplace_back(entity);
         }
     }
     m_chunks.clear();
+    m_pointLights.clear();
 }
 
 void Scene::resetEntityFlags()
@@ -255,6 +419,9 @@ void Scene::resetEntityFlags()
     {
         for (Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             entity->setDirty(false);
             entity->setRendered(false);
         }
@@ -272,8 +439,12 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
     }
 
     std::vector<SceneChunk*> discardChunks{};
+    std::unordered_set<Entity*> processed{};
     for (Entity* entity : discardEntities)
     {
+        if (entity == nullptr || !processed.insert(entity).second)
+            continue;
+
         for (const std::pair<std::size_t, void*>& chunkPair : entity->getChunks())
         {
             SceneChunk* chunkPtr{static_cast<SceneChunk*>(chunkPair.second)};
@@ -281,7 +452,17 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
             discardChunks.emplace_back(chunkPtr);
         }
         entity->eraseChunks();
-        addEntity(entity);
+        if (!entity->getKill())
+        {
+            addEntity(entity);
+        }
+        else
+        {
+            std::cout << "Removed entity\n";
+            jolt->getBodyInterface()->RemoveBody(entity->getPhysicsBody()->getBodyID());
+            jolt->getBodyInterface()->DestroyBody(entity->getPhysicsBody()->getBodyID());
+            delete entity;
+        }
     }
 
     for (std::size_t i{0}; i < discardChunks.size(); ++i)
@@ -354,6 +535,7 @@ void Scene::addEntity(Entity* entity)
     {
         std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
                   << " chunks away from origin)" << std::endl;
+        entity->setKill(true);
         return;
     }
 
@@ -407,6 +589,9 @@ void Scene::getShadowModels(std::vector<std::pair<Model*, glm::mat4>>& models) c
     {
         for (const Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             if (auto it{unique.find(entity)}; it == unique.end())
             {
                 models.emplace_back(
@@ -447,11 +632,14 @@ void Scene::calculateLevelDimensions()
 {
     glm::vec3 min{std::numeric_limits<float>::max()};
     glm::vec3 max{std::numeric_limits<float>::lowest()};
-    Bounds::AABB globalAABB;
+    Bounds::AABB globalAABB{};
     for (const auto& [key, chunkPtr] : m_chunks)
     {
         for (const Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             globalAABB = entity->getGlobalAABB();
             min = glm::min(globalAABB.center - globalAABB.extents, min);
             max = glm::max(globalAABB.center + globalAABB.extents, max);
@@ -469,6 +657,9 @@ void Scene::getStaticEntities(std::vector<Entity*>& entities)
     {
         for (Entity* entity : chunkPtr->getEntities())
         {
+            if (entity == nullptr)
+                continue;
+
             if (entity->getStatic() && std::strcmp(entity->getModel()->getName(), "MODEL floor") != 0 &&
                 std::find(uniqueEntities.begin(), uniqueEntities.end(), entity) == uniqueEntities.end())
             {
@@ -479,15 +670,121 @@ void Scene::getStaticEntities(std::vector<Entity*>& entities)
     }
 }
 
-void Scene::getStaticRects(std::vector<Bounds::Rect2D>& rects)
+void Scene::getStaticRects(std::vector<Bounds::Rect2D>& rects, const float minHeight, const float maxHeight)
 {
-    Bounds::AABB globalAABB;
     std::vector<Entity*> staticEntities{};
     getStaticEntities(staticEntities);
     for (const Entity* entity : staticEntities)
     {
-        globalAABB = entity->getGlobalAABB();
-        rects.emplace_back(
-            Bounds::Rect2D{{globalAABB.center.x, globalAABB.center.z}, {globalAABB.extents.x, globalAABB.extents.z}});
+        const Bounds::AABB globalAABB = entity->getGlobalAABB();
+        if (globalAABB.center.y + globalAABB.extents.y >= minHeight &&
+            globalAABB.center.y - globalAABB.extents.y < maxHeight)
+        {
+            rects.emplace_back(Bounds::Rect2D{{globalAABB.center.x, globalAABB.center.z},
+                                              {globalAABB.extents.x, globalAABB.extents.z}});
+        }
     }
+}
+
+void Scene::getDynamicEntities(std::vector<Entity*>& entities)
+{
+    std::vector<Entity*> uniqueEntities{};
+    for (const auto& [key, chunkPtr] : m_chunks)
+    {
+        for (Entity* entity : chunkPtr->getEntities())
+        {
+            if (entity == nullptr)
+                continue;
+
+            if (!entity->getStatic() &&
+                std::find(uniqueEntities.begin(), uniqueEntities.end(), entity) == uniqueEntities.end())
+            {
+                entities.emplace_back(entity);
+                uniqueEntities.emplace_back(entity);
+            }
+        }
+    }
+}
+
+void Scene::setupWalls(JoltInstance* jolt)
+{
+    for (std::size_t i{0}; i < m_wallIDs.size(); ++i)
+    {
+        jolt->getBodyInterface()->RemoveBody(m_wallIDs[i]);
+        jolt->getBodyInterface()->DestroyBody(m_wallIDs[i]);
+    }
+
+    m_wallIDs.clear();
+    m_wallIDs.reserve(4);
+    std::vector<Entity*> staticEntities{};
+    std::pair<const Entity*, const Entity*> widthWalls{nullptr, nullptr};
+    std::pair<const Entity*, const Entity*> lengthWalls{nullptr, nullptr};
+    getStaticEntities(staticEntities);
+    for (const Entity* entity : staticEntities)
+    {
+        if (std::strcmp(entity->getModel()->getName(), "MODEL widthwall") == 0)
+        {
+            std::cout << "Found a width wall\n";
+            if (widthWalls.first == nullptr)
+            {
+                widthWalls.first = entity;
+            }
+            else
+            {
+                widthWalls.second = entity;
+            }
+        }
+        else if (std::strcmp(entity->getModel()->getName(), "MODEL lengthwall") == 0)
+        {
+            std::cout << "Found a length wall\n";
+            if (lengthWalls.first == nullptr)
+            {
+                lengthWalls.first = entity;
+            }
+            else
+            {
+                lengthWalls.second = entity;
+            }
+        }
+    }
+
+    if (widthWalls.first == nullptr || widthWalls.second == nullptr || lengthWalls.first == nullptr ||
+        lengthWalls.second == nullptr)
+    {
+        return;
+    }
+
+    Bounds::AABB aabb{*widthWalls.first->getBoundingVolume()};
+    aabb.extents.y = 1000.f;
+    PhysicsBody p1{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   widthWalls.first->getTransform().getGlobalPosition()};
+    aabb = *widthWalls.second->getBoundingVolume();
+    aabb.extents.y = 1000.f;
+    PhysicsBody p2{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   widthWalls.second->getTransform().getGlobalPosition()};
+    aabb = *lengthWalls.first->getBoundingVolume();
+    aabb.extents.y = 1000.f;
+    PhysicsBody p3{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   lengthWalls.first->getTransform().getGlobalPosition()};
+    aabb = *lengthWalls.second->getBoundingVolume();
+    aabb.extents.y = 1000.f;
+    PhysicsBody p4{jolt->getBodyInterface(),
+                   aabb,
+                   {0.0f, 0.0f, 0.0f},
+                   BodyType::STATIC,
+                   lengthWalls.second->getTransform().getGlobalPosition()};
+
+    m_wallIDs.emplace_back(p1.getBodyID());
+    m_wallIDs.emplace_back(p2.getBodyID());
+    m_wallIDs.emplace_back(p3.getBodyID());
+    m_wallIDs.emplace_back(p4.getBodyID());
 }

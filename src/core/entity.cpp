@@ -6,22 +6,31 @@
 #include "bounds.hpp"
 #include "physics.hpp"
 
-Entity::Entity(const Model* model, const Bounds::Transform& transform, const BodyType& bodyType, const bool animated) :
+Entity::Entity(Model* model, const Bounds::Transform& transform, const BodyType& bodyType, const bool animated) :
     m_transform{transform}, m_bodyType{bodyType}, m_animated{animated}
 {
     m_transform.computeModelMatrix();
-    m_model = std::make_unique<Model>(*model);
+    m_model = model;
     m_path = m_model->getPath();
-    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model.get(), m_transform.getLocalScale()));
+    m_BV = std::make_unique<Bounds::AABB>(Bounds::generateAABB_BV(m_model, m_transform.getLocalScale()));
     m_transform.setPivotOffset(-m_BV->center);
     m_transform.computeModelMatrix();
     m_static = (bodyType == BodyType::STATIC);
 }
 
-Entity::~Entity() = default;
+Entity::~Entity() { setEntityController(nullptr); }
 
 void Entity::update(const float deltaTime, const JPH::BodyInterface* bodyInterface)
 {
+    if (m_callback != nullptr)
+    {
+        m_callback(this);
+    }
+    if (m_controller != nullptr)
+    {
+        m_controller->update();
+    }
+
     if (bodyInterface != nullptr && m_physicsBody.get() != nullptr)
     {
         m_physicsBody->syncTransform(m_transform, bodyInterface);
@@ -69,7 +78,7 @@ glm::vec3 Entity::getGlobalMidpoint() const
     return glm::vec3(globalCenter);
 }
 
-void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface)
+void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface, const bool simple)
 {
     if (m_physicsBody.get() != nullptr)
     {
@@ -78,8 +87,48 @@ void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface)
     }
 
     Bounds::AABB localAABB{*m_BV};
-    m_physicsBody = std::make_unique<PhysicsBody>(bodyInterface, localAABB, m_transform.getLocalRotation(), m_bodyType,
-                                                  m_transform.getGlobalPosition() + m_transform.getPivotOffset());
+    if (simple)
+    {
+        m_physicsBody =
+            std::make_unique<PhysicsBody>(bodyInterface, localAABB, m_transform.getLocalRotation(), m_bodyType,
+                                          m_transform.getGlobalPosition() + m_transform.getPivotOffset());
+    }
+    else
+    {
+        std::vector<glm::vec3> vertices{};
+        const glm::vec3 pivot{m_transform.getPivotOffset()};
+        const glm::vec3 scale{m_transform.getLocalScale()};
+        for (const Mesh* mesh : m_model->getOpaqueMeshes())
+        {
+            for (const MeshN::Vertex& v : mesh->getVertices())
+            {
+                vertices.push_back((v.position + pivot) * scale);
+            }
+        }
+        for (const Mesh* mesh : m_model->getTransparentMeshes())
+        {
+            for (const MeshN::Vertex& v : mesh->getVertices())
+            {
+                vertices.push_back((v.position + pivot) * scale);
+            }
+        }
+
+        // do a convex hull
+        m_physicsBody =
+            std::make_unique<PhysicsBody>(bodyInterface, vertices, m_transform.getLocalRotation(), m_bodyType,
+                                          m_transform.getGlobalPosition() + m_transform.getPivotOffset());
+    }
 }
 
 void Entity::setPhysicsBody(PhysicsBody& physicsBody) { m_physicsBody = std::make_unique<PhysicsBody>(physicsBody); }
+
+void Entity::setEntityController(EntityController* controller)
+{
+    if (m_controller != nullptr)
+    {
+        delete m_controller;
+        m_controller = nullptr;
+    }
+
+    m_controller = controller;
+}

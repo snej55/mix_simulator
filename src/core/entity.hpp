@@ -11,11 +11,22 @@
 #include "bounds.hpp"
 #include "physics.hpp"
 
+using EntityCallback = void (*)(void*);
+struct EntityController
+{
+    void* m_entity;
+
+    EntityController(void* entity) : m_entity{entity} {}
+    virtual ~EntityController() = default;
+
+    virtual void update() = 0;
+};
+
 class Entity final
 {
 public:
     Entity() = default;
-    Entity(const Model* model, const Bounds::Transform& transform, const BodyType& bodyType, bool animated = false);
+    Entity(Model* model, const Bounds::Transform& transform, const BodyType& bodyType, bool animated = false);
     ~Entity();
 
     void update(float deltaTime, const JPH::BodyInterface* bodyInterface = nullptr);
@@ -25,7 +36,7 @@ public:
     [[nodiscard]] const std::string& getPath() const { return m_path; }
     [[nodiscard]] glm::vec3 getPosition() const { return m_transform.getGlobalPosition(); }
 
-    [[nodiscard]] Model* getModel() const { return m_model.get(); }
+    [[nodiscard]] Model* getModel() const { return m_model; }
     [[nodiscard]] bool getAnimated() const { return m_animated; }
 
     [[nodiscard]] const Bounds::Transform& getTransform() const { return m_transform; }
@@ -50,7 +61,7 @@ public:
 
     [[nodiscard]] const BodyType& getBodyType() const { return m_bodyType; }
     [[nodiscard]] PhysicsBody* getPhysicsBody() const { return m_physicsBody.get(); }
-    void initPhysicsBody(JPH::BodyInterface* bodyInterface);
+    void initPhysicsBody(JPH::BodyInterface* bodyInterface, bool simple = false);
     void setPhysicsBody(PhysicsBody& physicsBody);
 
     // keep track of which chunks this entity belongs to
@@ -58,12 +69,21 @@ public:
     void eraseChunks() { m_chunks.clear(); }
     [[nodiscard]] std::vector<std::pair<std::size_t, void*>>& getChunks() { return m_chunks; }
 
+    [[nodiscard]] EntityController* getController() const { return m_controller; }
+    void setEntityController(EntityController* entity);
+
+    [[nodiscard]] EntityCallback getCallback() const { return m_callback; }
+    void setCallback(EntityCallback callback) { m_callback = callback; }
+
+    void setKill(const bool val) { m_kill = val; }
+    [[nodiscard]] bool getKill() const { return m_kill; }
+
 private:
     std::string m_path{};
     Bounds::Transform m_transform{};
     std::unique_ptr<Bounds::AABB> m_BV{};
 
-    std::unique_ptr<Model> m_model{nullptr};
+    Model* m_model{nullptr};
     bool m_animated{false};
 
     bool m_inFrustum{false};
@@ -74,6 +94,11 @@ private:
     bool m_dirty{false};
     bool m_rendered{false};
     bool m_discarded{false};
+
+    bool m_kill{false};
+
+    EntityController* m_controller{nullptr};
+    EntityCallback m_callback{nullptr};
 
     std::vector<std::pair<std::size_t, void*>> m_chunks{};
 };

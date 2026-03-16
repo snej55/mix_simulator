@@ -242,15 +242,17 @@ bool Engine::init(const int width, const int height, const char* title)
     }
 
     std::cout << "ENGINE::INIT: Successfully created components!\n";
-
     return true;
 }
 
 // update components
 void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vector<Lights::PointLight*>& pointLights,
-                    const std::vector<std::pair<Model*, glm::mat4>>& shadowModels, const bool menu)
+                    const std::vector<std::pair<Model*, glm::mat4>>& shadowModels, const bool menu,
+                    RenderQueue::fdDrawCallback callback)
 {
     assert((renderQueue != nullptr) == (ibl != nullptr));
+
+    resizePPChain();
 
     // ----- Handle IO ----- //
     // check for esc
@@ -278,6 +280,8 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
             m_camera->processInput(CameraN::CameraMotion::RIGHT, getDeltaTime());
         }
     }
+    m_screenShake = std::max(0.0f, m_screenShake - getDeltaTime());
+    m_camera->setRoll(Util::random() * m_screenShake - m_screenShake * 0.5f);
 
     if (m_iohandler->getPressed(GLFW_KEY_T))
     {
@@ -305,7 +309,7 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
             renderQueue->renderShadows(this, shadowModels);
         }
         renderQueue->renderFrame(getShader("gBuffer"), m_deferredRenderer, getShader("texturePBR"), m_postProcessor,
-                                 this, ibl, getCameraPosition(), pointLights);
+                                 this, ibl, getCameraPosition(), pointLights, callback);
         renderQueue->update();
     }
     else
@@ -379,6 +383,50 @@ void Engine::displayFrameTime()
 }
 
 void Engine::setupViewport() const { glViewport(0, 0, getWidth(), getHeight()); }
+
+void Engine::resize(const int width, const int height)
+{
+    if (width <= 0 || height <= 0)
+        return;
+
+    m_tempRes.x = width;
+    m_tempRes.y = height;
+    m_resize = true;
+}
+
+void Engine::resizePPChain()
+{
+    if (!m_resize)
+        return;
+
+    updateDeferredRenderer(getRenderWidth(), getRenderHeight());
+    updateSSAOGenerator(getRenderWidth(), getRenderHeight());
+    updatePostProcessor(getRenderWidth(), getRenderHeight());
+
+    m_uiRenderer->generate(m_tempRes.x, m_tempRes.y);
+    if (m_fontRenderer != nullptr && m_fontRenderer->getLoaded())
+    {
+        m_fontRenderer->updateProjection(static_cast<float>(m_tempRes.x), static_cast<float>(m_tempRes.y));
+    }
+
+    if (getFBOCallback() != nullptr)
+    {
+        getFBOCallback()(getFBOCallbackArgs(), m_tempRes.x, m_tempRes.y);
+    }
+
+    glViewport(0, 0, m_tempRes.x, m_tempRes.y);
+    m_resize = false;
+}
+
+void Engine::setRenderScale(const float scale)
+{
+    m_renderScale = std::clamp(scale, 0.1f, 1.0f);
+    if (m_window != nullptr)
+    {
+        m_tempRes = {getWidth(), getHeight()};
+        m_resize = true;
+    }
+}
 
 // ------ IOHandler ------ //
 
@@ -877,8 +925,8 @@ void Engine::drawRect(const FRect& rect, const Color& color) const
 void Engine::drawScreenRect(const FRect& rect, const Color& color) const
 {
     drawRect({rect.x / static_cast<float>(getWidth()) * 2.0f - 1.0f,
-              (rect.y + rect.h) / static_cast<float>(getHeight()) * 2.0f - 1.0f,
-              rect.w / static_cast<float>(getWidth()) * 2.0f, rect.h / static_cast<float>(getHeight()) * 2.0f},
+              rect.y / static_cast<float>(getHeight()) * 2.0f - 1.0f, rect.w / static_cast<float>(getWidth()) * 2.0f,
+              rect.h / static_cast<float>(getHeight()) * 2.0f},
              color);
 }
 
@@ -1060,6 +1108,9 @@ void Engine::renderPostProcessing() const
 {
     m_postProcessor->renderHDR(getShader("bloomSS"));
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, getWidth(), getHeight());
+
     unsigned int uiTEX{m_uiRenderer->getTEX()};
     m_postProcessor->renderFinal(getShader("FXAA"), &uiTEX);
 }
@@ -1184,9 +1235,15 @@ bool Engine::createSSAOGenerator()
 
 void Engine::updateSSAOGenerator(const int width, const int height)
 {
-    m_arena->removeObject(m_ssaoGenerator->getID());
-    m_ssaoGenerator = nullptr;
-    createSSAOGenerator();
+    if (width <= 0 || height <= 0)
+        return;
+
+    if (m_ssaoGenerator == nullptr)
+    {
+        if (!createSSAOGenerator())
+            return;
+    }
+
     m_ssaoGenerator->init(width, height);
 }
 

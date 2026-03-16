@@ -30,16 +30,27 @@
 #include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Collision/CollideShape.h>
 #include <Jolt/Math/Vec3.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Body/MassProperties.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Geometry/IndexedTriangle.h>
+#include <Jolt/Math/Float3.h>
+#include <Jolt/Core/StreamWrapper.h>
 
 #include <glm/gtc/quaternion.hpp>
 #define GLM_FORCE_QUAT_DATA_WXYZ
 
+#include <fstream>
+#include <ios>
 #include <iostream>
 #include <cstdarg>
 #include <cassert>
 #include <string_view>
 #include <chrono>
 #include <mutex>
+#include <algorithm>
+#include <cmath>
+#include <filesystem>
 
 using t_timepoint = std::chrono::time_point<std::chrono::system_clock>;
 using t_duration = std::chrono::duration<double>;
@@ -49,7 +60,7 @@ using t_duration = std::chrono::duration<double>;
 #include "util.hpp"
 
 #define PHYSICS_TIME_STEP 0.0166667
-#define PHYSICS_CONVEX_RADIUS 0.05f
+#define PHYSICS_CONVEX_RADIUS 0.005f
 // #define PHYSICS_DEBUG_LOG
 
 enum class BodyType
@@ -254,6 +265,53 @@ struct BodyPairHash
     }
 };
 
+class CollisionListener : public JPH::ContactListener
+{
+public:
+    virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                                  JPH::RVec3Arg inBaseOffset,
+                                                  const JPH::CollideShapeResult& inCollisionResult) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactValidate(inBody1, inBody2, inBaseOffset, inCollisionResult);
+        }
+        return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
+    }
+
+    virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactAdded(inBody1, inBody2, inManifold, ioSettings);
+        }
+    }
+
+    virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2,
+                                    const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactPersisted(inBody1, inBody2, inManifold, ioSettings);
+        }
+    }
+
+    virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
+    {
+        for (std::size_t l{0}; l < m_listeners.size(); ++l)
+        {
+            m_listeners[l]->OnContactRemoved(inSubShapePair);
+        }
+    }
+
+    void addListener(JPH::ContactListener* listener) { m_listeners.push_back(listener); }
+    [[nodiscard]] const std::vector<JPH::ContactListener*>& getListeners() const { return m_listeners; }
+
+private:
+    std::vector<JPH::ContactListener*> m_listeners{};
+};
+
 class SoundContactListener : public JPH::ContactListener
 {
     virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2,
@@ -273,7 +331,7 @@ class SoundContactListener : public JPH::ContactListener
         JPH::Vec3 relVel{vel1 - vel2};
         const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
 
-        constexpr float threshold{0.3f};
+        constexpr float threshold{0.6f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -297,7 +355,7 @@ class SoundContactListener : public JPH::ContactListener
 
         // const float scrapeSpeed{(relVel - impactSpeed * inManifold.mWorldSpaceNormal).Length()};
 
-        constexpr float threshold{0.3f};
+        constexpr float threshold{0.6f};
         if (impactSpeed > threshold)
         {
             if (!m_started)
@@ -320,11 +378,12 @@ class SoundContactListener : public JPH::ContactListener
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - m_startTime)
                 .count())};
 
-        constexpr double rate{PHYSICS_TIME_STEP * 1000.0}; // only one sound per frame please
+        constexpr double rate{PHYSICS_TIME_STEP * 1000.0};
+
+        std::lock_guard<std::mutex> lock{m_queueMutex};
         auto it{m_collisions.find(bodyPair)};
         if (it == m_collisions.end() || (time - it->second.first) > rate || velocity > it->second.second * 1.5f)
         {
-            std::lock_guard<std::mutex> lock{m_queueMutex};
             m_soundsQueue.emplace_back(pos, velocity);
             m_collisions[bodyPair] = {time, velocity};
         }
@@ -339,7 +398,14 @@ class SoundContactListener : public JPH::ContactListener
     }
 
 public:
-    [[nodiscard]] const std::vector<std::pair<JPH::RVec3, float>>& getSoundsQueue() const { return m_soundsQueue; }
+    [[nodiscard]] std::vector<std::pair<JPH::RVec3, float>> getSoundsQueue()
+    {
+        std::lock_guard<std::mutex> lock{m_queueMutex};
+        std::vector<std::pair<JPH::RVec3, float>> out{};
+        out.swap(m_soundsQueue);
+        return out;
+    }
+
     void clearSounds() { m_soundsQueue.clear(); }
 
 private:
@@ -354,12 +420,130 @@ private:
 
 using PBSettingsModifier = void (*)(JPH::BodyCreationSettings*);
 
-// only simple boxes for now
 class PhysicsBody final
 {
 public:
     PhysicsBody() = default;
 
+    // for static meshes (MUST BE STATIC)
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<glm::vec3>& vertices,
+                const std::vector<unsigned int>& indices, const glm::vec3& rotation, const BodyType bodyType,
+                const glm::vec3& position = {0.0f, 0.0f, 0.0f}, PBSettingsModifier settingsModifier = nullptr,
+                const float density = 1.0f) : m_bodyType{bodyType}
+    {
+        JPH::VertexList joltVertices{};
+        joltVertices.reserve(vertices.size());
+        for (const glm::vec3& v : vertices)
+        {
+            joltVertices.push_back(JPH::Float3{v.x, v.y, v.z});
+        }
+
+        JPH::IndexedTriangleList joltIndices{};
+        joltIndices.reserve(indices.size() / 3);
+        for (std::size_t i{0}; i < indices.size(); i += 3)
+        {
+            joltIndices.emplace_back(indices[i], indices[i + 1], indices[i + 2]);
+        }
+
+        JPH::MeshShapeSettings shapeSettings{std::move(joltVertices), std::move(joltIndices)};
+        shapeSettings.mActiveEdgeCosThresholdAngle = 0.999f;
+        JPH::Shape::ShapeResult result{shapeSettings.Create()};
+
+        if (result.HasError())
+        {
+            Util::beginError();
+            std::cout << "PHYSICS_BODY::ERROR: Failed to create mesh shape from " << vertices.size() << " vertices and "
+                      << indices.size() << " indices.";
+            Util::endError();
+            return;
+        }
+
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles(Util::convertVectorJolt(rotation))};
+        JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
+
+        JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, JPH::EMotionType::Static,
+                                           ObjectLayers::NON_MOVING};
+
+        if (settingsModifier != nullptr)
+        {
+            settingsModifier(&settings);
+        }
+
+        m_bodyID = bodyInterface->CreateAndAddBody(settings, JPH::EActivation::DontActivate);
+        m_settings = settings;
+    }
+
+    // convex hull
+    PhysicsBody(JPH::BodyInterface* bodyInterface, const std::vector<glm::vec3>& vertices, const glm::vec3& rotation,
+                const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
+                PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
+    {
+        std::vector<JPH::Vec3> joltVertices{};
+        joltVertices.reserve(vertices.size());
+        for (const glm::vec3& v : vertices)
+        {
+            joltVertices.emplace_back(Util::convertVectorJolt(v));
+        }
+
+        JPH::ConvexHullShapeSettings shapeSettings;
+        shapeSettings.mPoints.assign(joltVertices.begin(), joltVertices.end());
+        shapeSettings.mMaxConvexRadius = PHYSICS_CONVEX_RADIUS;
+        JPH::Shape::ShapeResult result{shapeSettings.Create()};
+
+        if (result.HasError())
+        {
+            Util::beginError();
+            std::cout << "PHYSICS_BODY::ERROR: Failed to create convex hull from " << vertices.size() << " vertices";
+            Util::endError();
+            return;
+        }
+
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles(Util::convertVectorJolt(glm::radians(rotation)))};
+        JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
+        JPH::Vec3 center{result.Get()->GetCenterOfMass()};
+        m_centerOffset = center;
+        bodyPos += joltRotation * center;
+
+        JPH::EMotionType motionType;
+        JPH::ObjectLayer layer;
+
+        switch (bodyType)
+        {
+        case BodyType::STATIC:
+            motionType = JPH::EMotionType::Static;
+            layer = ObjectLayers::NON_MOVING;
+            break;
+        case BodyType::DYNAMIC:
+            motionType = JPH::EMotionType::Dynamic;
+            layer = ObjectLayers::MOVING;
+            break;
+        case BodyType::KINEMATIC:
+            motionType = JPH::EMotionType::Kinematic;
+            layer = ObjectLayers::MOVING;
+            break;
+        }
+
+        JPH::BodyCreationSettings settings{result.Get(), bodyPos, joltRotation, motionType, layer};
+        JPH::Ref<JPH::Shape> shape{result.Get()};
+        JPH::MassProperties massProperties{shape->GetMassProperties()};
+        massProperties.ScaleToMass(massProperties.mMass * density);
+        settings.mMassPropertiesOverride = massProperties;
+        settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+
+        if (settingsModifier != nullptr)
+        {
+            settingsModifier(&settings);
+        }
+
+        JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
+                                                                             : JPH::EActivation::Activate};
+
+        m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
+        m_settings = settings;
+        m_convexHull = true;
+    }
+
+    // simple AABB
     PhysicsBody(JPH::BodyInterface* bodyInterface, const Bounds::AABB& boundingBox, const glm::vec3& rotation,
                 const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
                 PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
@@ -415,6 +599,56 @@ public:
         m_settings = settings;
     }
 
+    // create shape from convex hull shape result (in order to use ShapeLoader)
+    PhysicsBody(const JPH::Shape::ShapeResult* result, JPH::BodyInterface* bodyInterface, const glm::vec3& rotation,
+                const BodyType bodyType, const glm::vec3& position = {0.0f, 0.0f, 0.0f},
+                PBSettingsModifier settingsModifier = nullptr, const float density = 1.0f) : m_bodyType{bodyType}
+    {
+        JPH::Quat joltRotation{JPH::Quat::sEulerAngles(Util::convertVectorJolt(glm::radians(rotation)))};
+        JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
+        JPH::Vec3 center{result->Get()->GetCenterOfMass()};
+        m_centerOffset = center;
+        bodyPos += joltRotation * center;
+
+        JPH::EMotionType motionType;
+        JPH::ObjectLayer layer;
+
+        switch (bodyType)
+        {
+        case BodyType::STATIC:
+            motionType = JPH::EMotionType::Static;
+            layer = ObjectLayers::NON_MOVING;
+            break;
+        case BodyType::DYNAMIC:
+            motionType = JPH::EMotionType::Dynamic;
+            layer = ObjectLayers::MOVING;
+            break;
+        case BodyType::KINEMATIC:
+            motionType = JPH::EMotionType::Kinematic;
+            layer = ObjectLayers::MOVING;
+            break;
+        }
+
+        JPH::BodyCreationSettings settings{result->Get(), bodyPos, joltRotation, motionType, layer};
+        JPH::Ref<JPH::Shape> shape{result->Get()};
+        JPH::MassProperties massProperties{shape->GetMassProperties()};
+        massProperties.ScaleToMass(massProperties.mMass * density);
+        settings.mMassPropertiesOverride = massProperties;
+        settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+
+        if (settingsModifier != nullptr)
+        {
+            settingsModifier(&settings);
+        }
+
+        JPH::EActivation activation{(motionType == JPH::EMotionType::Static) ? JPH::EActivation::DontActivate
+                                                                             : JPH::EActivation::Activate};
+
+        m_bodyID = bodyInterface->CreateAndAddBody(settings, activation);
+        m_settings = settings;
+        m_convexHull = true;
+    }
+
     ~PhysicsBody() = default;
 
     void syncTransform(Bounds::Transform& transform, const JPH::BodyInterface* bodyInterface) const
@@ -427,8 +661,10 @@ public:
         JPH::Quat jRot;
         bodyInterface->GetPositionAndRotation(m_bodyID, jPos, jRot);
 
-        transform.setLocalPosition(
-            {static_cast<float>(jPos.GetX()), static_cast<float>(jPos.GetY()), static_cast<float>(jPos.GetZ())});
+        const JPH::Vec3 rotateOffset{jRot * m_centerOffset};
+        transform.setLocalPosition({static_cast<float>(jPos.GetX() - rotateOffset.GetX()),
+                                    static_cast<float>(jPos.GetY() - rotateOffset.GetY()),
+                                    static_cast<float>(jPos.GetZ() - rotateOffset.GetZ())});
 
         glm::quat glmQuat{jRot.GetW(), jRot.GetX(), jRot.GetY(), jRot.GetZ()};
         glm::vec3 angles{glm::eulerAngles(glmQuat)};
@@ -439,11 +675,100 @@ public:
     void setBodyID(const JPH::BodyID id) { m_bodyID = id; }
     [[nodiscard]] BodyType getBodyType() const { return m_bodyType; }
     void setBodyType(const BodyType bodyType) { m_bodyType = bodyType; }
+    [[nodiscard]] bool isSimple() const { return !m_convexHull; }
 
 private:
     BodyType m_bodyType;
     JPH::BodyID m_bodyID;
     JPH::BodyCreationSettings m_settings;
+
+    bool m_convexHull{false};
+    JPH::Vec3 m_centerOffset{};
+};
+
+// physics body that isn't added to body interface immediately (stored for later)
+class ShapeLoader
+{
+public:
+    // create convex hull
+    ShapeLoader() = default;
+    ShapeLoader(const char* path);
+    explicit ShapeLoader(const std::vector<glm::vec3>& vertices)
+    {
+        std::vector<JPH::Vec3> joltVertices{};
+        joltVertices.reserve(vertices.size());
+        for (const glm::vec3& v : vertices)
+        {
+            joltVertices.emplace_back(Util::convertVectorJolt(v));
+        }
+
+        JPH::ConvexHullShapeSettings shapeSettings;
+        shapeSettings.mPoints.assign(joltVertices.begin(), joltVertices.end());
+        shapeSettings.mMaxConvexRadius = PHYSICS_CONVEX_RADIUS;
+        m_result = shapeSettings.Create();
+
+        if (m_result.HasError())
+        {
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to create convex hull from " << vertices.size() << " vertices";
+            Util::endError();
+        }
+    }
+
+    void exportFile(const char* path)
+    {
+        assert(!m_result.HasError() && m_result.Get() != nullptr);
+
+        std::filesystem::path filePath{path};
+        if (filePath.has_parent_path())
+        {
+            std::filesystem::create_directories(filePath.parent_path());
+        }
+
+        std::ofstream file{path, std::ios::binary};
+        if (!file.is_open())
+        {
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to export to `" << path << "`" << std::endl;
+            Util::endError();
+            return;
+        }
+
+        JPH::StreamOutWrapper stream{file};
+        JPH::RefConst<JPH::Shape> shape{m_result.Get()};
+
+        shape->SaveBinaryState(stream);
+        file.flush();
+    }
+
+    void loadFile(const char* path)
+    {
+        std::ifstream file{path, std::ios::binary};
+        if (!file.is_open())
+        {
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to load from `" << path << "`";
+            Util::endError();
+            return;
+        }
+
+        JPH::StreamInWrapper stream{file};
+        JPH::Shape::ShapeResult shape{JPH::Shape::sRestoreFromBinaryState(stream)};
+        if (shape.HasError() || shape.Get() == nullptr)
+        {
+            Util::beginError();
+            std::cout << "SHAPE_LOADER::ERROR: Failed to load shape from `" << path << "`";
+            Util::endError();
+            return;
+        }
+
+        m_result = std::move(shape);
+    }
+
+    [[nodiscard]] JPH::Shape::ShapeResult* getResult() { return &m_result; }
+
+private:
+    JPH::Shape::ShapeResult m_result;
 };
 
 class JoltInstance final : public EngineObject
@@ -488,13 +813,13 @@ public:
         physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactContraints,
                            m_BroadPhaseLayerInterface, m_ObjectVsBroadphaseLayerFilter, m_ObjectVsObjectLayerFilter);
 
-        physicsSystem.SetContactListener(&m_SoundListener);
+        physicsSystem.SetContactListener(&m_CollisionListener);
+        m_CollisionListener.addListener(&m_SoundListener);
 
 #ifdef PHYSICS_DEBUG_LOG
         physicsSystem.SetContactListener(&m_ContactListener);
         physicsSystem.SetBodyActivationListener(&m_BodyActivationListener);
 #endif
-
 
         static JPH::BodyInterface& bodyInterface{physicsSystem.GetBodyInterface()};
         m_BodyInterface = &bodyInterface; // don't worry this works trust me
@@ -505,16 +830,10 @@ public:
     // deltatime is seconds
     void update(const float deltaTime) const
     {
-        static float accumulator{0.0f};
+        const float dt = deltaTime * PHYSICS_TIME_STEP;
+        const int steps = std::clamp(static_cast<int>(std::ceil(deltaTime)), 1, 4);
 
-        accumulator += deltaTime / 60.f;
-        accumulator = std::min(accumulator, 0.25f);
-
-        while (accumulator >= PHYSICS_TIME_STEP)
-        {
-            m_PhysicsSystem->Update(PHYSICS_TIME_STEP, 1, m_TempAllocator, m_JobSystem);
-            accumulator -= PHYSICS_TIME_STEP;
-        }
+        m_PhysicsSystem->Update(std::min(dt, 0.05f), 1, m_TempAllocator, m_JobSystem);
     }
 
     [[nodiscard]] JPH::TempAllocatorImpl* getTempAllocator() const { return m_TempAllocator; }
@@ -536,6 +855,7 @@ public:
     [[nodiscard]] DebugBodyActivationListener& getBodyActivationListener() { return m_BodyActivationListener; }
 #endif
 
+    [[nodiscard]] CollisionListener* getCollisionListener() { return &m_CollisionListener; }
     [[nodiscard]] SoundContactListener* getSoundListener() { return &m_SoundListener; }
 
     [[nodiscard]] bool getInit() const { return m_init; }
@@ -556,6 +876,7 @@ private:
     DebugBodyActivationListener m_BodyActivationListener;
 #endif
 
+    CollisionListener m_CollisionListener;
     SoundContactListener m_SoundListener;
 
     bool m_init{false};

@@ -1,7 +1,7 @@
 // Created by Jens Kromdijk 27/02/2026
 
 #include "pathfinding.hpp"
-#include <cstddef>
+#include <limits>
 #include "constants.hpp"
 #include "core/bounds.hpp"
 
@@ -27,19 +27,15 @@ void FlowFieldGenerator::init(Scene* scene)
     m_baseNodes.reserve(width * height);
 
     std::vector<Bounds::Rect2D> staticRects{};
-    scene->getStaticRects(staticRects);
+    scene->getStaticRects(staticRects, std::numeric_limits<float>::lowest(), 2.f);
 
     for (int y{0}; y < height; ++y)
     {
         for (int x{0}; x < width; ++x)
         {
-            TileNode node{
-                {
-                    static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
-                    static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE
-                },
-                {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}
-            };
+            TileNode node{{static_cast<float>(m_center.x - m_extents.x + x) * CST::FLOW_FIELD_TILE_SIZE,
+                           static_cast<float>(m_center.y - m_extents.y + y) * CST::FLOW_FIELD_TILE_SIZE},
+                          {CST::FLOW_FIELD_TILE_SIZE, CST::FLOW_FIELD_TILE_SIZE}};
 
             const std::size_t root{m_tileGrid.size()};
             m_tileGrid.emplace_back(node);
@@ -138,25 +134,17 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
             m_tileGrid.emplace_back(parent.m_position, parent.m_dimensions * 0.5f);
             break;
         case 1:
-            m_tileGrid.emplace_back(TileNode{
-                {parent.m_position.x + parent.m_dimensions.x * 0.5f, parent.m_position.y},
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f, parent.m_position.y},
+                                             parent.m_dimensions * 0.5f});
             break;
         case 2:
-            m_tileGrid.emplace_back(TileNode{
-                {parent.m_position.x, parent.m_position.y + parent.m_dimensions.y * 0.5f},
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x, parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
             break;
         default:
-            m_tileGrid.emplace_back(TileNode{
-                {
-                    parent.m_position.x + parent.m_dimensions.x * 0.5f,
-                    parent.m_position.y + parent.m_dimensions.y * 0.5f
-                },
-                parent.m_dimensions * 0.5f
-            });
+            m_tileGrid.emplace_back(TileNode{{parent.m_position.x + parent.m_dimensions.x * 0.5f,
+                                              parent.m_position.y + parent.m_dimensions.y * 0.5f},
+                                             parent.m_dimensions * 0.5f});
             break;
         }
         m_tileGrid[node].m_children[i] = m_tileGrid.size() - 1;
@@ -167,30 +155,108 @@ void FlowFieldGenerator::divideNode(const std::size_t node)
     m_tileGrid[node].m_hasChildren = true;
 }
 
-void FlowFieldGenerator::calculateFlowField(const glm::vec2& pos, bool* success)
+void FlowFieldGenerator::calculateFlowField(const bool constrainEdges, const float maxDistance)
 {
-    const int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
-    const int gridY{static_cast<int>(std::floor(pos.y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y + m_extents.y};
-
-    if (gridX < 0 || gridY < 0 || gridX >= m_extents.x * 2 || gridY >= m_extents.y * 2)
+    std::size_t startNode;
+    bool success{false};
+    getNode(m_playerPos, &startNode, &success, constrainEdges);
+    if (!success || startNode == m_playerNode || m_tileGrid[startNode].m_solid)
     {
-        *success = false;
+        // keep same flow field as before
         return;
     }
+    m_playerNode = startNode;
 
-    const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
-    *success = true;
+    clearFlowField();
+    m_tileGrid[startNode].m_cost = 0.0f;
+
+    // propagate flow field
+    std::vector<std::size_t> wave{startNode};
+    std::vector<std::size_t> newWave{};
+    newWave.reserve(m_tileGrid.size());
+
+    while (!wave.empty())
+    {
+        for (std::size_t i{0}; i < wave.size(); ++i)
+        {
+            const std::size_t node{wave[i]};
+            if (maxDistance > 0.0f && m_tileGrid[node].m_cost >= maxDistance)
+                continue;
+
+            for (const std::pair<std::size_t, Direction>& neighbour : m_tileGrid[node].m_neighbours)
+            {
+                // use manhattan distance
+                const float cost{
+                    m_tileGrid[node].m_cost +
+                    (std::abs(m_tileGrid[neighbour.first].getCenter().x - m_tileGrid[node].getCenter().x) +
+                     std::abs(m_tileGrid[neighbour.first].getCenter().y - m_tileGrid[node].getCenter().y)) /
+                        CST::FLOW_FIELD_TILE_SIZE};
+
+                if (cost < m_tileGrid[neighbour.first].m_cost)
+                {
+                    m_tileGrid[neighbour.first].m_cost = cost;
+                    newWave.push_back(neighbour.first);
+                }
+            }
+        }
+
+        std::swap(newWave, wave);
+        newWave.clear();
+    }
+
+    for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
+    {
+        TileNode& tile{m_tileGrid[i]};
+        if (!tile.m_solid && !tile.m_hasChildren)
+        {
+            std::pair<float, std::size_t> minCost{tile.m_cost, i};
+            for (const std::pair<std::size_t, Direction>& neighbour : tile.m_neighbours)
+            {
+                if (m_tileGrid[neighbour.first].m_cost < minCost.first)
+                {
+                    minCost.first = m_tileGrid[neighbour.first].m_cost;
+                    minCost.second = neighbour.first;
+                }
+            }
+
+            tile.m_target = minCost.second;
+            const glm::vec2 tileCenter{tile.getCenter()};
+            const glm::vec2 centerPos{m_tileGrid[minCost.second].getCenter()};
+            tile.m_direction = glm::vec2{tileCenter.x - centerPos.x, tileCenter.y - centerPos.y};
+        }
+    }
 }
 
-void FlowFieldGenerator::getNode(const glm::vec2& pos, std::size_t* node, bool* success) const
-{
-    const int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
-    const int gridY{static_cast<int>(std::floor(pos.y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y + m_extents.y};
+void FlowFieldGenerator::setPlayerPos(const glm::vec2& val) { m_playerPos = val; }
 
-    if (gridX < 0 || gridY < 0 || gridX >= m_extents.x * 2 || gridY >= m_extents.y * 2)
+void FlowFieldGenerator::clearFlowField()
+{
+    for (std::size_t i{0}; i < m_tileGrid.size(); ++i)
     {
-        *success = false;
-        return;
+        m_tileGrid[i].m_cost = std::numeric_limits<float>::max();
+        m_tileGrid[i].m_direction = glm::vec2{0.0f, 0.0f};
+    }
+}
+
+void FlowFieldGenerator::getNode(const glm::vec2& pos, std::size_t* node, bool* success,
+                                 const bool constrainEdges) const
+{
+    assert(success != nullptr || constrainEdges);
+    int gridX{static_cast<int>(std::floor(pos.x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x + m_extents.x};
+    int gridY{static_cast<int>(std::floor(pos.y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y + m_extents.y};
+
+    if (!constrainEdges)
+    {
+        if (gridX < 0 || gridY < 0 || gridX >= m_extents.x * 2 || gridY >= m_extents.y * 2)
+        {
+            *success = false;
+            return;
+        }
+    }
+    else
+    {
+        gridX = std::clamp(gridX, 0, m_extents.x * 2 - 1);
+        gridY = std::clamp(gridY, 0, m_extents.y * 2 - 1);
     }
 
     const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
@@ -278,11 +344,14 @@ void FlowFieldGenerator::calculateNeighbours(const std::size_t node, const Direc
     getSubEdges(neighbour, edges, getOpposite(direction));
 
     const Bounds::Rect2D tileRect{tile.getCenter(), tile.m_dimensions * 0.5f};
-    const bool x{direction == Direction::EAST || direction == Direction::WEST};
+    const bool x{direction == Direction::NORTH || direction == Direction::SOUTH};
     for (std::size_t i{0}; i < edges.size(); ++i)
     {
         const TileNode& edge{m_tileGrid[edges[i]]};
-        const Bounds::Rect2D edgeRect{edge.getCenter(), edge.m_dimensions * 0.5f};
+        if (edge.m_solid)
+            continue;
+
+        const Bounds::Rect2D edgeRect{edge.getCenter(), edge.m_dimensions * 0.49f};
         if (tileRect.collideAxis(edgeRect, x))
         {
             m_tileGrid[node].m_neighbours.emplace_back(edges[i], direction);
@@ -296,14 +365,10 @@ std::size_t FlowFieldGenerator::findNeighbour(const std::size_t node, const Dire
     const TileNode& tile{m_tileGrid[node]};
     if (!tile.m_hasParent)
     {
-        int gridX{
-            static_cast<int>(std::floor(tile.getCenter().x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x +
-            m_extents.x
-        };
-        int gridY{
-            static_cast<int>(std::floor(tile.getCenter().y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y +
-            m_extents.y
-        };
+        int gridX{static_cast<int>(std::floor(tile.getCenter().x / CST::FLOW_FIELD_TILE_SIZE)) - m_center.x +
+                  m_extents.x};
+        int gridY{static_cast<int>(std::floor(tile.getCenter().y / CST::FLOW_FIELD_TILE_SIZE)) - m_center.y +
+                  m_extents.y};
 
         switch (direction)
         {
@@ -327,19 +392,20 @@ std::size_t FlowFieldGenerator::findNeighbour(const std::size_t node, const Dire
             return 0;
         }
 
+        edge = false;
         const std::size_t root{m_baseNodes[gridY * m_extents.x * 2 + gridX]};
         return root;
     }
 
+    edge = false;
     if (direction == Direction::NORTH)
     {
         if (tile.m_leafPos < 2)
         {
             return findNeighbour(tile.m_parent, direction, edge);
         }
-        return (tile.m_leafPos == 2)
-                   ? m_tileGrid[tile.m_parent].m_children[0]
-                   : m_tileGrid[tile.m_parent].m_children[1];
+        return (tile.m_leafPos == 2) ? m_tileGrid[tile.m_parent].m_children[0]
+                                     : m_tileGrid[tile.m_parent].m_children[1];
     }
     if (direction == Direction::SOUTH)
     {
@@ -364,7 +430,6 @@ std::size_t FlowFieldGenerator::findNeighbour(const std::size_t node, const Dire
         return findNeighbour(tile.m_parent, direction, edge);
     }
 
-    edge = false;
     return m_tileGrid[tile.m_parent].m_children[tile.m_leafPos - 1];
 }
 
@@ -377,12 +442,13 @@ void FlowFieldGenerator::printQuadTree() const
     std::cout << std::endl;
 }
 
+// can be stored in json for debug renderer
 void FlowFieldGenerator::printNode(const std::size_t node) const
 {
     const TileNode& tile{m_tileGrid[node]};
     std::cout << std::boolalpha << "{'pos': [" << tile.m_position.x << ", " << tile.m_position.y << "], 'dimensions': ["
-        << tile.m_dimensions.x << ", " << tile.m_dimensions.y << "], 'solid': " << tile.m_solid << ", 'hasChildren': "
-        << tile.m_hasChildren << ", 'neighbours': [";
+              << tile.m_dimensions.x << ", " << tile.m_dimensions.y << "], 'solid': " << tile.m_solid
+              << ", 'hasChildren': " << tile.m_hasChildren << ", 'neighbours': [";
     for (std::size_t i{0}; i < tile.m_neighbours.size(); ++i)
     {
         std::cout << tile.m_neighbours[i].first;
@@ -391,5 +457,6 @@ void FlowFieldGenerator::printNode(const std::size_t node) const
             std::cout << ", ";
         }
     }
-    std::cout << "]},\n";
+    std::cout << "], 'cost': " << tile.m_cost << ", 'direction': [" << tile.m_direction.x << ", " << tile.m_direction.y
+              << "], 'target': " << tile.m_target << "},\n";
 }

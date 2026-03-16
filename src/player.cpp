@@ -3,9 +3,37 @@
 #include "player.hpp"
 #include "core/physics.hpp"
 
+#include <cmath>
+
+void PlayerController::update(const float dt, Engine* engine)
+{
+    if (m_dash)
+    {
+        m_dashTime += dt;
+    }
+    if (m_dashTime > 100.f && !m_dashPressed)
+    {
+        m_dash = false;
+        m_dashTime = 0.0f;
+    }
+
+    constexpr float duration{20.f};
+    if (m_dashPressed && !m_dash && m_dashTime <= duration)
+    {
+        m_dash = true;
+        m_dashing = true;
+        engine->setScreenShake(8.f);
+    }
+
+    if (m_dashTime > duration)
+    {
+        m_dashing = false;
+    }
+}
+
 Player::Player(Entity* entity) : m_entity{entity} {}
 
-Player::Player(const glm::vec3& pos, const Model* model)
+Player::Player(const glm::vec3& pos, Model* model)
 {
     Bounds::Transform transform{pos, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}};
     m_entity = new Entity{model, transform, BodyType::DYNAMIC, false};
@@ -15,43 +43,72 @@ Player::Player(const glm::vec3& pos, const Model* model)
 
 void Player::update(JPH::BodyInterface* bodyInterface, const Camera* camera)
 {
-    constexpr float speed{200000.f};
-    constexpr float torque{100000.f};
+    constexpr float speed{5000.f};
+    constexpr float torque{1000.f};
 
     const glm::vec3 front{camera->getFront()};
     const glm::vec3 right{camera->getRight()};
 
-    glm::vec3 forwardDir{glm::normalize(glm::vec3(front.x, 0.0f, front.z))};
-    glm::vec3 rightDir{glm::normalize(glm::vec3{right.x, 0.0f, right.z})};
+    auto finite = [](const glm::vec3& v) -> bool
+    { return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z); };
+
+    auto normalize = [&](const glm::vec3& vel, const glm::vec3& fallback) -> glm::vec3
+    {
+        const glm::vec3 v{vel.x, 0.0f, vel.z};
+        const float dist2 = glm::dot(v, v);
+        if (!std::isfinite(dist2) || dist2 < 1e-8f)
+            return fallback;
+        return v / std::sqrt(dist2);
+    };
+
+    const glm::vec3 forwardDir{normalize(front, glm::vec3{0.0f, 0.0f, -1.0f})};
+    const glm::vec3 rightDir{normalize(right, glm::vec3{1.0f, 0.0f, 0.0f})};
+
+    auto move = [&](const glm::vec3& force, const glm::vec3& torque)
+    {
+        if (!finite(force) || !finite(torque))
+            return;
+        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {force.x, force.y, force.z},
+                                         {torque.x, torque.y, torque.z});
+    };
 
     if (m_input->getControl(Controls::UP))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {forwardDir.x * speed, 0.f, forwardDir.z * speed},
-                                         {forwardDir.x * torque, 0.f, forwardDir.z * torque});
+        move({forwardDir.x * speed, 0.f, forwardDir.z * speed}, {forwardDir.x * torque, 0.f, forwardDir.z * torque});
     }
     if (m_input->getControl(Controls::DOWN))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {-forwardDir.x * speed, 0.f, -forwardDir.z * speed},
-                                         {-forwardDir.x * torque, 0.f, -forwardDir.z * torque});
+        move({-forwardDir.x * speed, 0.f, -forwardDir.z * speed},
+             {-forwardDir.x * torque, 0.f, -forwardDir.z * torque});
     }
     if (m_input->getControl(Controls::RIGHT))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {rightDir.x * speed, 0.f, rightDir.z * speed},
-                                         {rightDir.x * torque, 0.f, -rightDir.z * torque});
+        move({rightDir.x * speed, 0.f, rightDir.z * speed}, {rightDir.x * torque, 0.f, -rightDir.z * torque});
     }
     if (m_input->getControl(Controls::LEFT))
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(),
-                                         {-rightDir.x * speed, 0.f, -rightDir.z * speed},
-                                         {-rightDir.x * torque, 0.f, rightDir.z * torque});
+        move({-rightDir.x * speed, 0.f, -rightDir.z * speed}, {-rightDir.x * torque, 0.f, rightDir.z * torque});
     }
-    if (m_input->getControl(Controls::SPACE))
+    if (m_input->getControl(Controls::SPACE) && m_jump)
     {
-        bodyInterface->AddForceAndTorque(m_entity->getPhysicsBody()->getBodyID(), {0.f, speed, 0.f},
-                                         {0.f, torque, 0.f});
+        move({0.f, speed, 0.f}, {0.f, torque, 0.f});
+    }
+
+    if (m_input->getDashing())
+    {
+        constexpr float dashSpeed{50000.f};
+        move({forwardDir.x * dashSpeed, 0.f, forwardDir.z * dashSpeed},
+             {forwardDir.x * torque, 0.f, forwardDir.z * torque});
+    }
+
+    float y{m_entity->getGlobalMidpoint().y};
+    if (y < 0.1f)
+    {
+        m_jump = true;
+    }
+    if (y > 2.f)
+    {
+        m_jump = false;
     }
 }
 
@@ -63,13 +120,32 @@ void Player::setupPhysicsBody(JPH::BodyInterface* bodyInterface)
                                                              settings->mAngularDamping = 0.5f;
                                                              settings->mFriction = 0.8f;
                                                          }};
+
+    // create convex hull
+    std::vector<glm::vec3> vertices{};
+    const glm::vec3 pivot{m_entity->getTransform().getPivotOffset()};
+    const glm::vec3 scale{m_entity->getTransform().getLocalScale()};
+    for (const Mesh* mesh : m_entity->getModel()->getOpaqueMeshes())
+    {
+        for (const MeshN::Vertex& v : mesh->getVertices())
+        {
+            vertices.push_back((v.position + pivot) * scale);
+        }
+    }
+    for (const Mesh* mesh : m_entity->getModel()->getTransparentMeshes())
+    {
+        for (const MeshN::Vertex& v : mesh->getVertices())
+        {
+            vertices.push_back((v.position + pivot) * scale);
+        }
+    }
     PhysicsBody physicsBody{bodyInterface,
-                            *m_entity->getBoundingVolume(),
+                            vertices,
                             m_entity->getTransform().getLocalRotation(),
                             m_entity->getBodyType(),
                             m_entity->getTransform().getGlobalPosition() + m_entity->getTransform().getPivotOffset(),
                             settingsModifier,
-                            0.1f};
+                            0.2f};
     m_entity->setPhysicsBody(physicsBody);
     std::cout << "PLAYER::SETUP_PHYSICS_BODY: Added custom body settings!" << std::endl;
 }

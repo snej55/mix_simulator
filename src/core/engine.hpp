@@ -41,7 +41,8 @@ public:
     // update components
     void update(RenderQueue* renderQueue = nullptr, IBLGenerator* ibl = nullptr,
                 const std::vector<Lights::PointLight*>& pointLights = {},
-                const std::vector<std::pair<Model*, glm::mat4>>& shadowModels = {}, bool menu = false);
+                const std::vector<std::pair<Model*, glm::mat4>>& shadowModels = {}, bool menu = false,
+                RenderQueue::fdDrawCallback callback = {nullptr, nullptr});
 
     // ------ Window ------ //
 
@@ -68,6 +69,20 @@ public:
     void displayFrameTime();
 
     void setupViewport() const;
+
+    void resize(int width, int height);
+
+    [[nodiscard]] float getRenderScale() const { return m_renderScale; }
+    [[nodiscard]] int getRenderWidth() const
+    {
+        return std::max(1, static_cast<int>(std::floor(static_cast<float>(getWidth()) * m_renderScale)));
+    }
+    [[nodiscard]] int getRenderHeight() const
+    {
+        return std::max(1, static_cast<int>(std::floor(static_cast<float>(getHeight()) * m_renderScale)));
+    }
+
+    void setRenderScale(float scale);
 
     // ------ IOHandler ------ //
 
@@ -183,6 +198,9 @@ public:
 
     void setCameraControlsEnabled(const bool val) { m_cameraControls = val; }
     [[nodiscard]] bool getCameraControlsEnabled() const { return m_cameraControls; }
+
+    void setScreenShake(const float val) { m_screenShake = std::max(m_screenShake, val); }
+    [[nodiscard]] float getScreenShake() const { return m_screenShake; }
 
     // ------ Models ------ //
 
@@ -324,6 +342,7 @@ private:
     float m_camLastX{};
     float m_camLastY{};
     bool m_cameraControls{true};
+    float m_screenShake{0.0f};
 
     // flags
     bool m_checkedShaders{false}; // shaders.json checked
@@ -333,6 +352,11 @@ private:
 
     // miscellaneous stuff
     std::vector<float> m_deltaTimes{};
+
+    glm::ivec2 m_tempRes{0, 0};
+    float m_renderScale{1.0f};
+    bool m_resize{false};
+    void resizePPChain();
 };
 
 #endif

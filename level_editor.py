@@ -5,7 +5,6 @@ import pyray as ray
 WIDTH, HEIGHT = 2000, 1900
 POINT_LIGHT_SIZE = 1
 
-
 class Editor:
     def __init__(self):
         ray.init_window(WIDTH, HEIGHT, "Level Editor")
@@ -22,7 +21,7 @@ class Editor:
         self.objects = []
         self.point_lights = []
 
-        self.level_path = "data/maps/0.json"
+        self.level_path = "data/maps/1.json"
         self.load_level(self.level_path)
 
         ray.set_config_flags(
@@ -155,7 +154,7 @@ class Editor:
             else:
                 self.objects.append(
                     {
-                        "position": [0, 0, 0],
+                        "position": self.objects[self.current_model_index]["position"].copy(),
                         "rotation": [0, 0, 0],
                         "scale": [1, 1, 1],
                         "modelID": 0,
@@ -180,7 +179,7 @@ class Editor:
             self.controls["e"] = ray.is_key_down(ray.KeyboardKey.KEY_U)
             self.controls["q"] = ray.is_key_down(ray.KeyboardKey.KEY_I)
 
-        speed = 0.1
+        speed = 0.5
         if self.light_mode:
             self.point_lights[self.current_light_index]["position"][0] += (
                 (int(self.controls["right"]) - int(self.controls["left"]))
@@ -255,9 +254,9 @@ class Editor:
                     self.assets["models"][str(obj["modelID"])]["model"],
                     obj["position"],
                     [
-                        obj["rotation"][0] / 360,
-                        obj["rotation"][1] / 360,
-                        obj["rotation"][2] / 360,
+                        obj["rotation"][0],
+                        obj["rotation"][1],
+                        obj["rotation"][2],
                     ],
                     360,
                     obj["scale"],

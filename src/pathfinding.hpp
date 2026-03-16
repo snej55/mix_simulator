@@ -10,6 +10,7 @@
 #include "core/bounds.hpp"
 
 #include <array>
+#include <limits>
 #include <vector>
 
 enum class Direction
@@ -54,21 +55,23 @@ struct TileNode
     ~TileNode() = default;
 
     [[nodiscard]] glm::vec2 getCenter() const { return m_position + m_dimensions * 0.5f; }
-    [[nodiscard]] float getCost() const { return m_cost + m_bonus; }
+    [[nodiscard]] float getCost() const { return m_cost; }
 
     glm::vec2 m_position;
     glm::vec2 m_dimensions;
 
     std::array<std::size_t, 4> m_children{};
     std::size_t m_parent{0};
+    std::size_t m_leafPos{0};
     std::vector<std::pair<std::size_t, Direction>> m_neighbours{};
 
     bool m_hasParent{false};
     bool m_hasChildren{false};
     bool m_solid{false};
-    float m_bonus{0.0f}; // added to cost
-    float m_cost{0.0f};
-    std::size_t m_leafPos{0};
+
+    float m_cost{std::numeric_limits<float>::max()};
+    glm::vec2 m_direction{};
+    std::size_t m_target{0};
 };
 
 class FlowFieldGenerator
@@ -97,13 +100,19 @@ public:
     [[nodiscard]] bool getInit() const { return m_init; }
     [[nodiscard]] const std::vector<TileNode>& getTileGrid() const { return m_tileGrid; }
     [[nodiscard]] const std::vector<std::size_t>& getBaseNodes() const { return m_baseNodes; }
+    [[nodiscard]] const TileNode& getTile(const std::size_t node) const { return m_tileGrid[node]; }
 
     // pos: vec3.x, vec3.
-    void getNode(const glm::vec2& pos, std::size_t* node, bool* success) const;
-    void calculateFlowField(const glm::vec2& pos, bool* success);
+    void getNode(const glm::vec2& pos, std::size_t* node, bool* success = nullptr, bool constrainEdges = false) const;
+    void calculateFlowField(bool constrainEdges = false, float maxDistance = -1.0f);
+    void clearFlowField();
 
     void printQuadTree() const;
     void printNode(std::size_t node) const;
+
+    [[nodiscard]] const glm::vec2& getPlayerPos() const { return m_playerPos; }
+    [[nodiscard]] std::size_t getPlayerNode() const { return m_playerNode; }
+    void setPlayerPos(const glm::vec2& val);
 
 private:
     glm::ivec2 m_extents;
@@ -117,6 +126,9 @@ private:
     std::vector<std::size_t> m_baseNodes{};
 
     JPH::ShapeRefC m_boxCollider;
+
+    glm::vec2 m_playerPos{0.0f, 0.0f};
+    std::size_t m_playerNode{};
 
     void generateQuadTree(std::size_t node, const std::vector<Bounds::Rect2D*>& neighbourEntities, int depth);
     [[nodiscard]] std::pair<bool, float> checkCollision(std::size_t node,

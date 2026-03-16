@@ -163,6 +163,24 @@ namespace Util
         }
         return frustumCorners;
     }
+
+    inline void splitStr(const std::string& str, std::vector<std::string>& words, const char dl = ' ')
+    {
+        int start{0};
+        for (std::size_t i{0}; i < str.length(); ++i)
+        {
+            if (str[i] == dl)
+            {
+                words.push_back(str.substr(start, i - start));
+                start = i;
+            }
+        }
+
+        if (start != str.length() - 1)
+        {
+            words.push_back(str.substr(start, str.length() - start));
+        }
+    }
 } // namespace Util
 
 #endif // UTIL_H

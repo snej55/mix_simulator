@@ -117,27 +117,20 @@ void Window::updateDimensions()
 // window callbacks
 void Window::framebuffer_size_callback(const int width, const int height)
 {
+    if (width <= 0 || height <= 0)
+        return;
+
     setWidth(width);
     setHeight(height);
     glViewport(0, 0, width, height);
 
     Engine* enginePtr{dynamic_cast<Engine*>(m_parent)};
-
-    // update framebuffers
-    enginePtr->updatePostProcessor(width, height);
-    enginePtr->updateDeferredRenderer(width, height);
-    enginePtr->updateSSAOGenerator(width, height);
-    enginePtr->getUIRenderer()->generate(width, height);
-
-    if (enginePtr->getFontRenderer()->getLoaded())
+    if (enginePtr == nullptr)
     {
-        enginePtr->getFontRenderer()->updateProjection(static_cast<float>(width), static_cast<float>(height));
+        return;
     }
 
-    if (enginePtr->getFBOCallback() != nullptr)
-    {
-        enginePtr->getFBOCallback()(enginePtr->getFBOCallbackArgs(), width, height);
-    }
+    enginePtr->resize(width, height);
 }
 
 // gets called from glfw cursor pos callback

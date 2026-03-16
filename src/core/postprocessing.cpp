@@ -510,12 +510,21 @@ void BloomRenderer::setupQuad()
 
 SSAOGenerator::SSAOGenerator(EngineObject* parent) : EngineObject{"SSAOGenerator", parent} { initQuad(); }
 
-SSAOGenerator::~SSAOGenerator() { free(); }
+SSAOGenerator::~SSAOGenerator()
+{
+    free();
+    freeQuad();
+}
 
 void SSAOGenerator::init(const int width, const int height)
 {
     if (m_init)
         free();
+
+    if (m_quadVAO == 0 || m_quadVBO == 0)
+    {
+        initQuad();
+    }
 
     // generate framebuffers
     glGenFramebuffers(1, &m_ssaoFBO);
@@ -525,8 +534,7 @@ void SSAOGenerator::init(const int width, const int height)
     // color buffer
     glGenTextures(1, &m_ssaoColorBuffer);
     glBindTexture(GL_TEXTURE_2D, m_ssaoColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width / SSAO_SCALE, height / SSAO_SCALE, 0, GL_RG, GL_UNSIGNED_BYTE,
-                 nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width / SSAO_SCALE, height / SSAO_SCALE, 0, GL_RG, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -606,7 +614,8 @@ void SSAOGenerator::free()
         glDeleteFramebuffers(1, &m_ssaoFBO);
         glDeleteTextures(1, &m_ssaoColorBufferBlur);
         glDeleteFramebuffers(1, &m_ssaoFBOBlur);
-        freeQuad();
+
+        // freeQuad();
 
         m_init = false;
     }
@@ -637,10 +646,12 @@ void SSAOGenerator::initQuad()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
 }
 
-void SSAOGenerator::freeQuad() const
+void SSAOGenerator::freeQuad()
 {
     glDeleteBuffers(1, &m_quadVBO);
     glDeleteVertexArrays(1, &m_quadVAO);
+    m_quadVAO = 0;
+    m_quadVBO = 0;
 }
 
 void SSAOGenerator::render(void* dfRenderer, const Shader* ssaoShader, const glm::mat4& projection,

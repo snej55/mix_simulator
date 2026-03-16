@@ -14,6 +14,8 @@
 #include "player.hpp"
 #include "assets.hpp"
 #include "pathfinding.hpp"
+#include "enemy.hpp"
+#include "particles.hpp"
 
 class Game final
 {
@@ -22,6 +24,8 @@ public:
     ~Game();
 
     bool init();
+
+    bool loading();
 
     bool menu();
 
@@ -33,11 +37,15 @@ public:
 
     void run();
 
-    void renderUI() const;
+    void renderUI();
 
 private:
     // core components
     Engine m_engine{};
+
+    float m_complete{0.0f};
+    float m_renderComplete{0.0f};
+    float m_scorePos{180.0f};
 
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
@@ -47,6 +55,9 @@ private:
     std::unique_ptr<Player> m_player{nullptr};
     std::unique_ptr<Assets> m_assets{nullptr};
     SoLoud::BiquadResonantFilter m_bqrFilter;
+
+    std::unique_ptr<EnemyManager> m_enemyManager{nullptr};
+    std::unique_ptr<ParticleManager> m_particles{nullptr};
 };
 
 #endif

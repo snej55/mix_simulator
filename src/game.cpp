@@ -1,26 +1,28 @@
-// Created by Jens Kromdijk 05-01-2025
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <soloud_biquadresonantfilter.h>
 
-#include "constants.hpp"
 #include "core/audio.hpp"
 #include "core/bounds.hpp"
 #include "core/engine.hpp"
 #include "core/fonts.hpp"
 #include "core/ibl.hpp"
 #include "core/lights.hpp"
+#include "core/physics.hpp"
 #include "core/renderer.hpp"
 #include "core/texture.hpp"
 #include "core/ui.hpp"
-#include "pathfinding.hpp"
+#include "core/util.hpp"
 
+#include "particles.hpp"
+#include "pathfinding.hpp"
+#include "constants.hpp"
 #include "game.hpp"
 
 #include <memory>
 
-Game::~Game() = default;
+Game::~Game() {}
 
 bool Game::init()
 {
@@ -36,46 +38,48 @@ bool Game::init()
 
     m_engine.setCameraControlsEnabled(false);
 
+    m_engine.initFontRenderer("data/fonts/grow.ttf", CST::FONT_TEX_SIZE);
     m_assets = std::make_unique<Assets>();
-    m_assets->loadAssets(m_engine.getAudioHandler());
+    m_assets->loadAssets(m_engine.getAudioHandler(), &m_engine);
 
     m_bqrFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 22000.f, 2.f);
     m_engine.getAudioHandler()->getSound(m_assets->m_SFX_metalImpact)->setFilter(0, &m_bqrFilter);
 
     // load level data
-    m_scene = std::make_unique<Scene>(&m_engine);
+    m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
     m_scene->init("data/maps/0.json");
+    std::cout << "Loaded first scene!\n";
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
+    // m_scene->initRaw("data/maps/1.json");
+    // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
-    m_iblGenerator->init("data/skyboxes/clouds.hdr", "data/IBL/clouds/output_iem.hdr", "data/IBL/brdf_lut.png",
-                         &m_engine);
+    m_iblGenerator->init("data/skyboxes/sky.hdr", "data/IBL/sunset/output_iem.hdr", "data/IBL/brdf_lut.png", &m_engine);
     Util::printVec3(m_iblGenerator->getLightDirection());
     m_engine.setLightDirection(m_iblGenerator->getLightDirection());
 
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
     m_renderQueue->initPointLightModel("data/models/point_light.glb");
 
-    m_engine.initFontRenderer("data/fonts/Gilda_Display/GildaDisplay-Regular.ttf", CST::FONT_TEX_SIZE);
-
-    m_player = std::make_unique<Player>(glm::vec3{10.0f, 100.f, 10.0f}, m_engine.getModel("table"));
+    m_player = std::make_unique<Player>(glm::vec3{50.0f, 50.f, 50.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
     m_scene->addEntity(m_player->getEntity());
 
     // generate flow field quadtree
     m_flowField = std::make_unique<FlowFieldGenerator>(
-        glm::ivec2{
-            std::ceil(m_scene->getLevelExtents().x / CST::FLOW_FIELD_TILE_SIZE),
-            std::ceil(m_scene->getLevelExtents().z / CST::FLOW_FIELD_TILE_SIZE)
-        },
-        glm::ivec2{
-            std::ceil(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
-            std::ceil(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)
-        },
+        glm::ivec2{std::ceil(m_scene->getLevelExtents().x / CST::FLOW_FIELD_TILE_SIZE),
+                   std::ceil(m_scene->getLevelExtents().z / CST::FLOW_FIELD_TILE_SIZE)},
+        glm::ivec2{std::ceil(m_scene->getLevelCenter().x / CST::FLOW_FIELD_TILE_SIZE),
+                   std::ceil(m_scene->getLevelCenter().z / CST::FLOW_FIELD_TILE_SIZE)},
         3.f);
     m_flowField->init(m_scene.get());
 
+    m_enemyManager = std::make_unique<EnemyManager>(m_player.get(), m_scene.get(), m_flowField.get(),
+                                                    m_engine.getJoltInstance()->getBodyInterface(), &m_engine);
+    m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
+
+    m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
     return true;
 }
 
@@ -94,7 +98,7 @@ bool Game::menu()
     glDisable(GL_DEPTH_TEST);
     m_engine.setCameraEnabled(false);
 
-    const std::vector<const char*> titleText{"M", "i", "x", " ", "S", "i", "m", "u", "l", "a", "t", "o", "r"};
+    const std::vector<const char*> titleText{"D", "u", "c", "k", " ", "B", "o", "w", "l", "i", "n", "g"};
     const float startTime{m_engine.getTime() + 0.5f};
 
     float playButtonScale{0.f};
@@ -102,12 +106,9 @@ bool Game::menu()
     float targetPBScale{0.0f};
 
     UI::Button playButton{
-        {
-            static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
-            static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f
-        }
-    };
+        {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
+         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
+         static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
 
     while (!m_engine.getQuit())
     {
@@ -126,17 +127,21 @@ bool Game::menu()
         const Shader* fontShader{m_engine.getShader("fonts")};
 
         std::string titleTextStr{};
-        const std::size_t limit{
-            std::min(
-                titleText.size(),
-                static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))
-        };
+        const std::size_t limit{std::min(
+            titleText.size(),
+            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
         for (std::size_t i{0}; i < limit; ++i)
         {
             titleTextStr += titleText[i];
         }
-        fontRenderer->renderText(fontShader, titleTextStr, static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
-                                 static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+        const float titleSize{std::min(1.0f,
+                                       std::max(0.f, (m_engine.getTime() - startTime - 2.2f) * typeRate) /
+                                               static_cast<float>(titleText.size()) +
+                                           0.2f)};
+        fontRenderer->renderText(
+            fontShader, titleTextStr,
+            static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(titleTextStr, titleSize) * 0.5f,
+            static_cast<float>(m_engine.getHeight()) * 0.7f, titleSize, glm::vec3{1.0f, 1.0f, 1.0f});
 
         fontRenderer->renderText(fontShader, "A game by @snej55",
                                  std::min(-300.f + (m_engine.getTime() - startTime) * 30.f, 10.f), 10.f, 0.5f,
@@ -152,14 +157,12 @@ bool Game::menu()
         cposX *= windowScaleX;
         cposY *= windowScaleY;
 
-        playButton.m_rect = {
-            static_cast<float>(m_engine.getWidth()) * 0.5f -
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.6f -
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f
-        };
+        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+                             static_cast<float>(m_engine.getHeight()) * 0.6f -
+                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
         playButton.update(cposX, cposY);
 
         targetPBScale = (limit == titleText.size()) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
@@ -169,10 +172,8 @@ bool Game::menu()
 
         // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
-                                {
-                                    static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                    static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale
-                                },
+                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
                                 &m_engine, playButtonTex.width, playButtonTex.height, true,
                                 playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 
@@ -187,6 +188,11 @@ bool Game::menu()
                 return true;
         }
 
+        if (m_engine.getPressed(GLFW_KEY_ENTER))
+        {
+            return true;
+        }
+
         m_engine.update(nullptr, nullptr, {}, {}, true);
         glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
@@ -195,50 +201,13 @@ bool Game::menu()
 
 void Game::handleIO()
 {
-    if (m_engine.getPressed(GLFW_KEY_W) || m_engine.getPressed(GLFW_KEY_UP))
-    {
-        m_player->getController()->setControl(Controls::UP, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::UP, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_S) || m_engine.getPressed(GLFW_KEY_DOWN))
-    {
-        m_player->getController()->setControl(Controls::DOWN, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::DOWN, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_D) || m_engine.getPressed(GLFW_KEY_RIGHT))
-    {
-        m_player->getController()->setControl(Controls::RIGHT, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::RIGHT, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_A) || m_engine.getPressed(GLFW_KEY_LEFT))
-    {
-        m_player->getController()->setControl(Controls::LEFT, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::LEFT, false);
-    }
-
-    if (m_engine.getPressed(GLFW_KEY_SPACE))
-    {
-        m_player->getController()->setControl(Controls::SPACE, true);
-    }
-    else
-    {
-        m_player->getController()->setControl(Controls::SPACE, false);
-    }
+    PlayerController* controller{m_player->getController()};
+    controller->setControl(Controls::UP, m_engine.getPressed(GLFW_KEY_W) || m_engine.getPressed(GLFW_KEY_UP));
+    controller->setControl(Controls::DOWN, m_engine.getPressed(GLFW_KEY_S) || m_engine.getPressed(GLFW_KEY_DOWN));
+    controller->setControl(Controls::LEFT, m_engine.getPressed(GLFW_KEY_A) || m_engine.getPressed(GLFW_KEY_LEFT));
+    controller->setControl(Controls::RIGHT, m_engine.getPressed(GLFW_KEY_D) || m_engine.getPressed(GLFW_KEY_RIGHT));
+    controller->setControl(Controls::SPACE, m_engine.getPressed(GLFW_KEY_SPACE));
+    controller->setDashedPressed(m_engine.getPressed(GLFW_KEY_E));
 }
 
 void Game::update()
@@ -247,6 +216,23 @@ void Game::update()
                                        m_player->getEntity()->getPhysicsBody()->getBodyID(), m_engine.getJoltInstance(),
                                        m_engine.getDeltaTime());
     m_player->update(m_engine.getJoltInstance()->getBodyInterface(), m_engine.getCamera());
+
+    m_flowField->setPlayerPos(m_player->get2DPos());
+    m_flowField->calculateFlowField(true);
+
+    m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get());
+
+    m_player->getController()->update(m_engine.getDeltaTime(), &m_engine);
+    if (m_player->getController()->getDashing())
+    {
+        for (std::size_t i{0}; i < 2.f; ++i)
+        {
+            m_particles->addParticle(
+                m_player->getEntity()->getGlobalMidpoint(),
+                glm::vec3{Util::random() - 0.5f, Util::random() - 0.5f, Util::random() - 0.5f} * 0.1f, Util::random());
+        }
+    }
+    m_particles->update(m_engine.getDeltaTime());
 
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
@@ -284,15 +270,13 @@ void Game::update()
         const float distFreq{glm::mix(20000.f, 1000.f, glm::clamp(dist / maxDist, 0.0f, 1.0f))};
         const float frequency{distFreq * glm::mix(0.2f, 1.0f, intensity)};
 
-        const unsigned int handle{
-            audioHandler->getSoLoud().play3dClocked(
-                static_cast<int>(glfwGetTime()), *audioHandler->getSound(m_assets->m_SFX_metalImpact), viewPosition.x,
-                viewPosition.y, viewPosition.z, 0.0f, 0.0f, 0.0f, volume)
-        };
+        const unsigned int handle{audioHandler->getSoLoud().play3dClocked(
+            static_cast<int>(glfwGetTime()), *audioHandler->getSound(m_assets->m_SFX_metalImpact), viewPosition.x,
+            viewPosition.y, viewPosition.z, 0.0f, 0.0f, 0.0f, volume)};
 
         audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
     }
-    m_engine.getJoltInstance()->getSoundListener()->clearSounds();
+    // m_engine.getJoltInstance()->getSoundListener()->clearSounds();
 }
 
 void Game::render()
@@ -300,13 +284,25 @@ void Game::render()
     // render ui framebuffer
     renderUI();
 
+    m_engine.setupViewport();
+
     // render scene
     std::vector<Lights::PointLight*> pointLights{};
     m_scene->getPointLights(pointLights);
 
     std::vector<std::pair<Model*, glm::mat4>> shadowModels{};
     m_scene->getShadowModels(shadowModels);
-    m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights, shadowModels);
+
+    m_particles->getShader()->use();
+    m_particles->getShader()->setMat4("projection", m_engine.getProjectionMatrix());
+    m_particles->getShader()->setMat4("view", m_engine.getViewMatrix());
+    void (*particleCallback)(void* handler){[](void* handler)
+                                            {
+                                                static_cast<ParticleManager*>(handler)->getShader()->use();
+                                                static_cast<ParticleManager*>(handler)->render();
+                                            }};
+    m_engine.update(m_renderQueue.get(), m_iblGenerator.get(), pointLights, shadowModels, false,
+                    RenderQueue::fdDrawCallback{particleCallback, m_particles.get()});
 }
 
 void Game::run()
@@ -323,7 +319,7 @@ void Game::run()
     }
 }
 
-void Game::renderUI() const
+void Game::renderUI()
 {
     const UIRenderer* uiRenderer{m_engine.getUIRenderer()};
     FontManager* fontRenderer{m_engine.getFontRenderer()};
@@ -337,6 +333,52 @@ void Game::renderUI() const
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    float targetPos;
+    const float upperTarget{static_cast<float>(m_engine.getHeight()) + 150.f};
+    const float lowerTarget{static_cast<float>(m_engine.getHeight()) * 0.85f};
+    if (m_complete - m_renderComplete > 0.001f)
+    {
+        targetPos = lowerTarget;
+    }
+    else
+    {
+        targetPos = upperTarget;
+    }
+    m_scorePos += (targetPos - m_scorePos) * 0.1f * m_engine.getDeltaTime();
+    const float cover{(upperTarget - m_scorePos) / (upperTarget - lowerTarget)};
+
+    m_engine.drawScreenRect(
+        {0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()), 30.f}, {1, 1, 1});
+
+    std::stringstream scoreText{};
+    m_complete =
+        static_cast<float>(m_enemyManager->getExploded()) / static_cast<float>(m_enemyManager->getNumEnemies());
+    m_renderComplete = std::min(m_renderComplete + 0.001f * m_engine.getDeltaTime(), m_complete);
+    m_complete = std::min(1.f, m_complete);
+    m_renderComplete = std::min(1.f, m_renderComplete);
+    scoreText << "Complete: " << static_cast<int>(m_renderComplete * 100.f) << "%";
+    const float scale{0.3f};
+    fontRenderer->renderText(m_engine.getShader("fonts"), scoreText.str(),
+                             static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 fontRenderer->getTextWidth(scoreText.str(), scale) * 0.5f,
+                             static_cast<float>(m_engine.getHeight()) - 24.f, scale, glm::vec3{1.0f, 1.0f, 1.0f});
+
+    scoreText.clear();
+    m_engine.drawScreenRect(
+        {0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()), cover * 30.f},
+        {1, 1, 1});
+
+    std::string score{std::to_string(static_cast<int>(m_renderComplete * 100.0f)) + "%"};
+    // m_engine.drawScreenRect(
+    //     {static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(score, 1.0f) * 0.5f - 2.f,
+    //      static_cast<float>(m_engine.getHeight()), fontRenderer->getTextWidth(score, 1.0f) + 4.f,
+    //      std::max(0.0f, static_cast<float>(m_engine.getHeight()) - m_scorePos + 30.0f)},
+    //     {1, 1, 1});
+    fontRenderer->renderText(m_engine.getShader("fonts"), score,
+                             static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 fontRenderer->getTextWidth(score, 1.0f) * 0.5f,
+                             m_scorePos, 1.0f, {1.0f, 1.0f, 1.0f});
 
     glDisable(GL_BLEND);
 
@@ -366,12 +408,9 @@ bool Game::gameover()
     float targetPBScale{0.0f};
 
     UI::Button playButton{
-        {
-            static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
-            static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f
-        }
-    };
+        {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
+         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
+         static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
 
     constexpr float typeRate{30.f};
     while (!m_engine.getQuit())
@@ -390,11 +429,9 @@ bool Game::gameover()
         const Shader* fontShader{m_engine.getShader("fonts")};
 
         std::string titleTextStr{};
-        const std::size_t limit{
-            std::min(
-                titleText.size(),
-                static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))
-        };
+        const std::size_t limit{std::min(
+            titleText.size(),
+            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
         for (std::size_t i{0}; i < limit; ++i)
         {
             titleTextStr += titleText[i];
@@ -405,7 +442,7 @@ bool Game::gameover()
         fontRenderer->renderText(fontShader, "Play again?",
                                  std::min(-300.f + (m_engine.getTime() - startTime) * 30.f,
                                           static_cast<float>(m_engine.getWidth()) * 0.5f -
-                                          fontRenderer->getTextWidth("Play again?", 0.5f) * 0.5f),
+                                              fontRenderer->getTextWidth("Play again?", 0.5f) * 0.5f),
                                  60.f, 0.5f, glm::vec3{1.0f});
 
         fontRenderer->renderText(
@@ -427,14 +464,12 @@ bool Game::gameover()
         cposX *= windowScaleX;
         cposY *= windowScaleY;
 
-        playButton.m_rect = {
-            static_cast<float>(m_engine.getWidth()) * 0.5f -
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
-            static_cast<float>(m_engine.getHeight()) * 0.6f -
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
-            static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
-            static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f
-        };
+        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+                             static_cast<float>(m_engine.getHeight()) * 0.6f -
+                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
         playButton.update(cposX, cposY);
 
         targetPBScale = (limit == titleText.size()) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
@@ -444,10 +479,8 @@ bool Game::gameover()
 
         // ---- RENDER TEXTURES ---- //
         TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
-                                {
-                                    static_cast<float>(m_engine.getWidth()) * 0.5f,
-                                    static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale
-                                },
+                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
                                 &m_engine, playButtonTex.width, playButtonTex.height, true,
                                 playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
 

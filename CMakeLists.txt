@@ -41,7 +41,7 @@ endif ()
 FetchContent_Declare(
         Jolt
         GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
-        GIT_TAG master
+        GIT_TAG v5.5.0
         SOURCE_SUBDIR Build
 )
 
@@ -49,10 +49,11 @@ set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
-    assimp
-    GIT_REPOSITORY https://github.com/assimp/assimp.git
-    GIT_TAG v5.4.3
+        assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG v6.0.4
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -144,7 +145,13 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
         src/player.cpp
         src/pathfinding.hpp
         src/pathfinding.cpp
-        src/pathfinding.cpp)
+        src/pathfinding.cpp
+        src/enemy.hpp
+        src/enemy.cpp
+	src/shards.hpp
+	src/shards.cpp
+	src/particles.hpp
+	src/particles.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -153,8 +160,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${GL_LIBS} assimp Jolt soloud $<$<
 target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/external/soloud/include)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    JPH_USE_SSE4_2
-    $<$<PLATFORM_ID:Windows>:NOMINMAX>
+        JPH_USE_SSE4_2
+        $<$<PLATFORM_ID:Windows>:NOMINMAX>
 )
 
 if (CMAKE_SYSTEM MATCHES Linux)

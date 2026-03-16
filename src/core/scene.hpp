@@ -1,6 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <limits>
 #include <memory>
 #include <ostream>
 #include <unordered_map>
@@ -63,12 +64,14 @@ inline std::ostream& operator<<(std::ostream& os, const SceneChunk* chunk)
 class Scene final : public EngineObject
 {
 public:
-    explicit Scene(void* engine);
+    explicit Scene(void* engine, JoltInstance* jolt);
     ~Scene() override;
 
     // load entities from json
     bool init(const char* scenePath);
     void initPhysicsBodies(JoltInstance* jolt);
+
+    bool initRaw(const char* scenePath);
 
     void resetEntityFlags(); // call this before updating entities
     void updateEntities(float deltaTime, JoltInstance* jolt = nullptr);
@@ -101,10 +104,13 @@ public:
     [[nodiscard]] const glm::vec3& getLevelCenter() const { return m_levelCenter; }
 
     void getStaticEntities(std::vector<Entity*>& entities);
-    void getStaticRects(std::vector<Bounds::Rect2D>& rects);
+    void getStaticRects(std::vector<Bounds::Rect2D>& rects, float minHeight = std::numeric_limits<float>::lowest(),
+                        float maxHeight = std::numeric_limits<float>::max());
+    void getDynamicEntities(std::vector<Entity*>& entities);
 
 private:
     void* m_engine{nullptr};
+    JoltInstance* m_jolt{nullptr};
 
     std::unordered_map<SpatialHashing::ChunkKey, std::unique_ptr<SceneChunk>, SpatialHashing::ChunkKeyHasher>
         m_chunks{};
@@ -113,6 +119,9 @@ private:
     glm::vec3 m_levelExtents{0.0f};
     glm::vec3 m_levelCenter{0.0f};
     void calculateLevelDimensions();
+
+    std::vector<JPH::BodyID> m_wallIDs{};
+    void setupWalls(JoltInstance* jolt);
 
     static SpatialHashing::ChunkKey getChunkKey(const glm::vec3& pos);
 };

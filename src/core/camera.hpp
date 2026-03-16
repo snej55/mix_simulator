@@ -35,6 +35,7 @@ namespace CameraN
     // defaults
     constexpr float YAW{-90.0f};
     constexpr float PITCH{0.0f};
+    constexpr float ROLL{90.0f};
     constexpr float SPEED{1.f};
     constexpr float SENSITIVITY{0.05f};
     constexpr float ZOOM{45.0f};
@@ -54,6 +55,7 @@ public:
         m_worldUp = glm::vec3{0.0f, 1.0f, 0.0f};
         m_yaw = CameraN::YAW;
         m_pitch = CameraN::PITCH;
+        m_roll = CameraN::ROLL;
         m_zoom = CameraN::ZOOM;
         m_movementSpeed = CameraN::SPEED;
         m_mouseSensitivity = CameraN::SENSITIVITY;
@@ -156,6 +158,9 @@ public:
     void setTargetPosition(const glm::vec3& position) { m_targetPosition = position; }
     [[nodiscard]] const glm::vec3& getTargetPosition() const { return m_targetPosition; }
 
+    void setRoll(const float val) { m_roll = val; }
+    [[nodiscard]] float getRoll() const { return m_roll; }
+
 private:
     glm::vec3 m_position{};
     glm::vec3 m_front{};
@@ -165,6 +170,7 @@ private:
 
     float m_yaw;
     float m_pitch;
+    float m_roll;
 
     float m_movementSpeed;
     float m_mouseSensitivity;
@@ -180,8 +186,17 @@ private:
         front.y = glm::sin(glm::radians(m_pitch));
         front.z = glm::sin(glm::radians(m_yaw)) * glm::cos(glm::radians(m_pitch));
         m_front = glm::normalize(front);
+
         m_right = glm::normalize(glm::cross(m_front, m_worldUp));
         m_up = glm::normalize(glm::cross(m_right, m_front));
+
+        if (m_roll != 0.0f)
+        {
+            glm::mat4 rollMatrix{glm::rotate(glm::mat4{1.0f}, glm::radians(m_roll), m_front)};
+
+            m_right = glm::vec3{rollMatrix * glm::vec4{m_right, 0.0f}};
+            m_up = glm::vec3{rollMatrix * glm::vec4{m_up, 0.0f}};
+        }
     }
 };
 
