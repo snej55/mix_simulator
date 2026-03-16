@@ -134,9 +134,10 @@ void FontManager::renderText(const Shader* shader, const std::string text, float
     std::string::const_iterator chr;
     float x{xcoord};
     shader->setVec3("textColor", {0.1f, 0.1f, 0.1f});
+    Character c{};
     for (chr = {text.begin()}; chr != text.end(); ++chr)
     {
-        Character c{m_characters[*chr]};
+        c = m_characters[*chr];
 
         const float xpos{x + c.outBearing.x * scale};
         const float ypos{y - (c.outSize.y - c.outBearing.y) * scale};
@@ -202,7 +203,7 @@ float FontManager::getTextWidth(const std::string& text, const float scale)
 {
     float x{0.0f};
     std::string::const_iterator chr;
-    Character c;
+    Character c{};
     for (chr = {text.begin()}; chr != text.end(); ++chr)
     {
         c = m_characters[*chr]; // NOTE: [] operator is non const
