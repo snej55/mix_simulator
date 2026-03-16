@@ -2,12 +2,18 @@
 
 #include "camera.hpp"
 #include "physics.hpp"
+#include "util.hpp"
 
 #include <Jolt/Physics/Body/BodyFilter.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 
 void Camera::followPlayer(const glm::vec3& position, JPH::BodyID playerID, void* jolt, const float dt)
 {
+    if (!Util::finite3D(position) || !std::isfinite(dt))
+    {
+        return;
+    }
+
     m_targetPosition += (position - m_targetPosition) * 0.1f * dt;
     const glm::vec3 focalPoint{m_targetPosition + glm::vec3(0.0f, CameraN::Y_OFFSET, 0.0f)};
     const glm::vec3 followPos{focalPoint + -m_front * m_followDistance}; // ideal position
@@ -29,17 +35,38 @@ void Camera::followPlayer(const glm::vec3& position, JPH::BodyID playerID, void*
 
     if (collector.HadHit())
     {
-        m_position = focalPoint +
-            (glm::vec3{direction.GetX(), direction.GetY(), direction.GetZ()} * collector.mHit.mFraction * 0.9f);
+        const glm::vec3 dir{direction.GetX(), direction.GetY(), direction.GetZ()};
+        const float length{glm::length(dir)};
+        const glm::vec3 dirN{(length > 1e-6f && Util::finite3D(dir)) ? (dir / length) : glm::vec3{0.0f, 0.0f, -1.0f}};
+
+        constexpr float minFocalLength{0.35f};
+        const float hitDist{length * collector.mHit.mFraction * 0.9f};
+        const float focalLength{glm::clamp(hitDist, minFocalLength, m_followDistance)};
+
+        m_position = focalPoint + dirN * focalLength;
     }
     else
     {
         m_position = followPos;
     }
 
-    m_front = glm::normalize(focalPoint - m_position);
-    m_right = glm::normalize(glm::cross(m_front, m_worldUp));
-    m_up = glm::normalize(glm::cross(m_right, m_front));
+    // some NaN guards
+    if (Util::finite3D(focalPoint - m_position) && glm::length(focalPoint - m_position) > 1e-6)
+    {
+        m_front = glm::normalize(focalPoint - m_position);
+    }
+
+    const glm::vec3 right{glm::cross(m_front, m_worldUp)};
+    if (Util::finite3D(right) && glm::length(right) > 1e-6)
+    {
+        m_right = glm::normalize(right);
+    }
+
+    const glm::vec3 up{glm::cross(m_right, m_front)};
+    if (Util::finite3D(up) && glm::length(up) > 1e-6f)
+    {
+        m_up = glm::normalize(up);
+    }
 
     if (m_roll != 0.0f)
     {
