@@ -60,6 +60,7 @@ void Window::createViewPort()
     glfwSetFramebufferSizeCallback(m_window, win_framebuffer_size_callback);
     glfwSetCursorPosCallback(m_window, win_mouse_callback);
     glfwSetScrollCallback(m_window, win_scroll_callback);
+    glfwSetKeyCallback(m_window, win_key_callback);
 
     std::cout << "WINDOW::CREATE_VIEW_PORT: Set GL viewport: " << m_width << " * " << m_height << '\n';
 }
@@ -141,6 +142,14 @@ void Window::mouse_callback(const double xpos, const double ypos) const
 
 void Window::scroll_callback(const double yoffset) const { dynamic_cast<Engine*>(m_parent)->scroll_callback(yoffset); }
 
+void Window::key_callback(int key, int scancode, int action, int mods) const
+{
+    if (m_keyCallback != nullptr)
+    {
+        m_keyCallback(key, scancode, action, mods, m_keyCB_Handler);
+    }
+}
+
 // glfw callbacks
 void Window::win_framebuffer_size_callback(GLFWwindow* window, const int width, const int height)
 {
@@ -163,5 +172,13 @@ void Window::win_scroll_callback(GLFWwindow* window, const double xoffset, const
     if (const Window* handler{static_cast<Window*>(glfwGetWindowUserPointer(window))})
     {
         handler->scroll_callback(yoffset);
+    }
+}
+
+void Window::win_key_callback(GLFWwindow* window, const int key, const int scancode, const int action, const int mods)
+{
+    if (const Window* handler{static_cast<Window*>(glfwGetWindowUserPointer(window))})
+    {
+        handler->key_callback(key, scancode, action, mods);
     }
 }

@@ -420,7 +420,7 @@ void Engine::resizePPChain()
 
 void Engine::setRenderScale(const float scale)
 {
-    m_renderScale = std::clamp(scale, 0.1f, 1.0f);
+    m_renderScale = std::clamp(scale, 0.2f, 1.0f);
     if (m_window != nullptr)
     {
         m_tempRes = {getWidth(), getHeight()};

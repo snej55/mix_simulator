@@ -7,6 +7,7 @@
 
 #include "engine_types.hpp"
 
+using winKeyCallback = void (*)(int, int, int, int, void*);
 class Window final : public EngineObject
 {
 public:
@@ -60,6 +61,13 @@ public:
     void mouse_callback(double xpos, double ypos) const;
     void scroll_callback(double yoffset) const;
 
+    void setKeyCallback(winKeyCallback callback, void* handler)
+    {
+        m_keyCallback = callback;
+        m_keyCB_Handler = handler;
+    }
+    void key_callback(int key, int scancode, int action, int mods) const;
+
 private:
     int m_width{0};
     int m_height{0};
@@ -70,10 +78,14 @@ private:
 
     GLFWwindow* m_window{nullptr};
 
+    void* m_keyCB_Handler{nullptr};
+    winKeyCallback m_keyCallback{nullptr};
+
     // glfw callbacks
     static void win_framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void win_mouse_callback(GLFWwindow* window, double xpos, double ypos);
     static void win_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    static void win_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 };
 
 #endif

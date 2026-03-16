@@ -27,7 +27,7 @@ bool FontManager::init(const std::string& path, const int height)
 
     FT_Stroker stroker;
     FT_Stroker_New(m_FT, &stroker);
-    FT_Stroker_Set(stroker, 64 * 2, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+    FT_Stroker_Set(stroker, 64 * 5, FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 
     // set font size
     FT_Set_Pixel_Sizes(m_face, 0, height);
@@ -133,7 +133,7 @@ void FontManager::renderText(const Shader* shader, const std::string text, float
     // go through all the characters
     std::string::const_iterator chr;
     float x{xcoord};
-    shader->setVec3("textColor", {0.1f, 0.1f, 0.1f});
+    shader->setVec3("textColor", {0.2f, 0.2f, 0.2f});
     Character c{};
     for (chr = {text.begin()}; chr != text.end(); ++chr)
     {

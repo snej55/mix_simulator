@@ -48,7 +48,7 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
-    m_scene->init("data/maps/0.json");
+    m_scene->init("data/maps/1.json");
     std::cout << "Loaded first scene!\n";
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
     // m_scene->initRaw("data/maps/1.json");
@@ -111,6 +111,29 @@ bool Game::menu()
          static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
          static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
 
+    bool settings{false};
+    float renderScale{m_engine.getRenderScale()};
+    constexpr std::size_t nHandles{3};
+    std::array<void*, nHandles> handler{&settings, &renderScale, &m_engine};
+    void (*keyCallback)(int, int, int, int, void*){
+        [](const int key, const int scancode, const int action, const int mods, void* handler)
+        {
+            std::array<void*, nHandles>* handlerPtr{static_cast<std::array<void*, nHandles>*>(handler)};
+            if (key == GLFW_KEY_S && action == GLFW_PRESS)
+            {
+                *static_cast<bool*>((*handlerPtr)[0]) = !(*static_cast<bool*>((*handlerPtr)[0]));
+            }
+            else if (key == GLFW_KEY_J && action == GLFW_PRESS && *static_cast<bool*>((*handlerPtr)[0]))
+            {
+                std::size_t rScale{static_cast<std::size_t>((*static_cast<float*>((*handlerPtr)[1]) - 0.2f) * 10.f)};
+                rScale = ++rScale & 7;
+                *static_cast<float*>((*handlerPtr)[1]) = static_cast<float>(rScale) * 0.1f + 0.2f;
+                static_cast<Engine*>((*handlerPtr)[2])->setRenderScale(*static_cast<float*>((*handlerPtr)[1]) + 0.1f);
+            }
+        }};
+    m_engine.getWindow()->setKeyCallback(keyCallback, &handler);
+
+    bool quit{true};
     while (!m_engine.getQuit())
     {
         constexpr float typeRate{10.f};
@@ -186,18 +209,31 @@ bool Game::menu()
         if (glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
             if (playButton.m_highlighted)
-                return true;
+            {
+                quit = false;
+                break;
+            }
         }
 
         if (m_engine.getPressed(GLFW_KEY_ENTER))
         {
-            return true;
+            quit = false;
+            break;
         }
 
         m_engine.update(nullptr, nullptr, {}, {}, true);
         glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
     }
-    return false;
+
+    if (quit)
+    {
+        return false;
+    }
+    else
+    {
+        m_engine.getWindow()->setKeyCallback(nullptr, nullptr);
+        return true;
+    }
 }
 
 void Game::handleIO()
