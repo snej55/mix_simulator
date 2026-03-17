@@ -115,12 +115,12 @@ void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3&
             enemy.m_shouldExplode = false;
             static_cast<Engine*>(m_engine)->setScreenShake(16.f);
 
-            const std::size_t amount{static_cast<std::size_t>(Util::random() * 30.f + 50.f)};
+            const std::size_t amount{static_cast<std::size_t>(Util::random() * 50.f + 60.f)};
             for (std::size_t i{0}; i < amount; ++i)
             {
                 glm::vec3 direction{Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f, Util::random() * 2.f - 1.f};
                 direction = glm::normalize(direction);
-                const float speed{1.f + Util::random() * 0.5f - 0.25f};
+                const float speed{1.f + Util::random() - 0.5f};
                 particles->addParticle(enemy.m_entity->getGlobalMidpoint(), direction * speed, Util::random());
             }
 

@@ -118,7 +118,7 @@ cd build
 - [ ] Star particles?
 - [X] Dash
 - [ ] Collision particles
-- [ ] Shockwave postprocessing
+- [X] Shockwave postprocessing
 - [ ] Perlin noise fog?
 - [ ] Make camera scroll change focal length
 - [ ] Cloudy skybox
