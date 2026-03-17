@@ -86,7 +86,7 @@ cd build
 - [ ] Add alpha to shape rendering
 - [ ] Add settings
 - [X] Add in game font
-- [ ] Find new HDRI
+- [X] Find new HDRI
 - [X] Make some music
 - [X] Add physics sfx using jolt contact listeners
 - [ ] Add sliding sfx
@@ -103,7 +103,7 @@ cd build
 - [X] Flow field generation
 - [ ] Clean up data folder
 - [X] Convex hull preloading (export jolt bodies as binaries)
-- [ ] Particle vfx
+- [X] Particle vfx
 - [X] Load all assets at the start
 - [ ] Fix sounds
 - [ ] Make shards despawn
@@ -123,7 +123,6 @@ cd build
 - [ ] Make camera scroll change focal length
 - [ ] Cloudy skybox
 - [ ] Different fog intensities
-- [ ] Level transitions
 - [X] Add invisible walls around whole thing
 - [ ] Try some cool post processing fx (cross stitching?)
 - [ ] Duck jokes on first menu
