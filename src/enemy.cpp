@@ -79,8 +79,9 @@ EnemyManager::EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flo
     getEnemies();
 }
 
-void EnemyManager::update(const float dt, ParticleManager* particles)
+void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3& shockwaveCenter, bool& shockwave)
 {
+    shockwave = false;
     for (std::size_t s{0}; s < m_shards.size(); ++s)
     {
         m_shards[s].first += dt;
@@ -122,6 +123,9 @@ void EnemyManager::update(const float dt, ParticleManager* particles)
                 const float speed{1.f + Util::random() * 0.5f - 0.25f};
                 particles->addParticle(enemy.m_entity->getGlobalMidpoint(), direction * speed, Util::random());
             }
+
+            shockwave = true;
+            shockwaveCenter = enemy.m_entity->getGlobalMidpoint();
 
             ++m_exploded;
         }

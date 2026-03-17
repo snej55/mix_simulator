@@ -20,6 +20,8 @@ uniform int useACES = 1;
 
 uniform vec2 center;
 uniform float time;
+uniform float scrWidth;
+uniform float scrHeight;
 uniform vec3 shockParams = vec3(10.0, 0.8, 0.1);
 
 // https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
@@ -71,14 +73,20 @@ void main()
 {
     vec2 uv = TexCoords;
     vec2 texCoord = uv;
-    float dist = distance(uv, center);
+    float aspectR = scrWidth / scrHeight;
+
+    vec2 corrUV = vec2(uv.x * aspectR, uv.y);
+    vec2 corrCenter = vec2(center.x * aspectR, center.y);
+    float dist = distance(corrUV, corrCenter);
     if ((dist <= (time + shockParams.z)) && (dist >= (time - shockParams.z)))
     {
         float diff = (dist - time);
         float powDiff = 1.0 - pow(abs(diff * shockParams.x), shockParams.y);
         float diffTime = diff * powDiff;
-        vec2 diffUV = normalize(uv - center);
-        texCoord = uv + (diffUV * diffTime);
+        vec2 diffUV = normalize(corrUV - corrCenter);
+
+        texCoord.x = uv.x + (diffUV.x * diffTime) / aspectR;
+        texCoord.y = uv.y + (diffUV.y * diffTime);
     }
     vec3 hdrColor = bloom(texCoord);
 

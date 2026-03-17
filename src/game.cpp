@@ -352,7 +352,20 @@ void Game::update()
     m_flowField->setPlayerPos(m_player->get2DPos());
     m_flowField->calculateFlowField(true);
 
-    m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get());
+    bool shockwave{false};
+    glm::vec3 shockwaveCenter{0.0f};
+    m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get(), shockwaveCenter, shockwave);
+
+    if (shockwave)
+    {
+        const glm::vec4 vp{0.0f, 0.0f, static_cast<float>(m_engine.getWidth()),
+                           static_cast<float>(m_engine.getHeight())};
+        glm::vec3 screenPos{
+            glm::project(shockwaveCenter, m_engine.getViewMatrix(), m_engine.getProjectionMatrix(), vp)};
+        m_shockwaveCenter = glm::vec2{screenPos.x / static_cast<float>(m_engine.getWidth()),
+                                      screenPos.y / static_cast<float>(m_engine.getHeight())};
+        m_shockwaveTime = m_engine.getTime();
+    }
 
     m_player->getController()->update(m_engine.getDeltaTime(), &m_engine);
     if (m_player->getController()->getDashing())
@@ -452,6 +465,8 @@ void Game::render()
     shockwaves->use();
     shockwaves->setVec2("center", {0.5f, 0.5f});
     shockwaves->setFloat("time", m_engine.getTime() - m_shockwaveTime);
+    shockwaves->setFloat("scrWidth", static_cast<float>(m_engine.getWidth()));
+    shockwaves->setFloat("scrHeight", static_cast<float>(m_engine.getHeight()));
 
     // render scene
     std::vector<Lights::PointLight*> pointLights{};
@@ -700,6 +715,8 @@ bool Game::win()
 {
     m_win = false;
     m_level = 0;
+    m_fade = 0.0f;
+    m_fadeDir = 0.0f;
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};

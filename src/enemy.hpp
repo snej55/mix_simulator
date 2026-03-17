@@ -54,7 +54,7 @@ public:
     EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flowField, JPH::BodyInterface* bodyInterface,
                  void* engine);
 
-    void update(float dt, ParticleManager* particles);
+    void update(float dt, ParticleManager* particles, glm::vec3& shockwaveCenter, bool& shockwave);
     void clearEnemies() { m_enemies.clear(); }
     void getEnemies();
 

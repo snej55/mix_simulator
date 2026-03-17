@@ -56,6 +56,7 @@ private:
     float m_fadeDir{0.0f};
     bool m_transition{false};
     float m_shockwaveTime{0.0f};
+    glm::vec2 m_shockwaveCenter{0.5f, 0.5f};
 
     std::size_t m_level{0};
     bool m_win{false};
