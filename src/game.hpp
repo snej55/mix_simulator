@@ -49,6 +49,10 @@ private:
     float m_renderComplete{0.0f};
     float m_scorePos{180.0f};
 
+    float m_fade{0.0f};
+    float m_fadeDir{0.0f};
+    bool m_transition{false};
+
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
     std::unique_ptr<RenderQueue> m_renderQueue{nullptr};

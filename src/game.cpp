@@ -525,6 +525,19 @@ void Game::renderUI()
                                  fontRenderer->getTextWidth(score, 1.0f) * 0.5f,
                              m_scorePos, 1.0f, {1.0f, 1.0f, 1.0f});
 
+    if (m_renderComplete == 1.f)
+    {
+        m_fadeDir = 0.05f;
+    }
+    m_fade = std::clamp(m_fade + m_fadeDir * m_engine.getDeltaTime(), 0.0f, 1.0f);
+    m_engine.drawScreenRect({0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()),
+                             m_fade * static_cast<float>(m_engine.getHeight())},
+                            {1, 1, 1});
+    if (m_fade == 1.f)
+    {
+        m_transition = true;
+    }
+
     glDisable(GL_BLEND);
 
     glEnable(GL_DEPTH_TEST);
