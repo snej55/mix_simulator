@@ -128,6 +128,7 @@ cd build
 - [ ] Try some cool post processing fx (cross stitching?)
 - [ ] Duck jokes on first menu
 - [ ] Add player start pos to level editor
+- [ ] Make menu keybinds work during game
 
 ## Game loop (today):
 - [ ] Create decor

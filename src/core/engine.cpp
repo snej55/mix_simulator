@@ -280,8 +280,16 @@ void Engine::update(RenderQueue* renderQueue, IBLGenerator* ibl, const std::vect
             m_camera->processInput(CameraN::CameraMotion::RIGHT, getDeltaTime());
         }
     }
-    m_screenShake = std::max(0.0f, m_screenShake - getDeltaTime());
-    m_camera->setRoll(Util::random() * m_screenShake - m_screenShake * 0.5f);
+
+    if (m_screenShakeEnabled)
+    {
+        m_screenShake = std::max(0.0f, m_screenShake - getDeltaTime());
+        m_camera->setRoll(Util::random() * m_screenShake - m_screenShake * 0.5f);
+    }
+    else
+    {
+        m_camera->setRoll(0.0f);
+    }
 
     // if (m_iohandler->getPressed(GLFW_KEY_T))
     // {

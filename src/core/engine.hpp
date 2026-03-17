@@ -202,6 +202,10 @@ public:
     void setScreenShake(const float val) { m_screenShake = std::max(m_screenShake, val); }
     [[nodiscard]] float getScreenShake() const { return m_screenShake; }
 
+    void setScreenShakeEnabled(const bool val) { m_screenShakeEnabled = val; }
+    void toggleScreenShakeEnabled() { m_screenShakeEnabled = !m_screenShakeEnabled; }
+    [[nodiscard]] bool getScreenShakeEnabled() const { return m_screenShakeEnabled; }
+
     // ------ Models ------ //
 
     bool createModelManager();
@@ -343,6 +347,7 @@ private:
     float m_camLastY{};
     bool m_cameraControls{true};
     float m_screenShake{0.0f};
+    bool m_screenShakeEnabled{true};
 
     // flags
     bool m_checkedShaders{false}; // shaders.json checked

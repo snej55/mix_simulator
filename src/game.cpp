@@ -1,3 +1,4 @@
+#include <chrono>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -82,7 +83,10 @@ bool Game::init()
 
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
 
+    auto start{std::chrono::high_resolution_clock::now()};
     loadLevel("data/maps/0.json");
+    auto end{std::chrono::high_resolution_clock::now()};
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
     return true;
 }
 
@@ -170,6 +174,10 @@ bool Game::menu()
             {
                 static_cast<Engine*>((*handlerPtr)[2])
                     ->setSSAOEnabled(!static_cast<Engine*>((*handlerPtr)[2])->getSSAOEnabled());
+            }
+            else if (key == GLFW_KEY_H && action == GLFW_PRESS && *static_cast<bool*>((*handlerPtr)[0]))
+            {
+                static_cast<Engine*>((*handlerPtr)[2])->toggleScreenShakeEnabled();
             }
         }};
     m_engine.getWindow()->setKeyCallback(keyCallback, &handler);
@@ -269,6 +277,13 @@ bool Game::menu()
             fontShader, ss.str(),
             static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(ss.str(), 0.5f) * 0.5f,
             static_cast<float>(m_engine.getHeight()) * 1.7f - settingsY - 60.f, 0.5f, {1.f, 1.f, 1.f});
+        ss.str(std::string());
+        ss << "Screenshake: " << (m_engine.getScreenShakeEnabled() ? "Enabled" : "Disabled") << "     ([h] to "
+           << (m_engine.getScreenShakeEnabled() ? "Disable" : "Enable") << ")";
+        fontRenderer->renderText(
+            fontShader, ss.str(),
+            static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(ss.str(), 0.5f) * 0.5f,
+            static_cast<float>(m_engine.getHeight()) * 1.7f - settingsY - 120.f, 0.5f, {1.f, 1.f, 1.f});
         glDisable(GL_BLEND);
 
         glEnable(GL_DEPTH_TEST);
