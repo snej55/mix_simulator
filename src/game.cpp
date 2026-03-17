@@ -90,6 +90,17 @@ bool Game::init()
     return true;
 }
 
+void Game::nextLevel()
+{
+    if (++m_level >= CST::NUM_LEVELS)
+    {
+        m_win = true;
+        return;
+    }
+
+    loadLevel(CST::LEVEL_PATHS[m_level]);
+}
+
 void Game::loadLevel(const std::string& path)
 {
     m_scene->initRaw(path.c_str());
@@ -454,7 +465,7 @@ void Game::run()
 {
     m_engine.setupViewport();
     m_engine.setCameraEnabled(true);
-    while (!m_engine.getQuit())
+    while (!m_engine.getQuit() && !m_win)
     {
         handleIO();
         update();
@@ -529,13 +540,20 @@ void Game::renderUI()
     {
         m_fadeDir = 0.05f;
     }
-    m_fade = std::clamp(m_fade + m_fadeDir * m_engine.getDeltaTime(), 0.0f, 1.0f);
+    m_fade = std::clamp(m_fade + m_fadeDir * m_engine.getDeltaTime(), 0.0f, 2.0f);
+    if (m_fade == 0.0f && m_fadeDir == -0.05f)
+    {
+        m_fadeDir = 0.f;
+        m_transition = false;
+    }
     m_engine.drawScreenRect({0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()),
                              m_fade * static_cast<float>(m_engine.getHeight())},
                             {1, 1, 1});
-    if (m_fade == 1.f)
+    if (m_fade == 2.f)
     {
         m_transition = true;
+        nextLevel();
+        m_fadeDir = -0.05f;
     }
 
     glDisable(GL_BLEND);
@@ -606,6 +624,123 @@ bool Game::gameover()
         fontRenderer->renderText(
             fontShader,
             "Credits: GLFW (windowing library), GLAD (OpenGL bindings), GLM (Matrix operations), JoltPhysics (Physics "
+            "engine), SoLoud (Audio library), Assimp (Model loading), STB_Image (Image loading), Freetype2 (Font "
+            "rendering), nlohmann json (JSON loading, duh), mikktspace.h (fix TBN matrix tangents). Source code: "
+            "https://github.com/snej55/mix_simulator",
+            static_cast<float>(m_engine.getWidth()) + 10.f - (m_engine.getTime() - startTime) * 60.f, 10.f, 0.5f,
+            glm::vec3{1.0f});
+
+        glDisable(GL_BLEND);
+        // ---------------------- //
+
+        double cposX, cposY;
+        float windowScaleX, windowScaleY;
+        glfwGetCursorPos(windowPtr, &cposX, &cposY);
+        glfwGetWindowContentScale(windowPtr, &windowScaleX, &windowScaleY);
+        cposX *= windowScaleX;
+        cposY *= windowScaleY;
+
+        playButton.m_rect = {static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 static_cast<float>(playButtonTex.width) * playButtonScale * 0.25f,
+                             static_cast<float>(m_engine.getHeight()) * 0.6f -
+                                 static_cast<float>(playButtonTex.height) * playButtonScale * 0.25f,
+                             static_cast<float>(playButtonTex.width) * playButtonScale * 0.5f,
+                             static_cast<float>(playButtonTex.height) * playButtonScale * 0.5f};
+        playButton.update(cposX, cposY);
+
+        targetPBScale = (limit == titleText.size()) ? (playButton.m_highlighted ? 0.6f : 0.5f) : 0.0f;
+        playButtonVel += (targetPBScale - playButtonScale) * 0.6f * m_engine.getDeltaTime();
+        playButtonScale += playButtonVel * 0.5f * m_engine.getDeltaTime();
+        playButtonVel += (playButtonVel * 0.8f - playButtonVel) * m_engine.getDeltaTime();
+
+        // ---- RENDER TEXTURES ---- //
+        TextureN::renderTexture(m_engine.getShader("texture"), playButtonTex.id,
+                                {static_cast<float>(m_engine.getWidth()) * 0.5f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.6f, playButtonScale, playButtonScale},
+                                &m_engine, playButtonTex.width, playButtonTex.height, true,
+                                playButton.m_highlighted ? glm::vec3{0.8f, 0.9f, 1.0f} : glm::vec3{1.0f});
+
+        glEnable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // ------------------------ //
+
+        if (glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        {
+            if (playButton.m_highlighted)
+                return true;
+        }
+
+        m_engine.update(nullptr, nullptr, {}, {}, true);
+        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
+    }
+    return false;
+}
+
+bool Game::win()
+{
+    m_engine.setupViewport();
+
+    GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
+    FontManager* fontRenderer{m_engine.getFontRenderer()};
+    UIRenderer* uiRenderer{m_engine.getUIRenderer()};
+
+    TextureN::TextureData playButtonTex;
+    TextureN::loadFromFile("data/images/ui/playbutton.png", &playButtonTex);
+
+    glDisable(GL_DEPTH_TEST);
+    m_engine.setCameraEnabled(false);
+
+    const std::vector<const char*> titleText{"Y", "o", "u", " ", "W", "i", "n", "!", ":", ")"};
+    const float startTime{m_engine.getTime() + 0.5f};
+
+    float playButtonScale{0.f};
+    float playButtonVel{0.0f};
+    float targetPBScale{0.0f};
+
+    UI::Button playButton{
+        {static_cast<float>(m_engine.getWidth()) * 0.5f - static_cast<float>(playButtonTex.width) * 0.25f,
+         static_cast<float>(m_engine.getHeight()) * 0.5f - static_cast<float>(playButtonTex.height) * 0.25f,
+         static_cast<float>(playButtonTex.width) * 0.5f, static_cast<float>(playButtonTex.height) * 0.5f}};
+
+    constexpr float typeRate{30.f};
+    while (!m_engine.getQuit())
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
+        glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
+        glDisable(GL_DEPTH_TEST);
+
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // ---- RENDER FONTS ---- //
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        const Shader* fontShader{m_engine.getShader("fonts")};
+
+        std::string titleTextStr{};
+        const std::size_t limit{std::min(
+            titleText.size(),
+            static_cast<std::size_t>(std::max(0, static_cast<int>((m_engine.getTime() - startTime) * typeRate))))};
+        for (std::size_t i{0}; i < limit; ++i)
+        {
+            titleTextStr += titleText[i];
+        }
+        fontRenderer->renderText(fontShader, titleTextStr, static_cast<float>(m_engine.getWidth()) * 0.5f - 190.f,
+                                 static_cast<float>(m_engine.getHeight()) * 0.7f, 1.0, glm::vec3{1.0f, 1.0f, 1.0f});
+
+        fontRenderer->renderText(fontShader, "Play again?",
+                                 std::min(-300.f + (m_engine.getTime() - startTime) * 30.f,
+                                          static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                              fontRenderer->getTextWidth("Play again?", 0.5f) * 0.5f),
+                                 60.f, 0.5f, glm::vec3{1.0f});
+
+        fontRenderer->renderText(
+            fontShader,
+            "Credits: ambientcg.com (PBR materials), polyhaven.com (HDRI map), GLFW (windowing library), GLAD "
+            "(OpenGL bindings), GLM (Matrix "
+            "operations), JoltPhysics (Physics "
             "engine), SoLoud (Audio library), Assimp (Model loading), STB_Image (Image loading), Freetype2 (Font "
             "rendering), nlohmann json (JSON loading, duh), mikktspace.h (fix TBN matrix tangents). Source code: "
             "https://github.com/snej55/mix_simulator",

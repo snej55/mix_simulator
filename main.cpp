@@ -20,7 +20,7 @@ int main()
     while (game.menu())
     {
         game.run();
-        if (!game.gameover())
+        if (!game.win())
             break;
     }
     return EXIT_SUCCESS;

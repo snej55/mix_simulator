@@ -31,6 +31,8 @@ public:
 
     bool gameover();
 
+    bool win();
+
     void handleIO();
     void update();
     void render();
@@ -39,6 +41,7 @@ public:
 
     void renderUI();
 
+    void nextLevel();
     void loadLevel(const std::string& path);
 
 private:
@@ -52,6 +55,9 @@ private:
     float m_fade{0.0f};
     float m_fadeDir{0.0f};
     bool m_transition{false};
+
+    std::size_t m_level{0};
+    bool m_win{false};
 
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
