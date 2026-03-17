@@ -510,7 +510,7 @@ void Game::renderUI()
     std::stringstream scoreText{};
     m_complete =
         static_cast<float>(m_enemyManager->getExploded()) / static_cast<float>(m_enemyManager->getNumEnemies());
-    m_renderComplete = std::min(m_renderComplete + 0.001f * m_engine.getDeltaTime(), m_complete);
+    m_renderComplete = std::min(m_renderComplete + 0.003f * m_engine.getDeltaTime(), m_complete);
     m_complete = std::min(1.f, m_complete);
     m_renderComplete = std::min(1.f, m_renderComplete);
     scoreText << "Complete: " << static_cast<int>(m_renderComplete * 100.f) << "%";
@@ -538,10 +538,10 @@ void Game::renderUI()
 
     if (m_renderComplete == 1.f)
     {
-        m_fadeDir = 0.05f;
+        m_fadeDir = 0.02f;
     }
     m_fade = std::clamp(m_fade + m_fadeDir * m_engine.getDeltaTime(), 0.0f, 2.0f);
-    if (m_fade == 0.0f && m_fadeDir == -0.05f)
+    if (m_fade == 0.0f && m_fadeDir == -0.02f)
     {
         m_fadeDir = 0.f;
         m_transition = false;
@@ -549,11 +549,19 @@ void Game::renderUI()
     m_engine.drawScreenRect({0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()),
                              m_fade * static_cast<float>(m_engine.getHeight())},
                             {1, 1, 1});
+    std::string levelText{"Level " + std::to_string(m_level + 1)};
+    fontRenderer->renderText(m_engine.getShader("fonts"), levelText,
+                             static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                 fontRenderer->getTextWidth(levelText, 1.f) * 0.5f,
+                             static_cast<float>(m_engine.getHeight()) -
+                                 (m_fade * 0.6f * static_cast<float>(m_engine.getHeight()) -
+                                  static_cast<float>(m_engine.getHeight()) * 0.5f),
+                             1.0f, {1.f, 1.f, 1.f});
     if (m_fade == 2.f)
     {
         m_transition = true;
         nextLevel();
-        m_fadeDir = -0.05f;
+        m_fadeDir = -0.02f;
     }
 
     glDisable(GL_BLEND);
@@ -679,6 +687,8 @@ bool Game::gameover()
 
 bool Game::win()
 {
+    m_win = false;
+    m_level = 0;
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
@@ -691,7 +701,7 @@ bool Game::win()
     glDisable(GL_DEPTH_TEST);
     m_engine.setCameraEnabled(false);
 
-    const std::vector<const char*> titleText{"Y", "o", "u", " ", "W", "i", "n", "!", ":", ")"};
+    const std::vector<const char*> titleText{"Y", "o", "u", " ", "W", "i", "n", "!", " ", ":", ")"};
     const float startTime{m_engine.getTime() + 0.5f};
 
     float playButtonScale{0.f};
