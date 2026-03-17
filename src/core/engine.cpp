@@ -1114,7 +1114,7 @@ void Engine::disablePostProcessing() const { m_postProcessor->disable(); }
 
 void Engine::renderPostProcessing() const
 {
-    m_postProcessor->renderHDR(getShader("bloomSS"));
+    m_postProcessor->renderHDR(m_screenShader == nullptr ? getShader("bloomSS") : m_screenShader);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, getWidth(), getHeight());

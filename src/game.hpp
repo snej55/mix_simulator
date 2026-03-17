@@ -55,6 +55,7 @@ private:
     float m_fade{0.0f};
     float m_fadeDir{0.0f};
     bool m_transition{false};
+    float m_shockwaveTime{0.0f};
 
     std::size_t m_level{0};
     bool m_win{false};

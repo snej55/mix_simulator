@@ -129,6 +129,7 @@ cd build
 - [ ] Add player start pos to level editor
 - [ ] Make menu keybinds work during game
 - [X] Level transitions
+- [ ] Add tonemapping options to settings
 
 ## Game loop (today):
 - [ ] Create decor
@@ -140,7 +141,6 @@ cd build
 - [X] Particles
 
 ## Blender items:
-
 - [X] Mug
 - [X] Bud vase
 - [ ] Pot

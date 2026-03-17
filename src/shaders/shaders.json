@@ -163,6 +163,13 @@
         "frag": "particles.frag",
         "vert": "particles.vert"
       }
+    },
+    {
+      "name": "shockwaves",
+      "shader": {
+        "frag": "shockwaves.frag",
+        "vert": "shockwaves.vert"
+      }
     }
   ]
 }

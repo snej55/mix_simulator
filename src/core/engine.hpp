@@ -303,6 +303,9 @@ public:
     [[nodiscard]] const glm::vec3& getLightDirection() const { return m_lightDirection; }
     void setLightDirection(const glm::vec3& lightDir) { m_lightDirection = glm::normalize(lightDir); }
 
+    [[nodiscard]] Shader* getScreenShader() { return m_screenShader; }
+    void setScreenShader(Shader* shader) { m_screenShader = shader; }
+
 private:
     // memory manager
     Arena* m_arena{nullptr};
@@ -357,6 +360,7 @@ private:
 
     // miscellaneous stuff
     std::vector<float> m_deltaTimes{};
+    Shader* m_screenShader{nullptr};
 
     glm::ivec2 m_tempRes{0, 0};
     float m_renderScale{1.0f};

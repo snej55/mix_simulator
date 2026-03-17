@@ -39,6 +39,7 @@ bool Game::init()
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
 
     m_engine.setCameraControlsEnabled(false);
+    m_engine.setScreenShader(m_engine.getShader("shockwaves"));
 
     m_engine.initFontRenderer("data/fonts/grow.ttf", CST::FONT_TEX_SIZE);
     m_assets = std::make_unique<Assets>();
@@ -334,6 +335,11 @@ void Game::handleIO()
     controller->setControl(Controls::RIGHT, m_engine.getPressed(GLFW_KEY_D) || m_engine.getPressed(GLFW_KEY_RIGHT));
     controller->setControl(Controls::SPACE, m_engine.getPressed(GLFW_KEY_SPACE));
     controller->setDashedPressed(m_engine.getPressed(GLFW_KEY_E));
+
+    if (m_engine.getPressed(GLFW_KEY_T))
+    {
+        m_shockwaveTime = m_engine.getTime();
+    }
 }
 
 void Game::update()
@@ -441,6 +447,11 @@ void Game::render()
     renderUI();
 
     m_engine.setupViewport();
+
+    Shader* shockwaves{m_engine.getShader("shockwaves")};
+    shockwaves->use();
+    shockwaves->setVec2("center", {0.5f, 0.5f});
+    shockwaves->setFloat("time", m_engine.getTime() - m_shockwaveTime);
 
     // render scene
     std::vector<Lights::PointLight*> pointLights{};
