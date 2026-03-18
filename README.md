@@ -131,7 +131,7 @@ cd build
 - [X] Add tonemapping options to settings
 
 ## Game loop (today):
-- [ ] Create decor
+- [ X Create decor
 - [ ] Maze generation?
 - [X] Walls around level
 - [X] New HDRI
@@ -146,7 +146,7 @@ cd build
 - [X] Cider jug (remake)
 - [X] Wrecking ball 
 - [ ] Pestle
-- [ ] Anaphora
+- [ ] Anaphora WIP
 - [ ] Ewer
 - [X] Player character (rubber duck)
 - [ ] Add all the shards
