@@ -125,7 +125,7 @@ cd build
 - [ ] Cloudy skybox
 - [ ] Different fog intensities
 - [X] Add invisible walls around whole thing
-- [ ] Try some cool post processing fx (cross stitching?)
+- [X] Try some cool post processing fx (cross stitching?)
 - [ ] Duck jokes on first menu
 - [ ] Add player start pos to level editor
 - [ ] Make menu keybinds work during game
@@ -151,7 +151,7 @@ cd build
 - [X] Anaphora
 - [ ] Ewer
 - [X] Player character (rubber duck)
-- [ ] Add all the shards
+- [X] Add all the shards
 
 ## Debugging/Release todo:
 - [X] Polish shadows

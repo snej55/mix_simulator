@@ -58,7 +58,7 @@ public:
     void clearEnemies() { m_enemies.clear(); }
     void getEnemies();
 
-    void handleCollision(const JPH::BodyID& body1, const JPH::BodyID& body2);
+    void handleCollision(const JPH::ContactManifold& inManifold, const JPH::Body& body1, const JPH::Body& body2);
 
     [[nodiscard]] const std::vector<Enemy>& getEnemiesVec() const { return m_enemies; }
     [[nodiscard]] EnemyListener* getListener() { return &m_listener; }

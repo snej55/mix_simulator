@@ -137,17 +137,27 @@ void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3&
         m_enemies.end());
 }
 
-void EnemyManager::handleCollision(const JPH::BodyID& body1, const JPH::BodyID& body2)
+void EnemyManager::handleCollision(const JPH::ContactManifold& inManifold, const JPH::Body& body1,
+                                   const JPH::Body& body2)
 {
-    for (std::size_t i{0}; i < m_enemies.size(); ++i)
+    const JPH::RVec3 pos{inManifold.GetWorldSpaceContactPointOn1(0)};
+    const JPH::Vec3 vel1{body1.IsStatic() ? JPH::Vec3::sZero() : body1.GetPointVelocity(pos)};
+    const JPH::Vec3 vel2{body2.IsStatic() ? JPH::Vec3::sZero() : body2.GetPointVelocity(pos)};
+    const JPH::Vec3 relVel{vel1 - vel2};
+    const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
+    if (impactSpeed >= 20.0f)
     {
-        Enemy& enemy{m_enemies[i]};
-        const JPH::BodyID& enemyID{enemy.m_entity->getPhysicsBody()->getBodyID()};
-        const JPH::BodyID& playerID{m_player->getEntity()->getPhysicsBody()->getBodyID()};
-        // if (enemyID == body1 || enemyID == body2)
-        if ((enemyID == body1 && playerID == body2) || (enemyID == body2 && playerID == body1))
+        for (std::size_t i{0}; i < m_enemies.size(); ++i)
         {
-            enemy.m_shouldExplode = true;
+            Enemy& enemy{m_enemies[i]};
+            const JPH::BodyID& enemyID{enemy.m_entity->getPhysicsBody()->getBodyID()};
+            const JPH::BodyID& playerID{m_player->getEntity()->getPhysicsBody()->getBodyID()};
+            // if (enemyID == body1 || enemyID == body2)
+            if ((enemyID == body1.GetID() && playerID == body2.GetID()) ||
+                (enemyID == body2.GetID() && playerID == body1.GetID()))
+            {
+                enemy.m_shouldExplode = true;
+            }
         }
     }
 }
@@ -225,17 +235,7 @@ JPH::ValidateResult EnemyListener::OnContactValidate(const JPH::Body& inBody1, c
 void EnemyListener::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2,
                                    const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 {
-    JPH::RVec3 pos{inManifold.GetWorldSpaceContactPointOn1(0)};
-    JPH::Vec3 vel1{inBody1.IsStatic() ? JPH::Vec3::sZero() : inBody1.GetPointVelocity(pos)};
-    JPH::Vec3 vel2{inBody2.IsStatic() ? JPH::Vec3::sZero() : inBody2.GetPointVelocity(pos)};
-
-    JPH::Vec3 relVel{vel1 - vel2};
-    const float impactSpeed{std::abs(relVel.Dot(inManifold.mWorldSpaceNormal))};
-
-    if (impactSpeed > 20.0f)
-    {
-        static_cast<EnemyManager*>(m_manager)->handleCollision(inBody1.GetID(), inBody2.GetID());
-    }
+    static_cast<EnemyManager*>(m_manager)->handleCollision(inManifold, inBody1, inBody2);
 }
 
 void EnemyListener::OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2,
