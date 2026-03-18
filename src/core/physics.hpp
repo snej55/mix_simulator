@@ -730,7 +730,8 @@ public:
         if (m_result.HasError())
         {
             Util::beginError();
-            std::cout << "SHAPE_LOADER::ERROR: Failed to create convex hull from " << vertices.size() << " vertices";
+            std::cout << "SHAPE_LOADER::ERROR: Failed to create convex hull from " << vertices.size() << " vertices\n";
+            std::cout << "JoltPhysics Error: " << m_result.GetError().c_str();
             Util::endError();
         }
     }
@@ -777,7 +778,8 @@ public:
         if (shape.HasError() || shape.Get() == nullptr)
         {
             Util::beginError();
-            std::cout << "SHAPE_LOADER::ERROR: Failed to load shape from `" << path << "`";
+            std::cout << "SHAPE_LOADER::ERROR: Failed to load shape from `" << path << "`\n";
+            std::cout << "JoltPhysics Error: " << shape.GetError().c_str();
             Util::endError();
             return;
         }
