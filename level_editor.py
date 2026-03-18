@@ -21,7 +21,7 @@ class Editor:
         self.objects = []
         self.point_lights = []
 
-        self.level_path = "data/maps/0.json"
+        self.level_path = "data/maps/5.json"
         self.load_level(self.level_path)
 
         ray.set_config_flags(
@@ -157,7 +157,7 @@ class Editor:
                         "position": self.objects[self.current_model_index]["position"].copy(),
                         "rotation": [0, 0, 0],
                         "scale": [1, 1, 1],
-                        "modelID": 0,
+                        "modelID": self.objects[self.current_model_index]["modelID"],
                         "animated": False,
                         "bodyType": "static",
                     }
@@ -231,7 +231,26 @@ class Editor:
 
     def update(self):
         self.handle_input()
-        ray.update_camera(self.camera, ray.CameraMode.CAMERA_FREE)
+        move_speed = 0.5
+        rotation_speed = 0.05
+        
+        if ray.is_key_down(ray.KeyboardKey.KEY_LEFT_CONTROL):
+            move_speed *= 3.0
+
+        movement = ray.Vector3(
+            (ray.is_key_down(ray.KeyboardKey.KEY_W) - ray.is_key_down(ray.KeyboardKey.KEY_S)) * move_speed,
+            (ray.is_key_down(ray.KeyboardKey.KEY_D) - ray.is_key_down(ray.KeyboardKey.KEY_A)) * move_speed,
+            (ray.is_key_down(ray.KeyboardKey.KEY_E) - ray.is_key_down(ray.KeyboardKey.KEY_Q)) * move_speed
+        )
+
+        mouse_delta = ray.get_mouse_delta()
+        rotation = ray.Vector3(
+            mouse_delta.x * rotation_speed,
+            mouse_delta.y * rotation_speed,
+            0.0
+        )
+
+        ray.update_camera_pro(self.camera, movement, rotation, 0.0)
 
     def run(self):
         while not ray.window_should_close():

@@ -50,8 +50,7 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
-    m_scene->init("data/maps/0.json");
-    std::cout << "Loaded first scene!\n";
+    m_scene->init("data/maps/4.json");
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
     // m_scene->initRaw("data/maps/1.json");
     // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
@@ -364,7 +363,7 @@ void Game::update()
 
     bool shockwave{false};
     glm::vec3 shockwaveCenter{0.0f};
-    // m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get(), shockwaveCenter, shockwave);
+    m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get(), shockwaveCenter, shockwave);
 
     if (shockwave)
     {
