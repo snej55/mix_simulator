@@ -112,7 +112,6 @@ cd build
 - [X] Screenshake
 - [ ] Variance shadow mapping?
 - [X] Add settings page to menu
-- [ ] Make player explodable
 - [X] Score
 - [ ] Spikes?
 - [ ] Star particles?
@@ -129,7 +128,7 @@ cd build
 - [ ] Add player start pos to level editor
 - [ ] Make menu keybinds work during game
 - [X] Level transitions
-- [ ] Add tonemapping options to settings
+- [X] Add tonemapping options to settings
 
 ## Game loop (today):
 - [ ] Create decor

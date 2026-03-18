@@ -21,7 +21,7 @@ void PlayerController::update(const float dt, Engine* engine)
     {
         m_dash = true;
         m_dashing = true;
-        engine->setScreenShake(8.f);
+        engine->setScreenShake(10.f);
     }
 
     if (m_dashTime > duration)

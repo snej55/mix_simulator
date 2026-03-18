@@ -24,6 +24,9 @@ uniform float scrWidth;
 uniform float scrHeight;
 uniform vec3 shockParams = vec3(10.0, 0.8, 0.1);
 
+uniform float stitchingSize = 12.0;
+uniform int invert = 1;
+
 // https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
 vec3 ACESFilm(vec3 x)
 {
@@ -67,6 +70,47 @@ vec3 bloom(vec2 uv)
         dirt = texture(dirtMask, vec2(uv.x, 1.0 - uv.y)).rgb * dirtMaskStrength; // I feel like inverting the y
     }
     return mix(hdrColor, bloomColor + bloomColor * dirt, bloomStrength);
+}
+
+vec3 crossStitch(vec2 uv)
+{
+    vec3 c = vec3(0.0);
+    float size = stitchingSize;
+    vec2 cPos = uv * vec2(scrWidth, scrHeight);
+    vec2 tlPos = floor(cPos / vec2(size, size));
+    tlPos *= size;
+    int remX = int(mod(cPos.x, size));
+    int remY = int(mod(cPos.y, size));
+    if (remX == 0 && remY == 0)
+    {
+        tlPos = cPos;
+    }
+    vec2 blPos = tlPos;
+    blPos.y += (size - 1.0);
+    if ((remX == remY) || (((int(cPos.x) - int(blPos.x)) == (int(blPos.y) - int(cPos.y)))))
+    {
+        if (invert == 1)
+        {
+            c = vec3(0.0, 0.0, 0.0);
+        }
+        else
+        {
+            c = bloom(tlPos * vec2(1.0 / scrWidth, 1.0 / scrHeight)) * 1.4;
+        }
+    }
+    else
+    {
+        if (invert == 1)
+        {
+            c = bloom(tlPos * vec2(1.0 / scrWidth, 1.0 / scrHeight)) * 1.4;
+        }
+        else
+        {
+            c = vec3(0.0, 0.0, 0.0);
+        }
+    }
+
+    return c;
 }
 
 void main()
