@@ -146,7 +146,7 @@ cd build
 - [X] Cider jug (remake)
 - [X] Wrecking ball 
 - [ ] Pestle
-- [ ] Anaphora WIP
+- [X] Anaphora
 - [ ] Ewer
 - [X] Player character (rubber duck)
 - [ ] Add all the shards
