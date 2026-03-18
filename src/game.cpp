@@ -154,8 +154,8 @@ bool Game::menu()
     bool settings{false};
     float renderScale{m_engine.getRenderScale()};
     bool quit{true};
-    constexpr std::size_t nHandles{4};
-    std::array<void*, nHandles> handler{&settings, &renderScale, &m_engine, &quit};
+    constexpr std::size_t nHandles{5};
+    std::array<void*, nHandles> handler{&settings, &renderScale, &m_engine, &quit, &m_useACES};
     void (*keyCallback)(int, int, int, int, void*){
         [](const int key, const int scancode, const int action, const int mods, void* handler)
         {
@@ -190,6 +190,10 @@ bool Game::menu()
             else if (key == GLFW_KEY_H && action == GLFW_PRESS && *static_cast<bool*>((*handlerPtr)[0]))
             {
                 static_cast<Engine*>((*handlerPtr)[2])->toggleScreenShakeEnabled();
+            }
+            else if (key == GLFW_KEY_T && action == GLFW_PRESS && *static_cast<bool*>((*handlerPtr)[0]))
+            {
+                *static_cast<bool*>((*handlerPtr)[4]) = !(*static_cast<bool*>((*handlerPtr)[4]));
             }
         }};
     m_engine.getWindow()->setKeyCallback(keyCallback, &handler);
@@ -296,6 +300,12 @@ bool Game::menu()
             fontShader, ss.str(),
             static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(ss.str(), 0.5f) * 0.5f,
             static_cast<float>(m_engine.getHeight()) * 1.7f - settingsY - 120.f, 0.5f, {1.f, 1.f, 1.f});
+        ss.str(std::string());
+        ss << "Tone mapping: " << (m_useACES ? "ACES" : "Khronos PBR Neutral") << "     ([t] to toggle)";
+        fontRenderer->renderText(
+            fontShader, ss.str(),
+            static_cast<float>(m_engine.getWidth()) * 0.5f - fontRenderer->getTextWidth(ss.str(), 0.5f) * 0.5f,
+            static_cast<float>(m_engine.getHeight()) * 1.7f - settingsY - 180.f, 0.5f, {1.f, 1.f, 1.f});
         glDisable(GL_BLEND);
 
         glEnable(GL_DEPTH_TEST);
@@ -467,6 +477,7 @@ void Game::render()
     shockwaves->setFloat("time", m_engine.getTime() - m_shockwaveTime);
     shockwaves->setFloat("scrWidth", static_cast<float>(m_engine.getWidth()));
     shockwaves->setFloat("scrHeight", static_cast<float>(m_engine.getHeight()));
+    shockwaves->setInt("useACES", m_useACES ? 1 : 0);
 
     // render scene
     std::vector<Lights::PointLight*> pointLights{};

@@ -60,6 +60,7 @@ private:
 
     std::size_t m_level{0};
     bool m_win{false};
+    bool m_useACES{true};
 
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};
