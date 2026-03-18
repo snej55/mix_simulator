@@ -717,6 +717,8 @@ bool Game::win()
     m_level = 0;
     m_fade = 0.0f;
     m_fadeDir = 0.0f;
+    m_transition = false;
+    loadLevel(CST::LEVEL_PATHS[0]);
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
