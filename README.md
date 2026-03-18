@@ -22,26 +22,28 @@ cd build
 ./main
 ```
 
-## Features:
+## Renderer Features:
 - Physically based rendering
 - IBL (Image Based Lighting)
 - Skeletal animation
 - GLTF Model loading
-- Hybrid renderer (deferred for opaque meshes, forward for transparent)
-- HDR [ACES & Khronos PBR Neutral Tonemapping](https://github.com/KhronosGroup/ToneMapping/tree/main/PBR_Neutral)
+- Hybrid renderer (deferred shading / forward rendering)
+- HDR (ACES & Khronos PBR Neutral)
 - Bloom (PBR)
 - SSAO (Screen Space Ambient Occlusion)
 - Anti-aliasing (FXAA)
+- JSON Scene loading
 - Frustum Culling (AABB bounding volumes)
 - Freetype2 font rendering
 - Physics engine ([Jolt](https://github.com/jrouwe/JoltPhysics))
+- Spatial audio ([SoLoud](github.com/jarikomppa/soloud))
 - Cascading Shadow Maps
-- Flow field pathfinding
+- Flow field pathfinding (static quadtree generation)
 
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192035.png)
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192255.png)
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192231.png)
-![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20251213_093650.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260318_193635.png)
 
 ## TODO:
 - [X] Finish IBL

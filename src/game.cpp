@@ -364,7 +364,7 @@ void Game::update()
 
     bool shockwave{false};
     glm::vec3 shockwaveCenter{0.0f};
-    m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get(), shockwaveCenter, shockwave);
+    // m_enemyManager->update(m_engine.getDeltaTime(), m_particles.get(), shockwaveCenter, shockwave);
 
     if (shockwave)
     {

@@ -2,7 +2,7 @@ import pygame, json
 
 pygame.init()
 
-WIDTH, HEIGHT = 2200, 1300                                                                                                                                                  
+WIDTH, HEIGHT = 2400, 1700                                                                                                                                                  
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
@@ -14,7 +14,7 @@ with open("util/quads.json", "r") as f:
     data = json.load(f)                 
     quads = data["quads"]
     entities = data["entities"]
-scale = 8
+scale = 7
 
 scroll = [0, 0]
 

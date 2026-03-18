@@ -52,6 +52,14 @@
             "12": {
                 "name": "amphora",
                 "path": "data/models/amphora.glb"
+            },
+            "13": {
+                "name": "pillar",
+                "path": "data/models/level/pillar.glb"
+            },
+            "14": {
+                "name": "pillar_top",
+                "path": "data/models/level/pillar_top.glb"
             }
         },
         "objects": [

@@ -12,7 +12,7 @@ namespace CST
     inline constexpr int FONT_TEX_SIZE{64};
 
     inline constexpr int FLOW_FIELD_DEPTH_LIMIT{4}; // max number of quadtree subdivisions
-    inline constexpr float FLOW_FIELD_TILE_SIZE{30.f}; // initial quadtree node size
+    inline constexpr float FLOW_FIELD_TILE_SIZE{20.f}; // initial quadtree node size
 
     inline constexpr std::size_t NUM_LEVELS{2};
     inline constexpr std::array<const char*, NUM_LEVELS> LEVEL_PATHS{"data/maps/0.json", "data/maps/1.json"};

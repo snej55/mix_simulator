@@ -30,6 +30,12 @@ void FlowFieldGenerator::init(Scene* scene)
     std::vector<Bounds::Rect2D> staticRects{};
     scene->getStaticRects(staticRects, std::numeric_limits<float>::lowest(), 2.f);
 
+    for (const Bounds::Rect2D& rect : staticRects)
+    {
+        std::cout << "[" << rect.m_center.x - rect.m_extents.x << ", " << rect.m_center.y - rect.m_extents.y << ", "
+                  << rect.m_extents.x * 2.f << ", " << rect.m_extents.y * 2.f << "],\n";
+    }
+
     for (int y{0}; y < height; ++y)
     {
         for (int x{0}; x < width; ++x)

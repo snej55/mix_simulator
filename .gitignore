@@ -21,3 +21,4 @@ compile_commands.json
 /.svn
 /.DS_Store
 /Thumbs.db
+/log.txt
