@@ -1,1 +1,793 @@
-{"level":{"models":{"0":{"name":"floor","path":"data/models/concrete_floor.glb"},"1":{"name":"table","path":"data/models/duck.glb"},"2":{"name":"block","path":"data/models/level/block.glb"},"3":{"name":"block_medium","path":"data/models/level/block_medium.glb"},"4":{"name":"block_large","path":"data/models/level/block_large.glb"},"5":{"name":"mug","path":"data/models/mug.glb"},"6":{"name":"bud_vase","path":"data/models/bud_vase.glb"},"7":{"name":"cider_jug","path":"data/models/cider_jug.glb"},"8":{"name":"widthwall","path":"data/models/widthwall.glb"},"9":{"name":"lengthwall","path":"data/models/lengthwall.glb"},"10":{"name":"container","path":"data/models/container.glb"},"11":{"name":"ball","path":"data/models/ball.glb"},"12":{"name":"amphora","path":"data/models/amphora.glb"},"13":{"name":"pillar","path":"data/models/level/pillar.glb"},"14":{"name":"pillar_top","path":"data/models/level/pillar_top.glb"},"15":{"name":"patio","path":"data/models/level/patio.glb"}},"objects":[{"position":[0.0,-5.1021223068237305,0.0],"scale":[1.0,1.0,1.0],"rotation":[0.0,0.0,0.0],"modelID":0,"animated":false,"bodyType":"static"},{"position":[-104.78042364120483,0.30089521408081055,-4.199584007263184],"rotation":[0,0,0],"scale":[1,1,1],"modelID":8,"animated":false,"bodyType":"static"},{"position":[103.77974081039429,0.2997708320617676,-3.799936294555664],"rotation":[0,0,0],"scale":[1,1,1],"modelID":8,"animated":false,"bodyType":"static"},{"position":[0.0,0.29972219467163086,-103.08990955352783],"rotation":[0,0,0],"scale":[1,1,1],"modelID":9,"animated":false,"bodyType":"static"},{"position":[0.0,0.29972219467163086,102.38866996765137],"rotation":[0,0,0],"scale":[1,1,1],"modelID":9,"animated":false,"bodyType":"static"},{"position":[-101.48178577423096,1.3979859352111816,12.998886108398438],"rotation":[0,0,0],"scale":[1,1,1],"modelID":4,"animated":false,"bodyType":"static"},{"position":[-62.98550605773926,1.900374412536621,9.4993257522583],"rotation":[0,0,0],"scale":[1,1,1],"modelID":10,"animated":false,"bodyType":"static"},{"position":[-58.985888957977295,-7.59895133972168,58.00503730773926],"rotation":[0,0,0],"scale":[1,1,1],"modelID":3,"animated":false,"bodyType":"static"},{"position":[-93.98294448852539,-3.6025028228759766,-2.494983673095703],"rotation":[0,0,0],"scale":[1,1,1],"modelID":4,"animated":false,"bodyType":"static"},{"position":[-58.985888957977295,8.397771835327148,58.00503730773926],"rotation":[0,0,0],"scale":[1,1,1],"modelID":13,"animated":false,"bodyType":"static"},{"position":[-58.985888957977295,33.39575958251953,58.00503730773926],"rotation":[0,0,0],"scale":[1,1,1],"modelID":14,"animated":false,"bodyType":"static"},{"position":[-81.48446559906006,-0.5924992561340332,32.0099401473999],"rotation":[0,0,0],"scale":[1,1,1],"modelID":14,"animated":false,"bodyType":"static"},{"position":[-81.48446559906006,-25.091245651245117,32.0099401473999],"rotation":[0,0,0],"scale":[1,1,1],"modelID":13,"animated":false,"bodyType":"static"},{"position":[-86.98370218276978,-28.092780590057373,44.01087999343872],"rotation":[0,0,0],"scale":[1,1,1],"modelID":13,"animated":false,"bodyType":"static"},{"position":[-86.98370218276978,-3.592367649078369,44.01087999343872],"rotation":[0,0,0],"scale":[1,1,1],"modelID":14,"animated":false,"bodyType":"static"},{"position":[-82.9833984375,-4.59043550491333,56.5069842338562],"rotation":[0,0,0],"scale":[1,1,1],"modelID":14,"animated":false,"bodyType":"static"},{"position":[-61.984591484069824,-3.100736618041992,42.01340675354004],"rotation":[0,0,0],"scale":[1,1,1],"modelID":5,"animated":false,"bodyType":"dynamic"},{"position":[-39.49004888534546,-3.100736618041992,42.01340675354004],"rotation":[0,0,0],"scale":[1,1,1],"modelID":5,"animated":false,"bodyType":"dynamic"},{"position":[-16.491780281066895,-3.100736618041992,42.01340675354004],"rotation":[0,0,0],"scale":[1,1,1],"modelID":5,"animated":false,"bodyType":"dynamic"},{"position":[5.00784158706665,-3.100736618041992,42.01340675354004],"rotation":[0,0,0],"scale":[1,1,1],"modelID":5,"animated":false,"bodyType":"dynamic"},{"position":[19.00506019592285,-3.100736618041992,54.50974702835083],"rotation":[0,0,0],"scale":[1,1,1],"modelID":5,"animated":false,"bodyType":"dynamic"},{"position":[-10.988466739654541,-3.100736618041992,65.51344156265259],"rotation":[0,0,0],"scale":[1,1,1],"modelID":6,"animated":false,"bodyType":"dynamic"},{"position":[-29.482998847961426,-3.100736618041992,65.51344156265259],"rotation":[0,0,0],"scale":[1,1,1],"modelID":7,"animated":false,"bodyType":"dynamic"},{"position":[-46.48061513900757,-3.100736618041992,65.51344156265259],"rotation":[0,0,0],"scale":[1,1,1],"modelID":7,"animated":false,"bodyType":"dynamic"},{"position":[-71.98239326477051,-2.101881980895996,65.51344156265259],"rotation":[0,0,0],"scale":[1,1,1],"modelID":11,"animated":false,"bodyType":"dynamic"},{"position":[-71.98239326477051,7.399589538574219,65.51344156265259],"rotation":[0,0,0],"scale":[1,1,1],"modelID":11,"animated":false,"bodyType":"dynamic"},{"position":[-80.97973108291626,2.400989055633545,34.01611089706421],"rotation":[0,0,0],"scale":[1,1,1],"modelID":12,"animated":false,"bodyType":"dynamic"},{"position":[-82.47837781906128,-0.09734201431274414,20.01558780670166],"rotation":[0,0,0],"scale":[1,1,1],"modelID":12,"animated":false,"bodyType":"dynamic"},{"position":[-75.98044395446777,-0.09734201431274414,20.01558780670166],"rotation":[0,0,0],"scale":[1,1,1],"modelID":12,"animated":false,"bodyType":"dynamic"},{"position":[-75.98044395446777,-3.5904150009155273,20.01558780670166],"rotation":[0,0,0],"scale":[1,1,1],"modelID":5,"animated":false,"bodyType":"dynamic"},{"position":[-21.485595703125,-1.5897517204284668,20.01558780670166],"rotation":[0,0,0],"scale":[1,1,1],"modelID":5,"animated":false,"bodyType":"static"},{"position":[-11.000819206237793,-6.102536201477051,-52.989163398742676],"rotation":[0,0,0],"scale":[1,1,1],"modelID":4,"animated":false,"bodyType":"static"},{"position":[70.4827094078064,-6.102536201477051,-10.999152660369873],"rotation":[0,0,0],"scale":[1,1,1],"modelID":4,"animated":false,"bodyType":"static"},{"position":[70.4827094078064,9.888801097869873,-10.999152660369873],"rotation":[0,0,0],"scale":[1,1,1],"modelID":2,"animated":false,"bodyType":"static"},{"position":[70.4827094078064,4.390236854553223,-10.999152660369873],"rotation":[0,0,0],"scale":[1,1,1],"modelID":3,"animated":false,"bodyType":"static"},{"position":[70.4827094078064,-0.11279153823852539,-63.48487615585327],"rotation":[-45,0,0],"scale":[1,1,1],"modelID":10,"animated":false,"bodyType":"static"}],"pointLights":[]}}
+{
+    "level": {
+        "models": {
+            "0": {
+                "name": "floor",
+                "path": "data/models/concrete_floor.glb"
+            },
+            "1": {
+                "name": "table",
+                "path": "data/models/duck.glb"
+            },
+            "2": {
+                "name": "block",
+                "path": "data/models/level/block.glb"
+            },
+            "3": {
+                "name": "block_medium",
+                "path": "data/models/level/block_medium.glb"
+            },
+            "4": {
+                "name": "block_large",
+                "path": "data/models/level/block_large.glb"
+            },
+            "5": {
+                "name": "mug",
+                "path": "data/models/mug.glb"
+            },
+            "6": {
+                "name": "bud_vase",
+                "path": "data/models/bud_vase.glb"
+            },
+            "7": {
+                "name": "cider_jug",
+                "path": "data/models/cider_jug.glb"
+            },
+            "8": {
+                "name": "widthwall",
+                "path": "data/models/widthwall.glb"
+            },
+            "9": {
+                "name": "lengthwall",
+                "path": "data/models/lengthwall.glb"
+            },
+            "10": {
+                "name": "container",
+                "path": "data/models/container.glb"
+            },
+            "11": {
+                "name": "ball",
+                "path": "data/models/ball.glb"
+            },
+            "12": {
+                "name": "amphora",
+                "path": "data/models/amphora.glb"
+            },
+            "13": {
+                "name": "pillar",
+                "path": "data/models/level/pillar.glb"
+            },
+            "14": {
+                "name": "pillar_top",
+                "path": "data/models/level/pillar_top.glb"
+            },
+            "15": {
+                "name": "patio",
+                "path": "data/models/level/patio.glb"
+            }
+        },
+        "objects": [
+            {
+                "position": [
+                    0.0,
+                    -5.1021223068237305,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "modelID": 0,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -104.78042364120483,
+                    0.30089521408081055,
+                    -4.199584007263184
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 8,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    103.77974081039429,
+                    0.2997708320617676,
+                    -3.799936294555664
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 8,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    0.0,
+                    0.29972219467163086,
+                    -103.08990955352783
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 9,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    0.0,
+                    0.29972219467163086,
+                    102.38866996765137
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 9,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -101.48178577423096,
+                    1.3979859352111816,
+                    12.998886108398438
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 4,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -62.98550605773926,
+                    1.900374412536621,
+                    9.4993257522583
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 10,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -58.985888957977295,
+                    -7.59895133972168,
+                    58.00503730773926
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 3,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -93.98294448852539,
+                    -3.6025028228759766,
+                    -2.494983673095703
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 4,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -58.985888957977295,
+                    8.397771835327148,
+                    58.00503730773926
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 13,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -58.985888957977295,
+                    33.39575958251953,
+                    58.00503730773926
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 14,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -81.48446559906006,
+                    -0.5924992561340332,
+                    32.0099401473999
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 14,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -81.48446559906006,
+                    -25.091245651245117,
+                    32.0099401473999
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 13,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -86.98370218276978,
+                    -28.092780590057373,
+                    44.01087999343872
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 13,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -86.98370218276978,
+                    -3.592367649078369,
+                    44.01087999343872
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 14,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -82.9833984375,
+                    -4.59043550491333,
+                    56.5069842338562
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 14,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    -61.984591484069824,
+                    -3.100736618041992,
+                    42.01340675354004
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -39.49004888534546,
+                    -3.100736618041992,
+                    42.01340675354004
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -16.491780281066895,
+                    -3.100736618041992,
+                    42.01340675354004
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    5.00784158706665,
+                    -3.100736618041992,
+                    42.01340675354004
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    19.00506019592285,
+                    -3.100736618041992,
+                    54.50974702835083
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -10.988466739654541,
+                    -3.100736618041992,
+                    65.51344156265259
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 6,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -29.482998847961426,
+                    -3.100736618041992,
+                    65.51344156265259
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 7,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -46.48061513900757,
+                    -3.100736618041992,
+                    65.51344156265259
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 7,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -71.98239326477051,
+                    -2.101881980895996,
+                    65.51344156265259
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 11,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -71.98239326477051,
+                    7.399589538574219,
+                    65.51344156265259
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 11,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -80.97973108291626,
+                    2.400989055633545,
+                    34.01611089706421
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 12,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -82.47837781906128,
+                    -0.09734201431274414,
+                    20.01558780670166
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 12,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -75.98044395446777,
+                    -0.09734201431274414,
+                    20.01558780670166
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 12,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -75.98044395446777,
+                    -3.5904150009155273,
+                    20.01558780670166
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -21.485595703125,
+                    -1.5897517204284668,
+                    20.01558780670166
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 5,
+                "animated": false,
+                "bodyType": "dynamic"
+            },
+            {
+                "position": [
+                    -11.000819206237793,
+                    -6.102536201477051,
+                    -52.989163398742676
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 4,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    70.4827094078064,
+                    -6.102536201477051,
+                    -10.999152660369873
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 4,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    70.4827094078064,
+                    9.888801097869873,
+                    -10.999152660369873
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 2,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    70.4827094078064,
+                    4.390236854553223,
+                    -10.999152660369873
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 3,
+                "animated": false,
+                "bodyType": "static"
+            },
+            {
+                "position": [
+                    70.4827094078064,
+                    -0.11279153823852539,
+                    -63.48487615585327
+                ],
+                "rotation": [
+                    -45,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "modelID": 10,
+                "animated": false,
+                "bodyType": "static"
+            }
+        ],
+        "pointLights": []
+    }
+}

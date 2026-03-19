@@ -29,7 +29,7 @@ public:
 
     [[nodiscard]] const std::vector<std::unique_ptr<SoLoud::WavStream>>& getStreams() const { return m_streams; }
     [[nodiscard]] SoLoud::WavStream* getStream(const unsigned int index) { return m_streams[index].get(); }
-    void playStream(const unsigned int index);
+    unsigned int playStream(const unsigned int index);
 
 private:
     SoLoud::Soloud m_SoLoud;

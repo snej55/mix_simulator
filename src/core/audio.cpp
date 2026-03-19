@@ -52,4 +52,4 @@ unsigned int AudioHandler::loadStream(const char* path)
 }
 
 void AudioHandler::playSound(const unsigned int index) { m_SoLoud.play(*m_sounds[index].get()); }
-void AudioHandler::playStream(const unsigned int index) { m_SoLoud.play(*m_streams[index].get()); }
+unsigned int AudioHandler::playStream(const unsigned int index) { return m_SoLoud.play(*m_streams[index].get()); }

@@ -122,7 +122,7 @@ cd build
 - [X] Shockwave postprocessing
 - [ ] Perlin noise fog?
 - [ ] Make camera scroll change focal length
-- [ ] Cloudy skybox
+- [X] Cloudy skybox
 - [ ] Different fog intensities
 - [X] Add invisible walls around whole thing
 - [X] Try some cool post processing fx (cross stitching?)

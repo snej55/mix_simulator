@@ -4,8 +4,9 @@
 #include "core/physics.hpp"
 #include "core/util.hpp"
 
-void PlayerController::update(const float dt, Engine* engine)
+void PlayerController::update(const float dt, Engine* engine, bool& dash)
 {
+    dash = false;
     if (m_dash)
     {
         m_dashTime += dt;
@@ -22,6 +23,7 @@ void PlayerController::update(const float dt, Engine* engine)
         m_dash = true;
         m_dashing = true;
         engine->setScreenShake(10.f);
+        dash = true;
     }
 
     if (m_dashTime > duration)

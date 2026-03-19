@@ -24,7 +24,7 @@ class PlayerController : public Controller<Controls>
 public:
     PlayerController() : Controller<Controls>{} {};
 
-    void update(float dt, Engine* engine);
+    void update(float dt, Engine* engine, bool& dash);
 
     void setDashedPressed(const bool val) { m_dashPressed = val; }
     [[nodiscard]] bool getDashedPressed() const { return m_dashPressed; }

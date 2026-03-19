@@ -13,6 +13,8 @@
 struct Assets
 {
     unsigned int m_SFX_metalImpact;
+    unsigned int m_SFX_metalImpact2;
+    unsigned int m_SFX_dash;
     unsigned int m_MUSIC_menu;
 
     void loadFolder(std::vector<Model*>& models, const char* path, const std::string& name, Engine* engine, float start,
@@ -51,6 +53,8 @@ struct Assets
     void loadAssets(AudioHandler* audioHandler, Engine* engine)
     {
         m_SFX_metalImpact = audioHandler->loadSound("data/audio/sfx/metal_impact.ogg");
+        m_SFX_metalImpact2 = audioHandler->loadSound("data/audio/sfx/metal_impact2.ogg");
+        m_SFX_dash = audioHandler->loadSound("data/audio/sfx/arrow.ogg");
         m_MUSIC_menu = audioHandler->loadStream("data/audio/music/menu.mp3");
     }
 };
