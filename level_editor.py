@@ -21,7 +21,7 @@ class Editor:
         self.objects = []
         self.point_lights = []
 
-        self.level_path = "data/maps/5.json"
+        self.level_path = "data/maps/4.json"
         self.load_level(self.level_path)
 
         ray.set_config_flags(

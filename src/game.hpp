@@ -70,10 +70,12 @@ private:
 
     std::size_t m_level{0};
     bool m_win{false};
-    bool m_useACES{true};
+    bool m_useACES{false};
 
     std::vector<Message> m_menuMessages{};
     std::size_t m_menuIdx{0};
+
+    std::size_t m_iblIdx{0};
 
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};

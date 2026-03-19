@@ -31,6 +31,7 @@ namespace CST
                                                                "Send them to the ducktor!",
                                                                "Just wing it!",
                                                                "Beak them up!"};
+    inline constexpr std::array<const char*, 4> IBL_SKIES{"sunset", "bright", "clouds", "bright"};
 } // namespace CST
 
 #endif

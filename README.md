@@ -126,9 +126,7 @@ cd build
 - [ ] Different fog intensities
 - [X] Add invisible walls around whole thing
 - [X] Try some cool post processing fx (cross stitching?)
-- [ ] Duck jokes on first menu
-- [ ] Add player start pos to level editor
-- [ ] Make menu keybinds work during game
+- [X] Duck puns on first menu
 - [X] Level transitions
 - [X] Add tonemapping options to settings
 

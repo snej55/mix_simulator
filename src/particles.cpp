@@ -20,18 +20,23 @@ void ParticleManager::update(const float dt)
     constexpr float friction{0.08f};
     constexpr float decay{0.01f};
 
-    for (std::size_t i{0}; i < m_end; ++i)
+    std::size_t i{0};
+    while (i < m_end)
     {
         Particle& particle{m_particles[i]};
 
         particle.pos += particle.vel * dt;
-        particle.vel *= 1.0 - friction * dt;
-        particle.vel.y -= 0.01 * dt;
+        particle.vel *= 1.0f - friction * dt;
+        particle.vel.y -= 0.01f * dt;
         particle.size -= decay * dt;
+
         if (particle.size <= 0.0f)
         {
             remove(i);
-            --i;
+        }
+        else
+        {
+            ++i;
         }
     }
 }
@@ -48,7 +53,9 @@ void ParticleManager::render()
 void ParticleManager::addParticle(const glm::vec3& position, const glm::vec3& vel, const float size)
 {
     if (m_end >= MAX_PARTICLES)
+    {
         return;
+    }
 
     m_particles[m_end] = Particle{position, vel * size, size};
     ++m_end;
@@ -58,9 +65,11 @@ void ParticleManager::remove(const std::size_t index)
 {
     assert(index < MAX_PARTICLES);
 
+    if (m_end == 0 || index >= m_end)
+        return;
+
     std::swap(m_particles[index], m_particles[m_end - 1]);
-    if (m_end > 0)
-        --m_end;
+    --m_end;
 }
 
 // setup instanced VAO & VBO

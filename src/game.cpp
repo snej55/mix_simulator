@@ -57,8 +57,8 @@ bool Game::init()
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
-    m_iblGenerator->init("data/skyboxes/sky.hdr", "data/IBL/sunset/output_iem.hdr", "data/IBL/brdf_lut.png", &m_engine);
-    Util::printVec3(m_iblGenerator->getLightDirection());
+    m_iblGenerator->init("data/skyboxes/bright.hdr", "data/IBL/bright/output_iem.hdr", "data/IBL/brdf_lut.png",
+                         &m_engine);
     m_engine.setLightDirection(m_iblGenerator->getLightDirection());
 
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
@@ -123,6 +123,14 @@ void Game::loadLevel(const std::string& path)
 
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
     m_enemyManager->setParticleManager(m_particles.get());
+
+    m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
+
+    const std::string skyboxPath{"data/skyboxes/" + std::string(CST::IBL_SKIES[m_iblIdx]) + ".hdr"};
+    const std::string irradiancePath{"data/IBL/" + std::string(CST::IBL_SKIES[m_iblIdx]) + "/output_iem.hdr"};
+    m_iblGenerator->init(skyboxPath.c_str(), irradiancePath.c_str(), "data/IBL/brdf_lut.png", &m_engine);
+    m_iblIdx = ++m_iblIdx & 3;
+    m_engine.setLightDirection(m_iblGenerator->getLightDirection());
 }
 
 bool Game::menu()
