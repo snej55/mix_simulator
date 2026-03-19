@@ -376,6 +376,9 @@ void Game::update()
         m_shockwaveCenter = glm::vec2{screenPos.x / static_cast<float>(m_engine.getWidth()),
                                       screenPos.y / static_cast<float>(m_engine.getHeight())};
         m_shockwaveTime = m_engine.getTime();
+
+        m_pointLightCenter = shockwaveCenter;
+        m_pointLightRadius = 1000.0f;
     }
 
     m_player->getController()->update(m_engine.getDeltaTime(), &m_engine);
@@ -483,6 +486,12 @@ void Game::render()
     // render scene
     std::vector<Lights::PointLight*> pointLights{};
     m_scene->getPointLights(pointLights);
+    if (m_pointLightRadius > 0.0f)
+    {
+        m_pointLightRadius = std::max(0.0f, m_pointLightRadius - m_engine.getDeltaTime() * 100.f);
+        Lights::PointLight pointLight{m_pointLightCenter, {1.f, 0.7f, 0.5f}, m_pointLightRadius};
+        pointLights.emplace_back(&pointLight);
+    }
 
     std::vector<std::pair<Model*, glm::mat4>> shadowModels{};
     m_scene->getShadowModels(shadowModels);

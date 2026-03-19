@@ -133,7 +133,7 @@ cd build
 - [X] Add tonemapping options to settings
 
 ## Game loop (today):
-- [ X Create decor
+- [X] Create decor
 - [ ] Maze generation?
 - [X] Walls around level
 - [X] New HDRI

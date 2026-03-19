@@ -57,6 +57,8 @@ private:
     bool m_transition{false};
     float m_shockwaveTime{0.0f};
     glm::vec2 m_shockwaveCenter{0.5f, 0.5f};
+    glm::vec3 m_pointLightCenter{0.0f, 0.0f, 0.0f};
+    float m_pointLightRadius{0.0f};
 
     std::size_t m_level{0};
     bool m_win{false};
