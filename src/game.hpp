@@ -17,6 +17,14 @@
 #include "enemy.hpp"
 #include "particles.hpp"
 
+struct Message
+{
+    std::size_t m_ID;
+    float m_x;
+    float m_y;
+    float m_size{1.0f};
+};
+
 class Game final
 {
 public:
@@ -63,6 +71,9 @@ private:
     std::size_t m_level{0};
     bool m_win{false};
     bool m_useACES{true};
+
+    std::vector<Message> m_menuMessages{};
+    std::size_t m_menuIdx{0};
 
     std::unique_ptr<Scene> m_scene{nullptr};
     std::unique_ptr<IBLGenerator> m_iblGenerator{nullptr};

@@ -127,6 +127,7 @@ void Game::loadLevel(const std::string& path)
 
 bool Game::menu()
 {
+    m_menuMessages.clear();
     // m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu);
     m_engine.setupViewport();
 
@@ -202,8 +203,19 @@ bool Game::menu()
     float settingsTarget{0.0f};
     float settingsY{0.0f};
 
+    float messageTimer{0.0f};
     while (!m_engine.getQuit() && quit)
     {
+        messageTimer += m_engine.getDeltaTime();
+        if (messageTimer > 180.f)
+        {
+            const float minX{10.f};
+            const float maxX{static_cast<float>(m_engine.getWidth()) - 10.f -
+                             fontRenderer->getTextWidth(std::string(CST::MENU_MESSAGES[m_menuIdx]), 0.5f)};
+            m_menuMessages.push_back(Message{m_menuIdx, minX + Util::random() * (maxX - minX), -10.f});
+            messageTimer = 0.0f;
+            m_menuIdx = ++m_menuIdx % CST::MENU_MESSAGES.size();
+        }
         constexpr float typeRate{10.f};
         glBindFramebuffer(GL_FRAMEBUFFER, uiRenderer->getFBO());
         glViewport(0, 0, uiRenderer->getWidth(), uiRenderer->getHeight());
@@ -217,6 +229,23 @@ bool Game::menu()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         const Shader* fontShader{m_engine.getShader("fonts")};
+
+        for (std::size_t i{0}; i < m_menuMessages.size(); ++i)
+        {
+            Message& msg{m_menuMessages[i]};
+            msg.m_y += m_engine.getDeltaTime() * 0.5f;
+            msg.m_size = std::clamp(msg.m_y * 0.1f / static_cast<float>(m_engine.getHeight()), 0.0f, 1.0f);
+            if (msg.m_y - 40.f > static_cast<float>(m_engine.getHeight()))
+            {
+                std::swap(m_menuMessages[i], m_menuMessages[m_menuMessages.size() - 1]);
+                m_menuMessages.pop_back();
+            }
+            else
+            {
+                fontRenderer->renderText(fontShader, CST::MENU_MESSAGES[msg.m_ID], msg.m_x, msg.m_y, 0.5f,
+                                         {msg.m_size, msg.m_size, msg.m_size});
+            }
+        }
 
         std::string titleTextStr{};
         const std::size_t limit{std::min(
