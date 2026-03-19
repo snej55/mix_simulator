@@ -69,6 +69,7 @@ public:
     [[nodiscard]] int getNumEnemies() const { return m_totalEnemies; }
 
     void setPlayer(Player* player) { m_player = player; }
+    void setParticleManager(ParticleManager* particles) { m_particleManager = particles; }
 
 private:
     Player* m_player;
@@ -76,6 +77,7 @@ private:
     FlowFieldGenerator* m_flowField;
     JPH::BodyInterface* m_bodyInterface;
     void* m_engine;
+    ParticleManager* m_particleManager{nullptr};
 
     std::vector<Enemy> m_enemies{};
     EnemyListener m_listener{};

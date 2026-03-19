@@ -82,6 +82,7 @@ bool Game::init()
     m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
 
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
+    m_enemyManager->setParticleManager(m_particles.get());
 
     auto start{std::chrono::high_resolution_clock::now()};
     loadLevel("data/maps/0.json");
@@ -121,6 +122,7 @@ void Game::loadLevel(const std::string& path)
     m_enemyManager->getEnemies();
 
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
+    m_enemyManager->setParticleManager(m_particles.get());
 }
 
 bool Game::menu()

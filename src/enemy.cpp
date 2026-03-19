@@ -160,6 +160,32 @@ void EnemyManager::handleCollision(const JPH::ContactManifold& inManifold, const
             }
         }
     }
+
+    if (m_particleManager != nullptr && impactSpeed > 0.5f)
+    {
+        const float speed1{std::abs(vel1.Dot(inManifold.mWorldSpaceNormal))};
+        const float speed2{std::abs(vel2.Dot(inManifold.mWorldSpaceNormal))};
+
+        for (std::size_t i{0}; i < static_cast<std::size_t>(speed1) * 2; ++i)
+        {
+            glm::vec3 direction = glm::vec3{vel1.GetX() + Util::random() - 0.5f, vel1.GetY() + Util::random() - 0.5f,
+                                            vel1.GetZ() + Util::random() - 0.5f};
+            direction = glm::normalize(direction);
+            const float speed{2.f * Util::random() + 1.f};
+            m_particleManager->addParticle({pos.GetX(), pos.GetY(), pos.GetZ()}, direction * speed,
+                                           Util::random() * 0.2f);
+        }
+
+        for (std::size_t i{0}; i < static_cast<std::size_t>(speed2) * 2; ++i)
+        {
+            glm::vec3 direction = glm::vec3{vel2.GetX() + Util::random() - 0.5f, vel2.GetY() + Util::random() - 0.5f,
+                                            vel2.GetZ() + Util::random() - 0.5f};
+            direction = glm::normalize(direction);
+            const float speed{2.f * Util::random() + 1.f};
+            m_particleManager->addParticle({pos.GetX(), pos.GetY(), pos.GetZ()}, direction * speed,
+                                           Util::random() * 0.2f);
+        }
+    }
 }
 
 void EnemyManager::addShard(Entity* entity) { m_shards.emplace_back(std::pair{0.0, entity}); }
