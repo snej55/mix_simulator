@@ -92,6 +92,8 @@ public:
     Mesh(const std::vector<MeshN::Vertex>& vertices, const std::vector<unsigned int>& indices,
          const std::vector<MeshN::Texture>& textures, const MeshN::Material& material);
 
+    void setupMesh();
+
     void render(const Shader* shader) const;
     void renderDepth() const;
     void renderPBR(const Shader* pbrShader) const;
@@ -115,6 +117,7 @@ public:
 
     MeshN::Material* getMaterial() { return &m_material; }
 
+
 private:
     std::vector<MeshN::Vertex> m_vertices;
     std::vector<unsigned int> m_indices;
@@ -135,7 +138,6 @@ private:
     SMikkTSpaceContext m_SMT_context{};
     SMikkTSpaceInterface m_SMT_iface{};
 
-    void setupMesh();
 
     // SMikkT callbacks
     static int SMTGetVertexIndex(const SMikkTSpaceContext* context, int iFace, int iVert);

@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+
 class Model final : public EngineObject
 {
 public:
@@ -94,6 +95,11 @@ private:
     static void loadBaseColor(const aiMaterial* mat, glm::vec4& baseColor);
     static void loadMetallicFactor(const aiMaterial* mat, float& metallicFactor);
     static void loadRoughnessFactor(const aiMaterial* mat, float& roughnessFactor);
+
+    static unsigned char* getEmbeddedTextureData(const aiTexture* texture, bool* success, int* width, int* height,
+                                                 int* numChannels);
+    static unsigned int loadEmbeddedTextureFromData(unsigned char* data, int width, int height, int numChannels,
+                                                    MeshN::TextureType materialType = MeshN::TEXTURE_NONE);
 };
 
 class ModelManager final : public EngineObject

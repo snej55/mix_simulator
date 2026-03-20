@@ -21,6 +21,14 @@ namespace TextureN
         std::string path;
     };
 
+    struct STB_TextureData
+    {
+        unsigned char* data;
+        int width;
+        int height;
+        int numChannels;
+    };
+
     inline std::ostream& operator<<(std::ostream& os, TextureData textureData)
     {
         std::cout << "TextureData{ID: " << textureData.id << ", width: " << textureData.width

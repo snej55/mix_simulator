@@ -18,6 +18,9 @@
 
 #include <sstream>
 #include <string>
+#include <chrono>
+#include <mutex>
+#include <thread>
 
 #include "bones.hpp"
 
@@ -325,6 +328,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     extractBoneWeights(vertices, mesh);
 
     // materials
+    auto start{std::chrono::high_resolution_clock::now()};
     aiMaterial* material{scene->mMaterials[mesh->mMaterialIndex]};
     MeshN::Material meshMaterial{};
 
@@ -348,6 +352,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     {
         textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
     }
+
 
     // metallic texture (b-channel of metallic-roughness texture)
     std::vector<MeshN::Texture> metallicMaps{
@@ -397,6 +402,8 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
     {
         textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
     }
+    auto end{std::chrono::high_resolution_clock::now()};
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
     return Mesh{vertices, indices, textures, meshMaterial};
 }
@@ -405,6 +412,26 @@ std::vector<MeshN::Texture> Model::loadMaterialTextures(const aiScene* scene, co
                                                         const aiTextureType type, const MeshN::TextureType typeName)
 {
     std::vector<MeshN::Texture> textures{};
+
+    std::mutex texturesMutex;
+    std::vector<TextureN::STB_TextureData> pendingTextures{};
+    std::vector<std::thread> threadWorkers{};
+
+    auto loadSTB_Data{[&](const aiTexture* texPtr, MeshN::TextureType typeName)
+                      {
+                          bool success;
+                          int width;
+                          int height;
+                          int numChannels;
+                          unsigned char* data{getEmbeddedTextureData(texPtr, &success, &width, &height, &numChannels)};
+                          if (success)
+                          {
+                              std::lock_guard<std::mutex> lock{texturesMutex};
+                              pendingTextures.emplace_back(TextureN::STB_TextureData{data, width, height, numChannels});
+                          }
+                      }};
+
+    // auto loadSTB_Data{[7]};
     for (unsigned int i{0}; i < mat->GetTextureCount(type); ++i)
     {
         aiString str;
@@ -440,7 +467,8 @@ std::vector<MeshN::Texture> Model::loadMaterialTextures(const aiScene* scene, co
         if (const aiTexture* texPtr = scene->GetEmbeddedTexture(str.C_Str()))
         {
             // if texPtr isn't nullptr, texture can be read from memory
-            texID = loadEmbeddedTexture(texPtr, &success, typeName);
+            threadWorkers.emplace_back(loadSTB_Data, texPtr, typeName);
+            continue;
         }
         else
         {
@@ -465,6 +493,18 @@ std::vector<MeshN::Texture> Model::loadMaterialTextures(const aiScene* scene, co
         textures.push_back(texture);
     }
 
+    for (auto& thread : threadWorkers)
+    {
+        thread.join();
+    }
+
+    for (const TextureN::STB_TextureData& textureData : pendingTextures)
+    {
+        unsigned int texID{loadEmbeddedTextureFromData(textureData.data, textureData.width, textureData.height,
+                                                       textureData.numChannels)};
+        textures.emplace_back(MeshN::Texture{texID, typeName, "embedded", true});
+    }
+
     return textures;
 }
 
@@ -481,12 +521,15 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
 
     // load texture data from memory
     // stbi_set_flip_vertically_on_load(true);
+    auto start{std::chrono::high_resolution_clock::now()};
     data = stbi_load_from_memory(
         // texture data
         reinterpret_cast<unsigned char*>(texture->pcData),
         // buffer length
         static_cast<int>(texture->mWidth * (texture->mHeight == 0 ? 1 : texture->mHeight)), &imageWidth, &imageHeight,
         &imageChannels, 0);
+    auto end{std::chrono::high_resolution_clock::now()};
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
     // check success
     if (!data)
@@ -552,6 +595,83 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
     stbi_image_free(data);
 
     // return texture id
+    return texID;
+}
+
+unsigned char* Model::getEmbeddedTextureData(const aiTexture* texture, bool* success, int* width, int* height,
+                                             int* numChannels)
+{
+    *success = true;
+
+    unsigned char* data{nullptr};
+    data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData),
+                                 static_cast<int>(texture->mWidth * (texture->mHeight == 0 ? 1 : texture->mHeight)),
+                                 width, height, numChannels, 0);
+
+    if (!data)
+    {
+        stbi_image_free(data);
+        Util::beginError();
+        std::cout << "MODEL::GET_EMBEDDED_TEXTURE_DATA::ERROR: Failed to load texture from memory!";
+        Util::endError();
+        *success = false;
+        return nullptr;
+    }
+    return data;
+}
+
+unsigned int Model::loadEmbeddedTextureFromData(unsigned char* data, const int width, const int height,
+                                                const int numChannels, MeshN::TextureType materialType)
+{
+    GLenum internalFormat{0};
+    switch (numChannels)
+    {
+    case 1:
+        internalFormat = GL_RED;
+        break;
+    case 3:
+        internalFormat = GL_RGB;
+        break;
+    case 4:
+        internalFormat = GL_RGBA;
+        break;
+    default:
+        std::cout << "UNKNOWN NUMBER OF CHANNELS: " << numChannels << std::endl;
+        break;
+    }
+
+    unsigned int texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), width, height, 0, internalFormat,
+                 GL_UNSIGNED_BYTE, data);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLfloat maxAnisotropy;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+    switch (materialType)
+    {
+    case MeshN::TEXTURE_METALLIC:
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_BLUE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_BLUE);
+        break;
+    case MeshN::TEXTURE_ROUGHNESS:
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_GREEN);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_GREEN);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+        break;
+    default:
+        break;
+    }
+
+    stbi_image_free(data);
     return texID;
 }
 

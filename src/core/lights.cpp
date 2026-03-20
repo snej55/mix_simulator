@@ -1,7 +1,6 @@
 // Created by Jens Kromdijk 18-01-2026
 
 #include "lights.hpp"
-#include "util.hpp"
 
 Lights::PointLight::PointLight(const glm::vec3& position, const glm::vec3& color, const float radius) :
     m_position{position}, m_color{color}, m_radius{radius}
