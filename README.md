@@ -121,6 +121,7 @@ cd build
 - [X] Shockwave postprocessing
 - [ ] Perlin noise fog?
 - [ ] Make camera scroll change focal length
+- [X] Multithreaded assets loading (partially)
 - [X] Cloudy skybox
 - [ ] Different fog intensities
 - [X] Add invisible walls around whole thing
@@ -128,6 +129,7 @@ cd build
 - [X] Duck puns on first menu
 - [X] Level transitions
 - [X] Add tonemapping options to settings
+- [ ] Lens dirt!
 
 ## Game loop (today):
 - [X] Create decor
@@ -156,5 +158,5 @@ cd build
 - [ ] Fix minimizing bug on Windows
 - [ ] Fix mouse position scaling with menu button on Windows
 - [ ] Fix MacOS build
-- [ ] Centre models around WS origin
+- [X] Centre models around WS origin
 - [ ] Compile release version
