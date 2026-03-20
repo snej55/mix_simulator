@@ -105,13 +105,6 @@ void Entity::initPhysicsBody(JPH::BodyInterface* bodyInterface, const bool simpl
                 vertices.push_back((v.position + pivot) * scale);
             }
         }
-        for (const Mesh* mesh : m_model->getTransparentMeshes())
-        {
-            for (const MeshN::Vertex& v : mesh->getVertices())
-            {
-                vertices.push_back((v.position + pivot) * scale);
-            }
-        }
 
         // do a convex hull
         m_physicsBody =

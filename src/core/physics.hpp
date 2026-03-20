@@ -521,8 +521,16 @@ public:
         JPH::Quat joltRotation{JPH::Quat::sEulerAngles(Util::convertVectorJolt(glm::radians(rotation)))};
         JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
         JPH::Vec3 center{result.Get()->GetCenterOfMass()};
-        m_centerOffset = center;
-        bodyPos += joltRotation * center;
+
+        if (bodyType == BodyType::DYNAMIC || bodyType == BodyType::KINEMATIC)
+        {
+            m_centerOffset = center;
+            bodyPos += joltRotation * center;
+        }
+        else
+        {
+            m_centerOffset = JPH::Vec3::sZero();
+        }
 
         JPH::EMotionType motionType;
         JPH::ObjectLayer layer;

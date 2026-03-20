@@ -533,10 +533,10 @@ void Game::render()
     // render scene
     std::vector<Lights::PointLight*> pointLights{};
     m_scene->getPointLights(pointLights);
+    m_pointLightRadius = std::max(0.0f, m_pointLightRadius - m_engine.getDeltaTime() * 100.f);
+    Lights::PointLight pointLight{m_pointLightCenter, {1.f, 0.7f, 0.5f}, m_pointLightRadius};
     if (m_pointLightRadius > 0.0f)
     {
-        m_pointLightRadius = std::max(0.0f, m_pointLightRadius - m_engine.getDeltaTime() * 100.f);
-        Lights::PointLight pointLight{m_pointLightCenter, {1.f, 0.7f, 0.5f}, m_pointLightRadius};
         pointLights.emplace_back(&pointLight);
     }
 
