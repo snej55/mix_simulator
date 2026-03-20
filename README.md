@@ -107,8 +107,7 @@ cd build
 - [X] Convex hull preloading (export jolt bodies as binaries)
 - [X] Particle vfx
 - [X] Load all assets at the start
-- [ ] Fix sounds
-- [ ] Make shards despawn
+- [X] Fix sounds
 - [X] Fix pathfinding when player is same tile
 - [X] Different screen resolutions
 - [X] Screenshake

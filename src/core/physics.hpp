@@ -522,15 +522,15 @@ public:
         JPH::Vec3 bodyPos{Util::convertVectorJolt(position)};
         JPH::Vec3 center{result.Get()->GetCenterOfMass()};
 
-        if (bodyType == BodyType::DYNAMIC || bodyType == BodyType::KINEMATIC)
-        {
-            m_centerOffset = center;
-            bodyPos += joltRotation * center;
-        }
-        else
-        {
-            m_centerOffset = JPH::Vec3::sZero();
-        }
+        // if (bodyType == BodyType::DYNAMIC || bodyType == BodyType::KINEMATIC)
+        // {
+        // m_centerOffset = center;
+        // bodyPos += joltRotation * center;
+        // }
+        // else
+        // {
+        m_centerOffset = JPH::Vec3::sZero();
+        // }
 
         JPH::EMotionType motionType;
         JPH::ObjectLayer layer;

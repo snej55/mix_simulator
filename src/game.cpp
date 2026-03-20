@@ -90,8 +90,8 @@ bool Game::init()
     auto end{std::chrono::high_resolution_clock::now()};
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    unsigned int handle{m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu)};
-    m_engine.getAudioHandler()->getSoLoud().setLooping(handle, true);
+    // unsigned int handle{m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu)};
+    // m_engine.getAudioHandler()->getSoLoud().setLooping(handle, true);
     return true;
 }
 
@@ -455,7 +455,7 @@ void Game::update()
     // update sounds
     std::vector<std::pair<JPH::RVec3, float>> sounds{m_engine.getJoltInstance()->getSoundListener()->getSoundsQueue()};
 
-    constexpr std::size_t maxSounds{10};
+    constexpr std::size_t maxSounds{4};
     std::size_t soundsPlayed{0};
 
     const glm::vec3 camPos{m_engine.getCamera()->getPosition()};
@@ -505,13 +505,17 @@ void Game::update()
             }
         }
 
-        const unsigned int handle{audioHandler->getSoLoud().play3d(
+        const unsigned int handle{audioHandler->getSoLoud().play3dClocked(
+            m_engine.getTime(),
             *audioHandler->getSound(Util::random() < 0.5f ? m_assets->m_SFX_metalImpact : m_assets->m_SFX_metalImpact2),
             worldPosition.x, worldPosition.y, worldPosition.z, 0.0f, 0.0f, 0.0f, volume)};
 
         audioHandler->getSoLoud().setFilterParameter(handle, 0, SoLoud::BiquadResonantFilter::FREQUENCY, frequency);
         ++soundsPlayed;
     }
+
+    audioHandler->getSoLoud().set3dListenerAt(camPos.x, camPos.y, camPos.z);
+    audioHandler->getSoLoud().update3dAudio();
     // m_engine.getJoltInstance()->getSoundListener()->clearSounds();
 }
 
