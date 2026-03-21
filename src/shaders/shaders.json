@@ -170,6 +170,13 @@
         "frag": "shockwaves.frag",
         "vert": "shockwaves.vert"
       }
+    },
+    {
+      "name": "dirt",
+      "shader": {
+        "frag": "dirt.frag",
+        "vert": "dirt.vert"
+      }
     }
   ]
 }
