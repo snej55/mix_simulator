@@ -151,7 +151,9 @@ set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.h
 	src/shards.hpp
 	src/shards.cpp
 	src/particles.hpp
-	src/particles.cpp)
+	src/particles.cpp
+	src/dirt.hpp
+	src/dirt.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

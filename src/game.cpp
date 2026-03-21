@@ -85,6 +85,8 @@ bool Game::init()
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
     m_enemyManager->setParticleManager(m_particles.get());
 
+    m_lensDirt = std::make_unique<LensDirt>(m_engine.getWidth(), m_engine.getHeight());
+
     auto start{std::chrono::high_resolution_clock::now()};
     loadLevel("data/maps/0.json");
     auto end{std::chrono::high_resolution_clock::now()};
