@@ -501,7 +501,7 @@ std::vector<MeshN::Texture> Model::loadMaterialTextures(const aiScene* scene, co
     for (const TextureN::STB_TextureData& textureData : pendingTextures)
     {
         unsigned int texID{loadEmbeddedTextureFromData(textureData.data, textureData.width, textureData.height,
-                                                       textureData.numChannels)};
+                                                       textureData.numChannels, typeName)};
         textures.emplace_back(MeshN::Texture{texID, typeName, "embedded", true});
     }
 
@@ -549,10 +549,10 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
         internalFormat = GL_RED;
         break;
     case 3:
-        internalFormat = GL_RGB;
+        internalFormat = (materialType == MeshN::TextureType::TEXTURE_ALBEDO) ? GL_SRGB : GL_RGB;
         break;
     case 4:
-        internalFormat = GL_RGBA;
+        internalFormat = (materialType == MeshN::TextureType::TEXTURE_ALBEDO) ? GL_SRGB_ALPHA : GL_RGBA;
         break;
     default:
         std::cout << "UNKNOWN NUMBER OF CHANNELS: " << imageChannels << std::endl;
