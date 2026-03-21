@@ -3,6 +3,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <chrono>
 #include <soloud_biquadresonantfilter.h>
 #include <memory>
 
@@ -68,6 +69,9 @@ private:
     glm::vec2 m_shockwaveCenter{0.5f, 0.5f};
     glm::vec3 m_pointLightCenter{0.0f, 0.0f, 0.0f};
     float m_pointLightRadius{0.0f};
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_startTime{};
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_endTime{};
 
     std::size_t m_level{0};
     bool m_win{false};

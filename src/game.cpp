@@ -565,6 +565,8 @@ void Game::run()
 {
     m_engine.setupViewport();
     m_engine.setCameraEnabled(true);
+
+    m_startTime = std::chrono::high_resolution_clock::now();
     while (!m_engine.getQuit() && !m_win)
     {
         handleIO();
@@ -620,7 +622,18 @@ void Game::renderUI()
                                  fontRenderer->getTextWidth(scoreText.str(), scale) * 0.5f,
                              static_cast<float>(m_engine.getHeight()) - 24.f, scale, glm::vec3{1.0f, 1.0f, 1.0f});
 
-    scoreText.clear();
+    scoreText.str("");
+
+    long ms{
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_startTime)
+            .count()};
+    long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
+    long minutes{static_cast<long>(std::floor(static_cast<float>(seconds) / 60.f)) % 60};
+    long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};
+    scoreText << ((minutes < 10) ? "0" : "") << minutes << ":" << ((seconds < 10) ? "0" : "") << seconds << ":"
+              << ((cs < 10) ? "0" : "") << cs;
+    fontRenderer->renderText(m_engine.getShader("fonts"), scoreText.str(), 10.f,
+                             static_cast<float>(m_engine.getHeight()) - 24.f, scale, glm::vec3{1.0f, 1.0f, 1.0f});
     m_engine.drawScreenRect(
         {0.0f, static_cast<float>(m_engine.getHeight()), static_cast<float>(m_engine.getWidth()), cover * 30.f},
         {1, 1, 1});
@@ -787,6 +800,15 @@ bool Game::gameover()
 
 bool Game::win()
 {
+    m_endTime = std::chrono::high_resolution_clock::now();
+    long ms{std::chrono::duration_cast<std::chrono::milliseconds>(m_endTime - m_startTime).count()};
+    long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
+    long minutes{static_cast<long>(std::floor(static_cast<float>(seconds) / 60.f)) % 60};
+    long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};
+    std::stringstream timeText{};
+    timeText << "Time: " << ((minutes < 10) ? "0" : "") << minutes << ":" << ((seconds < 10) ? "0" : "") << seconds
+             << ":" << ((cs < 10) ? "0" : "") << cs;
+
     m_win = false;
     m_level = 0;
     m_fade = 0.0f;
@@ -850,9 +872,17 @@ bool Game::win()
                                               fontRenderer->getTextWidth("Play again?", 0.5f) * 0.5f),
                                  60.f, 0.5f, glm::vec3{1.0f});
 
+        fontRenderer->renderText(fontShader, timeText.str(),
+                                 std::min(-300.f + (m_engine.getTime() - startTime) * 30.f,
+                                          static_cast<float>(m_engine.getWidth()) * 0.5f -
+                                              fontRenderer->getTextWidth(timeText.str(), 0.5f) * 0.5f),
+                                 120.f, 0.5f, glm::vec3{1.0f});
+
         fontRenderer->renderText(
             fontShader,
-            "Credits: ambientcg.com (PBR materials), polyhaven.com (HDRI map), GLFW (windowing library), GLAD "
+            "Credits: ambientcg.com (PBR materials), polyhaven.com (HDRI map), Free sfx: kenney.nl, mixkit.co, "
+            "cmftStudio (IBL irradiance map), GLFW "
+            "(windowing library), GLAD "
             "(OpenGL bindings), GLM (Matrix "
             "operations), JoltPhysics (Physics "
             "engine), SoLoud (Audio library), Assimp (Model loading), STB_Image (Image loading), Freetype2 (Font "
