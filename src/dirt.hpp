@@ -27,7 +27,7 @@ public:
     LensDirt(int width, int height);
     ~LensDirt();
 
-    void updateDirt(float deltaTime);
+    void update(float deltaTime);
     void renderDirt(const Shader* shader, unsigned int dirtTex);
     void addDirt(const glm::vec2& pos, float size);
 

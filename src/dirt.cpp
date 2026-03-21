@@ -17,7 +17,7 @@ LensDirt::~LensDirt()
     glDeleteBuffers(1, &m_VBO);
 }
 
-void LensDirt::updateDirt(const float deltaTime)
+void LensDirt::update(const float deltaTime)
 {
     std::size_t i{0};
     while (i < m_end)
@@ -53,6 +53,8 @@ void LensDirt::renderDirt(const Shader* shader, const unsigned int dirtTex)
     for (std::size_t i{0}; i < m_end; ++i)
     {
         const Dirt& d{m_dirt[i]};
+        shader->setFloat("size", d.m_size);
+        shader->setFloat("fade", 1.f - (d.m_time / DIRT_FADE_TIME));
 
         const float w{d.m_size * DIRT_BASE_SIZE};
         const float h{d.m_size * DIRT_BASE_SIZE};

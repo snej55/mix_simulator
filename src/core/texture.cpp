@@ -284,6 +284,33 @@ void TextureN::getLightDir(float* hdriData, int width, int height, int numChanne
     *luminance = maxBrightness;
 }
 
+void TextureN::genNoise(const int width, const int height, TextureData* textureData)
+{
+    std::vector<GLubyte> noise{};
+    noise.reserve(width * height);
+    for (std::size_t i{0}; i < width * height; ++i)
+    {
+        noise.emplace_back(static_cast<GLubyte>(static_cast<int>(Util::random() * 255.f)));
+    }
+
+    unsigned int noiseTex;
+    glGenTextures(1, &noiseTex);
+    glBindTexture(GL_TEXTURE_2D, noiseTex);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, noise.data());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    textureData->id = noiseTex;
+    textureData->width = width;
+    textureData->height = height;
+    textureData->numChannels = 1;
+    textureData->path = "\0";
+}
+
 Texture::Texture(const std::string& name, EngineObject* manager) : EngineObject{("TEXTURE " + name).c_str(), manager} {}
 
 bool Texture::loadFromFile(const char* path)

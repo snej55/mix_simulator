@@ -86,6 +86,8 @@ bool Game::init()
     m_enemyManager->setParticleManager(m_particles.get());
 
     m_lensDirt = std::make_unique<LensDirt>(m_engine.getWidth(), m_engine.getHeight());
+    TextureN::loadFromFile("data/images/dirt.png", &m_dirtTex);
+    TextureN::genNoise(64, 64, &m_noiseTex);
 
     auto start{std::chrono::high_resolution_clock::now()};
     loadLevel("data/maps/0.json");
@@ -442,6 +444,7 @@ void Game::update()
         }
     }
     m_particles->update(m_engine.getDeltaTime());
+    m_lensDirt->update(m_engine.getDeltaTime());
 
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
@@ -528,6 +531,8 @@ void Game::render()
 
     m_engine.setupViewport();
 
+    m_lensDirt->renderDirt(m_engine.getShader("dirt"), 0);
+
     Shader* shockwaves{m_engine.getShader("shockwaves")};
     shockwaves->use();
     shockwaves->setVec2("center", {0.5f, 0.5f});
@@ -535,6 +540,21 @@ void Game::render()
     shockwaves->setFloat("scrWidth", static_cast<float>(m_engine.getWidth()));
     shockwaves->setFloat("scrHeight", static_cast<float>(m_engine.getHeight()));
     shockwaves->setInt("useACES", m_useACES ? 1 : 0);
+
+    const glm::vec3 lightPos{m_engine.getCameraPosition() + (m_engine.getLightDirection() * 100000.f)};
+    const glm::vec4 clip{m_engine.getProjectionMatrix() * m_engine.getViewMatrix() * glm::vec4{lightPos, 1.0f}};
+    const glm::vec3 ndc{glm::vec3{clip} / clip.w};
+
+    const glm::vec2 fLightPos{glm::vec2{ndc.x, ndc.y} * 0.5f + 0.5f};
+    shockwaves->setVec2("lightPos", fLightPos);
+    shockwaves->setInt("noiseTex", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_noiseTex.id);
+    shockwaves->setInt("gPositionE", 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_engine.getDeferredRenderer()->getPositionEBuffer());
+    shockwaves->setFloat("engineTime", m_engine.getTime());
+    shockwaves->setInt("showFlare", (clip.w <= 0.0f) ? 0 : 1);
 
     // render scene
     std::vector<Lights::PointLight*> pointLights{};

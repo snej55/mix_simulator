@@ -56,6 +56,8 @@ namespace TextureN
 
     void getLightDir(float* hdriData, int width, int height, int numChannels, glm::vec3* lightDirection,
                      float* luminance, int maxSteps = -1);
+
+    void genNoise(int width, int height, TextureData* textureData);
 } // namespace TextureN
 
 // Basic texture wrapper class.

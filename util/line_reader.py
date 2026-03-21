@@ -11,6 +11,7 @@ def read_lines_from_file(file_path):
     
     return len(lines)
 
+lines = []
 total = 0
 for file in os.listdir('.'):
     # can't be asked to make a list of extensions lol
@@ -18,7 +19,7 @@ for file in os.listdir('.'):
         file_path = os.path.join('.', file)
         try:
             line_count = read_lines_from_file(file_path)
-            print(f"{file}: {line_count} lines")
+            lines.append((line_count, file_path))
             total += line_count
         except FileNotFoundError as e:
             print(e)
@@ -30,7 +31,7 @@ for file in os.listdir('src'):
         file_path = os.path.join('src', file)
         try:
             line_count = read_lines_from_file(file_path)
-            print(f"{file}: {line_count} lines")
+            lines.append((line_count, file_path))
             total += line_count
         except FileNotFoundError as e:
             print(e)
@@ -41,7 +42,7 @@ for file in os.listdir('src/core'):
         file_path = os.path.join('src/core', file)
         try:
             line_count = read_lines_from_file(file_path)
-            print(f"{file}: {line_count} lines")
+            lines.append((line_count, file_path))
             total += line_count
         except FileNotFoundError as e:
             print(e)
@@ -53,7 +54,7 @@ for file in os.listdir('util'):
         file_path = os.path.join('util', file)
         try:
             line_count = read_lines_from_file(file_path)
-            print(f"{file}: {line_count} lines")
+            lines.append((line_count, file_path))
             total += line_count
         except FileNotFoundError as e:
             print(e)
@@ -64,7 +65,7 @@ for file in os.listdir('src/shaders'):
         file_path = os.path.join('src/shaders', file)
         try:
             line_count = read_lines_from_file(file_path)
-            print(f"{file}: {line_count} lines")
+            lines.append((line_count, file_path))
             total += line_count
         except FileNotFoundError as e:
             print(e)
@@ -75,9 +76,12 @@ for file in os.listdir('src/shaders/builtin'):
         file_path = os.path.join('src/shaders/builtin', file)
         try:
             line_count = read_lines_from_file(file_path)
-            print(f"{file}: {line_count} lines")
+            lines.append((line_count, file_path))
             total += line_count
         except FileNotFoundError as e:
             print(e)
 
+lines.sort(key=lambda x: x[0])
+for line in lines:
+    print(f"{line[1]}: {line[0]}")
 print(f"Total lines: {total}")

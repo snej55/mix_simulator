@@ -12,6 +12,7 @@
 #include "core/renderer.hpp"
 #include "core/scene.hpp"
 
+#include "core/texture.hpp"
 #include "player.hpp"
 #include "assets.hpp"
 #include "pathfinding.hpp"
@@ -94,6 +95,8 @@ private:
     std::unique_ptr<EnemyManager> m_enemyManager{nullptr};
     std::unique_ptr<ParticleManager> m_particles{nullptr};
     std::unique_ptr<LensDirt> m_lensDirt{nullptr};
+    TextureN::TextureData m_dirtTex;
+    TextureN::TextureData m_noiseTex;
 };
 
 #endif
