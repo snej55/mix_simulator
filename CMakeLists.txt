@@ -41,6 +41,7 @@ endif ()
 FetchContent_Declare(
         Jolt
         GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
+        GIT_TAG v5.5.0
         SOURCE_SUBDIR Build
 )
 
@@ -52,6 +53,7 @@ set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
         assimp
         GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG v6.0.4
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
