@@ -85,7 +85,7 @@ bool Game::init()
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
     m_enemyManager->setParticleManager(m_particles.get());
 
-    m_lensDirt = std::make_unique<LensDirt>(m_engine.getWidth(), m_engine.getHeight());
+    // m_lensDirt = std::make_unique<LensDirt>(m_engine.getWidth(), m_engine.getHeight());
     TextureN::loadFromFile("data/images/dirt.png", &m_dirtTex);
     TextureN::genNoise(64, 64, &m_noiseTex);
 
@@ -444,7 +444,7 @@ void Game::update()
         }
     }
     m_particles->update(m_engine.getDeltaTime());
-    m_lensDirt->update(m_engine.getDeltaTime());
+    // m_lensDirt->update(m_engine.getDeltaTime());
 
     // update entities
     m_scene->updateEntities(m_engine.getDeltaTime(), m_engine.getJoltInstance());
@@ -531,7 +531,7 @@ void Game::render()
 
     m_engine.setupViewport();
 
-    m_lensDirt->renderDirt(m_engine.getShader("dirt"), 0);
+    // m_lensDirt->renderDirt(m_engine.getShader("dirt"), 0);
 
     Shader* shockwaves{m_engine.getShader("shockwaves")};
     shockwaves->use();
@@ -555,6 +555,10 @@ void Game::render()
     glBindTexture(GL_TEXTURE_2D, m_engine.getDeferredRenderer()->getPositionEBuffer());
     shockwaves->setFloat("engineTime", m_engine.getTime() * 10.f);
     shockwaves->setInt("showFlare", (clip.w <= 0.01f) ? 0 : 1);
+    shockwaves->setInt("useDirtMask", 1);
+    shockwaves->setInt("dirtMask", 6);
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D, m_dirtTex.id);
 
     // render scene
     std::vector<Lights::PointLight*> pointLights{};
@@ -648,7 +652,7 @@ void Game::renderUI()
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_startTime)
             .count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
-    long minutes{static_cast<long>(std::floor(static_cast<float>(seconds) / 60.f)) % 60};
+    long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 3600.f)) % 60};
     long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};
     scoreText << ((minutes < 10) ? "0" : "") << minutes << ":" << ((seconds < 10) ? "0" : "") << seconds << ":"
               << ((cs < 10) ? "0" : "") << cs;
@@ -823,7 +827,7 @@ bool Game::win()
     m_endTime = std::chrono::high_resolution_clock::now();
     long ms{std::chrono::duration_cast<std::chrono::milliseconds>(m_endTime - m_startTime).count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
-    long minutes{static_cast<long>(std::floor(static_cast<float>(seconds) / 60.f)) % 60};
+    long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 3600.f)) % 60};
     long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};
     std::stringstream timeText{};
     timeText << "Time: " << ((minutes < 10) ? "0" : "") << minutes << ":" << ((seconds < 10) ? "0" : "") << seconds
@@ -834,6 +838,7 @@ bool Game::win()
     m_fade = 0.0f;
     m_fadeDir = 0.0f;
     m_transition = false;
+    m_iblIdx = 0;
     loadLevel(CST::LEVEL_PATHS[0]);
     m_engine.setupViewport();
 

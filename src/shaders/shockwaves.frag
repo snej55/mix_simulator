@@ -13,8 +13,8 @@ uniform sampler2D bloomBlur;
 uniform sampler2D dirtMask;
 uniform int useDirtMask = 0;
 
-uniform float bloomStrength = 0.03f;
-uniform float dirtMaskStrength = 20.0f;
+uniform float bloomStrength = 0.03;
+uniform float dirtMaskStrength = 2.0;
 
 uniform int useACES = 1;
 
@@ -32,6 +32,8 @@ uniform sampler2D noiseTex;
 uniform sampler2D gPositionE;
 uniform float engineTime;
 uniform int showFlare = 1;
+
+uniform float caStrength;
 
 // https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
 vec3 ACESFilm(vec3 x)
@@ -73,9 +75,10 @@ vec3 bloom(vec2 uv)
     vec3 dirt = vec3(0.0);
     if (useDirtMask > 0)
     {
-        dirt = texture(dirtMask, vec2(uv.x, 1.0 - uv.y)).rgb * dirtMaskStrength; // I feel like inverting the y
+        dirt = texture(dirtMask, vec2(uv.x, uv.y)).rgb;
     }
-    return mix(hdrColor, bloomColor + bloomColor * dirt, bloomStrength);
+    vec3 dirtBloom = bloomColor + (bloomColor * dirt * dirtMaskStrength);
+    return mix(hdrColor, dirtBloom, bloomStrength);
 }
 
 // vec3 crossStitch(vec2 uv)
@@ -181,6 +184,7 @@ void main()
     vec2 corrUV = vec2(uv.x * aspectR, uv.y);
     vec2 corrCenter = vec2(center.x * aspectR, center.y);
     float dist = distance(corrUV, corrCenter);
+    vec3 hdrColor;
     if ((dist <= (time + shockParams.z)) && (dist >= (time - shockParams.z)))
     {
         float diff = (dist - time);
@@ -190,8 +194,18 @@ void main()
 
         texCoord.x = uv.x + (diffUV.x * diffTime) / aspectR;
         texCoord.y = uv.y + (diffUV.y * diffTime);
+
+        vec2 displacement = diffUV * diffTime;
+        displacement.x = displacement.x / aspectR;
+        float r = bloom(uv + displacement).r;
+        float g = bloom(uv + displacement * 0.98).g;
+        float b = bloom(uv + displacement * 0.95).b;
+        hdrColor = vec3(r, g, b);
     }
-    vec3 hdrColor = bloom(texCoord);
+    else
+    {
+        hdrColor = bloom(texCoord);
+    }
 
     // lens flare
     if (showFlare > 0)
@@ -221,9 +235,27 @@ void main()
         vec3 flareColor = lensFlare(flareUV, fLightPos) * visibility;
         flareColor *= vec3(1.4, 1.2, 1.0);
 
+        if (useDirtMask > 0)
+        {
+            vec3 staticDirt = texture(dirtMask, uv).rgb;
+            flareColor += flareColor * staticDirt * (dirtMaskStrength * 1.5);
+        }
+
         const float intensity = 0.1;
         hdrColor += flareColor * intensity * (1.0 + (1.0 - clamp(length(fLightPos) * 2.0, 0.0, 1.0)));
     }
+
+    vec2 centerUV = uv - 0.5;
+    centerUV.x *= aspectR;
+    float vigDist = length(centerUV);
+    float vignette = smoothstep(1.2, 0.5, vigDist);
+
+    if (useDirtMask > 0)
+    {
+        float dirt = texture(dirtMask, vec2(uv.x, 1.0 - uv.y)).r;
+        vignette *= (1.0 - dirt * 0.2);
+    }
+    hdrColor *= vignette;
 
     vec3 mapped;
     if (useACES > 0)
