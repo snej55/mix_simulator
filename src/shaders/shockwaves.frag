@@ -128,12 +128,24 @@ vec3 lensFlare(vec2 uv, vec2 pos)
     float ang = atan(main.y, main.x);
     float dist = length(main);
     dist = pow(dist, .1);
-    float n = texture(noiseTex, vec2((fract(ang / 6.2831 + 0.5)), dist * 32.0)).r;
+
+    float noiseUV = fract(ang / 6.2831853 + 0.5);
+    float nR = texture(noiseTex, vec2(noiseUV - engineTime / 9.0, dist * 32.0)).r;
+    float nG = texture(noiseTex, vec2(noiseUV - engineTime / 9.2, dist * 32.0)).r;
+    float nB = texture(noiseTex, vec2(noiseUV - engineTime / 9.4, dist * 32.0)).r;
+
     float f0 = 1.0 / (length(uv - pos) * 16.0 + 1.0);
-    f0 += f0 * (sin((ang + engineTime / 18.0 + n * 12.0) * 0.1 + dist * 0.1 + 0.8));
-    float f2 = max(1.0 / (1.0 + 32.0 * pow(length(uvd + 0.8 * pos), 2.0)), .0) * 00.25;
-    float f22 = max(1.0 / (1.0 + 32.0 * pow(length(uvd + 0.85 * pos), 2.0)), .0) * 00.23;
-    float f23 = max(1.0 / (1.0 + 32.0 * pow(length(uvd + 0.9 * pos), 2.0)), .0) * 00.21;
+    vec3 c = vec3(0.0);
+    c.r += f0 * (sin((ang + engineTime / 18.0 + nR * 12.0) + dist * 0.1 + 0.8));
+    c.g += f0 * (sin((ang + engineTime / 18.0 + nG * 12.0) + dist * 0.1 + 0.8));
+    c.b += f0 * (sin((ang + engineTime / 18.0 + nB * 12.0) + dist * 0.1 + 0.8));
+    float f2 = max(1.0 / (1.0 + 32.0 * pow(length(uvd + 0.8 * pos), 2.0)), .0) * 0.25;
+    float f22 = max(1.0 / (1.0 + 32.0 * pow(length(uvd + 0.85 * pos), 2.0)), .0) * 0.23;
+    float f23 = max(1.0 / (1.0 + 32.0 * pow(length(uvd + 0.9 * pos), 2.0)), .0) * 0.21;
+
+    // float n = texture(noiseTex, vec2((fract(ang / 6.2831 + 0.5)), dist * 32.0)).r;
+    // float f0 = 1.0 / (length(uv - pos) * 16.0 + 1.0);
+    // f0 += f0 * (sin((ang + engineTime / 18.0 + n * 12.0) * 0.1 + dist * 0.1 + 0.8));
 
     vec2 uvx = mix(uv, uvd, -0.5);
 
@@ -153,12 +165,9 @@ vec3 lensFlare(vec2 uv, vec2 pos)
     float f62 = max(0.01 - pow(length(uvx - 0.325 * pos), 1.6), .0) * 3.0;
     float f63 = max(0.01 - pow(length(uvx - 0.35 * pos), 1.6), .0) * 5.0;
 
-    vec3 c = vec3(0.0);
-
     c.r += f2 + f4 + f5 + f6;
     c.g += f22 + f42 + f52 + f62;
     c.b += f23 + f43 + f53 + f63;
-    c += vec3(f0);
 
     return c;
 }

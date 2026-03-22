@@ -553,7 +553,7 @@ void Game::render()
     shockwaves->setInt("gPositionE", 5);
     glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D, m_engine.getDeferredRenderer()->getPositionEBuffer());
-    shockwaves->setFloat("engineTime", m_engine.getTime());
+    shockwaves->setFloat("engineTime", m_engine.getTime() * 10.f);
     shockwaves->setInt("showFlare", (clip.w <= 0.01f) ? 0 : 1);
 
     // render scene
