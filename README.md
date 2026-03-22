@@ -97,13 +97,13 @@ cd build
 - [ ] Paralax mapping with tesselation shader?
 - [X] Quad tree generation
 - [X] Flow field pathfinding
-- [ ] Make some models
+- [X] Make some models
 - [X] Generate shards in blender
 - [X] Preload jolt convex hulls
 - [X] Shatter logic
 - [X] Test shadows with complex shapes
 - [X] Flow field generation
-- [ ] Clean up data folder
+- [X] Clean up data folder
 - [X] Convex hull preloading (export jolt bodies as binaries)
 - [X] Particle vfx
 - [X] Load all assets at the start
@@ -129,7 +129,7 @@ cd build
 - [X] Duck puns on first menu
 - [X] Level transitions
 - [X] Add tonemapping options to settings
-- [ ] Lens dirt!
+- [X] Lens dirt!
 
 ## Game loop (today):
 - [X] Create decor
