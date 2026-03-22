@@ -34,6 +34,7 @@ bool Game::init()
         return false;
     }
     std::cout << "Initialized engine!" << std::endl;
+    std::cout << "Binary path: " << m_engine.getBinaryPath().c_str() << std::endl;
 
     glfwSetWindowSizeLimits(m_engine.getWindow()->getWindow(), CST::WINDOW_START_WIDTH, CST::WINDOW_START_HEIGHT,
                             GLFW_DONT_CARE, GLFW_DONT_CARE);
@@ -51,19 +52,21 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
-    m_scene->init("data/maps/4.json");
+    m_scene->init(std::string(m_engine.getBinaryPath().string() + "/data/maps/4.json").c_str());
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
     // m_scene->initRaw("data/maps/1.json");
     // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
 
     // load skybox
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
-    m_iblGenerator->init("data/skyboxes/bright.hdr", "data/IBL/bright/output_iem.hdr", "data/IBL/brdf_lut.png",
-                         &m_engine);
+    m_iblGenerator->init(std::string(m_engine.getBinaryPath().string() + "/data/skyboxes/bright.hdr").c_str(),
+                         std::string(m_engine.getBinaryPath().string() + "/data/IBL/bright/output_iem.hdr").c_str(),
+                         std::string(m_engine.getBinaryPath().string() + "/data/IBL/brdf_lut.png").c_str(), &m_engine);
     m_engine.setLightDirection(m_iblGenerator->getLightDirection());
 
     m_renderQueue = std::make_unique<RenderQueue>(&m_engine);
-    m_renderQueue->initPointLightModel("data/models/point_light.glb");
+    m_renderQueue->initPointLightModel(
+        std::string(m_engine.getBinaryPath().string() + "/data/models/point_light.glb").c_str());
 
     m_player = std::make_unique<Player>(glm::vec3{50.0f, 50.f, 50.0f}, m_engine.getModel("table"));
     m_player->setupPhysicsBody(m_engine.getJoltInstance()->getBodyInterface());
@@ -86,16 +89,17 @@ bool Game::init()
     m_enemyManager->setParticleManager(m_particles.get());
 
     // m_lensDirt = std::make_unique<LensDirt>(m_engine.getWidth(), m_engine.getHeight());
-    TextureN::loadFromFile("data/images/dirt.png", &m_dirtTex);
+    TextureN::loadFromFile(std::string(m_engine.getBinaryPath().string() + "/data/images/dirt.png").c_str(),
+                           &m_dirtTex);
     TextureN::genNoise(64, 64, &m_noiseTex);
 
     auto start{std::chrono::high_resolution_clock::now()};
-    loadLevel("data/maps/0.json");
+    loadLevel(std::string(m_engine.getBinaryPath().string() + "/data/maps/0.json").c_str());
     auto end{std::chrono::high_resolution_clock::now()};
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    // unsigned int handle{m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu)};
-    // m_engine.getAudioHandler()->getSoLoud().setLooping(handle, true);
+    unsigned int handle{m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu)};
+    m_engine.getAudioHandler()->getSoLoud().setLooping(handle, true);
     return true;
 }
 
@@ -107,7 +111,7 @@ void Game::nextLevel()
         return;
     }
 
-    loadLevel(CST::LEVEL_PATHS[m_level]);
+    loadLevel(m_engine.getBinaryPath().string() + "/" + CST::LEVEL_PATHS[m_level]);
 }
 
 void Game::loadLevel(const std::string& path)
@@ -134,9 +138,12 @@ void Game::loadLevel(const std::string& path)
 
     m_iblGenerator = std::make_unique<IBLGenerator>(&m_engine);
 
-    const std::string skyboxPath{"data/skyboxes/" + std::string(CST::IBL_SKIES[m_iblIdx]) + ".hdr"};
-    const std::string irradiancePath{"data/IBL/" + std::string(CST::IBL_SKIES[m_iblIdx]) + "/output_iem.hdr"};
-    m_iblGenerator->init(skyboxPath.c_str(), irradiancePath.c_str(), "data/IBL/brdf_lut.png", &m_engine);
+    const std::string skyboxPath{m_engine.getBinaryPath().string() + "/data/skyboxes/" +
+                                 std::string(CST::IBL_SKIES[m_iblIdx]) + ".hdr"};
+    const std::string irradiancePath{m_engine.getBinaryPath().string() + "/data/IBL/" +
+                                     std::string(CST::IBL_SKIES[m_iblIdx]) + "/output_iem.hdr"};
+    m_iblGenerator->init(skyboxPath.c_str(), irradiancePath.c_str(),
+                         std::string(m_engine.getBinaryPath().string() + "/data/IBL/brdf_lut.png").c_str(), &m_engine);
     m_iblIdx = ++m_iblIdx & 3;
     m_engine.setLightDirection(m_iblGenerator->getLightDirection());
 }
@@ -151,7 +158,8 @@ bool Game::menu()
     UIRenderer* uiRenderer{m_engine.getUIRenderer()};
 
     TextureN::TextureData playButtonTex;
-    TextureN::loadFromFile("data/images/ui/playbutton.png", &playButtonTex);
+    TextureN::loadFromFile(std::string(m_engine.getBinaryPath().string() + "/data/images/ui/playbutton.png").c_str(),
+                           &playButtonTex);
 
     glDisable(GL_DEPTH_TEST);
     m_engine.setCameraEnabled(false);
@@ -840,7 +848,7 @@ bool Game::win()
     m_fadeDir = 0.0f;
     m_transition = false;
     m_iblIdx = 0;
-    loadLevel(CST::LEVEL_PATHS[0]);
+    loadLevel(m_engine.getBinaryPath().string() + "/" + CST::LEVEL_PATHS[0]);
     m_engine.setupViewport();
 
     GLFWwindow* windowPtr{m_engine.getWindow()->getWindow()};
@@ -848,7 +856,8 @@ bool Game::win()
     UIRenderer* uiRenderer{m_engine.getUIRenderer()};
 
     TextureN::TextureData playButtonTex;
-    TextureN::loadFromFile("data/images/ui/playbutton.png", &playButtonTex);
+    TextureN::loadFromFile(std::string(m_engine.getBinaryPath().string() + "/data/images/ui/playbutton.png").c_str(),
+                           &playButtonTex);
 
     glDisable(GL_DEPTH_TEST);
     m_engine.setCameraEnabled(false);

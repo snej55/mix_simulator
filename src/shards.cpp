@@ -48,7 +48,7 @@ void ShardBody::init(void* engine)
     m_numShards = 0;
 
     std::vector<std::filesystem::path> shardPaths{};
-    for (const auto& entry : std::filesystem::directory_iterator(m_path))
+    for (const auto& entry : std::filesystem::directory_iterator(enginePtr->getBinaryPath().string() + "/" + m_path))
     {
         const std::filesystem::path path{entry.path()};
         const std::string extension{path.extension().string()};
@@ -76,7 +76,8 @@ void ShardBody::init(void* engine)
     {
         const Model* model{m_models[i]};
         const glm::vec3 shardCenter{getModelLocalCenter(model)};
-        const std::string cachePath{"data/cache/" + m_name + "/" + std::to_string(i) + ".bin"};
+        const std::string cachePath{enginePtr->getBinaryPath().string() + "/data/cache/" + m_name + "/" +
+                                    std::to_string(i) + ".bin"};
 
         ShapeLoader shapeLoader{};
         bool validCache{false};

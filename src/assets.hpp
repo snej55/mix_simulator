@@ -52,10 +52,14 @@ struct Assets
 
     void loadAssets(AudioHandler* audioHandler, Engine* engine)
     {
-        m_SFX_metalImpact = audioHandler->loadSound("data/audio/sfx/metal_impact.ogg");
-        m_SFX_metalImpact2 = audioHandler->loadSound("data/audio/sfx/metal_impact2.ogg");
-        m_SFX_dash = audioHandler->loadSound("data/audio/sfx/arrow.ogg");
-        m_MUSIC_menu = audioHandler->loadStream("data/audio/music/menu.mp3");
+        m_SFX_metalImpact = audioHandler->loadSound(
+            std::string(engine->getBinaryPath().string() + "/data/audio/sfx/metal_impact.ogg").c_str());
+        m_SFX_metalImpact2 = audioHandler->loadSound(
+            std::string(engine->getBinaryPath().string() + "/data/audio/sfx/metal_impact2.ogg").c_str());
+        m_SFX_dash = audioHandler->loadSound(
+            std::string(engine->getBinaryPath().string() + "/data/audio/sfx/arrow.ogg").c_str());
+        m_MUSIC_menu = audioHandler->loadStream(
+            std::string(engine->getBinaryPath().string() + "/data/audio/music/menu.mp3").c_str());
     }
 };
 

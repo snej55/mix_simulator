@@ -306,6 +306,8 @@ public:
     [[nodiscard]] Shader* getScreenShader() { return m_screenShader; }
     void setScreenShader(Shader* shader) { m_screenShader = shader; }
 
+    [[nodiscard]] const std::filesystem::path& getBinaryPath() const { return m_binaryPath; }
+
 private:
     // memory manager
     Arena* m_arena{nullptr};
@@ -361,6 +363,8 @@ private:
     // miscellaneous stuff
     std::vector<float> m_deltaTimes{};
     Shader* m_screenShader{nullptr};
+
+    std::filesystem::path m_binaryPath{};
 
     glm::ivec2 m_tempRes{0, 0};
     float m_renderScale{1.0f};

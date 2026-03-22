@@ -175,16 +175,16 @@ bool Scene::init(const char* scenePath)
         std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
         for (const auto& [key, value] : level["models"].items())
         {
+            assert(m_engine != nullptr);
+            Engine* enginePtr{static_cast<Engine*>(m_engine)};
             const std::size_t modelID{std::stoul(key)};
             const std::string modelName{value["name"].get<std::string>()};
-            const std::string modelPath{value["path"].get<std::string>()};
+            const std::string modelPath{enginePtr->getBinaryPath().string() + "/" + value["path"].get<std::string>()};
             std::cout << modelName << " " << modelPath << std::endl;
 
             modelMap[modelID] = std::pair{modelName, modelPath};
 
             // preload model into engine
-            assert(m_engine != nullptr);
-            Engine* enginePtr{static_cast<Engine*>(m_engine)};
             std::cout << "Adding model..." << std::endl;
             enginePtr->addModel(modelName, modelPath);
         }
@@ -309,9 +309,11 @@ bool Scene::initRaw(const char* scenePath)
         std::map<std::size_t, std::pair<std::string, std::string>> modelMap{};
         for (const auto& [key, value] : level["models"].items())
         {
+            assert(m_engine != nullptr);
+            Engine* enginePtr{static_cast<Engine*>(m_engine)};
             const std::size_t modelID{std::stoul(key)};
             const std::string modelName{value["name"].get<std::string>()};
-            const std::string modelPath{value["path"].get<std::string>()};
+            const std::string modelPath{enginePtr->getBinaryPath().string() + "/" + value["path"].get<std::string>()};
             std::cout << modelName << " " << modelPath << std::endl;
 
             modelMap[modelID] = std::pair{modelName, modelPath};

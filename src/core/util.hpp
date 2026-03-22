@@ -23,6 +23,16 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/MathTypes.h>
 
+#include <filesystem>
+
+#ifdef _WIN32
+#include <windows.h>
+#elif __APPLE__
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif
+
 namespace Util
 {
     // Generate random floating point from (0.0f - 1.0f).
@@ -33,6 +43,32 @@ namespace Util
     {
         const std::ifstream file{name.c_str()};
         return file.good();
+    }
+
+    inline std::filesystem::path getBinaryPath()
+    {
+#ifdef _WIN32
+        wchar_t path[MAX_PATH];
+        GetModuleFileNameW(NULL, path, MAX_PATH);
+        return std::filesystem::path(path).parent_path();
+#elif __APPLE__
+        char path[1024];
+        uint32_t size{sizeof(path)};
+        if (_NSGetExecutablePath(path, &size) == 0)
+        {
+            return std::filesystem::path(path).parent_path();
+        }
+        return ".";
+#else
+        char buffer[1024];
+        ssize_t len{readlink("/proc/self/exe", buffer, sizeof(buffer) - 1)};
+        if (len != -1)
+        {
+            buffer[len] = '\0';
+            return std::filesystem::path(buffer).parent_path();
+        }
+        return ".";
+#endif
     }
 
     // Render text with red background.
