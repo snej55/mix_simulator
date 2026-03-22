@@ -367,7 +367,7 @@ bool Game::menu()
         }
 
         m_engine.update(nullptr, nullptr, {}, {}, true);
-        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
+        m_engine.getWindow()->setTitle("Duck Bowling");
     }
 
     if (quit)
@@ -597,7 +597,8 @@ void Game::run()
         update();
         render();
 
-        m_engine.displayFrameTime();
+        m_engine.getWindow()->setTitle("Duck Bowling");
+        // m_engine.displayFrameTime();
     }
 }
 
@@ -817,7 +818,7 @@ bool Game::gameover()
         }
 
         m_engine.update(nullptr, nullptr, {}, {}, true);
-        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
+        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Duck Bowling");
     }
     return false;
 }
@@ -958,7 +959,7 @@ bool Game::win()
         }
 
         m_engine.update(nullptr, nullptr, {}, {}, true);
-        glfwSetWindowTitle(m_engine.getWindow()->getWindow(), "Mix Simulator");
+        m_engine.getWindow()->setTitle("Duck Bowling");
     }
     return false;
 }

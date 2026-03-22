@@ -403,7 +403,7 @@ Mesh Model::processMesh(const aiMesh* mesh, const aiScene* scene)
         textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
     }
     auto end{std::chrono::high_resolution_clock::now()};
-    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms" << std::endl;
 
     return Mesh{vertices, indices, textures, meshMaterial};
 }
