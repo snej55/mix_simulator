@@ -652,7 +652,7 @@ void Game::renderUI()
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_startTime)
             .count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
-    long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 3600.f)) % 60};
+    long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 60000.f)) % 60};
     long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};
     scoreText << ((minutes < 10) ? "0" : "") << minutes << ":" << ((seconds < 10) ? "0" : "") << seconds << ":"
               << ((cs < 10) ? "0" : "") << cs;
@@ -827,7 +827,7 @@ bool Game::win()
     m_endTime = std::chrono::high_resolution_clock::now();
     long ms{std::chrono::duration_cast<std::chrono::milliseconds>(m_endTime - m_startTime).count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
-    long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 3600.f)) % 60};
+    long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 60000.f)) % 60};
     long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};
     std::stringstream timeText{};
     timeText << "Time: " << ((minutes < 10) ? "0" : "") << minutes << ":" << ((seconds < 10) ? "0" : "") << seconds
