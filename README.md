@@ -1,5 +1,5 @@
 ![https://hackatime-badge.hackclub.com/U08264TFUKV/mix_simulator](https://hackatime-badge.hackclub.com/U08264TFUKV/mix_simulator)
-# Crazy Mix Simulator
+# Duck Bowling
 
 A physics based game made using C++ and OpenGL. Currently a renderer based off of my opengl framework.
 
