@@ -161,4 +161,4 @@ cd build
 - [X] Centre models around WS origin
 - [ ] Compile release version
 - [ ] Test linux build on VM
-- [ ] Fix window title
+- [X] Fix window title
