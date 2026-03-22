@@ -6,7 +6,6 @@
 #define UTIL_H
 
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <functional>
@@ -39,11 +38,7 @@ namespace Util
     inline float random() { return static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX); }
 
     // Checks if file exists in file system.
-    inline bool fileExists(const std::string& name)
-    {
-        const std::ifstream file{name.c_str()};
-        return file.good();
-    }
+    inline bool fileExists(const std::string& name) { return std::filesystem::exists(name); }
 
     inline std::filesystem::path getBinaryPath()
     {
@@ -56,6 +51,10 @@ namespace Util
         uint32_t size{sizeof(path)};
         if (_NSGetExecutablePath(path, &size) == 0)
         {
+            if (exePath.parent_path().filename() == "MacOS")
+            {
+                return std::filesystem::path(path).parent_path().parent_path() / "Resources";
+            }
             return std::filesystem::path(path).parent_path();
         }
         return ".";

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Duck Bowling
+Exec=main
+Icon=icon
+Categories=Game;

@@ -23,3 +23,6 @@ compile_commands.json
 /Thumbs.db
 /log.txt
 *.log
+/release/DuckBowling.AppDir
+/release/*.AppImage
+/release/appimagetool
