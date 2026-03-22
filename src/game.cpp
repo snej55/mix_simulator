@@ -541,20 +541,20 @@ void Game::render()
     shockwaves->setFloat("scrHeight", static_cast<float>(m_engine.getHeight()));
     shockwaves->setInt("useACES", m_useACES ? 1 : 0);
 
-    const glm::vec3 lightPos{m_engine.getCameraPosition() + (m_engine.getLightDirection() * 100000.f)};
+    const glm::vec3 lightPos{m_engine.getCameraPosition() + (m_engine.getLightDirection() * 500.f)};
     const glm::vec4 clip{m_engine.getProjectionMatrix() * m_engine.getViewMatrix() * glm::vec4{lightPos, 1.0f}};
     const glm::vec3 ndc{glm::vec3{clip} / clip.w};
 
     const glm::vec2 fLightPos{glm::vec2{ndc.x, ndc.y} * 0.5f + 0.5f};
     shockwaves->setVec2("lightPos", fLightPos);
-    shockwaves->setInt("noiseTex", 0);
-    glActiveTexture(GL_TEXTURE0);
+    shockwaves->setInt("noiseTex", 4);
+    glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, m_noiseTex.id);
-    shockwaves->setInt("gPositionE", 1);
-    glActiveTexture(GL_TEXTURE1);
+    shockwaves->setInt("gPositionE", 5);
+    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D, m_engine.getDeferredRenderer()->getPositionEBuffer());
     shockwaves->setFloat("engineTime", m_engine.getTime());
-    shockwaves->setInt("showFlare", (clip.w <= 0.0f) ? 0 : 1);
+    shockwaves->setInt("showFlare", (clip.w <= 0.01f) ? 0 : 1);
 
     // render scene
     std::vector<Lights::PointLight*> pointLights{};

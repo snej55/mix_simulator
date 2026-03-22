@@ -128,7 +128,7 @@ vec3 lensFlare(vec2 uv, vec2 pos)
     float ang = atan(main.y, main.x);
     float dist = length(main);
     dist = pow(dist, .1);
-    float n = texture(noiseTex, vec2(((ang / 6.2831) - engineTime / 9.0) * 16.0, dist * 32.0)).r;
+    float n = texture(noiseTex, vec2((fract(ang / 6.2831 + 0.5)), dist * 32.0)).r;
     float f0 = 1.0 / (length(uv - pos) * 16.0 + 1.0);
     f0 += f0 * (sin((ang + engineTime / 18.0 + n * 12.0) * 0.1 + dist * 0.1 + 0.8));
     float f2 = max(1.0 / (1.0 + 32.0 * pow(length(uvd + 0.8 * pos), 2.0)), .0) * 00.25;
@@ -190,10 +190,10 @@ void main()
         vec3 fragPos = texture(gPositionE, lightPos).rgb;
         float visibility = 1.0;
 
-        // if (length(fragPos) > 0.01)
-        // {
-        //     visibility = 0.0;
-        // }
+        if (length(fragPos) > 0.01)
+        {
+            visibility = 0.0;
+        }
 
         if (lightPos.x < -0.1 || lightPos.x > 1.1 || lightPos.y < -0.1 || lightPos.y > 1.1)
         {
@@ -211,7 +211,9 @@ void main()
 
         vec3 flareColor = lensFlare(flareUV, fLightPos) * visibility;
         flareColor *= vec3(1.4, 1.2, 1.0);
-        hdrColor += flareColor;
+
+        const float intensity = 0.1;
+        hdrColor += flareColor * intensity * (1.0 + (1.0 - clamp(length(fLightPos) * 2.0, 0.0, 1.0)));
     }
 
     vec3 mapped;
