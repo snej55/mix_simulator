@@ -532,8 +532,8 @@ public:
         m_centerOffset = JPH::Vec3::sZero();
         // }
 
-        JPH::EMotionType motionType;
-        JPH::ObjectLayer layer;
+        JPH::EMotionType motionType{};
+        JPH::ObjectLayer layer{};
 
         switch (bodyType)
         {
@@ -720,7 +720,7 @@ class ShapeLoader
 public:
     // create convex hull
     ShapeLoader() = default;
-    ShapeLoader(const char* path);
+    ShapeLoader(const char* path) { loadFile(path); }
     explicit ShapeLoader(const std::vector<glm::vec3>& vertices)
     {
         std::vector<JPH::Vec3> joltVertices{};

@@ -52,7 +52,7 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
-    m_scene->init(std::string(m_engine.getBinaryPath().string() + "/data/maps/4.json").c_str());
+    m_scene->init(std::string(m_engine.getBinaryPath().string() + "/data/maps/0.json").c_str());
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
     // m_scene->initRaw("data/maps/1.json");
     // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
@@ -179,7 +179,7 @@ bool Game::menu()
     bool settings{false};
     float renderScale{m_engine.getRenderScale()};
     bool quit{true};
-    constexpr std::size_t nHandles{5};
+#define nHandles 5
     std::array<void*, nHandles> handler{&settings, &renderScale, &m_engine, &quit, &m_useACES};
     void (*keyCallback)(int, int, int, int, void*){
         [](const int key, const int scancode, const int action, const int mods, void* handler)
@@ -657,7 +657,7 @@ void Game::renderUI()
 
     scoreText.str("");
 
-    long ms{
+    long long ms{
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_startTime)
             .count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
@@ -834,7 +834,7 @@ bool Game::gameover()
 bool Game::win()
 {
     m_endTime = std::chrono::high_resolution_clock::now();
-    long ms{std::chrono::duration_cast<std::chrono::milliseconds>(m_endTime - m_startTime).count()};
+    long long ms{std::chrono::duration_cast<std::chrono::milliseconds>(m_endTime - m_startTime).count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
     long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 60000.f)) % 60};
     long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};
