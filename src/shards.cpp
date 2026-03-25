@@ -111,18 +111,21 @@ void ShardBody::init(void* engine)
                 }
             }
 
-            shapeLoader = ShapeLoader{vertices};
+            shapeLoader = std::move(ShapeLoader{vertices});
             shapeLoader.exportFile(cachePath.c_str());
             std::cout << "Cached shard convex hull: `" << cachePath << "`\n";
         }
 
-        m_hulls.emplace_back(shapeLoader);
+        m_hulls.emplace_back(std::move(shapeLoader));
     }
 }
 
 void ShardBody::explode(const float force, std::vector<Entity*>& shards)
 {
     if (m_broken)
+        return;
+
+    if (m_numShards == 0)
         return;
 
     const JPH::BodyID& entityID{m_entity->getPhysicsBody()->getBodyID()};

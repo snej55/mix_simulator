@@ -76,7 +76,6 @@ EnemyManager::EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flo
     m_player{player}, m_scene{scene}, m_flowField{flowField}, m_bodyInterface{bodyInterface}, m_engine{engine}
 {
     m_listener.setManager(this);
-    getEnemies();
 }
 
 void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3& shockwaveCenter, bool& shockwave)

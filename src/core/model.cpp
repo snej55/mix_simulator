@@ -197,6 +197,7 @@ bool Model::loadModel(const std::string& path)
     }
 
     Assimp::Importer importer;
+    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
 
     const aiScene* scene{importer.ReadFile(path, MeshN::ASSIMP_POSTPROCESS_FLAGS)};
 
@@ -214,6 +215,7 @@ bool Model::loadModel(const std::string& path)
     m_directory = path.substr(0, path.find_last_of('/'));
     processNode(scene->mRootNode, scene);
     handleTransparentTextures(scene);
+    importer.FreeScene();
 
     // overkill log
     int numVertices{};
@@ -535,7 +537,7 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
     if (!data)
     {
         std::cout << "MODEL::LOAD_EMBEDDED_TEXTURE::ERROR: Failed to load texture from memory!\n";
-        stbi_image_free(data);
+        // Don't free nullptr - data was never allocated by stbi
         if (success)
             *success = false;
         return 0;
@@ -610,7 +612,7 @@ unsigned char* Model::getEmbeddedTextureData(const aiTexture* texture, bool* suc
 
     if (!data)
     {
-        stbi_image_free(data);
+        // Don't free nullptr - it's undefined behavior and data was never allocated
         Util::beginError();
         std::cout << "MODEL::GET_EMBEDDED_TEXTURE_DATA::ERROR: Failed to load texture from memory!";
         Util::endError();

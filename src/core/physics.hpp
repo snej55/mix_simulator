@@ -721,6 +721,13 @@ public:
     // create convex hull
     ShapeLoader() = default;
     ShapeLoader(const char* path) { loadFile(path); }
+    
+    ShapeLoader(const ShapeLoader&) = delete;
+    ShapeLoader& operator=(const ShapeLoader&) = delete;
+    
+    ShapeLoader(ShapeLoader&&) = default;
+    ShapeLoader& operator=(ShapeLoader&&) = default;
+    
     explicit ShapeLoader(const std::vector<glm::vec3>& vertices)
     {
         std::vector<JPH::Vec3> joltVertices{};

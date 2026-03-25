@@ -52,7 +52,7 @@ bool Game::init()
 
     // load level data
     m_scene = std::make_unique<Scene>(&m_engine, m_engine.getJoltInstance());
-    m_scene->init(std::string(m_engine.getBinaryPath().string() + "/data/maps/0.json").c_str());
+    m_scene->init(std::string(m_engine.getBinaryPath().string() + "/data/maps/4.json").c_str());
     m_scene->initPhysicsBodies(m_engine.getJoltInstance());
     // m_scene->initRaw("data/maps/1.json");
     // m_scene->initPhysicsBodies(m_engine.getJoltInstance());
@@ -83,6 +83,8 @@ bool Game::init()
 
     m_enemyManager = std::make_unique<EnemyManager>(m_player.get(), m_scene.get(), m_flowField.get(),
                                                     m_engine.getJoltInstance()->getBodyInterface(), &m_engine);
+    m_enemyManager->getEnemies();
+    std::cout << glGetError() << std::endl;
     m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
 
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
@@ -146,6 +148,7 @@ void Game::loadLevel(const std::string& path)
                          std::string(m_engine.getBinaryPath().string() + "/data/IBL/brdf_lut.png").c_str(), &m_engine);
     m_iblIdx = ++m_iblIdx & 3;
     m_engine.setLightDirection(m_iblGenerator->getLightDirection());
+    std::cout << "GL Error: " << glGetError() << std::endl;
 }
 
 bool Game::menu()
