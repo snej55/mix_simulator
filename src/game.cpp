@@ -100,8 +100,13 @@ bool Game::init()
     auto end{std::chrono::high_resolution_clock::now()};
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    unsigned int handle{m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu)};
-    m_engine.getAudioHandler()->getSoLoud().setLooping(handle, true);
+    AudioHandler* audioHandler{m_engine.getAudioHandler()};
+    audioHandler->getStream(m_assets->m_MUSIC_menu)->setLooping(true);
+    const SoLoud::handle handle{audioHandler->playStream(m_assets->m_MUSIC_menu)};
+    if (audioHandler->getSoLoud().isValidVoiceHandle(handle))
+    {
+        audioHandler->getSoLoud().setLooping(handle, true);
+    }
     return true;
 }
 

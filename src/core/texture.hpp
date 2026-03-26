@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include "arena.hpp"
 #include "engine_types.hpp"
@@ -12,6 +13,9 @@
 
 namespace TextureN
 {
+    // Runtime cap for model/material textures. Set to 0 to disable downscaling.
+    inline constexpr int RUNTIME_MAX_MODEL_TEXTURE_DIM{1024};
+
     struct TextureData
     {
         unsigned int id;
@@ -41,6 +45,9 @@ namespace TextureN
     unsigned int loadFromFile(const char* path, int* width = nullptr, int* height = nullptr, int* numChannels = nullptr,
                               bool* success = nullptr, MeshN::TextureType materialType = MeshN::TEXTURE_NONE);
     void loadFromFile(const char* path, TextureData* textureData);
+
+    void downscaleTexture(const unsigned char* src, int srcWidth, int srcHeight, int channels, int* dstWidth,
+                          int* dstHeight, std::vector<unsigned char>* out);
 
     // load hdr irradiance map (for IBL)
     unsigned int loadHDRMap(const char* path, bool* success, glm::vec3* lightDirection = nullptr,

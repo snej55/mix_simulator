@@ -92,7 +92,7 @@ void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3&
         if (m_shards[s].second->getKill())
         {
             m_shards[s].second->setKill(true);
-            std::swap(m_shards[0], m_shards[s]);
+            std::swap(m_shards.back(), m_shards[s]);
             m_shards.pop_back();
             --s;
         }
