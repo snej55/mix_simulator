@@ -84,7 +84,7 @@ void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3&
     for (std::size_t s{0}; s < m_shards.size(); ++s)
     {
         m_shards[s].first += dt;
-        if (m_shards[s].first > 60.0)
+        if (m_shards[s].first > 1200.0)
         {
             m_shards[s].second->setKill(true);
         }
