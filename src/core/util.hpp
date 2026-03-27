@@ -25,7 +25,16 @@
 #include <filesystem>
 
 #ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
+#undef near
+#undef far
+#undef AddJob
 #elif __APPLE__
 #include <mach-o/dyld.h>
 #else
@@ -51,7 +60,7 @@ namespace Util
         uint32_t size{sizeof(path)};
         if (_NSGetExecutablePath(path, &size) == 0)
         {
-            if (exePath.parent_path().filename() == "MacOS")
+            if (path[0] != '\0' && std::filesystem::path(path).parent_path().filename() == "MacOS")
             {
                 return std::filesystem::path(path).parent_path().parent_path() / "Resources";
             }

@@ -400,11 +400,15 @@ void Scene::free()
             if (std::find(freedEntities.begin(), freedEntities.end(), entity) != freedEntities.end())
                 continue;
 
-            const JPH::BodyID bodyID{entity->getPhysicsBody()->getBodyID()};
-            if (!bodyID.IsInvalid())
+            const PhysicsBody* physicsBody{entity->getPhysicsBody()};
+            if (physicsBody != nullptr)
             {
-                m_jolt->getBodyInterface()->RemoveBody(bodyID);
-                m_jolt->getBodyInterface()->DestroyBody(bodyID);
+                const JPH::BodyID bodyID{physicsBody->getBodyID()};
+                if (!bodyID.IsInvalid())
+                {
+                    m_jolt->getBodyInterface()->RemoveBody(bodyID);
+                    m_jolt->getBodyInterface()->DestroyBody(bodyID);
+                }
             }
 
             delete entity;
@@ -461,8 +465,16 @@ void Scene::updateEntities(const float deltaTime, JoltInstance* jolt)
         else
         {
             std::cout << "Removed entity\n";
-            jolt->getBodyInterface()->RemoveBody(entity->getPhysicsBody()->getBodyID());
-            jolt->getBodyInterface()->DestroyBody(entity->getPhysicsBody()->getBodyID());
+            const PhysicsBody* physicsBody{entity->getPhysicsBody()};
+            if (physicsBody != nullptr)
+            {
+                const JPH::BodyID bodyID{physicsBody->getBodyID()};
+                if (!bodyID.IsInvalid())
+                {
+                    jolt->getBodyInterface()->RemoveBody(bodyID);
+                    jolt->getBodyInterface()->DestroyBody(bodyID);
+                }
+            }
             delete entity;
         }
     }
@@ -537,7 +549,18 @@ void Scene::addEntity(Entity* entity)
     {
         std::cout << "SCENE::ADD_ENTITY: Discarded entity (more than " << SpatialHashing::WORLD_CHUNK_LIMIT
                   << " chunks away from origin)" << std::endl;
-        entity->setKill(true);
+        const PhysicsBody* physicsBody{entity->getPhysicsBody()};
+        if (physicsBody != nullptr)
+        {
+            const JPH::BodyID bodyID{physicsBody->getBodyID()};
+            if (!bodyID.IsInvalid())
+            {
+                m_jolt->getBodyInterface()->RemoveBody(bodyID);
+                m_jolt->getBodyInterface()->DestroyBody(bodyID);
+            }
+        }
+
+        delete entity;
         return;
     }
 

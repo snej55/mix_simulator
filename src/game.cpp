@@ -83,6 +83,8 @@ bool Game::init()
 
     m_enemyManager = std::make_unique<EnemyManager>(m_player.get(), m_scene.get(), m_flowField.get(),
                                                     m_engine.getJoltInstance()->getBodyInterface(), &m_engine);
+    m_enemyManager->getEnemies();
+    std::cout << glGetError() << std::endl;
     m_engine.getJoltInstance()->getCollisionListener()->addListener(m_enemyManager->getListener());
 
     m_particles = std::make_unique<ParticleManager>(m_engine.getShader("particles"));
@@ -98,8 +100,13 @@ bool Game::init()
     auto end{std::chrono::high_resolution_clock::now()};
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    unsigned int handle{m_engine.getAudioHandler()->playStream(m_assets->m_MUSIC_menu)};
-    m_engine.getAudioHandler()->getSoLoud().setLooping(handle, true);
+    AudioHandler* audioHandler{m_engine.getAudioHandler()};
+    audioHandler->getStream(m_assets->m_MUSIC_menu)->setLooping(true);
+    const SoLoud::handle handle{audioHandler->playStream(m_assets->m_MUSIC_menu)};
+    if (audioHandler->getSoLoud().isValidVoiceHandle(handle))
+    {
+        audioHandler->getSoLoud().setLooping(handle, true);
+    }
     return true;
 }
 
@@ -146,6 +153,7 @@ void Game::loadLevel(const std::string& path)
                          std::string(m_engine.getBinaryPath().string() + "/data/IBL/brdf_lut.png").c_str(), &m_engine);
     m_iblIdx = ++m_iblIdx & 3;
     m_engine.setLightDirection(m_iblGenerator->getLightDirection());
+    std::cout << "GL Error: " << glGetError() << std::endl;
 }
 
 bool Game::menu()
@@ -179,7 +187,7 @@ bool Game::menu()
     bool settings{false};
     float renderScale{m_engine.getRenderScale()};
     bool quit{true};
-    constexpr std::size_t nHandles{5};
+#define nHandles 5
     std::array<void*, nHandles> handler{&settings, &renderScale, &m_engine, &quit, &m_useACES};
     void (*keyCallback)(int, int, int, int, void*){
         [](const int key, const int scancode, const int action, const int mods, void* handler)
@@ -657,7 +665,7 @@ void Game::renderUI()
 
     scoreText.str("");
 
-    long ms{
+    long long ms{
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_startTime)
             .count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
@@ -834,7 +842,7 @@ bool Game::gameover()
 bool Game::win()
 {
     m_endTime = std::chrono::high_resolution_clock::now();
-    long ms{std::chrono::duration_cast<std::chrono::milliseconds>(m_endTime - m_startTime).count()};
+    long long ms{std::chrono::duration_cast<std::chrono::milliseconds>(m_endTime - m_startTime).count()};
     long seconds{static_cast<long>(std::floor(static_cast<float>(ms) / 1000.f)) % 60};
     long minutes{static_cast<long>(std::floor(static_cast<float>(ms) / 60000.f)) % 60};
     long cs{static_cast<long>(std::floor(static_cast<float>(ms) / 10.f)) % 100};

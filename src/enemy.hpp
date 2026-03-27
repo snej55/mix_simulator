@@ -88,5 +88,6 @@ private:
     int m_totalEnemies{0};
 
     void setupShards(Enemy& enemy);
+
     [[nodiscard]] std::string getEntityName(Entity* entity) const;
 };

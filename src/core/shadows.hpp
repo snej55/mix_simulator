@@ -35,7 +35,7 @@ private:
     unsigned int m_FBO{0};
     unsigned int m_depthMaps{0};
 
-    glm::mat4 getLSMatrix(const float zoom, const float aspectR, const float near, const float far,
+    glm::mat4 getLSMatrix(const float zoom, const float aspectR, const float nearZ, const float farZ,
                           const glm::mat4& view, const glm::vec3& lightDir) const;
 };
 

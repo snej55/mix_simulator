@@ -197,6 +197,7 @@ bool Model::loadModel(const std::string& path)
     }
 
     Assimp::Importer importer;
+    importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
 
     const aiScene* scene{importer.ReadFile(path, MeshN::ASSIMP_POSTPROCESS_FLAGS)};
 
@@ -214,6 +215,7 @@ bool Model::loadModel(const std::string& path)
     m_directory = path.substr(0, path.find_last_of('/'));
     processNode(scene->mRootNode, scene);
     handleTransparentTextures(scene);
+    importer.FreeScene();
 
     // overkill log
     int numVertices{};
@@ -535,7 +537,7 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
     if (!data)
     {
         std::cout << "MODEL::LOAD_EMBEDDED_TEXTURE::ERROR: Failed to load texture from memory!\n";
-        stbi_image_free(data);
+        // Don't free nullptr - data was never allocated by stbi
         if (success)
             *success = false;
         return 0;
@@ -559,13 +561,24 @@ unsigned int Model::loadEmbeddedTexture(const aiTexture* texture, bool* success,
         break;
     }
 
+    int uploadWidth{imageWidth};
+    int uploadHeight{imageHeight};
+    std::vector<unsigned char> resizedData{};
+    const unsigned char* uploadData{data};
+    TextureN::downscaleTexture(data, imageWidth, imageHeight, imageChannels, &uploadWidth, &uploadHeight,
+                               &resizedData);
+    if (!resizedData.empty())
+    {
+        uploadData = resizedData.data();
+    }
+
     // same as in TextureN::loadFromFile
     unsigned int texID;
     glGenTextures(1, &texID);
     glBindTexture(GL_TEXTURE_2D, texID);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), imageWidth, imageHeight, 0, internalFormat,
-                 GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), uploadWidth, uploadHeight, 0, internalFormat,
+                 GL_UNSIGNED_BYTE, uploadData);
 
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -610,7 +623,7 @@ unsigned char* Model::getEmbeddedTextureData(const aiTexture* texture, bool* suc
 
     if (!data)
     {
-        stbi_image_free(data);
+        // Don't free nullptr - it's undefined behavior and data was never allocated
         Util::beginError();
         std::cout << "MODEL::GET_EMBEDDED_TEXTURE_DATA::ERROR: Failed to load texture from memory!";
         Util::endError();
@@ -640,12 +653,22 @@ unsigned int Model::loadEmbeddedTextureFromData(unsigned char* data, const int w
         break;
     }
 
+    int uploadWidth{width};
+    int uploadHeight{height};
+    std::vector<unsigned char> resizedData{};
+    const unsigned char* uploadData{data};
+    TextureN::downscaleTexture(data, width, height, numChannels, &uploadWidth, &uploadHeight, &resizedData);
+    if (!resizedData.empty())
+    {
+        uploadData = resizedData.data();
+    }
+
     unsigned int texID;
     glGenTextures(1, &texID);
     glBindTexture(GL_TEXTURE_2D, texID);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), width, height, 0, internalFormat,
-                 GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), uploadWidth, uploadHeight, 0, internalFormat,
+                 GL_UNSIGNED_BYTE, uploadData);
 
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -876,6 +899,11 @@ ModelManager::ModelManager(EngineObject* parent) : EngineObject{"ModelManager", 
 // load new model
 void ModelManager::addModel(const std::string& name, const std::string& path, Arena* arena)
 {
+    if (modelExists(name))
+    {
+        return;
+    }
+
     // create new model and add it to arena
     Model* model{new Model{name, this}};
     arena->addObject(model);
@@ -886,10 +914,14 @@ void ModelManager::addModel(const std::string& name, const std::string& path, Ar
         Util::beginError();
         std::cout << "MODEL_MANAGER::ADD_MODEL::ERROR: Failed to add model `" << name << "`";
         Util::endError();
+        arena->removeObject(model->getID());
     }
     else
     {
-        m_models.insert(std::pair{name, model});
+        if (!m_models.insert(std::pair{name, model}).second)
+        {
+            arena->removeObject(model->getID());
+        }
     }
 }
 

@@ -76,7 +76,6 @@ EnemyManager::EnemyManager(Player* player, Scene* scene, FlowFieldGenerator* flo
     m_player{player}, m_scene{scene}, m_flowField{flowField}, m_bodyInterface{bodyInterface}, m_engine{engine}
 {
     m_listener.setManager(this);
-    getEnemies();
 }
 
 void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3& shockwaveCenter, bool& shockwave)
@@ -85,7 +84,7 @@ void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3&
     for (std::size_t s{0}; s < m_shards.size(); ++s)
     {
         m_shards[s].first += dt;
-        if (m_shards[s].first > 60.0)
+        if (m_shards[s].first > 1200.0)
         {
             m_shards[s].second->setKill(true);
         }
@@ -93,7 +92,7 @@ void EnemyManager::update(const float dt, ParticleManager* particles, glm::vec3&
         if (m_shards[s].second->getKill())
         {
             m_shards[s].second->setKill(true);
-            std::swap(m_shards[0], m_shards[s]);
+            std::swap(m_shards.back(), m_shards[s]);
             m_shards.pop_back();
             --s;
         }

@@ -127,7 +127,7 @@ void PostProcessor::renderFinal(const Shader* fxaaShader, unsigned int* uiTEX) c
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_DEPTH_TEST);
     // clear buffers
-    glClearColor(0.0f, 0.0f, 0.0, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     fxaaShader->use();

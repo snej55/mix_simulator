@@ -8,6 +8,10 @@
 #include "mesh.hpp"
 #include "engine.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <vector>
+
 unsigned int TextureN::loadFromFile(const char* path, int* width, int* height, int* numChannels, bool* success,
                                     MeshN::TextureType materialType)
 {
@@ -63,14 +67,29 @@ unsigned int TextureN::loadFromFile(const char* path, int* width, int* height, i
         break;
     }
 
+    int uploadWidth{imageWidth};
+    int uploadHeight{imageHeight};
+    std::vector<unsigned char> resizedData{};
+    const unsigned char* uploadData{data};
+
+    // Downscale only model/material textures (UI/HDR/etc keep original size).
+    if (materialType != MeshN::TEXTURE_NONE)
+    {
+        downscaleTexture(data, imageWidth, imageHeight, imageChannels, &uploadWidth, &uploadHeight, &resizedData);
+        if (!resizedData.empty())
+        {
+            uploadData = resizedData.data();
+        }
+    }
+
     // texture ID
     unsigned int tex;
     // load opengl texture
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), imageWidth, imageHeight, 0, internalFormat,
-                 GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), uploadWidth, uploadHeight, 0, internalFormat,
+                 GL_UNSIGNED_BYTE, uploadData);
 
     glGenerateMipmap(GL_TEXTURE_2D);
     // tex wrap params
@@ -112,9 +131,9 @@ unsigned int TextureN::loadFromFile(const char* path, int* width, int* height, i
 
     // update width, height, numChannels
     if (width)
-        *width = imageWidth;
+        *width = uploadWidth;
     if (height)
-        *height = imageHeight;
+        *height = uploadHeight;
     if (numChannels)
         *numChannels = imageChannels;
 
@@ -309,6 +328,46 @@ void TextureN::genNoise(const int width, const int height, TextureData* textureD
     textureData->height = height;
     textureData->numChannels = 1;
     textureData->path = "\0";
+}
+
+void TextureN::downscaleTexture(const unsigned char* src, const int srcWidth, const int srcHeight, const int channels,
+                                int* dstWidth, int* dstHeight, std::vector<unsigned char>* out)
+{
+    const int maxDim{std::max(srcWidth, srcHeight)};
+    if (RUNTIME_MAX_MODEL_TEXTURE_DIM <= 0 || maxDim <= RUNTIME_MAX_MODEL_TEXTURE_DIM)
+    {
+        *dstWidth = srcWidth;
+        *dstHeight = srcHeight;
+        out->clear();
+        return;
+    }
+
+    const float scale{static_cast<float>(RUNTIME_MAX_MODEL_TEXTURE_DIM) / static_cast<float>(maxDim)};
+    *dstWidth = std::max(1, static_cast<int>(std::round(static_cast<float>(srcWidth) * scale)));
+    *dstHeight = std::max(1, static_cast<int>(std::round(static_cast<float>(srcHeight) * scale)));
+
+    out->resize(static_cast<std::size_t>(*dstWidth) * static_cast<std::size_t>(*dstHeight) *
+                static_cast<std::size_t>(channels));
+
+    for (int y{0}; y < *dstHeight; ++y)
+    {
+        const int srcY{std::min(srcHeight - 1, (y * srcHeight) / *dstHeight)};
+        for (int x{0}; x < *dstWidth; ++x)
+        {
+            const int srcX{std::min(srcWidth - 1, (x * srcWidth) / *dstWidth)};
+            const std::size_t dstIdx{
+                (static_cast<std::size_t>(y) * static_cast<std::size_t>(*dstWidth) + static_cast<std::size_t>(x)) *
+                static_cast<std::size_t>(channels)};
+            const std::size_t srcIdx{
+                (static_cast<std::size_t>(srcY) * static_cast<std::size_t>(srcWidth) + static_cast<std::size_t>(srcX)) *
+                static_cast<std::size_t>(channels)};
+
+            for (int c{0}; c < channels; ++c)
+            {
+                (*out)[dstIdx + static_cast<std::size_t>(c)] = src[srcIdx + static_cast<std::size_t>(c)];
+            }
+        }
+    }
 }
 
 Texture::Texture(const std::string& name, EngineObject* manager) : EngineObject{("TEXTURE " + name).c_str(), manager} {}

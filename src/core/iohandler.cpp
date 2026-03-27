@@ -4,10 +4,10 @@ IOHandler::IOHandler(EngineObject* engine, GLFWwindow* window) : EngineObject{"I
 
 void IOHandler::update()
 {
-    if (getPressed(GLFW_KEY_ESCAPE))
+   /* if (getPressed(GLFW_KEY_ESCAPE))
     {
         m_quit = true;
-    }
+    }*/
 }
 
 bool IOHandler::getPressed(const int key) const
