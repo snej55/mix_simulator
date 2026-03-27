@@ -159,6 +159,6 @@ cd build
 - [ ] Fix mouse position scaling with menu button on Windows
 - [ ] Fix MacOS build
 - [X] Centre models around WS origin
-- [ ] Compile release version
-- [ ] Test linux build on VM
+- [X] Compile release version
+- [X] Test linux build
 - [X] Fix window title
