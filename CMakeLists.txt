@@ -6,9 +6,9 @@ file(DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.0/C
 include(${CMAKE_BINARY_DIR}/cmake/CPM.cmake)
 
 if (MSVC)
-    message(STATUS "Using MSVC runtime DLLs")
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    set(USE_STATIC_MSVC_RUNTIME OFF CACHE BOOL "" FORCE)
+    message(STATUS "Using MSVC Static Runtime")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set(USE_STATIC_MSVC_RUNTIME ON CACHE BOOL "" FORCE) 
 endif ()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -51,6 +51,7 @@ FetchContent_Declare(
         SOURCE_SUBDIR Build
 )
 
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
@@ -62,9 +63,19 @@ FetchContent_Declare(
         GIT_TAG v6.0.4
 )
 
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.3.8
+)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-FetchContent_MakeAvailable(Jolt)
-FetchContent_MakeAvailable(assimp)
+FetchContent_MakeAvailable(Jolt assimp glfw)
 
 find_package(Git QUIET)
 if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
@@ -86,7 +97,7 @@ endif ()
 
 add_subdirectory(external/soloud/contrib)
 
-set(GL_LIBS glfw3 freetype)
+set(GL_LIBS glfw freetype)
 
 if (CMAKE_SYSTEM MATCHES Windows)
     message(STATUS "Target system is Windows")
@@ -100,7 +111,7 @@ elseif (CMAKE_SYSTEM MATCHES Linux)
     # link_directories(lib)
     link_directories(${CMAKE_SOURCE_DIR}/lib/linux)
     # fedora: mesa-libGLU-devel
-    set(GL_LIBS GL GLU glfw3 freetype z pthread)
+    set(GL_LIBS GL GLU glfw freetype z pthread)
 endif ()
 
 set(SOURCES main.cpp src/extern/glad.c src/extern/mikktspace.c src/core/engine.hpp src/core/engine.cpp
@@ -170,6 +181,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${jolt_SOURCE_DIR}/.. ${CMAKE
 target_compile_definitions(${PROJECT_NAME} PRIVATE
         JPH_USE_SSE4_2
         $<$<PLATFORM_ID:Windows>:NOMINMAX>
+        $<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN>
 )
 
 if (CMAKE_SYSTEM MATCHES Linux)
