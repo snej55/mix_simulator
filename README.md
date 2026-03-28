@@ -3,7 +3,7 @@
 
 A physics based game where you play as a duck destroying various ceramic items. It is intended mainly as a tech demo for my OpenGL renderer, which most of the development time was spent on. 
 
-![screenshot](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192138.png)
+![screenshot1](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/release/Screenshot_20260318_182131.png)
 
 ## Building:
 
@@ -39,9 +39,9 @@ cmake --build build/ -j$(nproc)
 - Cascading Shadow Maps
 - Flow field pathfinding (static quadtree generation)
 
-![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192035.png)
-![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192255.png)
-![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192231.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/release/Screenshot_20260322_112641.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/release/Screenshot_20260328_104600.png)
+![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/release/Screenshot_20260328_104634.png)
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260318_193635.png)
 
 ## TODO:
