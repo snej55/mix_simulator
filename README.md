@@ -1,16 +1,16 @@
 ![https://hackatime-badge.hackclub.com/U08264TFUKV/mix_simulator](https://hackatime-badge.hackclub.com/U08264TFUKV/mix_simulator)
 # Duck Bowling
 
-A physics based game made using C++ and OpenGL. Currently a renderer based off of my opengl framework.
+A physics based game where you play as a duck destroying various ceramic items. It is intended mainly as a tech demo for my OpenGL renderer, which most of the development time was spent on. 
 
 ![screenshot](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260314_192138.png)
 
-Sketchfab GLTF model used: [https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66](https://sketchfab.com/3d-models/spartan-armour-mkv-halo-reach-57070b2fd9ff472c8988e76d8c5cbe66)
-
 ## Building:
 
+This should work on Linux. You will most likely also have to install some additional dependencies if you get linking errors (e.g. on fedora: `sudo dnf install mesa-libGLU-devel alsa-lib-devel`).
+Building:
 ```
-git clone --depth 1 https://github.com/snej55/mix_simulator.git
+git clone  https://github.com/snej55/mix_simulator.git
 cd mix_simulator
 
 # build it
@@ -18,8 +18,7 @@ cmake -S . -B build
 cmake --build build/ -j$(nproc)
 
 # to run
-cd build
-./main
+./build/main
 ```
 
 ## Renderer Features:
