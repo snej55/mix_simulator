@@ -44,7 +44,27 @@ cmake --build build/ -j$(nproc)
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/release/Screenshot_20260328_104634.png)
 ![screenshot2](https://github.com/snej55/mix_simulator/blob/master/media/screenshots/Screenshot_20260318_193635.png)
 
+## Credits / Libraries in use:
+
+- [ambientcg.com](https://ambientcg.com/) (PBR materials)
+- [polyhaven.com](https://polyhaven.com/) (HDRI maps)
+- Free sfx: [kenny.nl](https://kenney.nl/assets), [mixkit.co](https://mixkit.co/)
+- cmftStudio: (IBL irradiance maps)
+- GLFW (windowing library)
+- GLAD (OpenGL bindings)
+- GLM (Matrix operations)
+- JoltPhysics (Physics engine)
+- SoLoud (Spatial audio)
+- Assimp (Model loading)
+- STB_Image (Texture loading)
+- Freetype2 (TTF font rendering)
+- nlohmann json (JSON loading)
+- mikktspace.h (calculate TBN matrix tangents)
+- [@zibuyin](https://github.com/zibuyin) (MacOS build)
+
 ## TODO:
+<details>
+  
 - [X] Finish IBL
 - [X] Skeletal animation
 - [X] PBR Textures
@@ -161,3 +181,4 @@ cmake --build build/ -j$(nproc)
 - [X] Compile release version
 - [X] Test linux build
 - [X] Fix window title
+</details>
