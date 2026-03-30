@@ -9,7 +9,7 @@ A physics based game where you play as a duck destroying various ceramic items. 
 
 This should work on Linux. You will most likely also have to install some additional dependencies if you get linking errors (e.g. on fedora: `sudo dnf install mesa-libGLU-devel alsa-lib-devel`).
 Building:
-```
+```bash
 git clone  https://github.com/snej55/mix_simulator.git
 cd mix_simulator
 
@@ -19,6 +19,11 @@ cmake --build build/ -j$(nproc)
 
 # to run
 ./build/main
+```
+## Running on MacOS:
+```bash
+brew install zibuyin/duckbowling/duckbowling
+duckbowling
 ```
 
 ## Renderer Features:
